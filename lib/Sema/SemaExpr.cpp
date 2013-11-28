@@ -546,9 +546,8 @@ ExprResult Sema::UsualUnaryConversions(Expr *E) {
   QualType Ty = E->getType();
   assert(!Ty.isNull() && "UsualUnaryConversions - missing type");
 
-  // Half FP is a bit different: it's a storage-only type, meaning that any
-  // "use" of it should be promoted to float.
-  if (Ty->isHalfType())
+  // Half FP have to be promoted to float unless it is natively supported
+  if (Ty->isHalfType() && !getLangOpts().NativeHalfType)
     return ImpCastExprToType(Res.take(), Context.FloatTy, CK_FloatingCast);
 
   // Try to perform integral promotions if the object has a theoretically
@@ -1351,6 +1350,11 @@ Sema::ActOnStringLiteral(const Token *StringToks, unsigned NumStringToks,
   // A C++ string literal has a const-qualified element type (C++ 2.13.4p1).
   if (getLangOpts().CPlusPlus || getLangOpts().ConstStrings)
     StrTy.addConst();
+
+  // OpenCL v1.2 s6.5.3 p2:
+  // All string literal storage shall be in the __constant address space.
+  if (getLangOpts().OpenCL)
+    StrTy = Context.getAddrSpaceQualType(StrTy, LangAS::opencl_constant);
 
   // Get an array type for the string, according to C99 6.4.5.  This includes
   // the nul terminator character as well as the string length for pascal
@@ -4515,6 +4519,30 @@ ExprResult Sema::CheckExtVectorCast(SourceRange R, QualType DestTy,
       << DestTy << SrcTy << R;
 
   QualType DestElemTy = DestTy->getAs<ExtVectorType>()->getElementType();
+
+  // OpenCL v1.2 s6.2.2 p4:
+  // When casting a bool to a vector integer data type, the vector components 
+  // will be set to -1 (i.e. all bits set) if the bool value is true and 0 
+  // otherwise.
+  if (LangOpts.OpenCL &&
+      SrcTy->isBooleanType() && DestElemTy->isIntegralType(Context)) {
+    
+    llvm::APInt Ones(Context.getTypeSize(DestElemTy), -1, false);
+    llvm::APInt Zero(Context.getTypeSize(DestElemTy), 0, false);
+    Expr *LHS = IntegerLiteral::Create(Context, Ones, DestElemTy,
+                                       SourceLocation());
+    Expr *RHS = IntegerLiteral::Create(Context, Zero, DestElemTy,
+                                       SourceLocation());
+    CastExpr = new (Context) ConditionalOperator(CastExpr, R.getBegin(),
+                                                 LHS, R.getBegin(), 
+                                                 RHS, DestElemTy, 
+                                                 VK_RValue, OK_Ordinary);
+    
+    Kind = CK_VectorSplat;
+    return Owned(CastExpr);
+  }
+
+
   ExprResult CastExprRes = Owned(CastExpr);
   CastKind CK = PrepareScalarCast(CastExprRes, DestElemTy);
   if (CastExprRes.isInvalid())
@@ -4973,15 +5001,31 @@ QualType Sema::CheckConditionalOperands(ExprResult &Cond, ExprResult &LHS,
   VK = VK_RValue;
   OK = OK_Ordinary;
 
-  Cond = UsualUnaryConversions(Cond.take());
-  if (Cond.isInvalid())
-    return QualType();
-  LHS = UsualUnaryConversions(LHS.take());
-  if (LHS.isInvalid())
-    return QualType();
-  RHS = UsualUnaryConversions(RHS.take());
-  if (RHS.isInvalid())
-    return QualType();
+  // OpenCL v1.2 s6.3.i:
+  // Don't perform UsualUnaryConversions in OpenCL, instead use 
+  // DefaultFunctionArrayLvalueConversion which is called implicitly by
+  // UsualUnaryConversions
+  if (getLangOpts().OpenCL) {
+    Cond = DefaultFunctionArrayLvalueConversion(Cond.take());
+    if (Cond.isInvalid())
+      return QualType();
+    LHS = DefaultFunctionArrayLvalueConversion(LHS.take());
+    if (LHS.isInvalid())
+      return QualType();
+    RHS = DefaultFunctionArrayLvalueConversion(RHS.take());
+    if (RHS.isInvalid())
+      return QualType();
+  } else {
+    Cond = UsualUnaryConversions(Cond.take());
+    if (Cond.isInvalid())
+      return QualType();
+    LHS = UsualUnaryConversions(LHS.take());
+    if (LHS.isInvalid())
+      return QualType();
+    RHS = UsualUnaryConversions(RHS.take());
+    if (RHS.isInvalid())
+      return QualType();
+  }
 
   QualType CondTy = Cond.get()->getType();
   QualType LHSTy = LHS.get()->getType();
@@ -6109,12 +6153,21 @@ QualType Sema::CheckVectorOperands(ExprResult &LHS, ExprResult &RHS,
         return LHSType;
       }
     }
-    if (EltTy->isRealFloatingType() && RHSType->isScalarType() &&
-        RHSType->isRealFloatingType()) {
-      int order = Context.getFloatingTypeOrder(EltTy, RHSType);
-      if (order > 0)
-        RHS = ImpCastExprToType(RHS.take(), EltTy, CK_FloatingCast);
-      if (order >= 0) {
+    if (EltTy->isRealFloatingType() && RHSType->isScalarType()) {
+      if (RHSType->isRealFloatingType()) {
+        int order = Context.getFloatingTypeOrder(EltTy, RHSType);
+        if (order > 0)
+          RHS = ImpCastExprToType(RHS.take(), EltTy, CK_FloatingCast);
+        if (order >= 0) {
+          RHS = ImpCastExprToType(RHS.take(), LHSType, CK_VectorSplat);
+          if (swapped) std::swap(RHS, LHS);
+          return LHSType;
+        }
+      } else if (RHSType->isIntegralType(Context) && getLangOpts().OpenCL) {
+        // OpenCL V1.2 6.2.6.p3.3: 
+        // The rank of any floating-point type is greater than the rank of 
+        // any integer type.
+        RHS = ImpCastExprToType(RHS.take(), EltTy, CK_IntegralToFloating);
         RHS = ImpCastExprToType(RHS.take(), LHSType, CK_VectorSplat);
         if (swapped) std::swap(RHS, LHS);
         return LHSType;
@@ -7891,6 +7944,8 @@ static QualType CheckIncrementDecrementOperand(Sema &S, Expr *Op,
                                           IsInc, IsPrefix);
   } else if (S.getLangOpts().AltiVec && ResType->isVectorType()) {
     // OK! ( C/C++ Language Extensions for CBEA(Version 2.6) 10.3 )
+  } else if (S.getLangOpts().OpenCL && ResType->isIntegerVecType()) {
+    // OK!
   } else {
     S.Diag(OpLoc, diag::err_typecheck_illegal_increment_decrement)
       << ResType << int(IsInc) << Op->getSourceRange();
@@ -8183,8 +8238,17 @@ static QualType CheckIndirectionOperand(Sema &S, Expr *Op, ExprValueKind &VK,
   // is an incomplete type or void.  It would be possible to warn about
   // dereferencing a void pointer, but it's completely well-defined, and such a
   // warning is unlikely to catch any mistakes.
-  if (const PointerType *PT = OpTy->getAs<PointerType>())
+  if (const PointerType *PT = OpTy->getAs<PointerType>()) {
     Result = PT->getPointeeType();
+    // OpenCL v1.2 s6.1.1.1 p2:
+    // The half data type can only be used to declare a pointer to a buffer that
+    // contains half values
+    if (S.getLangOpts().OpenCL && Result->isHalfType())
+    {
+      S.Diag(OpLoc, diag::err_dereferencing_half_ptr) << OpTy << Op->getSourceRange();
+      return QualType();
+    }
+  }
   else if (const ObjCObjectPointerType *OPT =
              OpTy->getAs<ObjCObjectPointerType>())
     Result = OPT->getPointeeType();
@@ -8197,6 +8261,13 @@ static QualType CheckIndirectionOperand(Sema &S, Expr *Op, ExprValueKind &VK,
 
   if (Result.isNull()) {
     S.Diag(OpLoc, diag::err_typecheck_indirection_requires_pointer)
+      << OpTy << Op->getSourceRange();
+    return QualType();
+  }
+
+  if (Result->isHalfType() && S.getLangOpts().OpenCL &&
+      !S.getOpenCLOptions().cl_khr_fp16) {
+    S.Diag(OpLoc, diag::err_opencl_half_dereferencing)
       << OpTy << Op->getSourceRange();
     return QualType();
   }
@@ -8830,7 +8901,7 @@ ExprResult Sema::CreateBuiltinUnaryOp(SourceLocation OpLoc,
     resultType = Input.get()->getType();
 
     // Though we still have to promote half FP to float...
-    if (resultType->isHalfType()) {
+    if (resultType->isHalfType() && !Context.getLangOpts().NativeHalfType) {
       Input = ImpCastExprToType(Input.take(), Context.FloatTy, CK_FloatingCast).take();
       resultType = Context.FloatTy;
     }

@@ -837,6 +837,20 @@ Parser::isExpressionOrTypeSpecifierSimple(tok::TokenKind Kind) {
   case tok::kw___vector:
   case tok::kw___pixel:
   case tok::kw__Atomic:
+  case tok::kw_image1d_t:
+  case tok::kw_image1d_array_t:
+  case tok::kw_image1d_buffer_t:
+  case tok::kw_image2d_t:
+  case tok::kw_image2d_array_t:
+  case tok::kw_image2d_depth_t:
+  case tok::kw_image2d_array_depth_t:
+  case tok::kw_image2d_msaa_t:
+  case tok::kw_image2d_array_msaa_t:
+  case tok::kw_image2d_msaa_depth_t:
+  case tok::kw_image2d_array_msaa_depth_t:
+  case tok::kw_image3d_t:
+  case tok::kw_sampler_t:
+  case tok::kw_event_t:
     return TPResult::False();
 
   default:

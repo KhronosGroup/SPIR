@@ -202,6 +202,11 @@ void Parser::ParseGNUAttributeArgs(IdentifierInfo *AttrName,
     ParseTypeTagForDatatypeAttribute(*AttrName, AttrNameLoc, Attrs, EndLoc);
     return;
   }
+  // We need to save the type for vec_type_hint
+  if (AttrName->isStr("vec_type_hint")) {
+    ParseVecTypeHintAttribute(*AttrName, AttrNameLoc, Attrs, EndLoc);
+    return;
+  }
 
   ConsumeParen(); // ignore the left paren loc for now
 
@@ -1097,6 +1102,34 @@ void Parser::ParseTypeTagForDatatypeAttribute(IdentifierInfo &AttrName,
                                    ArgumentKind, ArgumentKindLoc,
                                    MatchingCType.release(), LayoutCompatible,
                                    MustBeNull, AttributeList::AS_GNU);
+  }
+
+  if (EndLoc)
+    *EndLoc = T.getCloseLocation();
+}
+
+void Parser::ParseVecTypeHintAttribute(IdentifierInfo &AttrName,
+                                              SourceLocation AttrNameLoc,
+                                              ParsedAttributes &Attrs,
+                                              SourceLocation *EndLoc) {
+  assert(Tok.is(tok::l_paren) && "Attribute arg list not starting with '('");
+
+  BalancedDelimiterTracker T(*this, tok::l_paren);
+  T.consumeOpen();
+
+  IdentifierInfo *ArgumentKind = Tok.getIdentifierInfo();
+
+  SourceRange VecTypeRange;
+  TypeResult VecType = ParseTypeName(&VecTypeRange);
+  if (VecType.isInvalid()) {
+    T.skipToEnd();
+    return;
+  }
+
+  if (!T.consumeClose()) {
+    Attrs.addNewVecTypeHint(&AttrName, AttrNameLoc, 0, AttrNameLoc,
+                            ArgumentKind, VecTypeRange.getBegin(),
+                            VecType.release(), AttributeList::AS_GNU);
   }
 
   if (EndLoc)
@@ -2736,6 +2769,62 @@ void Parser::ParseDeclarationSpecifiers(DeclSpec &DS,
     case tok::kw___pixel:
       isInvalid = DS.SetTypeAltiVecPixel(true, Loc, PrevSpec, DiagID);
       break;
+    case tok::kw_image1d_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image1d_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image1d_array_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image1d_array_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image1d_buffer_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image1d_buffer_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_array_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_depth_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_depth_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_array_depth_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_depth_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_msaa_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_msaa_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_array_msaa_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_msaa_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_msaa_depth_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_msaa_depth_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_array_msaa_depth_t:
+       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_msaa_depth_t, Loc,
+                                      PrevSpec, DiagID);
+      break;
+    case tok::kw_image3d_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image3d_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
+    case tok::kw_sampler_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_sampler_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
+    case tok::kw_event_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_event_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
     case tok::kw___unknown_anytype:
       isInvalid = DS.SetTypeSpecType(TST_unknown_anytype, Loc,
                                      PrevSpec, DiagID);
@@ -3023,7 +3112,7 @@ void Parser::ParseStructUnionBody(SourceLocation RecordLoc,
 
     if (Tok.is(tok::semi)) {
       ConsumeToken();
-    } else if (Tok.is(tok::r_brace)) {
+    } else if (Tok.is(tok::r_brace) && !getLangOpts().OpenCL) {
       ExpectAndConsume(tok::semi, diag::ext_expected_semi_decl_list);
       break;
     } else {
@@ -3567,6 +3656,22 @@ bool Parser::isKnownToBeTypeSpecifier(const Token &Tok) const {
   case tok::kw__Decimal128:
   case tok::kw___vector:
 
+    // OpenCL specific types:
+  case tok::kw_image1d_t:
+  case tok::kw_image1d_array_t:
+  case tok::kw_image1d_buffer_t:
+  case tok::kw_image2d_t:
+  case tok::kw_image2d_array_t:
+  case tok::kw_image2d_depth_t:
+  case tok::kw_image2d_array_depth_t:
+  case tok::kw_image2d_msaa_t:
+  case tok::kw_image2d_array_msaa_t:
+  case tok::kw_image2d_msaa_depth_t:
+  case tok::kw_image2d_array_msaa_depth_t:
+  case tok::kw_image3d_t:
+  case tok::kw_sampler_t:
+  case tok::kw_event_t:
+
     // struct-or-union-specifier (C99) or class-specifier (C++)
   case tok::kw_class:
   case tok::kw_struct:
@@ -3639,6 +3744,17 @@ bool Parser::isTypeSpecifierQualifier() {
   case tok::kw__Decimal128:
   case tok::kw___vector:
 
+    // OpenCL specific types:
+  case tok::kw_image1d_t:
+  case tok::kw_image1d_array_t:
+  case tok::kw_image1d_buffer_t:
+  case tok::kw_image2d_t:
+  case tok::kw_image2d_array_t:
+  case tok::kw_image2d_depth_t:
+  case tok::kw_image2d_array_depth_t:
+  case tok::kw_image3d_t:
+  case tok::kw_sampler_t:
+  case tok::kw_event_t:
     // struct-or-union-specifier (C99) or class-specifier (C++)
   case tok::kw_class:
   case tok::kw_struct:
@@ -3777,6 +3893,21 @@ bool Parser::isDeclarationSpecifier(bool DisambiguatingWithExpression) {
   case tok::kw__Decimal128:
   case tok::kw___vector:
 
+    // OpenCL specific types:
+  case tok::kw_image1d_t:
+  case tok::kw_image1d_array_t:
+  case tok::kw_image1d_buffer_t:
+  case tok::kw_image2d_t:
+  case tok::kw_image2d_array_t:
+  case tok::kw_image2d_depth_t:
+  case tok::kw_image2d_array_depth_t:
+  case tok::kw_image2d_msaa_t:
+  case tok::kw_image2d_array_msaa_t:
+  case tok::kw_image2d_msaa_depth_t:
+  case tok::kw_image2d_array_msaa_depth_t:
+  case tok::kw_image3d_t:
+  case tok::kw_sampler_t:
+  case tok::kw_event_t:
     // struct-or-union-specifier (C99) or class-specifier (C++)
   case tok::kw_class:
   case tok::kw_struct:

@@ -647,6 +647,9 @@ void TypePrinter::printFunctionProtoAfter(const FunctionProtoType *T,
   case CC_PnaclCall:
     OS << " __attribute__((pnaclcall))";
     break;
+  case CC_SpirFunction:
+    OS << "spir_function";
+    break;
   }
   if (Info.getNoReturn())
     OS << " __attribute__((noreturn))";

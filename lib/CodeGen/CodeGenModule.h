@@ -859,6 +859,9 @@ public:
   /// Emit all the global annotations.
   void EmitGlobalAnnotations();
 
+  /// Emit OpenCL related annotations.
+  void EmitOCLAnnotations();
+
   /// Emit an annotation string.
   llvm::Constant *EmitAnnotationString(llvm::StringRef Str);
 

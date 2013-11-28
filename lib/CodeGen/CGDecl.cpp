@@ -129,9 +129,11 @@ void CodeGenFunction::EmitVarDecl(const VarDecl &D) {
   }
   case SC_Extern:
   case SC_PrivateExtern:
+  case SC_OpenCLConstantExtern:
     // Don't emit it now, allow it to be emitted lazily on its first use.
     return;
   case SC_OpenCLWorkGroupLocal:
+  case SC_OpenCLConstant:
     return CGM.getOpenCLRuntime().EmitWorkGroupLocalVarDecl(*this, D);
   }
 

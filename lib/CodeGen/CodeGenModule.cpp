@@ -175,6 +175,9 @@ void CodeGenModule::Release() {
 
   SimplifyPersonality();
 
+  if (getLangOpts().OpenCL)
+    EmitOCLAnnotations();
+
   if (getCodeGenOpts().EmitDeclMetadata)
     EmitDeclMetadata();
 
@@ -765,6 +768,11 @@ void CodeGenModule::EmitGlobalAnnotations() {
     Array->getType(), false, llvm::GlobalValue::AppendingLinkage, Array,
     "llvm.global.annotations");
   gv->setSection(AnnotationSection);
+}
+
+void CodeGenModule::EmitOCLAnnotations() {
+  if (!Context.isFPContractDisabled() && (0 != getLangOpts().DefaultFPContract))
+    TheModule.getOrInsertNamedMetadata("opencl.enable.FP_CONTRACT");
 }
 
 llvm::Constant *CodeGenModule::EmitAnnotationString(llvm::StringRef Str) {

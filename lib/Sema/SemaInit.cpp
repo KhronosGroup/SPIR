@@ -837,8 +837,8 @@ void InitListChecker::CheckSubElementType(const InitializedEntity &Entity,
   //   subaggregate, brace elision is assumed and the initializer is
   //   considered for the initialization of the first member of
   //   the subaggregate.
-  if (!SemaRef.getLangOpts().OpenCL && 
-      (ElemType->isAggregateType() || ElemType->isVectorType())) {
+  if (ElemType->isAggregateType() ||
+      (ElemType->isVectorType() && !SemaRef.getLangOpts().OpenCL)) {
     CheckImplicitInitList(Entity, IList, ElemType, Index, StructuredList,
                           StructuredIndex);
     ++StructuredIndex;
@@ -2424,6 +2424,7 @@ void InitializationSequence::Step::Destroy() {
   case SK_PassByIndirectRestore:
   case SK_ProduceObjCObject:
   case SK_StdInitializerList:
+  case SK_OCLNULLEvent:
     break;
 
   case SK_ConversionSequence:
@@ -2648,6 +2649,13 @@ void InitializationSequence::AddProduceObjCObjectStep(QualType T) {
 void InitializationSequence::AddStdInitializerListConstructionStep(QualType T) {
   Step S;
   S.Kind = SK_StdInitializerList;
+  S.Type = T;
+  Steps.push_back(S);
+}
+
+void InitializationSequence::AddOCLNullEventStep(QualType T) {
+  Step S;
+  S.Kind = SK_OCLNULLEvent;
   S.Type = T;
   Steps.push_back(S);
 }
@@ -3973,6 +3981,18 @@ static bool tryObjCWritebackConversion(Sema &S,
   return true;
 }
 
+static bool TryOCLNULLEventInitialization(Sema &S,
+                                          InitializationSequence &Sequence,
+                                          QualType DestType,
+                                          Expr *Initializer) {
+  if (!S.getLangOpts().OpenCL || !DestType->isEventT() ||
+    !Initializer->getType()->isIntegralType(S.getASTContext()))
+    return false;
+
+  Sequence.AddOCLNullEventStep(DestType);
+  return true;
+}
+
 InitializationSequence::InitializationSequence(Sema &S,
                                                const InitializedEntity &Entity,
                                                const InitializationKind &Kind,
@@ -4116,6 +4136,10 @@ InitializationSequence::InitializationSequence(Sema &S,
       return;
     }
     
+    if (TryOCLNULLEventInitialization(S, *this, DestType, Initializer)) {
+      return;
+    }
+
     // Handle initialization in C
     AddCAssignmentStep(DestType);
     MaybeProduceObjCObject(S, *this, Entity);
@@ -4895,7 +4919,8 @@ InitializationSequence::Perform(Sema &S,
   case SK_PassByIndirectCopyRestore:
   case SK_PassByIndirectRestore:
   case SK_ProduceObjCObject:
-  case SK_StdInitializerList: {
+  case SK_StdInitializerList:
+  case SK_OCLNULLEvent: {
     assert(Args.size() == 1);
     CurInit = Args[0];
     if (!CurInit.get()) return ExprError();
@@ -5403,6 +5428,22 @@ InitializationSequence::Perform(Sema &S,
       Semantic->setType(Dest);
       Semantic->setInitializesStdInitializerList();
       CurInit = S.Owned(Semantic);
+      break;
+    }
+    case SK_OCLNULLEvent: {
+      assert(Step->Type->isEventT() && 
+             "Event initialization on non event type.");
+
+      if (Entity.getKind() != InitializedEntity::EK_Parameter)
+          S.Diag(Kind.getLocation(), diag::err_event_initialization);
+      else if (!CurInit.get()->isNullPointerConstant(S.getASTContext(), 
+        Expr::NPC_ValueDependentIsNull))
+          S.Diag(Kind.getLocation(), diag::err_event_argument_not_null)
+            << SourceType;
+      else
+        CurInit = S.ImpCastExprToType(CurInit.take(), Step->Type,
+                      CK_NullToOCLEvent,
+                      CurInit.get()->getValueKind());
       break;
     }
     }
@@ -6046,6 +6087,10 @@ void InitializationSequence::dump(raw_ostream &OS) const {
 
     case SK_StdInitializerList:
       OS << "std::initializer_list from initializer list";
+      break;
+
+    case SK_OCLNULLEvent:
+      OS << "OpenCL event_t from NULL";
       break;
     }
   }

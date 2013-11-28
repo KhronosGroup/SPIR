@@ -308,7 +308,6 @@ def OpenCLKernel : Attr {
 def OpenCLImageAccess : Attr {
   let Spellings = [GNU<"opencl_image_access">];
   let Args = [IntArgument<"Access">];
-  let ASTNode = 0;
 }
 
 def Deprecated : InheritableAttr {
@@ -680,9 +679,7 @@ def VectorSize : Attr {
 
 def VecTypeHint : Attr {
   let Spellings = [GNU<"vec_type_hint">];
-  let ASTNode = 0;
-  let SemaHandler = 0;
-  let Ignored = 1;
+  let Args = [TypeArgument<"type">];
 }
 
 def Visibility : InheritableAttr {

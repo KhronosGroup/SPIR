@@ -4235,6 +4235,18 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
   assert(SCSpec != DeclSpec::SCS_typedef &&
          "Parser allowed 'typedef' as storage class VarDecl.");
   VarDecl::StorageClass SC = StorageClassSpecToVarDeclStorageClass(SCSpec);
+ 
+  
+  if (getLangOpts().OpenCL && !getOpenCLOptions().cl_khr_fp16)
+  {
+    // OpenCL v1.2 s6.1.1.1: reject declaring variables of the half and
+    // half array type (unless the cl_khr_fp16 extension is enabled).
+    if (Context.getBaseElementType(R)->isHalfType()) {
+      Diag(D.getIdentifierLoc(), diag::err_opencl_half_declaration) << R;
+      D.setInvalidType();
+    }
+  }
+
   if (SCSpec == DeclSpec::SCS_mutable) {
     // mutable can only appear on non-static class members, so it's always
     // an error here
@@ -4270,11 +4282,17 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
     }
   }
   
-  if (getLangOpts().OpenCL) {
+  if (getLangOpts().OpenCL && SC != SC_Static) {
     // Set up the special work-group-local storage class for variables in the
     // OpenCL __local address space.
     if (R.getAddressSpace() == LangAS::opencl_local)
       SC = SC_OpenCLWorkGroupLocal;
+    if (R.getAddressSpace() == LangAS::opencl_constant) {
+      if (SC == SC_Extern)
+        SC = SC_OpenCLConstantExtern;
+      else
+        SC = SC_OpenCLConstant;
+    }
   }
 
   bool isExplicitSpecialization = false;
@@ -4437,6 +4455,8 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
       case SC_Extern:
       case SC_PrivateExtern:
       case SC_OpenCLWorkGroupLocal:
+      case SC_OpenCLConstant:
+	  case SC_OpenCLConstantExtern:
         break;
       }
     }
@@ -6773,9 +6793,10 @@ void Sema::AddInitializerToDecl(Decl *RealDecl, Expr *Init,
     // C99 6.7.8p4: All the expressions in an initializer for an object that has
     // static storage duration shall be constant expressions or string literals.
     // C++ does not have this restriction.
-    if (!getLangOpts().CPlusPlus && !VDecl->isInvalidDecl() &&
-        VDecl->getStorageClass() == SC_Static)
-      CheckForConstantInitializer(Init, DclT);
+    if (!getLangOpts().CPlusPlus && !VDecl->isInvalidDecl())
+      if (VDecl->getStorageClass() == SC_Static || 
+        VDecl->getStorageClass() == SC_OpenCLConstant)
+        CheckForConstantInitializer(Init, DclT);
   } else if (VDecl->isStaticDataMember() &&
              VDecl->getLexicalDeclContext()->isRecord()) {
     // This is an in-class initialization for a static data member, e.g.,
@@ -7174,6 +7195,8 @@ void Sema::ActOnCXXForRangeDecl(Decl *D) {
     Error = 4;
     break;
   case SC_OpenCLWorkGroupLocal:
+  case SC_OpenCLConstant:
+  case SC_OpenCLConstantExtern:
     llvm_unreachable("Unexpected storage class");
   }
   if (VD->isConstexpr())
@@ -7294,10 +7317,21 @@ Sema::FinalizeDeclaration(Decl *ThisDecl) {
   // Note that we are no longer parsing the initializer for this declaration.
   ParsingInitForAutoVars.erase(ThisDecl);
 
+  if (!ThisDecl)
+    return;
+
+  const VarDecl *VD = dyn_cast<VarDecl>(ThisDecl);
+
+  if (VD && (VD->getStorageClass() == SC_OpenCLConstant)) {
+    if (!VD->hasInit()) {
+      Diag(VD->getLocEnd(), diag::err_constant_without_init);
+      return;
+    }
+  }
+
   // Now we have parsed the initializer and can update the table of magic
   // tag values.
-  if (ThisDecl && ThisDecl->hasAttr<TypeTagForDatatypeAttr>()) {
-    const VarDecl *VD = dyn_cast<VarDecl>(ThisDecl);
+  if (ThisDecl->hasAttr<TypeTagForDatatypeAttr>()) {
     if (VD && VD->getType()->isIntegralOrEnumerationType()) {
       for (specific_attr_iterator<TypeTagForDatatypeAttr>
                I = ThisDecl->specific_attr_begin<TypeTagForDatatypeAttr>(),
@@ -7676,8 +7710,12 @@ ParmVarDecl *Sema::CheckParameter(DeclContext *DC, SourceLocation StartLoc,
   // Since all parameters have automatic store duration, they can not have
   // an address space.
   if (T.getAddressSpace() != 0) {
-    Diag(NameLoc, diag::err_arg_with_address_space);
-    New->setInvalidDecl();
+    if (getLangOpts().OpenCL && T->isArrayType()) {
+      // In OpenCL we allow arrays to be qualified with address space
+    } else {
+      Diag(NameLoc, diag::err_arg_with_address_space);
+      New->setInvalidDecl();
+    }
   }   
 
   return New;

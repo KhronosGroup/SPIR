@@ -187,6 +187,9 @@ void TargetInfo::setForcedLangOptions(LangOptions &Opts) {
     UseBitFieldTypeAlignment = false;
   if (Opts.ShortWChar)
     WCharType = UnsignedShort;
+  if (Opts.OpenCL) {
+    LongWidth = LongAlign = 64;
+  }
 }
 
 //===----------------------------------------------------------------------===//

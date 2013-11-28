@@ -406,6 +406,16 @@ def err_object_cannot_be_passed_returned_by_value : Error<
   "; did you forget * in %1?">;
 def err_parameters_retval_cannot_have_fp16_type : Error<
   "%select{parameters|function return value}0 cannot have __fp16 type; did you forget * ?">;
+def err_opencl_half_dereferencing : Error<
+  "dereferencing pointer of type %0 is not allowed">;
+def err_opencl_cast_to_half : Error<"casting to type %0 is not allowed">;
+def err_opencl_cast_from_half : Error<"casting from type %0 is not allowed">;
+def err_opencl_half_declaration : Error<
+  "declaring variable of type %0 is not allowed">;
+def err_opencl_half_argument : Error<
+  "declaring function argument of type %0 is not allowed; did you forget * ?">;
+def err_opencl_half_return : Error<
+  "declaring function return value of type %0 is not allowed; did you forget * ?">;
 def warn_enum_value_overflow : Warning<"overflow in enumeration value">;
 def warn_pragma_options_align_reset_failed : Warning<
   "#pragma options align=reset failed: %0">;
@@ -5988,6 +5998,43 @@ def err_static_kernel : Error<
   "kernel functions cannot be declared static">;
 def err_static_function_scope : Error<
   "variables in function scope cannot be declared static">;
+def err_sampler_initializer_not_integer : Error<
+  "sampler_t initialization requires integer, not %0">;
+def err_sampler_initializer_not_constant : Error<
+  "sampler_t initialization requires compile time constant">;
+def err_sampler_argument_required : Error<
+  "sampler_t variable required - got %0">;
+def err_event_initialization : Error<
+  "cannot initialize event_t">;
+def err_event_argument_not_null : Error<
+  "event_t variable or NULL required - got %0">;
+def err_opencl_missing_type_specifier : Error<
+  "type specifier missing">;
+def err_program_scope_variable_non_constant : Error<
+  "program scope variables are required to be declared in constant address space">;
+def err_program_scope_variable_non_constant_or_global : Error<
+  "program scope variables are required to be declared either in constant or global address space">;
+def err_half_variables : Error<
+  "half type variables are not allowed in OpenCL">;
+def err_dereferencing_half_ptr : Error<
+  "dereferencing of half pointers is illegal in OpenCL. Use vload_half function instead">;
+def err_opencl_image_access_non_image : Error<
+  "using image access qualifier with non-image type">;
+def err_opencl_image_access_read_write : Error<
+  "image access qualifier read_write is reserved for future use">;
+def err_opencl_image3d_writes : Error<
+  "image3d_t access qualifier write_only requires" 
+  " cl_khr_3d_image_writes extension to be enabled">;
+def err_invalid_vector_promotion : Error<
+  "cannot apply default argument promotion on a vector">;
+def err_constant_without_init : Error<
+  "constant address space qualified variables are required to be initialized">;
+def err_depth_image_requires_ext : Error<
+  "use of depth image type requires extension cl_khr_depth_images">;
+def err_msaa_image_requires_ext : Error<
+  "use of multi-sample image type requires extension cl_khr_gl_msaa_sharing">;
+def err_kernel_invalid_arg_type : Error<
+  "%0 type cannot be used as the type of a kernel function argument">;
 
 } // end of sema category
 
@@ -6009,7 +6056,8 @@ def note_related_result_type_overridden : Note<
 def note_related_result_type_inferred : Note<
   "%select{class|instance}0 method %1 is assumed to return an instance of "
   "its receiver type (%2)">;
-
+def err_invalid_type_for_program_scope_var : Error<
+  "invalid type for program scope variables">;
 }
 
 let CategoryName = "Modules Issue" in {

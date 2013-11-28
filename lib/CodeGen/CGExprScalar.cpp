@@ -658,9 +658,8 @@ Value *ScalarExprEmitter::EmitScalarConversion(Value *Src, QualType SrcType,
   QualType OrigSrcType = SrcType;
   llvm::Type *SrcTy = Src->getType();
 
-  // Floating casts might be a bit special: if we're doing casts to / from half
-  // FP, we should go via special intrinsics.
-  if (SrcType->isHalfType()) {
+  // If casting to/from storage-only half FP, use special intrinsics.
+  if (SrcType->isHalfType() && !CGF.getContext().getLangOpts().NativeHalfType) {
     Src = Builder.CreateCall(CGF.CGM.getIntrinsic(llvm::Intrinsic::convert_from_fp16), Src);
     SrcType = CGF.getContext().FloatTy;
     SrcTy = CGF.FloatTy;
@@ -736,7 +735,7 @@ Value *ScalarExprEmitter::EmitScalarConversion(Value *Src, QualType SrcType,
     EmitFloatConversionCheck(OrigSrc, OrigSrcType, Src, SrcType, DstType, DstTy);
 
   // Cast to half via float
-  if (DstType->isHalfType())
+  if (DstType->isHalfType() && !CGF.getContext().getLangOpts().NativeHalfType)
     DstTy = CGF.FloatTy;
 
   if (isa<llvm::IntegerType>(SrcTy)) {
@@ -1394,6 +1393,11 @@ Value *ScalarExprEmitter::VisitCastExpr(CastExpr *CE) {
     return EmitComplexToScalarConversion(V, E->getType(), DestTy);
   }
 
+  case CK_NullToOCLEvent: {
+    assert(DestTy->isEventT() && "CK_NullToOCLEvent cast on non event type");
+    return llvm::Constant::getNullValue(ConvertType(DestTy));
+  }
+
   }
 
   llvm_unreachable("unknown scalar cast");
@@ -1531,7 +1535,7 @@ ScalarExprEmitter::EmitScalarPrePostIncDec(const UnaryOperator *E, LValue LV,
     // Add the inc/dec to the real part.
     llvm::Value *amt;
 
-    if (type->isHalfType()) {
+    if (type->isHalfType() && !CGF.getContext().getLangOpts().NativeHalfType) {
       // Another special case: half FP increment should be done via float
       value =
     Builder.CreateCall(CGF.CGM.getIntrinsic(llvm::Intrinsic::convert_from_fp16),
@@ -1553,7 +1557,7 @@ ScalarExprEmitter::EmitScalarPrePostIncDec(const UnaryOperator *E, LValue LV,
     }
     value = Builder.CreateFAdd(value, amt, isInc ? "inc" : "dec");
 
-    if (type->isHalfType())
+    if (type->isHalfType() && !CGF.getContext().getLangOpts().NativeHalfType)
       value =
        Builder.CreateCall(CGF.CGM.getIntrinsic(llvm::Intrinsic::convert_to_fp16),
                           value);
@@ -1626,11 +1630,15 @@ Value *ScalarExprEmitter::VisitUnaryNot(const UnaryOperator *E) {
 Value *ScalarExprEmitter::VisitUnaryLNot(const UnaryOperator *E) {
   
   // Perform vector logical not on comparison with zero vector.
-  if (E->getType()->isExtVectorType()) {
+  if (E->getType()->isVectorType()) {
     Value *Oper = Visit(E->getSubExpr());
     Value *Zero = llvm::Constant::getNullValue(Oper->getType());
-    Value *Result = Builder.CreateICmp(llvm::CmpInst::ICMP_EQ, Oper, Zero, "cmp");
-    return Builder.CreateSExt(Result, ConvertType(E->getType()), "sext");
+	if (Oper->getType()->isFPOrFPVectorTy()) {
+      Oper = Builder.CreateFCmp(llvm::CmpInst::FCMP_OEQ, Oper, Zero, "cmp");
+    } else {
+      Oper = Builder.CreateICmp(llvm::CmpInst::ICMP_EQ, Oper, Zero, "cmp");
+    }
+    return Builder.CreateSExt(Oper, ConvertType(E->getType()), "sext");
   }
   
   // Compare operand to zero.
@@ -2633,19 +2641,24 @@ Value *ScalarExprEmitter::VisitBinAssign(const BinaryOperator *E) {
 }
 
 Value *ScalarExprEmitter::VisitBinLAnd(const BinaryOperator *E) {
-  
+
+  llvm::Type *ResTy = ConvertType(E->getType());
+
   // Perform vector logical and on comparisons with zero vectors.
   if (E->getType()->isVectorType()) {
     Value *LHS = Visit(E->getLHS());
     Value *RHS = Visit(E->getRHS());
     Value *Zero = llvm::ConstantAggregateZero::get(LHS->getType());
-    LHS = Builder.CreateICmp(llvm::CmpInst::ICMP_NE, LHS, Zero, "cmp");
-    RHS = Builder.CreateICmp(llvm::CmpInst::ICMP_NE, RHS, Zero, "cmp");
+    if (LHS->getType()->isFPOrFPVectorTy()) {
+      LHS = Builder.CreateFCmp(llvm::CmpInst::FCMP_ONE, LHS, Zero, "cmp");
+      RHS = Builder.CreateFCmp(llvm::CmpInst::FCMP_ONE, RHS, Zero, "cmp");
+    } else {
+      LHS = Builder.CreateICmp(llvm::CmpInst::ICMP_NE, LHS, Zero, "cmp");
+      RHS = Builder.CreateICmp(llvm::CmpInst::ICMP_NE, RHS, Zero, "cmp");
+    }
     Value *And = Builder.CreateAnd(LHS, RHS);
-    return Builder.CreateSExt(And, Zero->getType(), "sext");
+    return Builder.CreateSExt(And, ResTy, "sext");
   }
-  
-  llvm::Type *ResTy = ConvertType(E->getType());
   
   // If we have 0 && RHS, see if we can elide RHS, if so, just return 0.
   // If we have 1 && X, just emit X without inserting the control flow.
@@ -2701,18 +2714,23 @@ Value *ScalarExprEmitter::VisitBinLAnd(const BinaryOperator *E) {
 
 Value *ScalarExprEmitter::VisitBinLOr(const BinaryOperator *E) {
   
+	llvm::Type *ResTy = ConvertType(E->getType());
+
   // Perform vector logical or on comparisons with zero vectors.
   if (E->getType()->isVectorType()) {
     Value *LHS = Visit(E->getLHS());
     Value *RHS = Visit(E->getRHS());
     Value *Zero = llvm::ConstantAggregateZero::get(LHS->getType());
-    LHS = Builder.CreateICmp(llvm::CmpInst::ICMP_NE, LHS, Zero, "cmp");
-    RHS = Builder.CreateICmp(llvm::CmpInst::ICMP_NE, RHS, Zero, "cmp");
+	if (LHS->getType()->isFPOrFPVectorTy()) {
+      LHS = Builder.CreateFCmp(llvm::CmpInst::FCMP_ONE, LHS, Zero, "cmp");
+      RHS = Builder.CreateFCmp(llvm::CmpInst::FCMP_ONE, RHS, Zero, "cmp");
+    } else {
+      LHS = Builder.CreateICmp(llvm::CmpInst::ICMP_NE, LHS, Zero, "cmp");
+      RHS = Builder.CreateICmp(llvm::CmpInst::ICMP_NE, RHS, Zero, "cmp");
+    }
     Value *Or = Builder.CreateOr(LHS, RHS);
-    return Builder.CreateSExt(Or, Zero->getType(), "sext");
+    return Builder.CreateSExt(Or, ResTy, "sext");
   }
-  
-  llvm::Type *ResTy = ConvertType(E->getType());
   
   // If we have 1 || RHS, see if we can elide RHS, if so, just return 1.
   // If we have 0 || X, just emit X without inserting the control flow.
@@ -2849,30 +2867,8 @@ VisitAbstractConditionalOperator(const AbstractConditionalOperator *E) {
     
     llvm::Value *zeroVec = llvm::Constant::getNullValue(vecTy);
     llvm::Value *TestMSB = Builder.CreateICmpSLT(CondV, zeroVec);
-    llvm::Value *tmp = Builder.CreateSExt(TestMSB, 
-                                          llvm::VectorType::get(elemType,
-                                                                numElem),         
-                                          "sext");
-    llvm::Value *tmp2 = Builder.CreateNot(tmp);
-    
-    // Cast float to int to perform ANDs if necessary.
-    llvm::Value *RHSTmp = RHS;
-    llvm::Value *LHSTmp = LHS;
-    bool wasCast = false;
-    llvm::VectorType *rhsVTy = cast<llvm::VectorType>(RHS->getType());
-    if (rhsVTy->getElementType()->isFloatingPointTy()) {
-      RHSTmp = Builder.CreateBitCast(RHS, tmp2->getType());
-      LHSTmp = Builder.CreateBitCast(LHS, tmp->getType());
-      wasCast = true;
-    }
-    
-    llvm::Value *tmp3 = Builder.CreateAnd(RHSTmp, tmp2);
-    llvm::Value *tmp4 = Builder.CreateAnd(LHSTmp, tmp);
-    llvm::Value *tmp5 = Builder.CreateOr(tmp3, tmp4, "cond");
-    if (wasCast)
-      tmp5 = Builder.CreateBitCast(tmp5, RHS->getType());
 
-    return tmp5;
+    return Builder.CreateSelect(TestMSB, LHS, RHS);
   }
   
   // If this is a really simple expression (like x ? 4 : 5), emit this as a

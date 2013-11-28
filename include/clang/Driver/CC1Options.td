@@ -510,20 +510,35 @@ def detailed_preprocessing_record : Flag<["-"], "detailed-preprocessing-record">
 // OpenCL Options
 //===----------------------------------------------------------------------===//
 
-def cl_opt_disable : Flag<["-"], "cl-opt-disable">,
-  HelpText<"OpenCL only. This option disables all optimizations. The default is optimizations are enabled.">;
+//Math Intrinsics Options
 def cl_single_precision_constant : Flag<["-"], "cl-single-precision-constant">,
   HelpText<"OpenCL only. Treat double precision floating-point constant as single precision constant.">;
-def cl_finite_math_only : Flag<["-"], "cl-finite-math-only">,
-  HelpText<"OpenCL only. Allow floating-point optimizations that assume arguments and results are not NaNs or +-Inf.">;
-def cl_unsafe_math_optimizations : Flag<["-"], "cl-unsafe-math-optimizations">,
-  HelpText<"OpenCL only. Allow unsafe floating-point optimizations.  Also implies -cl-no-signed-zeros and -cl-mad-enable">;
-def cl_fast_relaxed_math : Flag<["-"], "cl-fast-relaxed-math">,
-  HelpText<"OpenCL only. Sets -cl-finite-math-only and -cl-unsafe-math-optimizations, and defines __FAST_RELAXED_MATH__">;
+def cl_denorms_are_zero : Flag<["-"], "cl-denorms-are-zero">,
+  HelpText<"OpenCL only. Allow single precision denormalized numbers to be flushed to zero;">;
+def cl_fp32_correctly_rounded_divide_sqrt : Flag<["-"], "cl-fp32-correctly-rounded-divide-sqrt">,
+  HelpText<"OpenCL only. This option causes single precision floating-point divide and sqrt to be correctly rounded.">;
+  
+//Optimization Options
+def cl_opt_disable : Flag<["-"], "cl-opt-disable">,
+  HelpText<"OpenCL only. This option disables all optimizations. The default is optimizations are enabled.">;
 def cl_mad_enable : Flag<["-"], "cl-mad-enable">,
   HelpText<"OpenCL only. Enable less precise MAD instructions to be generated.">;
+def cl_no_signed_zeros : Flag<["-"], "cl-no-signed-zeros">,
+  HelpText<"OpenCL only. Allow optimizations for floating-point arithmetic that ignore the signedness of zero.">;
+def cl_unsafe_math_optimizations : Flag<["-"], "cl-unsafe-math-optimizations">,
+  HelpText<"OpenCL only. Allow unsafe floating-point optimizations.  Also implies -cl-no-signed-zeros and -cl-mad-enable">;
+def cl_finite_math_only : Flag<["-"], "cl-finite-math-only">,
+  HelpText<"OpenCL only. Allow floating-point optimizations that assume arguments and results are not NaNs or +-Inf.">;
+def cl_fast_relaxed_math : Flag<["-"], "cl-fast-relaxed-math">,
+  HelpText<"OpenCL only. Sets -cl-finite-math-only and -cl-unsafe-math-optimizations, and defines __FAST_RELAXED_MATH__">;
+
+//Options Controlling the OpenCL C version
 def cl_std_EQ : Joined<["-"], "cl-std=">,
   HelpText<"OpenCL language standard to compile for">;
+
+//Options for Querying Kernel Argument Information
+def cl_kernel_arg_info : Flag<["-"], "cl-kernel-arg-info">,
+  HelpText<"OpenCL only. This option allows the compiler to store information about the arguments of a kernel">;
 
 //===----------------------------------------------------------------------===//
 // CUDA Options

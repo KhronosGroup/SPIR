@@ -114,6 +114,9 @@ GetConversionCategory(ImplicitConversionKind Kind) {
     ICC_Conversion,
     ICC_Conversion,
     ICC_Conversion,
+    ICC_Conversion,
+    ICC_Conversion,
+    ICC_Conversion,
     ICC_Conversion
   };
   return Category[(int)Kind];
@@ -143,11 +146,12 @@ ImplicitConversionRank GetConversionRank(ImplicitConversionKind Kind) {
     ICR_Conversion,
     ICR_Conversion,
     ICR_Conversion,
-    ICR_Conversion,
+    ICR_OCL_Scalar_Widening,
     ICR_Complex_Real_Conversion,
     ICR_Conversion,
     ICR_Conversion,
-    ICR_Writeback_Conversion
+    ICR_Writeback_Conversion,
+    ICR_Conversion
   };
   return Rank[(int)Kind];
 }
@@ -178,8 +182,9 @@ const char* GetImplicitConversionName(ImplicitConversionKind Kind) {
     "Vector splat",
     "Complex-real conversion",
     "Block Pointer conversion",
-    "Transparent Union Conversion"
-    "Writeback conversion"
+    "Transparent Union Conversion",
+    "Writeback conversion",
+    "Zero Event conversion"
   };
   return Name[Kind];
 }
@@ -1577,6 +1582,11 @@ static bool IsStandardConversion(Sema &S, Expr* From, QualType ToType,
     // tryAtomicConversion has updated the standard conversion sequence
     // appropriately.
     return true;
+  } else if (ToType->isEventT() && 
+             From->isIntegerConstantExpr(S.getASTContext()) &&
+             (From->EvaluateKnownConstInt(S.getASTContext()) == 0)) {
+    SCS.Second = ICK_Zero_Event_Conversion;
+    FromType = ToType;
   } else {
     // No second conversion required.
     SCS.Second = ICK_Identity;
@@ -1818,7 +1828,8 @@ bool Sema::IsFloatingPointPromotion(QualType FromType, QualType ToType) {
         return true;
 
       // Half can be promoted to float.
-      if (FromBuiltin->getKind() == BuiltinType::Half &&
+      if (!getLangOpts().NativeHalfType &&
+           FromBuiltin->getKind() == BuiltinType::Half &&
           ToBuiltin->getKind() == BuiltinType::Float)
         return true;
     }
@@ -4811,6 +4822,7 @@ static bool CheckConvertedConstantConversions(Sema &S,
   case ICK_Identity:
   case ICK_Integral_Promotion:
   case ICK_Integral_Conversion:
+  case ICK_Zero_Event_Conversion:
     return true;
 
   case ICK_Boolean_Conversion:

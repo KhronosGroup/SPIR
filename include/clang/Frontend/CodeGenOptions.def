@@ -91,6 +91,12 @@ CODEGENOPT(UnrollLoops       , 1, 0) ///< Control whether loops are unrolled.
 CODEGENOPT(UnsafeFPMath      , 1, 0) ///< Allow unsafe floating point optzns.
 CODEGENOPT(UnwindTables      , 1, 0) ///< Emit unwind tables.
 
+CODEGENOPT(DenormsAreZero    , 1, 0) ///< Allow flushing of denorms to zero.
+CODEGENOPT(CorrectFPDivideSqrt , 1, 0) ///< Single precision divide and sqrt are
+                                       ///< correctly rounded.
+CODEGENOPT(OptDisable        , 1, 0) ///< Disables all optimizations.
+CODEGENOPT(NoSignedZeros	 , 1, 0) ///< Assume +0 == -0.
+
   /// Attempt to use register sized accesses to bit-fields in structures, when
   /// possible.
 CODEGENOPT(UseRegisterSizedBitfieldAccess , 1, 0)

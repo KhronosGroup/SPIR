@@ -530,6 +530,8 @@ NumericLiteralParser::NumericLiteralParser(StringRef TokSpelling,
     switch (*s) {
     case 'f':      // FP Suffix for "float"
     case 'F':
+    case 'h':
+    case 'H':
       if (!isFPConstant) break;  // Error for integer constant.
       if (isFloat || isLong) break; // FF, LF invalid.
       isFloat = true;

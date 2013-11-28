@@ -407,6 +407,52 @@ llvm::DIType CGDebugInfo::CreateType(const BuiltinType *BT) {
                                  0);
     return SelTy;
   }
+
+  case BuiltinType::OCLImage1d:
+    return getOrCreateStructPtrType("opencl_image1d_t",
+                                    OCLImage1dDITy);
+  case BuiltinType::OCLImage1dArray:
+    return getOrCreateStructPtrType("opencl_image1d_array_t", 
+                                    OCLImage1dArrayDITy);
+  case BuiltinType::OCLImage1dBuffer:
+    return getOrCreateStructPtrType("opencl_image1d_buffer_t",
+                                    OCLImage1dBufferDITy);
+  case BuiltinType::OCLImage2d:
+    return getOrCreateStructPtrType("opencl_image2d_t",
+                                    OCLImage2dDITy);
+  case BuiltinType::OCLImage2dArray:
+    return getOrCreateStructPtrType("opencl_image2d_array_t",
+                                    OCLImage2dArrayDITy);
+  case BuiltinType::OCLImage2dDepth:
+    return getOrCreateStructPtrType("opencl_image2d_depth_t",
+                                    OCLImage2dDITy);
+  case BuiltinType::OCLImage2dArrayDepth:
+    return getOrCreateStructPtrType("opencl_image2d_array_depth_t",
+                                    OCLImage2dArrayDITy);
+  case BuiltinType::OCLImage2dMSAA:
+    return getOrCreateStructPtrType("opencl_image2d_msaa_t",
+                                    OCLImage2dDITy);
+  case BuiltinType::OCLImage2dArrayMSAA:
+    return getOrCreateStructPtrType("opencl_image2d_array_msaa_t",
+                                    OCLImage2dArrayDITy);
+  case BuiltinType::OCLImage2dMSAADepth:
+    return getOrCreateStructPtrType("opencl_image2d_msaa_depth_t",
+                                    OCLImage2dDITy);
+  case BuiltinType::OCLImage2dArrayMSAADepth:
+    return getOrCreateStructPtrType("opencl_image2d_array_msaa_depth_t",
+                                    OCLImage2dArrayDITy);
+  case BuiltinType::OCLImage3d:
+    return getOrCreateStructPtrType("opencl_image3d_t",
+                                    OCLImage3dDITy);
+  case BuiltinType::OCLSampler:
+    return DBuilder.createBasicType("opencl_sampler_t",
+                                    CGM.getContext().getTypeSize(BT),
+                                    CGM.getContext().getTypeAlign(BT),
+                                    llvm::dwarf::DW_ATE_unsigned);
+  case BuiltinType::OCLEvent:
+    return getOrCreateStructPtrType("opencl_event_t",
+                                    OCLEventDITy);
+
   case BuiltinType::UChar:
   case BuiltinType::Char_U: Encoding = llvm::dwarf::DW_ATE_unsigned_char; break;
   case BuiltinType::Char_S:
@@ -433,9 +479,19 @@ llvm::DIType CGDebugInfo::CreateType(const BuiltinType *BT) {
   }
 
   switch (BT->getKind()) {
-  case BuiltinType::Long:      BTName = "long int"; break;
+  case BuiltinType::Long:      
+    if (CGM.getLangOpts().OpenCL)
+      BTName = "long";
+    else
+      BTName = "long int"; 
+    break;
   case BuiltinType::LongLong:  BTName = "long long int"; break;
-  case BuiltinType::ULong:     BTName = "long unsigned int"; break;
+  case BuiltinType::ULong:     
+    if (CGM.getLangOpts().OpenCL)
+      BTName = "unsigned long";
+    else
+      BTName = "long unsigned int"; 
+    break;
   case BuiltinType::ULongLong: BTName = "long long unsigned int"; break;
   default:
     BTName = BT->getName(CGM.getLangOpts());
@@ -611,6 +667,18 @@ llvm::DIType CGDebugInfo::CreatePointerLikeType(unsigned Tag,
 
   return DBuilder.createPointerType(CreatePointeeType(PointeeTy, Unit),
                                     Size, Align);
+}
+
+llvm::DIType CGDebugInfo::getOrCreateStructPtrType(StringRef Name, llvm::DIType &Cache) {
+    if (Cache.Verify())
+      return Cache;
+    Cache =
+      DBuilder.createForwardDecl(llvm::dwarf::DW_TAG_structure_type,
+                                 Name, TheCU, getOrCreateMainFile(),
+                                 0);
+    unsigned Size = CGM.getContext().getTypeSize(CGM.getContext().VoidPtrTy);
+    Cache = DBuilder.createPointerType(Cache, Size);
+    return Cache;
 }
 
 llvm::DIType CGDebugInfo::CreateType(const BlockPointerType *Ty,

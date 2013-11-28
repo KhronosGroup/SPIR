@@ -360,7 +360,9 @@ static bool ParseCodeGenArgs(CodeGenOptions &Opts, ArgList &Args, InputKind IK,
   Opts.DisableTailCalls = Args.hasArg(OPT_mdisable_tail_calls);
   Opts.FloatABI = Args.getLastArgValue(OPT_mfloat_abi);
   Opts.HiddenWeakVTables = Args.hasArg(OPT_fhidden_weak_vtables);
-  Opts.LessPreciseFPMAD = Args.hasArg(OPT_cl_mad_enable);
+  Opts.LessPreciseFPMAD = Args.hasArg(OPT_cl_mad_enable) ||
+                          Args.hasArg(OPT_cl_unsafe_math_optimizations) ||
+                          Args.hasArg(OPT_cl_fast_relaxed_math);
   Opts.LimitFloatPrecision = Args.getLastArgValue(OPT_mlimit_float_precision);
   Opts.NoInfsFPMath = (Args.hasArg(OPT_menable_no_infinities) ||
                        Args.hasArg(OPT_cl_finite_math_only)||
@@ -395,6 +397,13 @@ static bool ParseCodeGenArgs(CodeGenOptions &Opts, ArgList &Args, InputKind IK,
 
   Opts.MainFileName = Args.getLastArgValue(OPT_main_file_name);
   Opts.VerifyModule = !Args.hasArg(OPT_disable_llvm_verifier);
+
+  Opts.DenormsAreZero = Args.hasArg(OPT_cl_denorms_are_zero);
+  Opts.CorrectFPDivideSqrt = Args.hasArg(OPT_cl_fp32_correctly_rounded_divide_sqrt);
+  Opts.OptDisable = Args.hasArg(OPT_cl_opt_disable);
+  Opts.NoSignedZeros = Args.hasArg(OPT_cl_no_signed_zeros) ||
+                       Args.hasArg(OPT_cl_unsafe_math_optimizations) ||
+                       Args.hasArg(OPT_cl_fast_relaxed_math);
 
   Opts.InstrumentFunctions = Args.hasArg(OPT_finstrument_functions);
   Opts.InstrumentForProfiling = Args.hasArg(OPT_pg);
@@ -956,7 +965,7 @@ void CompilerInvocation::setLangDefaults(LangOptions &Opts, InputKind IK,
   // Set OpenCL Version.
   if (LangStd == LangStandard::lang_opencl) {
     Opts.OpenCL = 1;
-    Opts.OpenCLVersion = 100;
+    Opts.OpenCLVersion = 120;
   }
   else if (LangStd == LangStandard::lang_opencl11) {
       Opts.OpenCL = 1;
@@ -973,6 +982,7 @@ void CompilerInvocation::setLangDefaults(LangOptions &Opts, InputKind IK,
     Opts.CXXOperatorNames = 1;
     Opts.LaxVectorConversions = 0;
     Opts.DefaultFPContract = 1;
+    Opts.NativeHalfType = 1;
   }
 
   if (LangStd == LangStandard::lang_cuda)

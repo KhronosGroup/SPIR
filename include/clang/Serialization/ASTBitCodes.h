@@ -692,7 +692,35 @@ namespace clang {
       /// \brief The __va_list_tag placeholder type.
       PREDEF_TYPE_VA_LIST_TAG = 36,
       /// \brief The placeholder type for builtin functions.
-      PREDEF_TYPE_BUILTIN_FN = 37
+      PREDEF_TYPE_BUILTIN_FN = 37,
+      /// \brief OpenCL 1d image type.
+      PREDEF_TYPE_IMAGE1D_ID    = 38,
+      /// \brief OpenCL 1d image array type.
+      PREDEF_TYPE_IMAGE1D_ARR_ID = 39,
+      /// \brief OpenCL 1d image buffer type.
+      PREDEF_TYPE_IMAGE1D_BUFF_ID = 40,
+      /// \brief OpenCL 2d image type.
+      PREDEF_TYPE_IMAGE2D_ID    = 41,
+      /// \brief OpenCL 2d image array type.
+      PREDEF_TYPE_IMAGE2D_ARR_ID = 42,
+      /// \brief OpenCL 2d depth image type.
+      PREDEF_TYPE_IMAGE2D_DEPTH_ID    = 43,
+      /// \brief OpenCL 2d depth image array type.
+      PREDEF_TYPE_IMAGE2D_ARR_DEPTH_ID = 44,
+      /// \brief OpenCL 2d MSAA image type.
+      PREDEF_TYPE_IMAGE2D_MSAA_ID    = 45,
+      /// \brief OpenCL 2d MSAA image array type.
+      PREDEF_TYPE_IMAGE2D_ARR_MSAA_ID = 46,
+      /// \brief OpenCL 2d MSAA depth image type.
+      PREDEF_TYPE_IMAGE2D_MSAA_DEPTH_ID    = 47,
+      /// \brief OpenCL 2d MSAA depth image array type.
+      PREDEF_TYPE_IMAGE2D_ARR_MSAA_DEPTH_ID = 48,
+      /// \brief OpenCL 3d image type.
+      PREDEF_TYPE_IMAGE3D_ID    = 49,
+      /// \brief OpenCL sampler type.
+      PREDEF_TYPE_SAMPLER_ID    = 50,
+      /// \brief OpenCL event type.
+      PREDEF_TYPE_EVENT_ID      = 51
     };
 
     /// \brief The number of predefined type IDs that are reserved for

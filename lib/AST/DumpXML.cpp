@@ -923,6 +923,7 @@ struct XMLDumper : public XMLDeclVisitor<XMLDumper>,
     case CC_AAPCS: return set("cc", "aapcs");
     case CC_AAPCS_VFP: return set("cc", "aapcs_vfp");
     case CC_PnaclCall: return set("cc", "pnaclcall");
+    case CC_SpirFunction: return set("cc", "spir_function");
     }
   }
 

@@ -15,6 +15,7 @@
 #include "CGCall.h"
 #include "CGCXXABI.h"
 #include "CGRecordLayout.h"
+#include "CGOpenCLRuntime.h"
 #include "TargetInfo.h"
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/DeclObjC.h"
@@ -262,9 +263,14 @@ void CodeGenTypes::UpdateCompletedType(const TagDecl *TD) {
 }
 
 static llvm::Type *getTypeForFormat(llvm::LLVMContext &VMContext,
-                                    const llvm::fltSemantics &format) {
-  if (&format == &llvm::APFloat::IEEEhalf)
-    return llvm::Type::getInt16Ty(VMContext);
+                                    const llvm::fltSemantics &format,
+                                    bool UseNativeHalf = false) {
+  if (&format == &llvm::APFloat::IEEEhalf) {
+    if (UseNativeHalf)
+      return llvm::Type::getHalfTy(VMContext);
+    else
+      return llvm::Type::getInt16Ty(VMContext);
+  }
   if (&format == &llvm::APFloat::IEEEsingle)
     return llvm::Type::getFloatTy(VMContext);
   if (&format == &llvm::APFloat::IEEEdouble)
@@ -343,18 +349,17 @@ llvm::Type *CodeGenTypes::ConvertType(QualType T) {
       break;
 
     case BuiltinType::Half:
-      // Half is special: it might be lowered to i16 (and will be storage-only
-      // type),. or can be represented as a set of native operations.
-
-      // FIXME: Ask target which kind of half FP it prefers (storage only vs
-      // native).
-      ResultType = llvm::Type::getInt16Ty(getLLVMContext());
+      // Half FP can either be storage-only (lowered to i16) or native.
+      ResultType = getTypeForFormat(getLLVMContext(),
+          Context.getFloatTypeSemantics(T),
+          Context.getLangOpts().NativeHalfType);
       break;
     case BuiltinType::Float:
     case BuiltinType::Double:
     case BuiltinType::LongDouble:
       ResultType = getTypeForFormat(getLLVMContext(),
-                                    Context.getFloatTypeSemantics(T));
+                                    Context.getFloatTypeSemantics(T),
+                                    /* UseNativeHalf = */ false);
       break;
 
     case BuiltinType::NullPtr:
@@ -365,6 +370,23 @@ llvm::Type *CodeGenTypes::ConvertType(QualType T) {
     case BuiltinType::UInt128:
     case BuiltinType::Int128:
       ResultType = llvm::IntegerType::get(getLLVMContext(), 128);
+      break;
+
+    case BuiltinType::OCLImage1d:
+    case BuiltinType::OCLImage1dArray:
+    case BuiltinType::OCLImage1dBuffer:
+    case BuiltinType::OCLImage2d:
+    case BuiltinType::OCLImage2dArray:
+    case BuiltinType::OCLImage2dDepth:
+    case BuiltinType::OCLImage2dArrayDepth:
+    case BuiltinType::OCLImage2dMSAA:
+    case BuiltinType::OCLImage2dArrayMSAA:
+    case BuiltinType::OCLImage2dMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAADepth:
+    case BuiltinType::OCLImage3d:
+    case BuiltinType::OCLSampler:
+    case BuiltinType::OCLEvent:
+      ResultType = CGM.getOpenCLRuntime().convertOpenCLSpecificType(Ty);
       break;
     
     case BuiltinType::Dependent:

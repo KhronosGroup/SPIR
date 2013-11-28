@@ -140,27 +140,7 @@ private:
     return *reinterpret_cast<const TypeTagForDatatypeData *>(this + 1);
   }
 
-  AttributeList(const AttributeList &) LLVM_DELETED_FUNCTION;
-  void operator=(const AttributeList &) LLVM_DELETED_FUNCTION;
-  void operator delete(void *) LLVM_DELETED_FUNCTION;
-  ~AttributeList() LLVM_DELETED_FUNCTION;
-
   size_t allocated_size() const;
-
-  /// Constructor for attributes with expression arguments.
-  AttributeList(IdentifierInfo *attrName, SourceRange attrRange,
-                IdentifierInfo *scopeName, SourceLocation scopeLoc,
-                IdentifierInfo *parmName, SourceLocation parmLoc,
-                Expr **args, unsigned numArgs,
-                Syntax syntaxUsed)
-    : AttrName(attrName), ScopeName(scopeName), ParmName(parmName),
-      AttrRange(attrRange), ScopeLoc(scopeLoc), ParmLoc(parmLoc),
-      NumArgs(numArgs), SyntaxUsed(syntaxUsed), Invalid(false),
-      UsedAsTypeAttr(false), IsAvailability(false),
-      IsTypeTagForDatatype(false), NextInPosition(0), NextInPool(0) {
-    if (numArgs) memcpy(getArgsBuffer(), args, numArgs * sizeof(Expr*));
-    AttrKind = getKind(getName(), getScopeName(), syntaxUsed);
-  }
 
   /// Constructor for availability attributes.
   AttributeList(IdentifierInfo *attrName, SourceRange attrRange,
@@ -206,6 +186,27 @@ private:
 
   friend class AttributePool;
   friend class AttributeFactory;
+
+protected:
+  /// Constructor for attributes with expression arguments.
+  AttributeList(IdentifierInfo *attrName, SourceRange attrRange,
+                IdentifierInfo *scopeName, SourceLocation scopeLoc,
+                IdentifierInfo *parmName, SourceLocation parmLoc,
+                Expr **args, unsigned numArgs,
+                Syntax syntaxUsed)
+    : AttrName(attrName), ScopeName(scopeName), ParmName(parmName),
+      AttrRange(attrRange), ScopeLoc(scopeLoc), ParmLoc(parmLoc),
+      NumArgs(numArgs), SyntaxUsed(syntaxUsed), Invalid(false),
+      UsedAsTypeAttr(false), IsAvailability(false),
+      IsTypeTagForDatatype(false), NextInPosition(0), NextInPool(0) {
+    if (numArgs) memcpy(getArgsBuffer(), args, numArgs * sizeof(Expr*));
+    AttrKind = getKind(getName(), getScopeName(), syntaxUsed);
+  }
+
+  AttributeList(const AttributeList &) LLVM_DELETED_FUNCTION;
+  void operator=(const AttributeList &) LLVM_DELETED_FUNCTION;
+  void operator delete(void *) LLVM_DELETED_FUNCTION;
+  ~AttributeList() LLVM_DELETED_FUNCTION;
 
 public:
   enum Kind {           
@@ -340,6 +341,26 @@ public:
            "Not a type_tag_for_datatype attribute");
     return getTypeTagForDatatypeDataSlot().MustBeNull;
   }
+};
+
+class VecTypeHintAttributeList : public AttributeList {
+private:
+  const ParsedType VecType;
+
+  friend class AttributePool;
+  friend class AttributeFactory;
+
+protected:
+  VecTypeHintAttributeList(IdentifierInfo *attrName, SourceRange attrRange,
+                           IdentifierInfo *scopeName, SourceLocation scopeLoc,
+                           IdentifierInfo *argumentKindName,
+                           SourceLocation argumentKindLoc, ParsedType vecType,
+                           Syntax syntaxUsed) :
+      AttributeList(attrName, attrRange, scopeName, scopeLoc, argumentKindName,
+                    argumentKindLoc, NULL, 0, syntaxUsed), VecType(vecType) {}
+
+public:
+  ParsedType getVecType() const { return VecType; }
 };
 
 /// A factory, from which one makes pools, from which one creates
@@ -491,6 +512,20 @@ public:
                                           matchingCType, layoutCompatible,
                                           mustBeNull, syntax));
   }
+
+  AttributeList *createVecTypeHint(
+                    IdentifierInfo *attrName, SourceRange attrRange,
+                    IdentifierInfo *scopeName, SourceLocation scopeLoc,
+                    IdentifierInfo *argumentKindName,
+                    SourceLocation argumentKindLoc,
+                    ParsedType vecType, AttributeList::Syntax syntax) {
+    void *memory = allocate(sizeof(VecTypeHintAttributeList));
+    return add(new (memory) VecTypeHintAttributeList(attrName, attrRange,
+                                                     scopeName, scopeLoc,
+                                                     argumentKindName, 
+                                                     argumentKindLoc, vecType, 
+                                                     syntax));
+  }
 };
 
 /// addAttributeLists - Add two AttributeLists together
@@ -628,6 +663,21 @@ public:
                                     argumentKindName, argumentKindLoc,
                                     matchingCType, layoutCompatible,
                                     mustBeNull, syntax);
+    add(attr);
+    return attr;
+  }
+
+  /// Add vec_type_hint attribute.
+  AttributeList *addNewVecTypeHint(
+                        IdentifierInfo *attrName, SourceRange attrRange,
+                        IdentifierInfo *scopeName, SourceLocation scopeLoc,
+                        IdentifierInfo *argumentKindName,
+                        SourceLocation argumentKindLoc,
+                        ParsedType vecType, AttributeList::Syntax syntax) {
+    AttributeList *attr =
+      pool.createVecTypeHint(attrName, attrRange, scopeName, scopeLoc,
+                             argumentKindName, argumentKindLoc, vecType, 
+                             syntax);
     add(attr);
     return attr;
   }

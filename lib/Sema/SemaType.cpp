@@ -801,6 +801,13 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
            DS.getTypeSpecSign() == 0 &&
            "Can't handle qualifiers on typedef names yet!");
     Result = S.GetTypeFromParser(DS.getRepAsType());
+
+    if (S.getLangOpts().OpenCL && !S.getOpenCLOptions().cl_khr_fp64 && 
+        (Result->isDoubleType() || Result->isDoubleVecType())) {
+      S.Diag(DS.getTypeSpecTypeLoc(), diag::err_double_requires_fp64);
+      declarator.setInvalidType(true);
+    }
+
     if (Result.isNull())
       declarator.setInvalidType(true);
     else if (DeclSpec::ProtocolQualifierListTy PQ
@@ -899,6 +906,69 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
       Result = Context.IntTy;
       declarator.setInvalidType(true);
     }
+    break;
+
+  case DeclSpec::TST_image1d_t:
+    Result = Context.OCLImage1dTy;
+    break;
+
+  case DeclSpec::TST_image1d_array_t:
+    Result = Context.OCLImage1dArrayTy;
+    break;
+
+  case DeclSpec::TST_image1d_buffer_t:
+    Result = Context.OCLImage1dBufferTy;
+    break;
+
+  case DeclSpec::TST_image2d_t:
+    Result = Context.OCLImage2dTy;
+    break;
+
+  case DeclSpec::TST_image2d_array_t:
+    Result = Context.OCLImage2dArrayTy;
+    break;
+
+  case DeclSpec::TST_image2d_depth_t:
+  case DeclSpec::TST_image2d_array_depth_t:
+    if (S.getLangOpts().OpenCL && S.getLangOpts().OpenCLVersion < 200 && !S.getOpenCLOptions().cl_khr_depth_images) {
+      S.Diag(DS.getTypeSpecTypeLoc(), diag::err_depth_image_requires_ext);
+      declarator.setInvalidType(true);
+    }
+
+    Result = (DS.getTypeSpecType() == DeclSpec::TST_image2d_depth_t ?
+              Context.OCLImage2dDepthTy : Context.OCLImage2dArrayDepthTy);
+    break;
+
+  case DeclSpec::TST_image2d_msaa_t:
+  case DeclSpec::TST_image2d_array_msaa_t:
+  case DeclSpec::TST_image2d_msaa_depth_t:
+  case DeclSpec::TST_image2d_array_msaa_depth_t:
+    if (S.getLangOpts().OpenCL && !S.getOpenCLOptions().cl_khr_gl_msaa_sharing) {
+      S.Diag(DS.getTypeSpecTypeLoc(), diag::err_msaa_image_requires_ext);
+      declarator.setInvalidType(true);
+    }
+
+    if (DS.getTypeSpecType() ==  DeclSpec::TST_image2d_msaa_t)
+      Result = Context.OCLImage2dMSAATy;
+    else if (DS.getTypeSpecType() == DeclSpec::TST_image2d_array_msaa_t)
+      Result = Context.OCLImage2dArrayMSAATy;
+    else if (DS.getTypeSpecType() == DeclSpec::TST_image2d_msaa_depth_t)
+      Result = Context.OCLImage2dMSAADepthTy;
+    else  //DeclSpec::TST_image2d_array_msaa_depth_t:
+      Result = Context.OCLImage2dArrayMSAADepthTy;
+
+    break;
+
+  case DeclSpec::TST_image3d_t:
+    Result = Context.OCLImage3dTy;
+    break;
+
+  case DeclSpec::TST_sampler_t:
+    Result = Context.OCLSamplerTy;
+    break;
+
+  case DeclSpec::TST_event_t:
+    Result = Context.OCLEventTy;
     break;
 
   case DeclSpec::TST_error:
@@ -2376,10 +2446,16 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
       // Do not allow returning half FP value.
       // FIXME: This really should be in BuildFunctionType.
       if (T->isHalfType()) {
-        S.Diag(D.getIdentifierLoc(),
-             diag::err_parameters_retval_cannot_have_fp16_type) << 1
-          << FixItHint::CreateInsertion(D.getIdentifierLoc(), "*");
-        D.setInvalidType(true);
+        if (S.getLangOpts().OpenCL) {
+          if (!S.getOpenCLOptions().cl_khr_fp16) {
+            S.Diag(D.getIdentifierLoc(), diag::err_opencl_half_return) << T;
+            D.setInvalidType(true);
+          } 
+        } else {
+          S.Diag(D.getIdentifierLoc(),
+            diag::err_parameters_retval_cannot_have_fp16_type) << 1;
+          D.setInvalidType(true);
+        }
       }
 
       // cv-qualifiers on return types are pointless except when the type is a
@@ -2431,7 +2507,7 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
       if (FTI.isAmbiguous)
         warnAboutAmbiguousFunction(S, D, DeclType, T);
 
-      if (!FTI.NumArgs && !FTI.isVariadic && !LangOpts.CPlusPlus) {
+      if (!FTI.NumArgs && !FTI.isVariadic && !LangOpts.CPlusPlus && !LangOpts.OpenCL) {
         // Simple void foo(), where the incoming T is the result type.
         T = Context.getFunctionNoProtoType(T);
       } else {
@@ -2514,10 +2590,17 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
           } else if (ArgTy->isHalfType()) {
             // Disallow half FP arguments.
             // FIXME: This really should be in BuildFunctionType.
-            S.Diag(Param->getLocation(),
-               diag::err_parameters_retval_cannot_have_fp16_type) << 0
-            << FixItHint::CreateInsertion(Param->getLocation(), "*");
-            D.setInvalidType();
+            if (S.getLangOpts().OpenCL) {
+              if (!S.getOpenCLOptions().cl_khr_fp16) {
+                S.Diag(Param->getLocation(),
+                  diag::err_opencl_half_argument) << ArgTy;
+                D.setInvalidType();
+              }
+            } else {
+              S.Diag(Param->getLocation(),
+                diag::err_parameters_retval_cannot_have_fp16_type) << 0;
+              D.setInvalidType();
+            }
           } else if (!FTI.hasPrototype) {
             if (ArgTy->isPromotableIntegerType()) {
               ArgTy = Context.getPromotedIntegerType(ArgTy);
@@ -3471,6 +3554,10 @@ static void HandleAddressSpaceTypeAttribute(QualType &Type,
 
   unsigned ASIdx = static_cast<unsigned>(addrSpace.getZExtValue());
   Type = S.Context.getAddrSpaceQualType(Type, ASIdx);
+
+  if (LangAS::opencl_constant == ASIdx) {
+    Type = S.Context.getConstType(Type);
+  }
 }
 
 /// Does this type have a "direct" ownership qualifier?  That is,

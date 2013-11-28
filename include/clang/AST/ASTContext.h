@@ -361,6 +361,8 @@ class ASTContext : public RefCountedBase<ASTContext> {
   ///  this ASTContext object.
   LangOptions &LangOpts;
 
+  bool disabledFPContract;
+
   /// \brief The allocator used to create AST objects.
   ///
   /// AST objects are never destructed; rather, all memory associated with the
@@ -428,6 +430,10 @@ public:
   const TargetInfo &getTargetInfo() const { return *Target; }
   
   const LangOptions& getLangOpts() const { return LangOpts; }
+
+  void disableFPContract() { disabledFPContract = true; }
+
+  bool isFPContractDisabled() const { return disabledFPContract; }
 
   DiagnosticsEngine &getDiagnostics() const;
 
@@ -713,6 +719,13 @@ public:
   CanQualType PseudoObjectTy, ARCUnbridgedCastTy;
   CanQualType ObjCBuiltinIdTy, ObjCBuiltinClassTy, ObjCBuiltinSelTy;
   CanQualType ObjCBuiltinBoolTy;
+  CanQualType OCLImage1dTy, OCLImage1dArrayTy, OCLImage1dBufferTy;
+  CanQualType OCLImage2dTy, OCLImage2dArrayTy;
+  CanQualType OCLImage2dDepthTy, OCLImage2dArrayDepthTy;
+  CanQualType OCLImage2dMSAATy, OCLImage2dArrayMSAATy;
+  CanQualType OCLImage2dMSAADepthTy, OCLImage2dArrayMSAADepthTy;
+  CanQualType OCLImage3dTy;
+  CanQualType OCLSamplerTy, OCLEventTy;
 
   // Types for deductions in C++0x [stmt.ranged]'s desugaring. Built on demand.
   mutable QualType AutoDeductTy;     // Deduction against 'auto'.

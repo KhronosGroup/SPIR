@@ -1658,7 +1658,10 @@ void CXXNameMangler::mangleQualifiers(Qualifiers Quals) {
     // where <address-space-number> is a source name consisting of 'AS' 
     // followed by the address space <number>.
     SmallString<64> ASString;
-    ASString = "AS" + llvm::utostr_32(Quals.getAddressSpace());
+    if (getASTContext().getLangOpts().OpenCL)
+      ASString = "AS" + llvm::utostr_32(getASTContext().getTargetAddressSpace(Quals));
+    else
+      ASString = "AS" + llvm::utostr_32(Quals.getAddressSpace());
     Out << 'U' << ASString.size() << ASString;
   }
   
@@ -1870,6 +1873,20 @@ void CXXNameMangler::mangleType(const BuiltinType *T) {
   case BuiltinType::ObjCId: Out << "11objc_object"; break;
   case BuiltinType::ObjCClass: Out << "10objc_class"; break;
   case BuiltinType::ObjCSel: Out << "13objc_selector"; break;
+  case BuiltinType::OCLImage1d: Out << "11ocl_image1d"; break;
+  case BuiltinType::OCLImage1dArray: Out << "16ocl_image1darray"; break;
+  case BuiltinType::OCLImage1dBuffer: Out << "17ocl_image1dbuffer"; break;
+  case BuiltinType::OCLImage2d: Out << "11ocl_image2d"; break;
+  case BuiltinType::OCLImage2dArray: Out << "16ocl_image2darray"; break;
+  case BuiltinType::OCLImage2dDepth: Out << "16ocl_image2ddepth"; break;
+  case BuiltinType::OCLImage2dArrayDepth: Out << "21ocl_image2darraydepth"; break;
+  case BuiltinType::OCLImage2dMSAA: Out << "15ocl_image2dmsaa"; break;
+  case BuiltinType::OCLImage2dArrayMSAA: Out << "20ocl_image2darraymsaa"; break;
+  case BuiltinType::OCLImage2dMSAADepth: Out << "20ocl_image2dmsaadepth"; break;
+  case BuiltinType::OCLImage2dArrayMSAADepth: Out << "25ocl_image2darraymsaadepth"; break;
+  case BuiltinType::OCLImage3d: Out << "11ocl_image3d"; break;
+  case BuiltinType::OCLSampler: Out << "11ocl_sampler"; break;
+  case BuiltinType::OCLEvent: Out << "9ocl_event"; break;
   }
 }
 

@@ -1944,8 +1944,7 @@ llvm::Constant *CodeGenFunction::EmitCheckTypeDescriptor(QualType T) {
 
   if (T->isIntegerType()) {
     TypeKind = 0;
-    TypeInfo = (llvm::Log2_32(getContext().getTypeSize(T)) << 1) |
-               T->isSignedIntegerType();
+    TypeInfo = (llvm::Log2_32(getContext().getTypeSize(T)) << 1) | (uint16_t)(T->isSignedIntegerType());
   } else if (T->isFloatingType()) {
     TypeKind = 1;
     TypeInfo = getContext().getTypeSize(T);
@@ -2655,6 +2654,8 @@ LValue CodeGenFunction::EmitCastLValue(const CastExpr *E) {
                                            ConvertType(ToType));
     return MakeAddrLValue(V, E->getType());
   }
+  case CK_NullToOCLEvent:
+    llvm_unreachable("NULL to OpenCL event lvalue cast is not valid");
   }
   
   llvm_unreachable("Unhandled lvalue cast kind?");

@@ -125,8 +125,12 @@ static bool hasFunctionProto(const Decl *D) {
 /// arguments. It is an error to call this on a K&R function (use
 /// hasFunctionProto first).
 static unsigned getFunctionOrMethodNumArgs(const Decl *D) {
-  if (const FunctionType *FnTy = getFunctionType(D))
-    return cast<FunctionProtoType>(FnTy)->getNumArgs();
+  if (const FunctionType *FnTy = getFunctionType(D)) {
+    if (hasFunctionProto(D)) 
+      return cast<FunctionProtoType>(FnTy)->getNumArgs();
+    else
+      return 0;
+  }
   if (const BlockDecl *BD = dyn_cast<BlockDecl>(D))
     return BD->getNumParams();
   return cast<ObjCMethodDecl>(D)->param_size();
@@ -1066,6 +1070,24 @@ static void handleIBOutletCollection(Sema &S, Decl *D,
   }
   D->addAttr(::new (S.Context) IBOutletCollectionAttr(Attr.getRange(),S.Context,
                                                    QT, Attr.getParameterLoc()));
+}
+
+static void handleVecTypeHint(Sema &S, Decl *D,
+                                    const AttributeList &Attr) {
+  // The vec_type_hint attribute must have one "type" argument.
+  if (!Attr.getParameterName()) {
+    S.Diag(Attr.getLoc(), diag::err_attribute_wrong_number_arguments) << 1;
+    return;
+  }
+
+  const VecTypeHintAttributeList& vecTypeHintAttr = static_cast<const VecTypeHintAttributeList&>(Attr);
+
+  ParsedType TypeRep = vecTypeHintAttr.getVecType();
+
+  QualType QT = S.GetTypeFromParser(TypeRep);
+
+  D->addAttr(::new (S.Context) VecTypeHintAttr(vecTypeHintAttr.getRange(),
+                                               S.Context, QT));
 }
 
 static void possibleTransparentUnionPointerType(QualType &T) {
@@ -4427,6 +4449,9 @@ static void ProcessInheritableDeclAttr(Sema &S, Scope *scope, Decl *D,
     break;
   case AttributeList::AT_OpenCLKernel:
     handleOpenCLKernelAttr(S, D, Attr);
+    break;
+  case AttributeList::AT_VecTypeHint:
+    handleVecTypeHint(S, D, Attr);
     break;
 
   // Microsoft attributes:

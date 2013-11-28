@@ -243,8 +243,7 @@ def bind__at__load : Flag<["-"], "bind_at_load">;
 def bundle__loader : Separate<["-"], "bundle_loader">;
 def bundle : Flag<["-"], "bundle">;
 def b : JoinedOrSeparate<["-"], "b">, Flags<[Unsupported]>;
-def cl_kernel_arg_info : Flag<["-"], "cl-kernel-arg-info">, Flags<[CC1Option]>, Group<opencl_Group>,
-HelpText<"OpenCL only. This option allows the compiler to store information about the arguments of a kernel(s)"> ;
+
 def client__name : JoinedOrSeparate<["-"], "client_name">;
 def combine : Flag<["-", "--"], "combine">, Flags<[DriverOption, Unsupported]>;
 def compatibility__version : JoinedOrSeparate<["-"], "compatibility_version">;

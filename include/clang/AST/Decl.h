@@ -743,8 +743,8 @@ private:
     friend class VarDecl;
     friend class ASTDeclReader;
 
-    unsigned SClass : 3;
-    unsigned SClassAsWritten : 3;
+    unsigned SClass : 4;
+    unsigned SClassAsWritten : 4;
     unsigned ThreadSpecified : 1;
     unsigned InitStyle : 2;
 
@@ -768,7 +768,7 @@ private:
     /// \brief Whether this variable is (C++0x) constexpr.
     unsigned IsConstexpr : 1;
   };
-  enum { NumVarDeclBits = 14 };
+  enum { NumVarDeclBits = 16 };
 
   friend class ASTDeclReader;
   friend class StmtIteratorBase;
@@ -804,7 +804,7 @@ protected:
   };
 
   union {
-    unsigned AllBits;
+    unsigned long long AllBits;
     VarDeclBitfields VarDeclBits;
     ParmVarDeclBitfields ParmVarDeclBits;
   };
@@ -814,8 +814,8 @@ protected:
           QualType T, TypeSourceInfo *TInfo, StorageClass SC,
           StorageClass SCAsWritten)
     : DeclaratorDecl(DK, DC, IdLoc, Id, T, TInfo, StartLoc), Init() {
-    assert(sizeof(VarDeclBitfields) <= sizeof(unsigned));
-    assert(sizeof(ParmVarDeclBitfields) <= sizeof(unsigned));
+    assert(sizeof(VarDeclBitfields) <= sizeof(unsigned long long));
+    assert(sizeof(ParmVarDeclBitfields) <= sizeof(unsigned long long));
     AllBits = 0;
     VarDeclBits.SClass = SC;
     VarDeclBits.SClassAsWritten = SCAsWritten;
@@ -886,7 +886,8 @@ public:
   /// __private_extern__ storage.
   bool hasExternalStorage() const {
     return getStorageClass() == SC_Extern ||
-           getStorageClass() == SC_PrivateExtern;
+           getStorageClass() == SC_PrivateExtern ||
+           getStorageClass() == SC_OpenCLConstantExtern;
   }
 
   /// hasGlobalStorage - Returns true for all variables that do not

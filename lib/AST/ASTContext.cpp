@@ -632,7 +632,8 @@ ASTContext::ASTContext(LangOptions& LOpts, SourceManager &SM,
     Comments(SM), CommentsLoaded(false),
     CommentCommandTraits(BumpAlloc),
     LastSDM(0, 0),
-    UniqueBlockByRefTypeID(0) 
+    UniqueBlockByRefTypeID(0) ,
+    disabledFPContract(false)
 {
   if (size_reserve > 0) Types.reserve(size_reserve);
   TUDecl = TranslationUnitDecl::Create(*this);
@@ -873,6 +874,25 @@ void ASTContext::InitBuiltinTypes(const TargetInfo &Target) {
   InitBuiltinType(ObjCBuiltinIdTy, BuiltinType::ObjCId);
   InitBuiltinType(ObjCBuiltinClassTy, BuiltinType::ObjCClass);
   InitBuiltinType(ObjCBuiltinSelTy, BuiltinType::ObjCSel);
+
+  if (LangOpts.OpenCL) { 
+    InitBuiltinType(OCLImage1dTy, BuiltinType::OCLImage1d);
+    InitBuiltinType(OCLImage1dArrayTy, BuiltinType::OCLImage1dArray);
+    InitBuiltinType(OCLImage1dBufferTy, BuiltinType::OCLImage1dBuffer);
+    InitBuiltinType(OCLImage2dTy, BuiltinType::OCLImage2d);
+    InitBuiltinType(OCLImage2dArrayTy, BuiltinType::OCLImage2dArray);
+    InitBuiltinType(OCLImage2dDepthTy, BuiltinType::OCLImage2dDepth);
+    InitBuiltinType(OCLImage2dArrayDepthTy, BuiltinType::OCLImage2dArrayDepth);
+    InitBuiltinType(OCLImage2dMSAATy, BuiltinType::OCLImage2dMSAA);
+    InitBuiltinType(OCLImage2dArrayMSAATy, BuiltinType::OCLImage2dArrayMSAA);
+    InitBuiltinType(OCLImage2dMSAADepthTy, BuiltinType::OCLImage2dMSAADepth);
+    InitBuiltinType(OCLImage2dArrayMSAADepthTy, BuiltinType::OCLImage2dArrayMSAADepth);
+
+    InitBuiltinType(OCLImage3dTy, BuiltinType::OCLImage3d);
+
+    InitBuiltinType(OCLSamplerTy, BuiltinType::OCLSampler);
+    InitBuiltinType(OCLEventTy, BuiltinType::OCLEvent);
+  }
   
   // Builtin type for __objc_yes and __objc_no
   ObjCBuiltinBoolTy = (Target.useSignedCharForObjCBool() ?
@@ -1409,6 +1429,28 @@ ASTContext::getTypeInfoImpl(const Type *T) const {
     case BuiltinType::ObjCClass:
     case BuiltinType::ObjCSel:
       Width = Target->getPointerWidth(0); 
+      Align = Target->getPointerAlign(0);
+      break;
+    case BuiltinType::OCLSampler:
+      // For now we model samplers as integers.
+      Width = Target->getIntWidth();
+      Align = Target->getIntAlign();
+      break;
+    case BuiltinType::OCLEvent:
+    case BuiltinType::OCLImage1d:
+    case BuiltinType::OCLImage1dArray:
+    case BuiltinType::OCLImage1dBuffer:
+    case BuiltinType::OCLImage2d:
+    case BuiltinType::OCLImage2dArray:
+    case BuiltinType::OCLImage2dDepth:
+    case BuiltinType::OCLImage2dArrayDepth:
+    case BuiltinType::OCLImage2dMSAA:
+    case BuiltinType::OCLImage2dArrayMSAA:
+    case BuiltinType::OCLImage2dMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAADepth:
+    case BuiltinType::OCLImage3d:
+      // Currently these types are pointers to opaque types.
+      Width = Target->getPointerWidth(0);
       Align = Target->getPointerAlign(0);
       break;
     }
@@ -4032,7 +4074,7 @@ QualType ASTContext::getFloatingTypeOfSizeWithinDomain(QualType Size,
 
   assert(Domain->isRealFloatingType() && "Unknown domain!");
   switch (EltRank) {
-  case HalfRank: llvm_unreachable("Half ranks are not valid here");
+  case HalfRank:       return HalfTy;
   case FloatRank:      return FloatTy;
   case DoubleRank:     return DoubleTy;
   case LongDoubleRank: return LongDoubleTy;
@@ -4819,6 +4861,28 @@ static char ObjCEncodingForPrimitiveKind(const ASTContext *C, QualType T) {
     case BuiltinType::Float:      return 'f';
     case BuiltinType::Double:     return 'd';
     case BuiltinType::LongDouble: return 'D';
+
+    // OpenCL and placeholder types don't need @encodings.
+    case BuiltinType::OCLImage1d:
+    case BuiltinType::OCLImage1dArray:
+    case BuiltinType::OCLImage1dBuffer:
+    case BuiltinType::OCLImage2d:
+    case BuiltinType::OCLImage2dArray:
+    case BuiltinType::OCLImage2dDepth:
+    case BuiltinType::OCLImage2dArrayDepth:
+    case BuiltinType::OCLImage2dMSAA:
+    case BuiltinType::OCLImage2dArrayMSAA:
+    case BuiltinType::OCLImage2dMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAADepth:
+    case BuiltinType::OCLImage3d:
+    case BuiltinType::OCLEvent:
+    case BuiltinType::OCLSampler:
+    case BuiltinType::Dependent:
+#define BUILTIN_TYPE(KIND, ID)
+#define PLACEHOLDER_TYPE(KIND, ID) \
+    case BuiltinType::KIND:
+#include "clang/AST/BuiltinTypes.def"
+      llvm_unreachable("invalid builtin type for @encode");
     }
 }
 
@@ -7496,6 +7560,9 @@ CallingConv ASTContext::getDefaultCXXMethodCallConv(bool isVariadic) {
 CallingConv ASTContext::getCanonicalCallConv(CallingConv CC) const {
   if (CC == CC_C && !LangOpts.MRTD && getTargetInfo().getCXXABI() != CXXABI_Microsoft)
     return CC_Default;
+  if (getTargetInfo().getTriple().getArch() == llvm::Triple::spir ||
+    getTargetInfo().getTriple().getArch() == llvm::Triple::spir64)
+    return CC_SpirFunction;
   return CC;
 }
 
