@@ -20,6 +20,7 @@
 #include "CGCXXABI.h"
 #include "CGObjCRuntime.h"
 #include "CGOpenCLRuntime.h"
+#include "CGSPIRMetadataAdder.h"
 #include "TargetInfo.h"
 #include "clang/Frontend/CodeGenOptions.h"
 #include "clang/AST/ASTContext.h"
@@ -186,6 +187,32 @@ void CodeGenModule::Release() {
 
   if (DebugInfo)
     DebugInfo->finalize();
+
+  if (llvm::StringRef(TheModule.getTargetTriple()).startswith("spir")) {
+    std::list<std::string> sBuildOptions;
+    std::string tmp = getCodeGenOpts().SPIRCompileOptions;
+    while (!tmp.empty()) {
+      int first = tmp.find_first_not_of(' ');
+      int last = tmp.find_first_of(' ', first);
+
+      std::string s;
+      if (last != std::string::npos)
+        s = tmp.substr(first, last-first);
+      else if (first != std::string::npos)
+        s = tmp.substr(first);
+      else
+        s = "";
+
+      if (!s.empty())
+        sBuildOptions.push_back(s);
+
+      if (last != std::string::npos)
+        tmp = tmp.substr(last);
+      else
+        tmp = "";
+    }
+    AddSPIRMetadata(TheModule, getLangOpts().OpenCLVersion, sBuildOptions);
+  }
 }
 
 void CodeGenModule::UpdateCompletedType(const TagDecl *TD) {

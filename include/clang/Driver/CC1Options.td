@@ -540,6 +540,10 @@ def cl_std_EQ : Joined<["-"], "cl-std=">,
 def cl_kernel_arg_info : Flag<["-"], "cl-kernel-arg-info">,
   HelpText<"OpenCL only. This option allows the compiler to store information about the arguments of a kernel">;
 
+//SPIR generator options
+def cl_spir_compile_options : Separate<["-"], "cl-spir-compile-options">,
+  HelpText<"SPIR compilation options to record in metadata">;
+
 //===----------------------------------------------------------------------===//
 // CUDA Options
 //===----------------------------------------------------------------------===//
