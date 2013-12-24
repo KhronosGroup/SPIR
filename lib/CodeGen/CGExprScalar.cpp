@@ -1398,6 +1398,11 @@ Value *ScalarExprEmitter::VisitCastExpr(CastExpr *CE) {
     return llvm::Constant::getNullValue(ConvertType(DestTy));
   }
 
+  case CK_IntToOCLSampler: {
+    assert(DestTy->isSamplerT() && "CK_IntToOCLSampler cast to non sampler type");
+    return Visit(E);
+  }
+
   }
 
   llvm_unreachable("unknown scalar cast");

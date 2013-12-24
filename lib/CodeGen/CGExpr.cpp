@@ -2656,6 +2656,8 @@ LValue CodeGenFunction::EmitCastLValue(const CastExpr *E) {
   }
   case CK_NullToOCLEvent:
     llvm_unreachable("NULL to OpenCL event lvalue cast is not valid");
+  case CK_IntToOCLSampler:
+    llvm_unreachable("int to OpenCL sampler lvalue cast is not valid");
   }
   
   llvm_unreachable("Unhandled lvalue cast kind?");

@@ -2788,6 +2788,12 @@ Sema::PerformImplicitConversion(Expr *From, QualType ToType,
                              From->getValueKind()).take();
     break;
 
+  case ICK_Int_Sampler_Conversion:
+    From = ImpCastExprToType(From, ToType,
+                             CK_IntToOCLSampler,
+                             From->getValueKind()).take();
+    break;
+
   case ICK_Lvalue_To_Rvalue:
   case ICK_Array_To_Pointer:
   case ICK_Function_To_Pointer:

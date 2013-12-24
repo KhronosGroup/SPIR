@@ -922,6 +922,7 @@ static bool rewriteToNumericBoxedExpression(const ObjCMessageExpr *Msg,
     case CK_CopyAndAutoreleaseBlockObject:
     case CK_BuiltinFnToFnPtr:
     case CK_NullToOCLEvent:
+    case CK_IntToOCLSampler:
       return false;
     }
   }

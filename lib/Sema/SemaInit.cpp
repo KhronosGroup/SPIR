@@ -2424,6 +2424,7 @@ void InitializationSequence::Step::Destroy() {
   case SK_PassByIndirectRestore:
   case SK_ProduceObjCObject:
   case SK_StdInitializerList:
+  case SK_OCLSamplerInit:
   case SK_OCLNULLEvent:
     break;
 
@@ -2649,6 +2650,13 @@ void InitializationSequence::AddProduceObjCObjectStep(QualType T) {
 void InitializationSequence::AddStdInitializerListConstructionStep(QualType T) {
   Step S;
   S.Kind = SK_StdInitializerList;
+  S.Type = T;
+  Steps.push_back(S);
+}
+
+void InitializationSequence::AddOCLSamplerInitStep(QualType T) {
+  Step S;
+  S.Kind = SK_OCLSamplerInit;
   S.Type = T;
   Steps.push_back(S);
 }
@@ -3981,6 +3989,18 @@ static bool tryObjCWritebackConversion(Sema &S,
   return true;
 }
 
+static bool TryOCLSamplerInitialization(Sema &S,
+                                        InitializationSequence &Sequence,
+                                        QualType DestType,
+                                        Expr *Initializer) {
+  if (!S.getLangOpts().OpenCL || !DestType->isSamplerT() ||
+    !Initializer->isIntegerConstantExpr(S.getASTContext()))
+    return false;
+
+  Sequence.AddOCLSamplerInitStep(DestType);
+  return true;
+}
+
 static bool TryOCLNULLEventInitialization(Sema &S,
                                           InitializationSequence &Sequence,
                                           QualType DestType,
@@ -4135,7 +4155,11 @@ InitializationSequence::InitializationSequence(Sema &S,
         tryObjCWritebackConversion(S, *this, Entity, Initializer)) {
       return;
     }
-    
+
+    if (TryOCLSamplerInitialization(S, *this, DestType, Initializer)) {
+      return;
+    }
+
     if (TryOCLNULLEventInitialization(S, *this, DestType, Initializer)) {
       return;
     }
@@ -4920,6 +4944,7 @@ InitializationSequence::Perform(Sema &S,
   case SK_PassByIndirectRestore:
   case SK_ProduceObjCObject:
   case SK_StdInitializerList:
+  case SK_OCLSamplerInit:
   case SK_OCLNULLEvent: {
     assert(Args.size() == 1);
     CurInit = Args[0];
@@ -5428,6 +5453,29 @@ InitializationSequence::Perform(Sema &S,
       Semantic->setType(Dest);
       Semantic->setInitializesStdInitializerList();
       CurInit = S.Owned(Semantic);
+      break;
+    }
+    case SK_OCLSamplerInit: {
+      assert(Step->Type->isSamplerT() && 
+             "Sampler initialization on non sampler type.");
+
+      QualType SourceType = CurInit.get()->getType();
+      bool isConst = CurInit.get()->isConstantInitializer(S.Context, false);
+      InitializedEntity::EntityKind EntityKind = Entity.getKind();
+
+      if (EntityKind == InitializedEntity::EK_Variable ||
+          EntityKind == InitializedEntity::EK_Parameter) {
+        if (!isConst)
+          S.Diag(Kind.getLocation(), diag::err_sampler_initializer_not_constant);
+        else if (!SourceType->isIntegerType())
+          S.Diag(Kind.getLocation(), diag::err_sampler_initializer_not_integer)
+            << SourceType;
+      } else
+        llvm_unreachable("Invalid EntityKind!");
+
+      CurInit = S.ImpCastExprToType(CurInit.take(), Step->Type,
+                                    CK_IntToOCLSampler,
+                                    CurInit.get()->getValueKind());
       break;
     }
     case SK_OCLNULLEvent: {
@@ -6087,6 +6135,10 @@ void InitializationSequence::dump(raw_ostream &OS) const {
 
     case SK_StdInitializerList:
       OS << "std::initializer_list from initializer list";
+      break;
+
+    case SK_OCLSamplerInit:
+      OS << "OpenCL sampler_t from integer constant";
       break;
 
     case SK_OCLNULLEvent:

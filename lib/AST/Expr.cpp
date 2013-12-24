@@ -1417,6 +1417,7 @@ void CastExpr::CheckCastConsistency() const {
   case CK_ARCReclaimReturnedObject:
   case CK_ARCExtendBlockObject:
   case CK_NullToOCLEvent:
+  case CK_IntToOCLSampler:
     assert(!getType()->isBooleanType() && "unheralded conversion to bool");
     goto CheckNoBasePath;
 
@@ -1550,6 +1551,8 @@ const char *CastExpr::getCastKindName() const {
     return "BuiltinFnToFnPtr";
   case CK_NullToOCLEvent:
     return "NullToOCLEvent";
+  case CK_IntToOCLSampler:
+    return "IntToOCLSampler";
   }
 
   llvm_unreachable("Unhandled cast kind!");
@@ -2700,7 +2703,8 @@ bool Expr::isConstantInitializer(ASTContext &Ctx, bool IsForRef) const {
     if (CE->getCastKind() == CK_NoOp ||
         CE->getCastKind() == CK_LValueToRValue ||
         CE->getCastKind() == CK_ToUnion ||
-        CE->getCastKind() == CK_ConstructorConversion)
+        CE->getCastKind() == CK_ConstructorConversion ||
+        CE->getCastKind() == CK_IntToOCLSampler)
       return CE->getSubExpr()->isConstantInitializer(Ctx, false);
 
     break;
