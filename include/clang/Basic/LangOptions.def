@@ -180,6 +180,8 @@ LANGOPT(ApplePragmaPack, 1, 0, "Apple gcc-compatible #pragma pack handling")
 
 BENIGN_LANGOPT(RetainCommentsFromSystemHeaders, 1, 0, "retain documentation comments from system headers in the AST")
 
+LANGOPT(CLEnableHalf            , 1, 0, "cl-enable-half flag used")
+
 #undef LANGOPT
 #undef VALUE_LANGOPT
 #undef BENIGN_LANGOPT

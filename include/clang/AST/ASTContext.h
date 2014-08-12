@@ -118,6 +118,7 @@ class ASTContext : public RefCountedBase<ASTContext> {
   mutable llvm::FoldingSet<AutoType> AutoTypes;
   mutable llvm::FoldingSet<AtomicType> AtomicTypes;
   llvm::FoldingSet<AttributedType> AttributedTypes;
+  mutable llvm::FoldingSet<PipeType> PipeTypes;
 
   mutable llvm::FoldingSet<QualifiedTemplateName> QualifiedTemplateNames;
   mutable llvm::FoldingSet<DependentTemplateName> DependentTemplateNames;
@@ -382,6 +383,8 @@ private:
   ///  this ASTContext object.
   LangOptions &LangOpts;
 
+  bool disabledFPContract;
+
   /// \brief The allocator used to create AST objects.
   ///
   /// AST objects are never destructed; rather, all memory associated with the
@@ -503,6 +506,10 @@ public:
   bool AtomicUsesUnsupportedLibcall(const AtomicExpr *E) const;
   
   const LangOptions& getLangOpts() const { return LangOpts; }
+
+  void disableFPContract() { disabledFPContract = true; }
+
+  bool isFPContractDisabled() const { return disabledFPContract; }
 
   DiagnosticsEngine &getDiagnostics() const;
 
@@ -786,8 +793,11 @@ public:
   CanQualType ObjCBuiltinBoolTy;
   CanQualType OCLImage1dTy, OCLImage1dArrayTy, OCLImage1dBufferTy;
   CanQualType OCLImage2dTy, OCLImage2dArrayTy;
+  CanQualType OCLImage2dDepthTy, OCLImage2dMSAATy, OCLImage2dMSAADepthTy;
+  CanQualType OCLImage2dArrayMSAADepthTy, OCLImage2dArrayMSAATy, OCLImage2dArrayDepthTy;
   CanQualType OCLImage3dTy;
   CanQualType OCLSamplerTy, OCLEventTy;
+  CanQualType OCLQueueTy, OCLCLKEventTy, OCLReserveIdTy;
 
   // Types for deductions in C++0x [stmt.ranged]'s desugaring. Built on demand.
   mutable QualType AutoDeductTy;     // Deduction against 'auto'.
@@ -934,6 +944,9 @@ public:
   /// Gets the struct used to keep track of the descriptor for pointer to
   /// blocks.
   QualType getBlockDescriptorType() const;
+
+  /// \brief Return pipe type for the specified type.
+  QualType getPipeType(QualType T) const;
 
   /// Gets the struct used to keep track of the extended descriptor for
   /// pointer to blocks.

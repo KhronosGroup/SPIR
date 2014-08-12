@@ -1296,6 +1296,7 @@ namespace {
     1,    // opencl_global
     3,    // opencl_local
     4,    // opencl_constant
+    5,    // opencl_generic
     1,    // cuda_device
     4,    // cuda_constant
     3,    // cuda_shared
@@ -1418,6 +1419,7 @@ static const unsigned R600AddrSpaceMap[] = {
   1,    // opencl_global
   3,    // opencl_local
   2,    // opencl_constant
+  4,    // opencl_generic
   1,    // cuda_device
   2,    // cuda_constant
   3     // cuda_shared
@@ -1607,6 +1609,16 @@ const TargetInfo::AddlRegName AddlRegNames[] = {
   { { "edi", "rdi" }, 5 },
   { { "esp", "rsp" }, 7 },
   { { "ebp", "rbp" }, 6 },
+};
+
+static const unsigned X86DefaultAddrSpaceMap[] = {
+    1,    // opencl_global
+    3,    // opencl_local
+    2,    // opencl_constant
+    4,    // opencl_generic
+    0,    // cuda_device
+    0,    // cuda_constant
+    0,    // cuda_shared
 };
 
 // X86 target abstract base class; x86-32 and x86-64 are very close, so
@@ -1806,6 +1818,7 @@ public:
         FPMath(FP_Default) {
     BigEndian = false;
     LongDoubleFormat = &llvm::APFloat::x87DoubleExtended;
+    AddrSpaceMap = &X86DefaultAddrSpaceMap;
   }
   virtual unsigned getFloatEvalMethod() const {
     // X87 evaluates with 80 bits "long double" precision.
@@ -1815,6 +1828,9 @@ public:
                                  unsigned &NumRecords) const {
     Records = BuiltinInfo;
     NumRecords = clang::X86::LastTSBuiltin-Builtin::FirstTSBuiltin;
+  }
+  virtual bool isCLZForZeroUndef() const { 
+    return false; 
   }
   virtual void getGCCRegNames(const char * const *&Names,
                               unsigned &NumNames) const {
@@ -4757,6 +4773,7 @@ namespace {
       3, // opencl_global
       4, // opencl_local
       5, // opencl_constant
+      6, // opencl_generic
       0, // cuda_device
       0, // cuda_constant
       0  // cuda_shared
@@ -5379,6 +5396,7 @@ namespace {
     1,    // opencl_global
     3,    // opencl_local
     2,    // opencl_constant
+    4,    // opencl_generic
     0,    // cuda_device
     0,    // cuda_constant
     0     // cuda_shared

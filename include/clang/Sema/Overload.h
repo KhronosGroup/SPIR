@@ -82,6 +82,7 @@ namespace clang {
     ICK_TransparentUnionConversion, ///< Transparent Union Conversions
     ICK_Writeback_Conversion,  ///< Objective-C ARC writeback conversion
     ICK_Zero_Event_Conversion, ///< Zero constant to event (OpenCL1.2 6.12.10)
+    ICK_Int_Sampler_Conversion, ///< Integer constant to OpenCL sampler
     ICK_Num_Conversion_Kinds   ///< The number of conversion kinds
   };
 
@@ -108,6 +109,7 @@ namespace clang {
     ICR_Exact_Match = 0,         ///< Exact Match
     ICR_Promotion,               ///< Promotion
     ICR_Conversion,              ///< Conversion
+    ICR_OCL_Scalar_Widening,     ///< OpenCL Scalar Widening
     ICR_Complex_Real_Conversion, ///< Complex <-> Real conversion
     ICR_Writeback_Conversion     ///< ObjC ARC writeback conversion
   };

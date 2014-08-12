@@ -386,9 +386,12 @@ void Sema::ActOnPragmaFPContract(tok::OnOffSwitch OOS) {
     break;
   case tok::OOS_OFF:
     FPFeatures.fp_contract = 0; 
+    Context.disableFPContract();
     break;
   case tok::OOS_DEFAULT:
     FPFeatures.fp_contract = getLangOpts().DefaultFPContract;
+    if (0 == getLangOpts().DefaultFPContract)
+      Context.disableFPContract();
     break;
   }
 }

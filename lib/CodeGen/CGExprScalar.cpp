@@ -1299,7 +1299,14 @@ Value *ScalarExprEmitter::VisitCastExpr(CastExpr *CE) {
   case CK_AnyPointerToBlockPointerCast:
   case CK_BitCast: {
     Value *Src = Visit(const_cast<Expr*>(E));
-    return Builder.CreateBitCast(Src, ConvertType(DestTy));
+    llvm::Type *SrcTy = Src->getType();
+    llvm::Type *DstTy = ConvertType(DestTy);
+
+    if (SrcTy->isPointerTy() && DstTy->isPointerTy() &&
+        SrcTy->getPointerAddressSpace() != DstTy->getPointerAddressSpace())
+      return Builder.CreateAddrSpaceCast(Src, DstTy);
+    else
+      return Builder.CreateBitCast(Src, DstTy);
   }
   case CK_AtomicToNonAtomic:
   case CK_NonAtomicToAtomic:
@@ -1487,6 +1494,11 @@ Value *ScalarExprEmitter::VisitCastExpr(CastExpr *CE) {
   case CK_ZeroToOCLEvent: {
     assert(DestTy->isEventT() && "CK_ZeroToOCLEvent cast on non event type");
     return llvm::Constant::getNullValue(ConvertType(DestTy));
+  }
+
+  case CK_IntToOCLSampler: {
+    assert(DestTy->isSamplerT() && "CK_IntToOCLSampler cast to non sampler type");
+    return Visit(E);
   }
 
   }
@@ -3203,7 +3215,9 @@ Value *ScalarExprEmitter::VisitAsTypeExpr(AsTypeExpr *E) {
       cast<llvm::VectorType>(DstTy)->getElementType();
 
       if ((srcElemTy->isIntegerTy() && dstElemTy->isFloatTy())
-          || (srcElemTy->isFloatTy() && dstElemTy->isIntegerTy())) {
+          || (srcElemTy->isFloatTy() && dstElemTy->isIntegerTy())
+		  || (srcElemTy->isIntegerTy() && dstElemTy->isDoubleTy())
+	      || (srcElemTy->isDoubleTy() && dstElemTy->isIntegerTy())) {
         // Create a float type of the same size as the source or destination.
         llvm::VectorType *newSrcTy = llvm::VectorType::get(dstElemTy,
                                                                  numElementsSrc);

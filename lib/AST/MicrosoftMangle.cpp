@@ -1251,9 +1251,18 @@ void MicrosoftCXXNameMangler::mangleType(const BuiltinType *T,
   case BuiltinType::OCLImage1dBuffer: Out << "PAUocl_image1dbuffer@@"; break;
   case BuiltinType::OCLImage2d: Out << "PAUocl_image2d@@"; break;
   case BuiltinType::OCLImage2dArray: Out << "PAUocl_image2darray@@"; break;
+  case BuiltinType::OCLImage2dDepth: Out << "PAUocl_image2ddepth@@"; break;
+  case BuiltinType::OCLImage2dArrayDepth: Out << "PAUocl_image2darraydepth@@"; break;
+  case BuiltinType::OCLImage2dMSAA: Out << "PAUocl_image2dmsaa@@"; break;
+  case BuiltinType::OCLImage2dArrayMSAA: Out << "PAUocl_image2darraymsaa@@"; break;
+  case BuiltinType::OCLImage2dMSAADepth: Out << "PAUocl_image2dmsaadepth@@"; break;
+  case BuiltinType::OCLImage2dArrayMSAADepth: Out << "PAUocl_image2darraymsaadepth@@"; break;
   case BuiltinType::OCLImage3d: Out << "PAUocl_image3d@@"; break;
   case BuiltinType::OCLSampler: Out << "PAUocl_sampler@@"; break;
   case BuiltinType::OCLEvent: Out << "PAUocl_event@@"; break;
+  case BuiltinType::OCLQueue: Out << "PAUocl_queue@@"; break;
+  case BuiltinType::OCLCLKEvent: Out << "PAUocl_clkevent@@"; break;
+  case BuiltinType::OCLReserveId: Out << "PAUocl_reserve_id@@"; break;
  
   case BuiltinType::NullPtr: Out << "$$T"; break;
 
@@ -1816,6 +1825,15 @@ void MicrosoftCXXNameMangler::mangleType(const AtomicType *T,
   DiagnosticsEngine &Diags = Context.getDiags();
   unsigned DiagID = Diags.getCustomDiagID(DiagnosticsEngine::Error,
     "cannot mangle this C11 atomic type yet");
+  Diags.Report(Range.getBegin(), DiagID)
+    << Range;
+}
+
+void MicrosoftCXXNameMangler::mangleType(const PipeType *T,
+                                         SourceRange Range) {
+  DiagnosticsEngine &Diags = Context.getDiags();
+  unsigned DiagID = Diags.getCustomDiagID(DiagnosticsEngine::Error,
+    "cannot mangle this OpenCL pipe type yet");
   Diags.Report(Range.getBegin(), DiagID)
     << Range;
 }

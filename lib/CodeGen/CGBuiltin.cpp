@@ -14,6 +14,7 @@
 #include "CodeGenFunction.h"
 #include "CGObjCRuntime.h"
 #include "CodeGenModule.h"
+#include "CGOpenCLRuntime.h"
 #include "TargetInfo.h"
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/Decl.h"
@@ -22,6 +23,9 @@
 #include "clang/CodeGen/CGFunctionInfo.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/Intrinsics.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Support/TargetRegistry.h"
+#include "llvm/Target/TargetIntrinsicInfo.h"
 
 using namespace clang;
 using namespace CodeGen;
@@ -1500,6 +1504,201 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
     return RValue::get(EmitLValue(E->getArg(0)).getAddress());
   case Builtin::BI__noop:
     return RValue::get(0);
+  case Builtin::BIread_pipe:
+  case Builtin::BIwrite_pipe: {
+    const char *NamePrefix = (BuiltinID == Builtin::BIread_pipe) ?
+                             "_Z9read_pipe" : "_Z10write_pipe";
+    llvm::LLVMContext& Ctxt = getLLVMContext();
+    Value *Arg0 = EmitScalarExpr(E->getArg(0)),
+          *Arg1 = EmitScalarExpr(E->getArg(1));
+    Value *PacketSize = CGOpenCLRuntime(CGM).getPipeElemSize(E->getArg(0));
+    Value *PacketAlign = CGOpenCLRuntime(CGM).getPipeElemAlign(E->getArg(0));
+    llvm::SmallString<128> Out;
+
+    // Type of the packet parameter.
+    llvm::Type *I8PTy = llvm::PointerType::get(llvm::Type::getInt8Ty(Ctxt), 4U);
+
+    // Testing which overloaded version we should generate the call for.
+    if (2U == E->getNumArgs()) {
+      // The name is mangled with hard-coded, since we would like to avoid the
+      // AST rewrite.
+      SmallString<64> SS;
+      Ocl20Mangler Mangler(SS);
+      Mangler.appendPointer(1).appendPipe().appendPointer(4).appendVoid().
+              appendUint().appendUint();
+
+      Twine NameTwine(NamePrefix, SS.str());
+      StringRef Name = NameTwine.toStringRef(Out);
+      // Re-Creating the function type for this call, since the original type
+      // is variadic, which we convert to a specific type to match this call.
+      llvm::Type *ArgTys[] = {Arg0->getType(), I8PTy, Int32Ty, Int32Ty};
+      llvm::FunctionType *FTy = llvm::FunctionType::get(
+                                            Int32Ty,
+                                            llvm::ArrayRef<llvm::Type*>(ArgTys),
+                                            false);
+      Value *BCast = Builder.CreateAddrSpaceCast(Arg1, I8PTy);
+      return RValue::get(Builder.CreateCall4(CGM.CreateRuntimeFunction(FTy,
+                                                                       Name),
+                                             Arg0,
+                                             BCast,
+                                             PacketSize,
+                                             PacketAlign));
+    } else {
+      assert(4 == E->getNumArgs() && "Illegal number of parameters to pipe function");
+
+      SmallString<64> SS;
+      Ocl20Mangler Mangler(SS);
+      Mangler.appendPointer(1).appendPipe().appendReservedId().
+              appendUint().appendPointer(4).appendVoid().appendUint().appendUint();
+
+      Twine NameTwine(NamePrefix, SS.str());
+      StringRef Name = NameTwine.toStringRef(Out);
+      Value *Arg2 = EmitScalarExpr(E->getArg(2)),
+            *Arg3 = EmitScalarExpr(E->getArg(3));
+      Value *BCast = Builder.CreateAddrSpaceCast(Arg3, I8PTy);
+      llvm::Type *ArgTys[] = {Arg0->getType(), Arg1->getType(), Int32Ty, I8PTy,
+                              Int32Ty, Int32Ty};
+      llvm::FunctionType *FTy = llvm::FunctionType::get(
+                                            Int32Ty,
+                                            llvm::ArrayRef<llvm::Type*>(ArgTys),
+                                            false);
+      // We know the third argument is an integer type (Verified by Sema, but
+      // we may need to cast it.
+      if (Arg2->getType() != Int32Ty)
+        Arg2 = Builder.CreateZExtOrTrunc(Arg2, Int32Ty);
+      Value *Args[] = {
+        Arg0,
+        Arg1,
+        Arg2,
+        BCast,
+        PacketSize,
+        PacketAlign
+      };
+      return RValue::get(Builder.CreateCall(CGM.CreateRuntimeFunction(FTy,
+                                                                      Name),
+                                             Args));
+    }
+  }
+  case Builtin::BIreserve_read_pipe:
+  case Builtin::BIreserve_write_pipe:
+  case Builtin::BIwork_group_reserve_read_pipe:
+  case Builtin::BIwork_group_reserve_write_pipe: {
+    // Composing the mangled name for the function.
+    const char *NamePrefix;
+    if (BuiltinID == Builtin::BIreserve_read_pipe)
+      NamePrefix = "_Z17reserve_read_pipe";
+    else if (BuiltinID == Builtin::BIreserve_write_pipe)
+      NamePrefix = "_Z18reserve_write_pipe";
+    else if(BuiltinID == Builtin::BIwork_group_reserve_read_pipe)
+      NamePrefix = "_Z28work_group_reserve_read_pipe";
+    else
+      NamePrefix = "_Z29work_group_reserve_write_pipe";
+
+    SmallString<64> SS;
+    Ocl20Mangler Mangler(SS);
+    Mangler.appendPointer(1).appendPipe().appendUint().appendUint().appendUint();
+    llvm::Twine NameTwine(NamePrefix, SS.str());
+
+    llvm::SmallString<128> Out;
+    llvm::StringRef Name = NameTwine.toStringRef(Out);
+    CGOpenCLRuntime CGOcl(CGM);
+
+    Value *PacketSize = CGOcl.getPipeElemSize(E->getArg(0));
+    Value *PacketAlign = CGOcl.getPipeElemAlign(E->getArg(0));
+    Value *Arg0 = EmitScalarExpr(E->getArg(0)),
+          *Arg1 = EmitScalarExpr(E->getArg(1));
+    llvm::Type *ReservedIDTy = ConvertType(getContext().OCLReserveIdTy);
+
+    // Building the fucntion's prototype.
+    llvm::Type *ArgTys[] = {Arg0->getType(), Int32Ty, Int32Ty, Int32Ty};
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+                                            ReservedIDTy,
+                                            llvm::ArrayRef<llvm::Type*>(ArgTys),
+                                            false);
+    // We know the third argument is an integer type (Verified by Sema, but
+    // we may need to cast it.
+    if (Arg1->getType() != Int32Ty)
+      Arg1 = Builder.CreateZExtOrTrunc(Arg1, Int32Ty);
+    return RValue::get(Builder.CreateCall4(CGM.CreateRuntimeFunction(FTy, Name),
+                                           Arg0,
+                                           Arg1,
+                                           PacketSize,
+                                           PacketAlign));
+  }
+  case Builtin::BIcommit_read_pipe:
+  case Builtin::BIcommit_write_pipe:
+  case Builtin::BIwork_group_commit_read_pipe:
+  case Builtin::BIwork_group_commit_write_pipe: {
+    // Composing the mangled name for the function.
+    const char *NamePrefix;
+    if (BuiltinID == Builtin::BIcommit_read_pipe)
+      NamePrefix = "_Z16commit_read_pipe";
+    else if(BuiltinID == Builtin::BIcommit_write_pipe)
+      NamePrefix = "_Z17commit_write_pipe";
+    else if(BuiltinID == Builtin::BIwork_group_commit_read_pipe)
+      NamePrefix = "_Z27work_group_commit_read_pipe";
+    else
+      NamePrefix = "_Z28work_group_commit_write_pipe";
+
+    SmallString<64> SS;
+    Ocl20Mangler Mangler(SS);
+    Mangler.appendPointer(1).appendPipe().appendReservedId().appendUint().
+      appendUint();
+    llvm::Twine NameTwine(NamePrefix, SS.str());
+
+    llvm::SmallString<128> Out;
+    llvm::StringRef Name = NameTwine.toStringRef(Out);
+    CGOpenCLRuntime CGOcl(CGM);
+
+    Value *PacketSize = CGOcl.getPipeElemSize(E->getArg(0));
+    Value *PacketAlign = CGOcl.getPipeElemAlign(E->getArg(0));
+    Value *Arg0 = EmitScalarExpr(E->getArg(0)),
+          *Arg1 = EmitScalarExpr(E->getArg(1));
+
+    // Building the function's prototype.
+    llvm::Type *ArgTys[] = {Arg0->getType(), Arg1->getType(), Int32Ty, Int32Ty};
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+                                        llvm::Type::getVoidTy(getLLVMContext()),
+                                        llvm::ArrayRef<llvm::Type*>(ArgTys),
+                                        false);
+
+    return RValue::get(Builder.CreateCall4(CGM.CreateRuntimeFunction(FTy, Name),
+                                           Arg0,
+                                           Arg1,
+                                           PacketSize,
+                                           PacketAlign));
+  }
+  case Builtin::BIget_pipe_num_packets:
+  case Builtin::BIget_pipe_max_packets: {
+    // Composing the builtin's name.
+    const char *NamePrefix;
+    if (BuiltinID == Builtin::BIget_pipe_num_packets)
+      NamePrefix = "_Z20get_pipe_num_packets";
+    else
+      NamePrefix = "_Z20get_pipe_max_packets";
+
+    SmallString<64> SS;
+    Ocl20Mangler Mangler(SS);
+    Mangler.appendPointer(1).appendPipe().appendUint().appendUint();
+    llvm::Twine NameTwine(NamePrefix, SS.str());
+    llvm::SmallString<128> Out;
+    llvm::StringRef Name = NameTwine.toStringRef(Out);
+
+    // Building the function's prototype.
+    CGOpenCLRuntime CGOcl(CGM);
+    Value *PacketSize = CGOcl.getPipeElemSize(E->getArg(0));
+    Value *PacketAlign = CGOcl.getPipeElemAlign(E->getArg(0));
+    Value *Arg0 = EmitScalarExpr(E->getArg(0));
+    llvm::Type *ArgTys[] = {Arg0->getType(), Int32Ty, Int32Ty};
+    llvm::FunctionType *FTy = llvm::FunctionType::get(Int32Ty,
+                                           llvm::ArrayRef<llvm::Type*>(ArgTys),
+                                           false);
+
+    return RValue::get(Builder.CreateCall3(CGM.CreateRuntimeFunction(FTy, Name),
+                                           Arg0,
+                                           PacketSize,
+                                           PacketAlign));
+  }
   }
 
   // If this is an alias for a lib function (e.g. __builtin_sin), emit

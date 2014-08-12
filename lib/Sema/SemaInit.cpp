@@ -843,7 +843,8 @@ void InitListChecker::CheckSubElementType(const InitializedEntity &Entity,
   }
 
   // FIXME: Need to handle atomic aggregate types with implicit init lists.
-  if (ElemType->isScalarType() || ElemType->isAtomicType())
+  if (ElemType->isScalarType() || ElemType->isAtomicType() ||
+      ElemType->isExecType())
     return CheckScalarType(Entity, IList, ElemType, Index,
                            StructuredList, StructuredIndex);
 
@@ -929,7 +930,7 @@ void InitListChecker::CheckSubElementType(const InitializedEntity &Entity,
   //   subaggregate, brace elision is assumed and the initializer is
   //   considered for the initialization of the first member of
   //   the subaggregate.
-  if (!SemaRef.getLangOpts().OpenCL && 
+  if (/*!SemaRef.getLangOpts().OpenCL && */
       (ElemType->isAggregateType() || ElemType->isVectorType())) {
     CheckImplicitInitList(Entity, IList, ElemType, Index, StructuredList,
                           StructuredIndex);
@@ -5591,6 +5592,20 @@ InitializationSequence::Perform(Sema &S,
       << Init->getSourceRange();
   }
 
+  QualType ETy = Entity.getType();
+  Qualifiers TyQualifiers = ETy.getQualifiers();
+  bool HasGlobalAS = TyQualifiers.hasAddressSpace() &&
+                     TyQualifiers.getAddressSpace() == LangAS::opencl_global;
+
+  if (S.getLangOpts().OpenCL && S.getLangOpts().OpenCLVersion >= 200 &&
+      ETy->isAtomicType() && !HasGlobalAS &&
+      Entity.getKind() == InitializedEntity::EK_Variable && Args.size() > 0) {
+    const Expr *Init = Args[0];
+    S.Diag(Init->getLocStart(), diag::err_atomic_init_addressspace) <<
+    SourceRange(Entity.getDecl()->getLocStart(), Init->getLocEnd());
+    return ExprError();
+  }
+
   // Diagnose cases where we initialize a pointer to an array temporary, and the
   // pointer obviously outlives the temporary.
   if (Args.size() == 1 && Args[0]->getType()->isArrayType() &&
@@ -6199,15 +6214,23 @@ InitializationSequence::Perform(Sema &S,
              "Sampler initialization on non sampler type.");
 
       QualType SourceType = CurInit.get()->getType();
+      bool isConst = CurInit.get()->isConstantInitializer(S.Context, false);
+      InitializedEntity::EntityKind EntityKind = Entity.getKind();
 
-      if (Entity.isParameterKind()) {
-        if (!SourceType->isSamplerT())
-          S.Diag(Kind.getLocation(), diag::err_sampler_argument_required)
+      if (EntityKind == InitializedEntity::EK_Variable ||
+          EntityKind == InitializedEntity::EK_Parameter) {
+        if (!isConst)
+          S.Diag(Kind.getLocation(), diag::err_sampler_initializer_not_constant);
+        else if (!SourceType->isIntegerType())
+          S.Diag(Kind.getLocation(), diag::err_sampler_initializer_not_integer)
             << SourceType;
-      } else if (Entity.getKind() != InitializedEntity::EK_Variable) {
+      } else {
         llvm_unreachable("Invalid EntityKind!");
       }
 
+      CurInit = S.ImpCastExprToType(CurInit.take(), Step->Type,
+                                    CK_IntToOCLSampler,
+                                    CurInit.get()->getValueKind());
       break;
     }
     case SK_OCLZeroEvent: {

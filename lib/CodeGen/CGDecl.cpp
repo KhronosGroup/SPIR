@@ -145,7 +145,8 @@ void CodeGenFunction::EmitVarDecl(const VarDecl &D) {
     // Don't emit it now, allow it to be emitted lazily on its first use.
     return;
 
-  if (D.getStorageClass() == SC_OpenCLWorkGroupLocal)
+  if ((D.getStorageClass() == SC_OpenCLWorkGroupLocal) ||
+      (D.getStorageClass() == SC_OpenCLConstant))
     return CGM.getOpenCLRuntime().EmitWorkGroupLocalVarDecl(*this, D);
 
   assert(D.hasLocalStorage());

@@ -478,6 +478,7 @@ NumericLiteralParser::NumericLiteralParser(StringRef TokSpelling,
   isLong = false;
   isUnsigned = false;
   isLongLong = false;
+  isHalf = false;
   isFloat = false;
   isImaginary = false;
   isMicrosoftInteger = false;
@@ -535,6 +536,12 @@ NumericLiteralParser::NumericLiteralParser(StringRef TokSpelling,
   // we break out of the loop.
   for (; s != ThisTokEnd; ++s) {
     switch (*s) {
+    case 'h':      // FP Suffix for "half"
+    case 'H':
+      if (!isFPConstant) break;  // Error for integer constant.
+      if (isHalf || isFloat || isLong) break; // FH, LH, HH invalid.
+      isHalf = true;
+      continue;  // Success.
     case 'f':      // FP Suffix for "float"
     case 'F':
       if (!isFPConstant) break;  // Error for integer constant.

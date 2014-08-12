@@ -114,6 +114,12 @@ CODEGENOPT(VectorizeBB       , 1, 0) ///< Run basic block vectorizer.
 CODEGENOPT(VectorizeLoop     , 1, 0) ///< Run loop vectorizer.
 CODEGENOPT(VectorizeSLP      , 1, 0) ///< Run SLP vectorizer.
 
+CODEGENOPT(DenormsAreZero    , 1, 0) ///< Allow flushing of denorms to zero.
+CODEGENOPT(CorrectFPDivideSqrt , 1, 0) ///< Single precision divide and sqrt are
+                                       ///< correctly rounded.
+CODEGENOPT(OptDisable        , 1, 0) ///< Disables all optimizations.
+CODEGENOPT(NoSignedZeros	 , 1, 0) ///< Assume +0 == -0.
+
   /// Attempt to use register sized accesses to bit-fields in structures, when
   /// possible.
 CODEGENOPT(UseRegisterSizedBitfieldAccess , 1, 0)

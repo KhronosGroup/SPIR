@@ -792,6 +792,13 @@ bool Type::isFloatingType() const {
   return false;
 }
 
+bool Type::isDoubleType() const {
+  if (const BuiltinType *BT = dyn_cast<BuiltinType>(CanonicalType))
+    return BT->getKind() >= BuiltinType::Double &&
+           BT->getKind() <= BuiltinType::LongDouble;
+  return false;
+}
+
 bool Type::hasFloatingRepresentation() const {
   if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
     return VT->getElementType()->isFloatingType();
@@ -811,6 +818,30 @@ bool Type::isRealType() const {
            BT->getKind() <= BuiltinType::LongDouble;
   if (const EnumType *ET = dyn_cast<EnumType>(CanonicalType))
       return ET->getDecl()->isComplete() && !ET->getDecl()->isScoped();
+  return false;
+}
+
+bool Type::isFloatingVecType() const {
+  if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
+    return VT->getElementType()->isFloatingType();
+  return false;
+}
+
+bool Type::isDoubleVecType() const {
+  if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
+    return VT->getElementType()->isDoubleType();
+  return false;
+}
+
+bool Type::isIntegerVecType() const {
+  if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
+    return VT->getElementType()->isIntegerType();
+  return false;
+}
+
+bool Type::isRealVecType() const {
+  if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
+    return VT->getElementType()->isRealType();
   return false;
 }
 
@@ -1541,8 +1572,17 @@ StringRef BuiltinType::getName(const PrintingPolicy &Policy) const {
   case OCLImage2d:        return "image2d_t";
   case OCLImage2dArray:   return "image2d_array_t";
   case OCLImage3d:        return "image3d_t";
+  case OCLImage2dDepth:   return "image2d_depth_t";
+  case OCLImage2dMSAA:    return "image2d_msaa_t";
+  case OCLImage2dMSAADepth: return "image2d_msaa_depth_t";
+  case OCLImage2dArrayMSAADepth: return "image2d_array_msaa_depth_t";
+  case OCLImage2dArrayMSAA: return "image2d_array_msaa_t";
+  case OCLImage2dArrayDepth: return "image2d_array_depth_t";
   case OCLSampler:        return "sampler_t";
   case OCLEvent:          return "event_t";
+  case OCLQueue:          return "queue_t";
+  case OCLCLKEvent:       return "clk_event_t";
+  case OCLReserveId:      return "reserve_id_t";
   }
   
   llvm_unreachable("Invalid builtin type.");
@@ -1577,6 +1617,7 @@ StringRef FunctionType::getNameForCallConv(CallingConv CC) {
   case CC_AAPCS_VFP: return "aapcs-vfp";
   case CC_PnaclCall: return "pnaclcall";
   case CC_IntelOclBicc: return "intel_ocl_bicc";
+  case CC_SpirFunction: return "spir_function";
   }
 
   llvm_unreachable("Invalid calling convention.");
@@ -2219,6 +2260,8 @@ static CachedProperties computeCachedProperties(const Type *T) {
     return Cache::get(cast<ObjCObjectPointerType>(T)->getPointeeType());
   case Type::Atomic:
     return Cache::get(cast<AtomicType>(T)->getValueType());
+  case Type::Pipe:
+    return Cache::get(cast<PipeType>(T)->getElementType());
   }
 
   llvm_unreachable("unhandled type class");

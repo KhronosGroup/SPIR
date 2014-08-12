@@ -18,6 +18,7 @@
 #include "CGDebugInfo.h"
 #include "CGObjCRuntime.h"
 #include "CGOpenCLRuntime.h"
+#include "CGSPIRMetadataAdder.h"
 #include "CodeGenFunction.h"
 #include "CodeGenTBAA.h"
 #include "TargetInfo.h"
@@ -269,6 +270,9 @@ void CodeGenModule::Release() {
 
   SimplifyPersonality();
 
+  if (getLangOpts().OpenCL)
+    EmitOCLAnnotations();
+
   if (getCodeGenOpts().EmitDeclMetadata)
     EmitDeclMetadata();
 
@@ -277,6 +281,32 @@ void CodeGenModule::Release() {
 
   if (DebugInfo)
     DebugInfo->finalize();
+
+  if (llvm::StringRef(TheModule.getTargetTriple()).startswith("spir")) {
+    std::list<std::string> sBuildOptions;
+    std::string tmp = getCodeGenOpts().SPIRCompileOptions;
+    while (!tmp.empty()) {
+      int first = tmp.find_first_not_of(' ');
+      int last = tmp.find_first_of(' ', first);
+
+      std::string s;
+      if (last != std::string::npos)
+        s = tmp.substr(first, last-first);
+      else if (first != std::string::npos)
+        s = tmp.substr(first);
+      else
+        s = "";
+
+      if (!s.empty())
+        sBuildOptions.push_back(s);
+
+      if (last != std::string::npos)
+        tmp = tmp.substr(last);
+      else
+        tmp = "";
+    }
+    AddSPIRMetadata(TheModule, getLangOpts().OpenCLVersion, sBuildOptions);
+  }
 
   EmitVersionIdentMetadata();
 }
@@ -1041,6 +1071,96 @@ void CodeGenModule::EmitGlobalAnnotations() {
     Array->getType(), false, llvm::GlobalValue::AppendingLinkage, Array,
     "llvm.global.annotations");
   gv->setSection(AnnotationSection);
+}
+
+void CodeGenModule::EmitOCLAnnotations() {
+  // For SPIR, we generate this metadata in a seperate pass
+  if (getTarget().getTriple().getArch() != llvm::Triple::spir &&
+    getTarget().getTriple().getArch() != llvm::Triple::spir64)
+    EmitOCLBuildOptions();
+
+  if (!Context.isFPContractDisabled() && (0 != getLangOpts().DefaultFPContract))
+  {
+    TheModule.getOrInsertNamedMetadata("opencl.enable.FP_CONTRACT");
+  }
+}
+
+llvm::SmallVector<llvm::Value *, 5> CodeGenModule::getBuildOptions() {
+  llvm::SmallVector<llvm::Value *, 5> BuildOption;
+
+  if(!getLangOpts().OpenCL)
+    return BuildOption;
+
+  // Math Intrinsics Options
+  if(getLangOpts().SinglePrecisionConstants)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-single-precision-constant")));
+
+  if(getCodeGenOpts().DenormsAreZero)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-denorms-are-zero")));
+
+  if(getCodeGenOpts().CorrectFPDivideSqrt)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-fp32-correctly-rounded-divide-sqrt")));
+
+  //Optimization Options
+  if(getCodeGenOpts().OptDisable)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-opt-disable")));
+
+  if(getCodeGenOpts().LessPreciseFPMAD)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-mad-enable")));
+
+  if(getCodeGenOpts().NoSignedZeros)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-no-signed-zeros")));
+
+  if(getCodeGenOpts().UnsafeFPMath)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-unsafe-math-optimizations")));
+
+  if(getCodeGenOpts().NoInfsFPMath)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-finite-math-only")));
+
+  if(getLangOpts().FastRelaxedMath)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-fast-relaxed-math")));
+
+  //Options Controlling the OpenCL C version
+  if(110 == getLangOpts().OpenCLVersion)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-std=CL1.1")));
+
+  if(120 == getLangOpts().OpenCLVersion)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-std=CL1.2")));
+
+  if(200 == getLangOpts().OpenCLVersion)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-std=CL2.0")));
+
+  // Options for Querying Kernel Argument Information
+  if(getCodeGenOpts().EmitOpenCLArgMetadata)
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-kernel-arg-info")));
+
+  return BuildOption;
+} 
+
+void CodeGenModule::EmitOCLBuildOptions()
+{
+  llvm::SmallVector<llvm::Value *, 5> BuildOptions = getBuildOptions();
+
+  if (BuildOptions.empty())
+    return;
+
+  llvm::NamedMDNode *OpenCLMetadata =
+    TheModule.getOrInsertNamedMetadata("opencl.compiler.options");
+
+  OpenCLMetadata->addOperand(llvm::MDNode::get(VMContext, BuildOptions));
 }
 
 llvm::Constant *CodeGenModule::EmitAnnotationString(StringRef Str) {
@@ -1863,7 +1983,12 @@ void CodeGenModule::EmitGlobalVarDefinition(const VarDecl *D) {
   if (D->hasAttr<AnnotateAttr>())
     AddGlobalAnnotations(D, GV);
 
-  GV->setInitializer(Init);
+  if (LangOpts.OpenCL && D->getType()->isBlockPointerType()) {
+    GV->eraseFromParent();
+    OCLGlobalBlockFunctions[D] = Init;
+    return;
+  } else
+    GV->setInitializer(Init);
 
   // If it is safe to mark the global 'constant', do so now.
   GV->setConstant(!NeedsGlobalCtor && !NeedsGlobalDtor &&

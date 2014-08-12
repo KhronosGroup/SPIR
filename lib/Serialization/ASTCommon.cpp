@@ -67,8 +67,17 @@ serialization::TypeIdxFromBuiltin(const BuiltinType *BT) {
   case BuiltinType::OCLImage2d:       ID = PREDEF_TYPE_IMAGE2D_ID;      break;
   case BuiltinType::OCLImage2dArray:  ID = PREDEF_TYPE_IMAGE2D_ARR_ID;  break;
   case BuiltinType::OCLImage3d:       ID = PREDEF_TYPE_IMAGE3D_ID;      break;
+  case BuiltinType::OCLImage2dDepth:  ID = PREDEF_TYPE_IMAGE2DDepth_ID; break;
+  case BuiltinType::OCLImage2dMSAA:   ID = PREDEF_TYPE_IMAGE2DMSAA_ID;  break;
+  case BuiltinType::OCLImage2dMSAADepth: ID = PREDEF_TYPE_IMAGE2DMSAADepth_ID; break;
+  case BuiltinType::OCLImage2dArrayMSAADepth: ID = PREDEF_TYPE_IMAGE2DArrayMSAADepth_ID; break;
+  case BuiltinType::OCLImage2dArrayMSAA: ID = PREDEF_TYPE_IMAGE2DArrayMSAA_ID;
+  case BuiltinType::OCLImage2dArrayDepth: ID = PREDEF_TYPE_IMAGE2DArrayDepth_ID;
   case BuiltinType::OCLSampler:       ID = PREDEF_TYPE_SAMPLER_ID;      break;
   case BuiltinType::OCLEvent:         ID = PREDEF_TYPE_EVENT_ID;        break;
+  case BuiltinType::OCLQueue:         ID = PREDEF_TYPE_QUEUE_ID;        break;
+  case BuiltinType::OCLCLKEvent:      ID = PREDEF_TYPE_CLK_EVENT_ID;    break;
+  case BuiltinType::OCLReserveId:     ID = PREDEF_TYPE_RESERVE_ID_ID;   break;
   case BuiltinType::BuiltinFn:
                                 ID = PREDEF_TYPE_BUILTIN_FN; break;
 

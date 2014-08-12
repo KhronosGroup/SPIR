@@ -537,6 +537,16 @@ static bool LookupBuiltin(Sema &S, LookupResult &R) {
             S.Context.BuiltinInfo.isPredefinedLibFunction(BuiltinID))
           return false;
 
+        // OpenCL v1.2 s6.9.f:
+        // The library functions defined in the C99 standard headers assert.h,
+        // ctype.h, complex.h, errno.h, fenv.h, float.h, inttypes.h, limits.h,
+        // locale.h, setjmp.h, signal.h, stdarg.h, stdio.h, stdlib.h, string.h,
+        // tgmath.h, time.h, wchar.h and wctype.h are not available and cannot
+        // be included by a program.
+        if (S.getLangOpts().OpenCL &&
+            S.Context.BuiltinInfo.isPredefinedLibFunction(BuiltinID))
+          return false;
+
         if (NamedDecl *D = S.LazilyCreateBuiltin((IdentifierInfo *)II,
                                                  BuiltinID, S.TUScope,
                                                  R.isForRedeclaration(),
@@ -2259,6 +2269,9 @@ addAssociatedClassesAndNamespaces(AssociatedLookup &Result, QualType Ty) {
     // contained type.
     case Type::Atomic:
       T = cast<AtomicType>(T)->getValueType().getTypePtr();
+      continue;
+    case Type::Pipe:
+      T = cast<PipeType>(T)->getElementType().getTypePtr();
       continue;
     }
 

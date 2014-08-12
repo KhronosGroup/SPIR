@@ -255,6 +255,7 @@ bool Declarator::isDeclarationOfFunction() const {
     case DeclaratorChunk::Array:
     case DeclaratorChunk::BlockPointer:
     case DeclaratorChunk::MemberPointer:
+    case DeclaratorChunk::Pipe:
       return false;
     }
     llvm_unreachable("Invalid type chunk");
@@ -291,13 +292,17 @@ bool Declarator::isDeclarationOfFunction() const {
     case TST_image2d_t:
     case TST_image2d_array_t:
     case TST_image3d_t:
+    case TST_image2d_depth_t:
+    case TST_image2d_msaa_t:
+    case TST_image2d_msaa_depth_t:
+    case TST_image2d_array_msaa_depth_t:
+    case TST_image2d_array_msaa_t:
+    case TST_image2d_array_depth_t:
     case TST_sampler_t:
     case TST_event_t:
-      return false;
-
-    case TST_decltype_auto:
-      // This must have an initializer, so can't be a function declaration,
-      // even if the initializer has function type.
+    case TST_queue_t:
+    case TST_clk_event_t:
+    case TST_reserve_id_t:
       return false;
 
     case TST_decltype:
@@ -463,8 +468,17 @@ const char *DeclSpec::getSpecifierName(DeclSpec::TST T) {
   case DeclSpec::TST_image2d_t:   return "image2d_t";
   case DeclSpec::TST_image2d_array_t: return "image2d_array_t";
   case DeclSpec::TST_image3d_t:   return "image3d_t";
+  case DeclSpec::TST_image2d_depth_t: return "image2d_depth_t";
+  case DeclSpec::TST_image2d_msaa_t: return "image2d_msaa_t";
+  case DeclSpec::TST_image2d_msaa_depth_t: return "image2d_msaa_depth_t";
+  case DeclSpec::TST_image2d_array_msaa_depth_t: return "image2d_array_msaa_depth_t";
+  case DeclSpec::TST_image2d_array_msaa_t: return "image2d_array_msaa_t";
+  case DeclSpec::TST_image2d_array_depth_t: return "image2d_array_depth_t";
   case DeclSpec::TST_sampler_t:   return "sampler_t";
   case DeclSpec::TST_event_t:     return "event_t";
+  case DeclSpec::TST_queue_t:     return "queue_t";
+  case DeclSpec::TST_clk_event_t: return "clk_event_t";
+  case DeclSpec::TST_reserve_id_t: return "reserve_id_t";
   case DeclSpec::TST_error:       return "(error)";
   }
   llvm_unreachable("Unknown typespec!");
@@ -704,6 +718,21 @@ bool DeclSpec::SetTypeAltiVecVector(bool isAltiVecVector, SourceLocation Loc,
   }
   TypeAltiVecVector = isAltiVecVector;
   AltiVecLoc = Loc;
+  return false;
+}
+
+bool DeclSpec::SetTypePipe(bool isPipe, SourceLocation Loc,
+                          const char *&PrevSpec, unsigned &DiagID) {
+
+  if ( TypeSpecType != TST_unspecified ) {
+    PrevSpec = DeclSpec::getSpecifierName((TST) TypeSpecType);
+    DiagID = diag::err_missing_actual_pipe_type;
+    return true;
+  }
+
+  if ( isPipe ) {
+    TypeSpecPipe = TSP_pipe;
+  }
   return false;
 }
 

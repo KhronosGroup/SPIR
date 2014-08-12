@@ -991,6 +991,9 @@ public:
   /// Subclasses may override this routine to provide different behavior.
   QualType RebuildAtomicType(QualType ValueType, SourceLocation KWLoc);
 
+  /// \brief Build a new pipe type given its value type.
+  QualType RebuildPipeType(QualType ValueType, SourceLocation KWLoc);
+
   /// \brief Build a new template name given a nested name specifier, a flag
   /// indicating whether the "template" keyword was provided, and the template
   /// that the template name refers to.
@@ -4800,6 +4803,28 @@ QualType TreeTransform<Derived>::TransformAtomicType(TypeLocBuilder &TLB,
   return Result;
 }
 
+template<typename Derived>
+QualType TreeTransform<Derived>::TransformPipeType(TypeLocBuilder &TLB,
+                                                     PipeTypeLoc TL) {
+  QualType ValueType = getDerived().TransformType(TLB, TL.getValueLoc());
+  if (ValueType.isNull())
+    return QualType();
+
+  QualType Result = TL.getType();
+  if (getDerived().AlwaysRebuild() ||
+      ValueType != TL.getValueLoc().getType()) {
+    Result = getDerived().RebuildPipeType(ValueType, TL.getKWLoc());
+    if (Result.isNull())
+      return QualType();
+  }
+
+  PipeTypeLoc NewTL = TLB.push<PipeTypeLoc>(Result);
+  NewTL.setKWLoc(TL.getKWLoc());
+
+  return Result;
+}
+
+namespace {
   /// \brief Simple iterator that traverses the template arguments in a
   /// container that provides a \c getArgLoc() member function.
   ///
@@ -4863,6 +4888,7 @@ QualType TreeTransform<Derived>::TransformAtomicType(TypeLocBuilder &TLB,
       return !(X == Y);
     }
   };
+}
 
 
 template <typename Derived>
@@ -9633,6 +9659,12 @@ template<typename Derived>
 QualType TreeTransform<Derived>::RebuildAtomicType(QualType ValueType,
                                                    SourceLocation KWLoc) {
   return SemaRef.BuildAtomicType(ValueType, KWLoc);
+}
+
+template<typename Derived>
+QualType TreeTransform<Derived>::RebuildPipeType(QualType ValueType,
+                                                   SourceLocation KWLoc) {
+  return SemaRef.BuildPipeType(ValueType, KWLoc);
 }
 
 template<typename Derived>

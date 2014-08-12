@@ -2698,6 +2698,7 @@ enum CXCallingConv {
   CXCallingConv_IntelOclBicc = 9,
   CXCallingConv_X86_64Win64 = 10,
   CXCallingConv_X86_64SysV = 11,
+  CXCallingConv_SpirFunction = 12,
 
   CXCallingConv_Invalid = 100,
   CXCallingConv_Unexposed = 200

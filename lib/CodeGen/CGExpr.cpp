@@ -1059,7 +1059,7 @@ llvm::Value *CodeGenFunction::EmitLoadOfScalar(llvm::Value *Addr, bool Volatile,
                                                QualType TBAABaseType,
                                                uint64_t TBAAOffset) {
   // For better performance, handle vector loads differently.
-  if (Ty->isVectorType()) {
+  if (Ty->isVectorType() && !isa<llvm::AllocaInst>(Addr)) {
     llvm::Value *V;
     const llvm::Type *EltTy =
     cast<llvm::PointerType>(Addr->getType())->getElementType();
@@ -1178,7 +1178,12 @@ void CodeGenFunction::EmitStoreOfScalar(llvm::Value *Value, llvm::Value *Addr,
                                         uint64_t TBAAOffset) {
 
   // Handle vectors differently to get better performance.
-  if (Ty->isVectorType()) {
+
+  // OpenCL Note: This optimization was causing a performance regression in the
+  // case of allocas of vec3.  SROA was not able to promote the allocas in
+  // SPH Fluid Simulation because it punts when it sees a bitcast user which
+  // is being inserted below.
+  if (Ty->isVectorType() && !isa<llvm::AllocaInst>(Addr)) {
     llvm::Type *SrcTy = Value->getType();
     llvm::VectorType *VecTy = cast<llvm::VectorType>(SrcTy);
     // Handle vec3 special.
@@ -1773,6 +1778,15 @@ LValue CodeGenFunction::EmitDeclRefLValue(const DeclRefExpr *E) {
       // If it's thread_local, emit a call to its wrapper function instead.
       if (VD->getTLSKind() == VarDecl::TLS_Dynamic)
         return CGM.getCXXABI().EmitThreadLocalDeclRefExpr(*this, E);
+      if (CGM.getLangOpts().OpenCL && VD->getType()->isBlockPointerType()) {
+        // Look up the block function and bind it with NULL
+        llvm::Constant *blockFnc = CGM.GetOCLGlobalBlockFunction(VD);
+        blockFnc = llvm::ConstantExpr::getBitCast(blockFnc, Int8PtrTy);
+        llvm::Value *block = GenerateOCLBlockBind(blockFnc, 0, 0, llvm::Constant::getNullValue(Int8PtrTy));
+        llvm::Value *Ptr = CreateMemTemp(VD->getType());
+        Builder.CreateStore(block, Ptr);        
+        return MakeNaturalAlignAddrLValue(Ptr, VD->getType());
+      }
       return EmitGlobalVarDeclLValue(*this, E, VD);
     }
 
@@ -2831,6 +2845,8 @@ LValue CodeGenFunction::EmitCastLValue(const CastExpr *E) {
   }
   case CK_ZeroToOCLEvent:
     llvm_unreachable("NULL to OpenCL event lvalue cast is not valid");
+  case CK_IntToOCLSampler:
+    llvm_unreachable("int to OpenCL sampler lvalue cast is not valid");
   }
 
   llvm_unreachable("Unhandled lvalue cast kind?");

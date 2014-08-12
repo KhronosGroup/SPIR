@@ -271,7 +271,8 @@ void ExprEngine::VisitCast(const CastExpr *CastE, const Expr *Ex,
       case CK_ConstructorConversion:
       case CK_UserDefinedConversion:
       case CK_FunctionToPointerDecay:
-      case CK_BuiltinFnToFnPtr: {
+      case CK_BuiltinFnToFnPtr:
+      case CK_IntToOCLSampler: {
         // Copy the SVal of Ex to CastE.
         ProgramStateRef state = Pred->getState();
         const LocationContext *LCtx = Pred->getLocationContext();

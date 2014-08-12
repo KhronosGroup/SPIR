@@ -162,11 +162,23 @@ BUILTIN_TYPE(OCLImage2d, OCLImage2dTy)
 BUILTIN_TYPE(OCLImage2dArray, OCLImage2dArrayTy)
 BUILTIN_TYPE(OCLImage3d, OCLImage3dTy)
 
+BUILTIN_TYPE(OCLImage2dDepth,          OCLImage2dDepthTy)
+BUILTIN_TYPE(OCLImage2dMSAA,           OCLImage2dMSAATy)
+BUILTIN_TYPE(OCLImage2dMSAADepth,      OCLImage2dMSAADepthTy)
+BUILTIN_TYPE(OCLImage2dArrayMSAADepth, OCLImage2dArrayMSAADepthTy)
+BUILTIN_TYPE(OCLImage2dArrayMSAA,      OCLImage2dArrayMSAATy)
+BUILTIN_TYPE(OCLImage2dArrayDepth,     OCLImage2dArrayDepthTy)
+
 // OpenCL sampler_t.
 BUILTIN_TYPE(OCLSampler, OCLSamplerTy)
 
 // OpenCL event_t.
 BUILTIN_TYPE(OCLEvent, OCLEventTy)
+
+// OpenCL execution model
+BUILTIN_TYPE(OCLQueue, OCLQueueTy)
+BUILTIN_TYPE(OCLCLKEvent, OCLCLKEventTy)
+BUILTIN_TYPE(OCLReserveId, OCLReserveIdTy)
 
 // This represents the type of an expression whose type is
 // totally unknown, e.g. 'T::foo'.  It is permitted for this to

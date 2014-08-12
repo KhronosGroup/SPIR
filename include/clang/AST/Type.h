@@ -16,6 +16,7 @@
 
 #include "clang/AST/NestedNameSpecifier.h"
 #include "clang/AST/TemplateName.h"
+#include "clang/Basic/AddressSpaces.h"
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/ExceptionSpecificationType.h"
 #include "clang/Basic/IdentifierTable.h"
@@ -407,7 +408,7 @@ public:
   bool compatiblyIncludes(Qualifiers other) const {
     return
       // Address spaces must match exactly.
-      getAddressSpace() == other.getAddressSpace() &&
+      ( getAddressSpace() == other.getAddressSpace() || ( getAddressSpace() == LangAS::opencl_generic && other.getAddressSpace() != LangAS::opencl_constant )) &&
       // ObjC GC qualifiers can match, be added, or be removed, but can't be
       // changed.
       (getObjCGCAttr() == other.getObjCGCAttr() ||
@@ -922,6 +923,9 @@ public:
   void Profile(llvm::FoldingSetNodeID &ID) const {
     ID.AddPointer(getAsOpaquePtr());
   }
+
+  /// hasAddressSpace - Return wheather address space was set.
+  inline bool hasAddressSpace() const;
 
   /// getAddressSpace - Return the address space of this type.
   inline unsigned getAddressSpace() const;
@@ -1510,6 +1514,7 @@ public:
   bool isComplexType() const;      // C99 6.2.5p11 (complex)
   bool isAnyComplexType() const;   // C99 6.2.5p11 (complex) + Complex Int.
   bool isFloatingType() const;     // C99 6.2.5p11 (real floating + complex)
+  bool isDoubleType() const;       // (double + long double)
   bool isHalfType() const;         // OpenCL 6.1.1.1, NEON (IEEE 754-2008 half)
   bool isRealType() const;         // C99 6.2.5p17 (real floating + integer)
   bool isArithmeticType() const;   // C99 6.2.5p18 (integer + floating)
@@ -1518,6 +1523,13 @@ public:
   bool isAggregateType() const;
   bool isFundamentalType() const;
   bool isCompoundType() const;
+  
+
+  // Vector categories
+  bool isFloatingVecType() const;
+  bool isDoubleVecType() const;
+  bool isIntegerVecType() const;
+  bool isRealVecType() const;
 
   // Type Predicates: Check to see if this type is structurally the specified
   // type, ignoring typedefs and qualifiers.
@@ -1578,11 +1590,23 @@ public:
   bool isImage2dArrayT() const;                 // OpenCL image2d_array_t
   bool isImage3dT() const;                      // OpenCL image3d_t
 
+  bool isImage2dDepthT() const;
+  bool isImage2dMSAAT() const;
+  bool isImage2dMSAADepthT() const;
+  bool isImage2dArrayMSAADepthT() const;
+  bool isImage2dArrayMSAAT() const;
+  bool isImage2dArrayDepthT() const;
+
   bool isImageType() const;                     // Any OpenCL image type
+  bool isImageDepthType() const;                // Any OpenCL depth image type
+  bool isImageMSAAType() const;                 // Any OpenCL msaa image type
 
   bool isSamplerT() const;                      // OpenCL sampler_t
   bool isEventT() const;                        // OpenCL event_t
-
+  bool isReserveIdT() const;                    // OpenCL 2.0 reserve_id_t
+  bool isExecType() const;                      // OpenCL 2.0 execution model types
+  bool isPipeType() const;                      // OpenCL 2.0 pipe type
+  bool isQueueType() const;                     // OpenCL 2.0 queue type
   bool isOpenCLSpecificType() const;            // Any OpenCL specific type
 
   /// Determines if this type, which must satisfy
@@ -4593,6 +4617,42 @@ class AtomicType : public Type, public llvm::FoldingSetNode {
   }
 };
 
+/// PipeType - OpenCL20.
+///
+class PipeType : public Type, public llvm::FoldingSetNode {
+  QualType ElementType;
+
+  PipeType(QualType elemType, QualType CanonicalPtr) :
+    Type(Pipe, CanonicalPtr, elemType->isDependentType(),
+         elemType->isInstantiationDependentType(),
+         elemType->isVariablyModifiedType(),
+         elemType->containsUnexpandedParameterPack()),
+    ElementType(elemType) {
+  }
+  friend class ASTContext;  // ASTContext creates these.
+
+public:
+
+  QualType getElementType() const { return ElementType; }
+
+  bool isSugared() const { return false; }
+
+  QualType desugar() const { return QualType(this, 0); }
+
+  void Profile(llvm::FoldingSetNodeID &ID) {
+    Profile(ID, getElementType());
+  }
+
+  static void Profile(llvm::FoldingSetNodeID &ID, QualType T) {
+    ID.AddPointer(T.getAsOpaquePtr());
+  }
+
+  static bool classof(const Type *T) {
+    return T->getTypeClass() == Pipe;
+  }
+
+};
+
 /// A qualifier set is used to build a set of qualifiers.
 class QualifierCollector : public Qualifiers {
 public:
@@ -4746,7 +4806,12 @@ inline void QualType::removeLocalCVRQualifiers(unsigned Mask) {
 inline unsigned QualType::getAddressSpace() const {
   return getQualifiers().getAddressSpace();
 }
-  
+
+/// hasAddressSpace - Return whether address space was set.
+inline bool QualType::hasAddressSpace() const {
+  return getQualifiers().hasAddressSpace();
+}
+
 /// getObjCGCAttr - Return the gc attribute of this type.
 inline Qualifiers::GC QualType::getObjCGCAttr() const {
   return getQualifiers().getObjCGCAttr();
@@ -4983,6 +5048,30 @@ inline bool Type::isImage3dT() const {
   return isSpecificBuiltinType(BuiltinType::OCLImage3d);
 }
 
+inline bool Type::isImage2dDepthT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dDepth);
+}
+
+inline bool Type::isImage2dMSAAT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dMSAA);
+}
+
+inline bool Type::isImage2dMSAADepthT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dMSAADepth);
+}
+
+inline bool Type::isImage2dArrayMSAADepthT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dArrayMSAADepth);
+}
+
+inline bool Type::isImage2dArrayMSAAT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dArrayMSAA);
+}
+
+inline bool Type::isImage2dArrayDepthT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dArrayDepth);
+}
+
 inline bool Type::isSamplerT() const {
   return isSpecificBuiltinType(BuiltinType::OCLSampler);
 }
@@ -4991,14 +5080,43 @@ inline bool Type::isEventT() const {
   return isSpecificBuiltinType(BuiltinType::OCLEvent);
 }
 
+inline bool Type::isReserveIdT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLReserveId);
+}
+
 inline bool Type::isImageType() const {
   return isImage3dT() ||
          isImage2dT() || isImage2dArrayT() ||
+         isImage2dDepthT() || isImage2dArrayDepthT() ||
+         isImage2dMSAAT() || isImage2dArrayMSAAT() ||
+         isImage2dMSAADepthT() || isImage2dArrayMSAADepthT() ||
          isImage1dT() || isImage1dArrayT() || isImage1dBufferT();
 }
 
+inline bool Type::isImageDepthType() const {
+  return isImage2dDepthT() || isImage2dArrayDepthT();
+}
+
+inline bool Type::isImageMSAAType() const {
+  return isImage2dMSAAT() || isImage2dArrayMSAAT() ||
+         isImage2dMSAADepthT() || isImage2dArrayMSAADepthT();
+}
+
+inline bool Type::isExecType() const {
+  return isSpecificBuiltinType(BuiltinType::OCLQueue) || 
+         isSpecificBuiltinType(BuiltinType::OCLCLKEvent);
+}
+
+inline bool Type::isPipeType() const {
+  return isa<PipeType>(CanonicalType);
+}
+
+inline bool Type::isQueueType() const {
+  return isSpecificBuiltinType(BuiltinType::OCLQueue);
+}
+
 inline bool Type::isOpenCLSpecificType() const {
-  return isSamplerT() || isEventT() || isImageType();
+  return isSamplerT() || isEventT() || isImageType() || isExecType() || isReserveIdT();
 }
 
 inline bool Type::isTemplateTypeParmType() const {

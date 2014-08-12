@@ -364,9 +364,18 @@ def OpenCLKernel : InheritableAttr {
   let Spellings = [Keyword<"__kernel">, Keyword<"kernel">];
 }
 
+def OpenCLUnrollHint : Attr {
+  let Spellings = [GNU<"opencl_unroll_hint">];
+  let Args = [UnsignedArgument<"UnrollHint">];
+}
+
 def OpenCLImageAccess : Attr {
   let Spellings = [GNU<"opencl_image_access">];
   let Args = [IntArgument<"Access">];
+}
+
+def OpenCLNoSVM : Attr {
+  let Spellings = [GNU<"nosvm">];
 }
 
 def Deprecated : InheritableAttr {
@@ -1076,6 +1085,10 @@ def SPtr : TypeAttr {
 
 def UPtr : TypeAttr {
   let Spellings = [Keyword<"__uptr">];
+}
+
+def NoDuplicate : Attr {
+  let Spellings = [GNU<"noduplicate">];
 }
 
 class MSInheritanceAttr : InheritableAttr;

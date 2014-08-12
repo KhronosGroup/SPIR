@@ -38,6 +38,7 @@ add_clang_library(clangCodeGen
   CGOpenCLRuntime.cpp
   CGRecordLayoutBuilder.cpp
   CGRTTI.cpp
+  CGSPIRMetadataAdder.cpp
   CGStmt.cpp
   CGVTables.cpp
   CGVTT.cpp

@@ -25,6 +25,7 @@
 #include "clang/AST/StmtObjC.h"
 #include "clang/Analysis/Analyses/FormatString.h"
 #include "clang/Basic/CharInfo.h"
+#include "clang/Basic/OpenCL.h"
 #include "clang/Basic/TargetBuiltins.h"
 #include "clang/Basic/TargetInfo.h"
 #include "clang/Lex/Preprocessor.h"
@@ -40,6 +41,147 @@
 #include <limits>
 using namespace clang;
 using namespace sema;
+
+namespace {
+
+static OpenCLImageAccess getOpenCLImageAcces(const Decl *D) {
+  if (D->hasAttr<OpenCLImageAccessAttr>())
+    return static_cast<OpenCLImageAccess>(D->getAttr<OpenCLImageAccessAttr>()
+                                          ->getAccess());
+  return static_cast<OpenCLImageAccess>(0);
+}
+
+//===--- Perform semantic analysis for pipe builtins calls. ---------------===//
+class PipeBiCallSema {
+  typedef bool (Type::*TypeQuery)() const;
+public:
+
+  // \param S a reference for the semantic analyzer.
+  // \param TheCall a pointer to the pipe builtin call to be inspected.
+  PipeBiCallSema(Sema &Sem, CallExpr *TheCall) : S(&Sem), Call(TheCall) {}
+
+  // \brief Validates that the first argument passed to the call has a pipe
+  //        modifier.
+  // \return true if a semantic error was found, false otherwise.
+  bool validatePipeArg() {
+    return !argQuery(0, &PipeType::isPipeType);
+  }
+
+  // \brief Validates the access modifier of the pipe arguments fits the nautre
+  // off the call (read/write).
+  bool validateAccessModifier() {
+    assert (!validatePipeArg() && "Argument is no of type pipe");
+    OpenCLImageAccess AccessQual = getAccessModifier();
+
+    if (getFunctionName().startswith("read"))
+      return AccessQual != CLIA_read_only;
+
+    return CLIA_write_only != AccessQual;
+  }
+
+  // \brief Validates that the type element of the pipe object matches the type
+  //        of the object pointed by the argument in the given index.
+  // \param ArgIdx The index of the pointer to the packet argument.
+  bool validateGenType(unsigned ArgIdx) {
+    assert(!validatePipeArg() && "Validate pipe type was not called first");
+
+    const PipeType *PTy = cast<PipeType>(Call->getArg(0)->getType());
+    const Type *PipeElemTy = PTy->getElementType().getTypePtr();
+    const PointerType *ArgTy = dyn_cast<PointerType>(Call->getArg(ArgIdx)->
+                                                     getType().getTypePtr());
+
+    // We expect the pipe type and the packed type to be the same.
+    return !ArgTy || (PipeElemTy != ArgTy->getPointeeType().getTypePtr());
+  }
+
+  // \brief Dispatches the given query for the indexed argument in the call.
+  // \param ArgIdx The index of the argument to be queried.
+  // \param Q Query method.
+  // \return The value returned from calling Q.
+  bool argQuery(unsigned ArgIdx, TypeQuery Q) {
+    const Type *ArgTy = Call->getArg(ArgIdx)->getType().getTypePtr();
+    return (ArgTy->*Q)();
+  }
+
+  // Error issuing massages.
+  void errorPipeArgument() {
+    S->Diag(Call->getLocStart(), diag::err_builtin_pipe_first_arg)
+    << getFunctionName() << Call->getArg(0)->getSourceRange();
+  }
+
+  void errPacketArgument(int ArgIdx) {
+    const PipeType *PipeTy = cast<PipeType>(Call->getArg(0)->getType());
+    const Expr *ArgI = Call->getArg(ArgIdx);
+
+    S->Diag(Call->getLocStart(), diag::err_builtin_pipe_invalid_arg) <<
+    getFunctionName() << S->Context.getPointerType(PipeTy->getElementType())
+    << ArgI->getSourceRange();
+  }
+
+  void errorNumArguments() {
+    S->Diag(Call->getLocStart(), diag::err_builtin_pipe_args_num_mismatch) <<
+    getFunctionName() << Call->getSourceRange();
+  }
+
+  void errPipePacketType() {
+    const Expr *Arg0 = Call->getArg(0);
+    S->Diag(Arg0->getLocStart(),
+            diag::err_builtin_pipe_argument_type_mismatch) <<
+            Arg0->getSourceRange();
+  }
+
+  void errorAcessModifier() {
+    bool ReadOnly = getFunctionName().startswith("read");
+    const char *AM = ReadOnly ? "read_only" : "write_only";
+    S->Diag(Call->getArg(0)->getLocStart(),
+              diag::err_builtin_pipe_invalid_access_modifier) << AM <<
+              Call->getArg(0)->getSourceRange();
+  }
+
+  void errorAccessModifierVal() {
+    S->Diag(Call->getArg(0)->getLocStart(),
+            diag::err_read_write_not_allowed_for_pipes) <<
+            Call->getArg(0)->getSourceRange();
+  }
+
+  void errorReservedIdType() {
+    assert(!argQuery(1, &Type::isReserveIdT) &&
+           "parameter is of type reserve_id_t");
+
+    S->Diag(Call->getLocStart(),
+              diag::err_builtin_pipe_invalid_arg) << getFunctionName() <<
+              S->Context.OCLReserveIdTy <<
+              Call->getArg(1)->getSourceRange();
+  }
+
+  void errorIndexType(int ArgIdx) {
+    S->Diag(Call->getLocStart(),
+            diag::err_builtin_pipe_invalid_arg) << getFunctionName() <<
+            S->Context.UnsignedIntTy <<
+            Call->getArg(ArgIdx)->getSourceRange();
+  }
+
+private:
+  llvm::StringRef getFunctionName() {
+    return cast<FunctionDecl>(Call->getCalleeDecl())->getName();
+  }
+
+  OpenCLImageAccess getAccessModifier() {
+    const Expr *Arg0 = Call->getArg(0);
+    assert (isa<DeclRefExpr>(Arg0) &&
+            "Not possible... pipes can only be passed as kernel arguments");
+
+    const DeclRefExpr *ArgRef = cast<DeclRefExpr>(Arg0);
+    OpenCLImageAccess ImgAccess = getOpenCLImageAcces(ArgRef->getDecl());
+    // Pipes access defaults to read_only.
+    return ImgAccess ? ImgAccess : CLIA_read_only;
+  }
+
+  Sema *S;
+  const CallExpr *Call;
+};
+
+} // unnamed namespace
 
 SourceLocation Sema::getLocationOfStringLiteralByte(const StringLiteral *SL,
                                                     unsigned ByteNo) const {
@@ -109,6 +251,172 @@ static bool SemaBuiltinAddressof(Sema &S, CallExpr *TheCall) {
   TheCall->setArg(0, Arg.take());
   TheCall->setType(ResultType);
   return false;
+}
+
+// \brief Performs semantic analysis for the Pipe builtins call.
+// \param S Reference to the semantic analyzer.
+// \param TheCall A pointer to the builtin call.
+// \return True if a semantic error has been found, false otherwise.
+static bool SemaBuiltinPipe(Sema &S, CallExpr *TheCall) {
+  PipeBiCallSema PipeSema(S, TheCall);
+
+  // First argument should always be of type Pipe.
+  if (PipeSema.validatePipeArg()) {
+    PipeSema.errorPipeArgument();
+    return true;
+  }
+
+  // Validates the access modifier is compatible with the call.
+  if (PipeSema.validateAccessModifier()) {
+    PipeSema.errorAcessModifier();
+    return true;
+  }
+
+  switch (TheCall->getNumArgs()) {
+  case 2:
+    // Second argument should be a pointer.
+    if (!PipeSema.argQuery(1, &Type::isPointerType)) {
+      PipeSema.errPacketArgument(1);
+      return true;
+    }
+
+    // The type of the pointer and the element type of the pipe should also be
+    // the same.
+    if (PipeSema.validateGenType(1)) {
+      PipeSema.errPipePacketType();
+      return true;
+    }
+    break;
+
+  case 4:
+    if (!PipeSema.argQuery(1, &Type::isReserveIdT)) {
+      PipeSema.errorReservedIdType();
+      return true;
+    }
+
+    if (!PipeSema.argQuery(2, &Type::isIntegerType) &&
+        !PipeSema.argQuery(2, &Type::isUnsignedIntegerType)) {
+      PipeSema.errorIndexType(2);
+      return true;
+    }
+
+    // The type of the pointer and the element type of the pipe should be the
+    // same.
+    if (PipeSema.validateGenType(3)) {
+      PipeSema.errPipePacketType();
+      return true;
+    }
+
+    break;
+  default:
+    PipeSema.errorNumArguments();
+    return true;
+  }
+
+  TheCall->setType(S.getASTContext().IntTy);
+
+  return false;
+}
+
+// \brief Performs a semantic analysis on the call to the given pipe-builtin
+//        call.
+// \param S Reference to the semantic analyzer.
+// \param TheCall The call to the builtin function to be analyzed.
+// \return True if a semantic error was found, false otherwise.
+static bool SemaBuiltinReservedRWPipe(Sema &S, CallExpr *TheCall) {
+  PipeBiCallSema PipeSema(S, TheCall);
+
+  if (2U != TheCall->getNumArgs()) {
+    PipeSema.errorNumArguments();
+    return true;
+  }
+
+  // The first parameter has to be a pipe.
+  if (PipeSema.validatePipeArg()) {
+    PipeSema.errorPipeArgument();
+    return true;
+  }
+
+  // The second argument should be the number of packets to be read/written.
+  if (!PipeSema.argQuery(1, &Type::isIntegerType) &&
+      !PipeSema.argQuery(1, &Type::isUnsignedIntegerType)) {
+    PipeSema.errorIndexType(1);
+    return true;
+  }
+
+  TheCall->setType(S.getASTContext().IntTy);
+
+  return false;
+}
+
+static bool SemaBuiltinCommitRWPipe(Sema &S, CallExpr *TheCall) {
+  PipeBiCallSema PipeSema(S, TheCall);
+
+  if (2U != TheCall->getNumArgs()) {
+    PipeSema.errorNumArguments();
+    return true;
+  }
+
+  // The first parameter should be of type pipe.
+  if (PipeSema.validatePipeArg()) {
+    PipeSema.errorPipeArgument();
+    return true;
+  }
+
+  // The secnod paramter should be of type reserve_id_t.
+  if (!PipeSema.argQuery(1, &Type::isReserveIdT)) {
+      PipeSema.errorReservedIdType();
+      return true;
+  }
+
+  TheCall->setType(S.getASTContext().VoidTy);
+
+  return false;
+}
+
+static bool SemaNumPacketesPipe(Sema &S, CallExpr *TheCall) {
+  PipeBiCallSema PipeSema(S, TheCall);
+
+  if (1U != TheCall->getNumArgs()) {
+    PipeSema.errorPipeArgument();
+    return true;
+  }
+
+  // The argument should be of type pipe.
+  if(PipeSema.validatePipeArg()) {
+    PipeSema.errorPipeArgument();
+    return true;
+  }
+
+  TheCall->setType(S.getASTContext().UnsignedIntTy);
+
+  return false;
+}
+
+// \brief Performs a semantic check on the given call, on whether it adheres to
+//        OpenCL 2.0 requirement, in which images with 'read_write' access mod.
+//        are not read with samplers.
+// \param TheCall the call expression to be examined.
+bool checkOpenCLRead(const CallExpr *TheCall) {
+  const Expr *Img = 0, *Sampler = 0;
+  
+  for (CallExpr::const_arg_iterator It = TheCall->arg_begin(),
+                                    E = TheCall->arg_end();
+                                    It != E;
+                                    ++It) {
+    if (!Img && (*It)->getType()->isImageType())
+      Img = *It;
+
+    if (!Sampler && (It->getType()->isSamplerT()))
+      Sampler = *It;
+  }
+
+  if (!Img || !Sampler)
+    return false;
+
+  return CLIA_read_write ==
+         getOpenCLImageAcces(cast<DeclRefExpr>(Img->IgnoreImpCasts())->
+                                               getDecl());
 }
 
 ExprResult
@@ -293,6 +601,35 @@ Sema::CheckBuiltinFunctionCall(unsigned BuiltinID, CallExpr *TheCall) {
     break;
   case Builtin::BI__builtin_addressof:
     if (SemaBuiltinAddressof(*this, TheCall))
+      return ExprError();
+    break;
+  case Builtin::BIread_pipe:
+  case Builtin::BIwrite_pipe:
+    if (SemaBuiltinPipe(*this, TheCall))
+      return ExprError();
+    break;
+  case Builtin::BIreserve_read_pipe:
+  case Builtin::BIreserve_write_pipe:
+  case Builtin::BIwork_group_reserve_read_pipe:
+  case Builtin::BIwork_group_reserve_write_pipe:
+    // Since those two functions are declared with var args, therefore we need
+    // a semantic check for the argument.
+    if (SemaBuiltinReservedRWPipe(*this, TheCall))
+      return ExprError();
+
+    // We need to override the return type of the call expression.
+    TheCall->setType(Context.OCLReserveIdTy);
+    break;
+  case Builtin::BIcommit_read_pipe:
+  case Builtin::BIcommit_write_pipe:
+  case Builtin::BIwork_group_commit_read_pipe:
+  case Builtin::BIwork_group_commit_write_pipe:
+    if (SemaBuiltinCommitRWPipe(*this, TheCall))
+      return ExprError();
+    break;
+  case Builtin::BIget_pipe_num_packets:
+  case Builtin::BIget_pipe_max_packets:
+    if (SemaNumPacketesPipe(*this, TheCall))
       return ExprError();
     break;
   }
@@ -568,6 +905,40 @@ bool Sema::CheckARMBuiltinExclusiveCall(unsigned BuiltinID, CallExpr *TheCall) {
   return false;
 }
 
+static void checkAccessModifier(Sema &S, OpenCLImageAccess Actual,
+                                OpenCLImageAccess Expected, QualType Ty,
+                                SourceLocation Loc, SourceRange Range) {
+  // If nothing is expected, nothing should be checked.
+  if (!Expected)
+    return;
+
+  if (Actual == Expected)
+    return;
+
+  if (Ty->isImageType()) {
+    if (CLIA_read_write == Actual || CLIA_read_write == Expected)
+      return;
+
+    // We assume that the type declaration has some access qualifier, since it
+    // is mandatory. Not doing so should result a syntax error.
+    S.Diag(Loc, diag::err_mismatch_access_qualifiers) <<
+          Actual << Expected << Range;
+    return;
+  }
+
+  if (Ty->isPipeType()) {
+    // Pipe qualifier defaults to read_only.
+    if((!Actual && Expected == CLIA_read_only))
+      return;
+
+    // Since read_write is illegal for pipes, we need strict equality.
+    S.Diag(Loc, diag::err_mismatch_access_qualifiers) <<
+          Actual << Expected << Range;
+    return;
+  }
+}
+
+
 bool Sema::CheckARMBuiltinFunctionCall(unsigned BuiltinID, CallExpr *TheCall) {
   llvm::APSInt Result;
 
@@ -763,6 +1134,35 @@ void Sema::checkCall(NamedDecl *FDecl,
       CheckArgumentWithTypeTag(*i, Args.data());
     }
   }
+
+  // We don't treat variadic functions, since we can't match the access modifier
+  // in the function declaration.
+  if (!getLangOpts().OpenCL || VariadicDoesNotApply != CallType)
+    return;
+
+  if ((FDecl == NULL) || !isa<FunctionDecl>(FDecl))
+    return;
+
+  const FunctionDecl *FnDecl = cast<FunctionDecl>(FDecl);
+
+  // This may indicate that this is a builtin function call, which will be
+  // treated by another part of Sema. (e.g., PipeBiCallSema).
+  if (FnDecl->getNumParams() != Args.size())
+    return;
+
+  // Check whether access attribute are respected.
+  for (unsigned Idx = 0; Idx < Args.size(); Idx++) {
+    const Expr *Arg = Args[Idx];
+    OpenCLImageAccess Expected = getOpenCLImageAcces(FnDecl->getParamDecl(Idx));
+    OpenCLImageAccess Actual = static_cast<OpenCLImageAccess>(0);
+
+    if (const DeclRefExpr *RefArg = dyn_cast<DeclRefExpr>(Arg->IgnoreImpCasts()))
+      Actual = getOpenCLImageAcces(RefArg->getDecl());
+
+    // Checking that the expected access modifier and the actual one match.
+    checkAccessModifier(*this, Actual, Expected, Arg->getType(),
+                        Arg->getExprLoc(), Range);
+  }
 }
 
 /// CheckConstructorCall - Check a constructor call for correctness and safety
@@ -807,6 +1207,16 @@ bool Sema::CheckFunctionCall(FunctionDecl *FDecl, CallExpr *TheCall,
   // simple names (e.g., C++ conversion functions).
   if (!FnInfo)
     return false;
+
+  // OpenCL 2.0 Sec. 6.6 prohibits images with 'read_write' qualifier to read
+  // using a sampler.
+  if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200) {
+    if (checkOpenCLRead(TheCall)) {
+      Diag(TheCall->getLocStart(), diag::err_read_write_with_samplers) <<
+      TheCall->getSourceRange();
+      return true;
+    }
+  }
 
   unsigned CMId = FDecl->getMemoryFunctionKind();
   if (CMId == 0)

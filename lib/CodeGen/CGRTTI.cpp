@@ -196,9 +196,18 @@ static bool TypeInfoIsInStandardLibrary(const BuiltinType *Ty) {
     case BuiltinType::OCLImage1dBuffer:
     case BuiltinType::OCLImage2d:
     case BuiltinType::OCLImage2dArray:
+    case BuiltinType::OCLImage2dDepth:
+    case BuiltinType::OCLImage2dArrayDepth:
+    case BuiltinType::OCLImage2dMSAA:
+    case BuiltinType::OCLImage2dArrayMSAA:
+    case BuiltinType::OCLImage2dMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAADepth:
     case BuiltinType::OCLImage3d:
     case BuiltinType::OCLSampler:
     case BuiltinType::OCLEvent:
+    case BuiltinType::OCLQueue:
+    case BuiltinType::OCLCLKEvent:
+    case BuiltinType::OCLReserveId:
       return true;
       
     case BuiltinType::Dependent:
@@ -422,6 +431,7 @@ void RTTIBuilder::BuildVTablePointer(const Type *Ty) {
   case Type::ExtVector:
   case Type::Complex:
   case Type::Atomic:
+  case Type::Pipe:
   // FIXME: GCC treats block pointers as fundamental types?!
   case Type::BlockPointer:
     // abi::__fundamental_type_info.
@@ -625,6 +635,10 @@ llvm::Constant *RTTIBuilder::BuildTypeInfo(QualType Ty, bool Force) {
     break;
 
   case Type::Atomic:
+    // No fields, at least for the moment.
+    break;
+
+  case Type::Pipe:
     // No fields, at least for the moment.
     break;
   }

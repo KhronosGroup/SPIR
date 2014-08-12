@@ -213,6 +213,8 @@ def warn_implicit_function_decl : Warning<
 def ext_implicit_function_decl : ExtWarn<
   "implicit declaration of function %0 is invalid in C99">,
   InGroup<ImplicitFunctionDeclare>;
+def err_opencl_implicit_function_decl : Error<
+  "implicit declaration of function %0 is invalid in OpenCL">;
 def note_function_suggestion : Note<"did you mean %0?">;
 
 def err_ellipsis_first_arg : Error<
@@ -442,9 +444,14 @@ def err_object_cannot_be_passed_returned_by_value : Error<
   "; did you forget * in %1?">;
 def err_parameters_retval_cannot_have_fp16_type : Error<
   "%select{parameters|function return value}0 cannot have __fp16 type; did you forget * ?">;
+def err_opencl_dereferencing : Error<
+  "dereferencing pointer of type %0 is not allowed">;
 def err_opencl_half_load_store : Error<
   "%select{loading directly from|assigning directly to}0 pointer to type %1 is not allowed">;
+def err_opencl_subscript : Error<
+  "subscript to array of type %0 is not allowed">;
 def err_opencl_cast_to_half : Error<"casting to type %0 is not allowed">;
+def err_opencl_cast_from_half : Error<"casting from type %0 is not allowed">;
 def err_opencl_half_declaration : Error<
   "declaring variable of type %0 is not allowed">;
 def err_opencl_half_argument : Error<
@@ -1870,6 +1877,8 @@ def err_typecheck_vector_not_convertable : Error<
   "can't convert between vector values of different size (%0 and %1)">;
 def err_typecheck_ext_vector_not_typedef : Error<
   "ext_vector_type only applies to types, not variables">;
+def err_ext_vector_component_invalid_length : Error<
+  "vector component access has invalid length %0.  Supported: 1,2,3,4,8,16.">;
 def err_ext_vector_component_exceeds_length : Error<
   "vector component access exceeds type %0">;
 def err_ext_vector_component_name_illegal : Error<
@@ -6286,6 +6295,18 @@ def err_builtin_annotation_first_arg : Error<
 def err_builtin_annotation_second_arg : Error<
   "second argument to __builtin_annotation must be a non-wide string constant">;
 
+// Builtin pipe
+def err_builtin_pipe_first_arg : Error<
+  "first argument to %0 must be a pipe type">;
+def err_builtin_pipe_argument_type_mismatch : Error<
+  "argument type doesn't match pipe type">;
+def err_builtin_pipe_args_num_mismatch : Error<
+  "invalid number of arguments to function: %0">;
+def err_builtin_pipe_invalid_arg : Error<
+  "invalid argument type to function %0 (expecting: %1)">;
+def err_builtin_pipe_invalid_access_modifier : Error<"invalid pipe access modifier (expecting %0)">;
+
+
 // CFString checking
 def err_cfstring_literal_not_string_constant : Error<
   "CFString literal is not a string constant">;
@@ -6689,13 +6710,94 @@ def err_event_t_addr_space_qual : Error<
   "the event_t type can only be used with __private address space qualifier">;
 def err_expected_kernel_void_return_type : Error<
   "kernel must have void return type">;
+def err_opencl_global_invalid_addr_space : Error<
+  "program scope variables must reside in constant address space">;
+def err_opencl20_global_invalid_addr_space : Error<
+  "program scope variables must reside global or constant address space">;
+def err_opencl_no_main : Error<"%select{function|kernel}0 cannot be called 'main'">;
+def err_sampler_initializer_not_integer : Error<
+  "sampler_t initialization requires integer, not %0">;
+def err_event_initialization : Error<
+  "cannot initialize event_t">;
+def err_event_argument_not_null : Error<
+  "event_t variable or NULL required - got %0">;
+def err_opencl_missing_type_specifier : Error<
+  "type specifier missing">;
+def err_program_scope_variable_non_constant : Error<
+  "program scope variables are required to be declared in constant address space">;
+def err_program_scope_variable_non_constant_or_global : Error<
+  "program scope variables are required to be declared either in constant or global address space">;
+def err_half_variables : Error<
+  "half type variables are not allowed in OpenCL">;
+def err_dereferencing_half_ptr : Error<
+  "dereferencing of half pointers is illegal in OpenCL. Use vload_half function instead">;
+def err_invalid_vector_promotion : Error<
+  "cannot apply default argument promotion on a vector">;
+def err_constant_without_init : Error<
+  "constant address space qualified variables are required to be initialized">;
+def err_implicit_pointer_address_space_cast : Error<
+  "illegal implicit conversion between two pointers with different address "
+  "spaces">;
+def err_opencl_unroll_hint_factor : Error<
+  "opencl_unroll_hint requires a positive integral compile time constant expression">;
+def err_static_variables : Error<
+  "static storage class can be specified only for global and constant variables">;
+def err_enqueue_kernel_num_args_mismatch : Error<
+  "number of local_size argument doesn't match the block's prototype">;
+def err_variadic_enqueue_kernel : Error<
+  "variadic arguments passed to 'enqueue_kernel' has to be of type 'unsigned int'">;
+// Images.
+def err_sampler_initializer_not_constant : Error<
+  "sampler_t initialization requires compile time constant">;
+def err_opencl_image3d_writes : Error<
+  "'image3d_t' access qualifier 'write_only' requires"
+  " 'cl_khr_3d_image_writes' extension to be enabled">;
+def warn_opencl_image_access_non_image : Warning<
+  "using image access qualifier with non-image type">;
+def err_opencl_image_access_read_write : Error<
+  "image access qualifier read_write is reserved for future use">;
+def err_depth_image_requires_ext : Error<
+  "use of depth image type requires extension cl_khr_depth_images">;
+def err_msaa_image_requires_ext : Error<
+  "use of multi-sample image type requires extension cl_khr_gl_msaa_sharing">;
 def err_sampler_argument_required : Error<
   "sampler_t variable required - got %0">;
 def err_wrong_sampler_addressspace: Error<
   "sampler type cannot be used with the __local and __global address space qualifiers">;
-def err_opencl_global_invalid_addr_space : Error<
-  "global variables must have a constant address space qualifier">;
-def err_opencl_no_main : Error<"%select{function|kernel}0 cannot be called 'main'">;
+def err_read_write_with_samplers : Error <
+  "reading from an image declared with 'read_write' qualifier using a sampler is prohibited">;
+// Atomics.
+def err_atomic_init_addressspace : Error<
+  "initialization of atomic variables is restricted to variables in global address space">;
+def err_atomic_init_constant : Error <
+ "atomic variables can only be assigned to compile time constants, in their definition statement">;
+// Blocks.
+def err_invalid_block_as_parameter : Error<
+  "block parameter given must take pointers to local memory as parameters (prototype is %0)">;
+def err_block_proto_variadic : Error<
+  "Invalid block prototype, variadic arguments are not allowed">;
+def err_invalid_block_array : Error<
+  "Array of block is invalid in OpenCL">;
+def err_ternary_with_block : Error<
+  "blocks cannot be used as expressions in ternary expressions">;
+// Pipes.
+def err_pipe_can_be_used_only_as_parameter : Error<
+  "pipes can be used only as function parameters">;
+def err_read_write_not_allowed_for_pipes : Error<
+  "read_write access qualifier can't be specified for pipes">;
+def err_mismatch_access_qualifiers : Error<
+  "passing '%0' to '%1' mismatch access qualifiers">;
+def err_missing_actual_pipe_type : Error<
+  "missing actual type specifier for pipe">;
+def err_multiple_access_qualifiers : Error<
+  "multiple access qualifiers">;
+def err_reference_pipe_type : Error <
+  "pipes packet types cannot be of reference type">;
+def err_nosvm_attr_not_pointer : Error<
+  "nosvm attribute should be used with pointer variables only">;
+def err_nosvm_opencl_version : Error<
+  "nosvm attribute supported in OpenCL 2.0 and above">;
+
 } // end of sema category
 
 let CategoryName = "OpenMP Issue" in {
@@ -6761,6 +6863,8 @@ def note_related_result_type_inferred : Note<
 def note_related_result_type_explicit : Note<
   "%select{overridden|current}0 method is explicitly declared 'instancetype'"
   "%select{| and is expected to return an instance of its class type}0">;
+def err_invalid_type_for_program_scope_var : Error<
+  "invalid type for program scope variables">;
 
 }
 

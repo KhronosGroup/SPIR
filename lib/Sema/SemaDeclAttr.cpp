@@ -21,6 +21,7 @@
 #include "clang/AST/Expr.h"
 #include "clang/AST/Mangle.h"
 #include "clang/Basic/CharInfo.h"
+#include "clang/Basic/OpenCL.h"
 #include "clang/Basic/SourceManager.h"
 #include "clang/Basic/TargetInfo.h"
 #include "clang/Lex/Preprocessor.h"
@@ -138,8 +139,12 @@ static bool hasFunctionProto(const Decl *D) {
 /// arguments. It is an error to call this on a K&R function (use
 /// hasFunctionProto first).
 static unsigned getFunctionOrMethodNumArgs(const Decl *D) {
-  if (const FunctionType *FnTy = getFunctionType(D))
+  if (const FunctionType *FnTy = getFunctionType(D)) {
+    if (hasFunctionProto(D)) 
     return cast<FunctionProtoType>(FnTy)->getNumArgs();
+    else
+      return 0;
+  }
   if (const BlockDecl *BD = dyn_cast<BlockDecl>(D))
     return BD->getNumParams();
   return cast<ObjCMethodDecl>(D)->param_size();
@@ -3860,7 +3865,27 @@ static void handleOpenCLKernelAttr(Sema &S, Decl *D, const AttributeList &Attr){
   D->addAttr(::new (S.Context) OpenCLKernelAttr(Attr.getRange(), S.Context));
 }
 
+static void handleNoDuplicate(Sema &S, Decl *D,
+                                    const AttributeList &Attr) {
+  assert(!Attr.isInvalid());
+  if (!isa<FunctionDecl>(D)) {
+    S.Diag(Attr.getLoc(), diag::warn_attribute_wrong_decl_type) << "noduplicate"
+     << 0 << Attr.getRange();
+    return;
+  }
+
+  D->addAttr(::new (S.Context) NoDuplicateAttr(Attr.getRange(),
+             S.Context));
+}
+
 static void handleOpenCLImageAccessAttr(Sema &S, Decl *D, const AttributeList &Attr){
+  // Since this method is called more then once, we would like to avoid the
+  // same errors over and over again.
+  if (D->isInvalidDecl())
+    return;
+
+  assert(!Attr.isInvalid());
+
   Expr *E = Attr.getArgAsExpr(0);
   llvm::APSInt ArgNum(32);
   if (E->isTypeDependent() || E->isValueDependent() ||
@@ -3868,11 +3893,76 @@ static void handleOpenCLImageAccessAttr(Sema &S, Decl *D, const AttributeList &A
     S.Diag(Attr.getLoc(), diag::err_attribute_argument_type)
       << Attr.getName() << AANT_ArgumentIntegerConstant
       << E->getSourceRange();
+    D->setInvalidDecl(true);
     return;
   }
 
-  D->addAttr(::new (S.Context) OpenCLImageAccessAttr(
-    Attr.getRange(), S.Context, ArgNum.getZExtValue()));
+  OpenCLImageAccessAttr *ImgAttr = ::new (S.Context) OpenCLImageAccessAttr(
+    Attr.getRange(), S.Context, ArgNum.getZExtValue());
+
+  if (const ParmVarDecl *PDecl = llvm::dyn_cast<ParmVarDecl>(D)) {
+    const Type *DeclTy = PDecl->getType().getCanonicalType().getTypePtr();
+    if (DeclTy->isPipeType() && ImgAttr->getAccess() == CLIA_read_write) {
+      S.Diag(D->getLocation(), diag::err_read_write_not_allowed_for_pipes) <<
+      D->getSourceRange();
+      D->setInvalidDecl(true);
+      return;
+    }
+  } else {
+    // We ignore the typedef, we will handle the type once it serves as actual
+    // function argument.
+    return;
+  }
+
+  // Avoid the insertion of duplicated image access attribute with same value.
+  if (D->hasAttrs()) {
+    typedef specific_attr_iterator<OpenCLImageAccessAttr> ImgIter;
+    ImgIter it(D->getAttrs().begin()), e (D->getAttrs().end());
+
+    if (it != e) {
+      if((*it)->getAccess() != ImgAttr->getAccess()) {
+        S.Diag(D->getLocation(), diag::err_multiple_access_qualifiers) <<
+        D->getSourceRange();
+        D->setInvalidDecl(true);
+      }
+
+      // Dealocating the attribute from the AST's pool.
+      ImgAttr->OpenCLImageAccessAttr::~OpenCLImageAccessAttr();
+      S.Context.Deallocate(ImgAttr);
+      return;
+    }
+  }
+
+  D->addAttr(ImgAttr);
+}
+
+// OpenCL 2.0 spec, section 6.7.2:
+// The optional __attribute__((nosvm)) qualifier can be used with a pointer
+// variable to informa the compiler that the pointer does not refer to a shared
+// virtual memory region.
+static void handleOpenCLNoSVMAttr(Sema &S, Decl *D, const AttributeList &Attr){
+  if (S.getLangOpts().OpenCLVersion < 200) {
+    S.Diag(Attr.getLoc(), diag::err_nosvm_opencl_version);
+    Attr.setInvalid();
+    return;
+  }
+
+  if (!isa<VarDecl>(D)) {
+    S.Diag(Attr.getLoc(), diag::err_nosvm_attr_not_pointer);
+    Attr.setInvalid();
+    return;
+  }
+
+  VarDecl *VD = llvm::cast<VarDecl>(D);
+
+  if (!VD->getType()->isPointerType()) {
+    S.Diag(Attr.getLoc(), diag::err_nosvm_attr_not_pointer);
+    Attr.setInvalid();
+    return;
+  }
+
+  D->addAttr(::new (S.Context) OpenCLNoSVMAttr(Attr.getRange(),
+             S.Context));
 }
 
 bool Sema::CheckCallingConvAttr(const AttributeList &attr, CallingConv &CC, 
@@ -4784,6 +4874,8 @@ static void ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D,
   case AttributeList::AT_NoDebug:     handleNoDebugAttr     (S, D, Attr); break;
   case AttributeList::AT_NoInline:    handleNoInlineAttr    (S, D, Attr); break;
   case AttributeList::AT_Regparm:     handleRegparmAttr     (S, D, Attr); break;
+  case AttributeList::AT_NoDuplicate: handleNoDuplicate     (S, D, Attr); break;
+    break;
   case AttributeList::IgnoredAttribute:
     // Just ignore
     break;
@@ -4808,7 +4900,9 @@ static void ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D,
   case AttributeList::AT_OpenCLImageAccess:
     handleOpenCLImageAccessAttr(S, D, Attr);
     break;
-
+  case AttributeList::AT_OpenCLNoSVM:
+    handleOpenCLNoSVMAttr(S, D, Attr);
+    break;
   // Microsoft attributes:
   case AttributeList::AT_MsStruct:
     handleMsStructAttr(S, D, Attr);

@@ -290,9 +290,18 @@ public:
   static const TST TST_image1d_buffer_t = clang::TST_image1d_buffer_t;
   static const TST TST_image2d_t = clang::TST_image2d_t;
   static const TST TST_image2d_array_t = clang::TST_image2d_array_t;
+  static const TST TST_image2d_depth_t = clang::TST_image2d_depth_t;
+  static const TST TST_image2d_array_depth_t = clang::TST_image2d_array_depth_t;
+  static const TST TST_image2d_msaa_t = clang::TST_image2d_msaa_t;
+  static const TST TST_image2d_array_msaa_t = clang::TST_image2d_array_msaa_t;
+  static const TST TST_image2d_msaa_depth_t = clang::TST_image2d_msaa_depth_t;
+  static const TST TST_image2d_array_msaa_depth_t = clang::TST_image2d_array_msaa_depth_t;
   static const TST TST_image3d_t = clang::TST_image3d_t;
   static const TST TST_sampler_t = clang::TST_sampler_t;
   static const TST TST_event_t = clang::TST_event_t;
+  static const TST TST_queue_t = clang::TST_queue_t;
+  static const TST TST_clk_event_t = clang::TST_clk_event_t;
+  static const TST TST_reserve_id_t = clang::TST_reserve_id_t;
   static const TST TST_error = clang::TST_error;
 
   // type-qualifiers
@@ -331,6 +340,7 @@ private:
   unsigned TypeAltiVecPixel : 1;
   unsigned TypeAltiVecBool : 1;
   unsigned TypeSpecOwned : 1;
+  unsigned TypeSpecPipe : 1;
 
   // type-qualifiers
   unsigned TypeQualifiers : 4;  // Bitwise OR of TQ.
@@ -384,6 +394,7 @@ private:
   SourceLocation FS_inlineLoc, FS_virtualLoc, FS_explicitLoc, FS_noreturnLoc;
   SourceLocation FS_forceinlineLoc;
   SourceLocation FriendLoc, ModulePrivateLoc, ConstexprLoc;
+  SourceLocation TQ_pipeLoc;
 
   WrittenBuiltinSpecs writtenBS;
   void SaveWrittenBuiltinSpecs();
@@ -419,6 +430,7 @@ public:
       TypeAltiVecPixel(false),
       TypeAltiVecBool(false),
       TypeSpecOwned(false),
+      TypeSpecPipe(false),
       TypeQualifiers(TQ_unspecified),
       FS_inline_specified(false),
       FS_forceinline_specified(false),
@@ -476,6 +488,7 @@ public:
   bool isTypeAltiVecPixel() const { return TypeAltiVecPixel; }
   bool isTypeAltiVecBool() const { return TypeAltiVecBool; }
   bool isTypeSpecOwned() const { return TypeSpecOwned; }
+  bool isTypeSpecPipe() const { return TypeSpecPipe; }
   ParsedType getRepAsType() const {
     assert(isTypeRep((TST) TypeSpecType) && "DeclSpec does not store a type");
     return TypeRep;
@@ -532,6 +545,7 @@ public:
   SourceLocation getRestrictSpecLoc() const { return TQ_restrictLoc; }
   SourceLocation getVolatileSpecLoc() const { return TQ_volatileLoc; }
   SourceLocation getAtomicSpecLoc() const { return TQ_atomicLoc; }
+  SourceLocation getPipeLoc() const { return TQ_pipeLoc; }
 
   /// \brief Clear out all of the type qualifiers.
   void ClearTypeQualifiers() {
@@ -539,7 +553,7 @@ public:
     TQ_constLoc = SourceLocation();
     TQ_restrictLoc = SourceLocation();
     TQ_volatileLoc = SourceLocation();
-    TQ_atomicLoc = SourceLocation();
+    TQ_pipeLoc = SourceLocation();
   }
 
   // function-specifier
@@ -634,6 +648,8 @@ public:
                        const char *&PrevSpec, unsigned &DiagID);
   bool SetTypeAltiVecBool(bool isAltiVecBool, SourceLocation Loc,
                        const char *&PrevSpec, unsigned &DiagID);
+  bool SetTypePipe(bool isPipe, SourceLocation Loc,
+                   const char *&PrevSpec, unsigned &DiagID);
   bool SetTypeSpecError();
   void UpdateDeclRep(Decl *Rep) {
     assert(isDeclRep((TST) TypeSpecType));
@@ -1052,7 +1068,7 @@ typedef SmallVector<Token, 4> CachedTokens;
 /// This is intended to be a small value object.
 struct DeclaratorChunk {
   enum {
-    Pointer, Reference, Array, Function, BlockPointer, MemberPointer, Paren
+    Pointer, Reference, Array, Function, BlockPointer, MemberPointer, Paren, Pipe
   } Kind;
 
   /// Loc - The place where this type was defined.
@@ -1344,6 +1360,13 @@ struct DeclaratorChunk {
     }
   };
 
+    struct PipeTypeInfo : TypeInfoCommon {
+    /// The access writes.
+    unsigned AccessWrites : 3;
+
+    void destroy() {}
+  };
+
   union {
     TypeInfoCommon        Common;
     PointerTypeInfo       Ptr;
@@ -1352,6 +1375,8 @@ struct DeclaratorChunk {
     FunctionTypeInfo      Fun;
     BlockPointerTypeInfo  Cls;
     MemberPointerTypeInfo Mem;
+    PipeTypeInfo          PipeInfo;
+
   };
 
   void destroy() {
@@ -1363,6 +1388,7 @@ struct DeclaratorChunk {
     case DeclaratorChunk::Array:         return Arr.destroy();
     case DeclaratorChunk::MemberPointer: return Mem.destroy();
     case DeclaratorChunk::Paren:         return;
+    case DeclaratorChunk::Pipe:          return PipeInfo.destroy();
     }
   }
 
@@ -1451,6 +1477,17 @@ struct DeclaratorChunk {
                                          SourceLocation Loc) {
     DeclaratorChunk I;
     I.Kind          = BlockPointer;
+    I.Loc           = Loc;
+    I.Cls.TypeQuals = TypeQuals;
+    I.Cls.AttrList  = 0;
+    return I;
+  }
+
+  /// \brief Return a DeclaratorChunk for a block.
+  static DeclaratorChunk getPipe(unsigned TypeQuals,
+                                          SourceLocation Loc) {
+    DeclaratorChunk I;
+    I.Kind          = Pipe;
     I.Loc           = Loc;
     I.Cls.TypeQuals = TypeQuals;
     I.Cls.AttrList  = 0;
@@ -1939,6 +1976,7 @@ public:
       case DeclaratorChunk::Array:
       case DeclaratorChunk::BlockPointer:
       case DeclaratorChunk::MemberPointer:
+      case DeclaratorChunk::Pipe:
         return false;
       }
       llvm_unreachable("Invalid type chunk");

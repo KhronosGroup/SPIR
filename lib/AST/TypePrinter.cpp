@@ -189,6 +189,7 @@ bool TypePrinter::canPrefixQualifiers(const Type *T,
     case Type::ObjCObject:
     case Type::ObjCInterface:
     case Type::Atomic:
+    case Type::Pipe:
       CanPrefixQualifiers = true;
       break;
       
@@ -674,6 +675,9 @@ void TypePrinter::printFunctionProtoAfter(const FunctionProtoType *T,
     case CC_X86_64SysV:
       OS << " __attribute__((sysv_abi))";
       break;
+    case CC_SpirFunction:
+      OS << "spir_function";
+      break;
     }
   }
 
@@ -825,6 +829,15 @@ void TypePrinter::printAtomicBefore(const AtomicType *T, raw_ostream &OS) {
 }
 void TypePrinter::printAtomicAfter(const AtomicType *T, raw_ostream &OS) { }
 
+void TypePrinter::printPipeBefore(const PipeType *T, raw_ostream &OS) {
+  IncludeStrongLifetimeRAII Strong(Policy);
+
+  OS << "pipe";
+  spaceBeforePlaceHolder(OS);
+}
+
+void TypePrinter::printPipeAfter(const PipeType *T, raw_ostream &OS) { 
+}
 /// Appends the given scope to the end of a string.
 void TypePrinter::AppendScope(DeclContext *DC, raw_ostream &OS) {
   if (DC->isTranslationUnit()) return;
@@ -1478,6 +1491,9 @@ void Qualifiers::print(raw_ostream &OS, const PrintingPolicy& Policy,
         break;
       case LangAS::opencl_constant:
         OS << "__constant";
+        break;
+      case LangAS::opencl_generic:
+        OS << "__generic";
         break;
       default:
         OS << "__attribute__((address_space(";

@@ -114,6 +114,22 @@ Parser::ParseStatementOrDeclaration(StmtVector &Stmts, bool OnlyStatement,
   ParsedAttributesWithRange Attrs(AttrFactory);
   MaybeParseCXX11Attributes(Attrs, 0, /*MightBeObjCMessageSend*/ true);
 
+  if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200) {
+    bool wasAttribute = Tok.is(tok::kw___attribute);
+    MaybeParseGNUAttributes(Attrs);
+
+    if (!Tok.is(tok::kw___attribute) && wasAttribute) {
+      if (!(Tok.is(tok::kw_for) || Tok.is(tok::kw_while) || Tok.is(tok::kw_do))) {
+        AttributeList *attrList = Attrs.getList();
+        assert(attrList != NULL);
+        if (attrList->getName()->getName() == "opencl_unroll_hint") {
+          Diag(Tok, diag::err_opencl_unroll_hint_on_non_loop);
+          return StmtError();
+        }
+      }
+    }
+  }
+
   StmtResult Res = ParseStatementOrDeclarationAfterAttributes(Stmts,
                                  OnlyStatement, TrailingElseLoc, Attrs);
 

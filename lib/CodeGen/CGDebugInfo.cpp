@@ -462,6 +462,30 @@ llvm::DIType CGDebugInfo::CreateType(const BuiltinType *BT) {
   case BuiltinType::OCLImage3d:
     return getOrCreateStructPtrType("opencl_image3d_t",
                                     OCLImage3dDITy);
+
+  case BuiltinType::OCLImage2dDepth:
+    return getOrCreateStructPtrType("opencl_image2d_depth_t",
+                                    OCLImage2dDepthDITy);
+
+  case BuiltinType::OCLImage2dMSAA:
+    return getOrCreateStructPtrType("opencl_image2d_msaa_t",
+                                    OCLImage2dMSAADITy);
+
+  case BuiltinType::OCLImage2dMSAADepth:
+    return getOrCreateStructPtrType("opencl_image2d_msaa_depth_t",
+                                    OCLImage2dMSAADepthDITy);
+  case BuiltinType::OCLImage2dArrayMSAADepth:
+    return getOrCreateStructPtrType("opencl_image2d_array_msaa_depth_t",
+                                    OCLImage2dArrayMSAADepthDITy);
+
+  case BuiltinType::OCLImage2dArrayMSAA:
+    return getOrCreateStructPtrType("opencl_image2d_array_msaa_t",
+                                    OCLImage2dArrayMSAADITy);
+
+  case BuiltinType::OCLImage2dArrayDepth:
+    return getOrCreateStructPtrType("opencl_image2d_array_depth_t",
+                                    OCLImage2dArrayDepthDITy);
+
   case BuiltinType::OCLSampler:
     return DBuilder.createBasicType("opencl_sampler_t",
                                     CGM.getContext().getTypeSize(BT),
@@ -470,6 +494,15 @@ llvm::DIType CGDebugInfo::CreateType(const BuiltinType *BT) {
   case BuiltinType::OCLEvent:
     return getOrCreateStructPtrType("opencl_event_t",
                                     OCLEventDITy);
+  case BuiltinType::OCLQueue:
+    return getOrCreateStructPtrType("opencl_queue_t",
+                                    OCLQueueDITy);
+  case BuiltinType::OCLCLKEvent:
+    return getOrCreateStructPtrType("opencl_clk_event_t",
+                                    OCLCLKEventDITy);
+  case BuiltinType::OCLReserveId:
+    return getOrCreateStructPtrType("opencl_reserve_id_t",
+                                    OCLReserveIdTy);
 
   case BuiltinType::UChar:
   case BuiltinType::Char_U: Encoding = llvm::dwarf::DW_ATE_unsigned_char; break;
@@ -497,9 +530,19 @@ llvm::DIType CGDebugInfo::CreateType(const BuiltinType *BT) {
   }
 
   switch (BT->getKind()) {
-  case BuiltinType::Long:      BTName = "long int"; break;
+  case BuiltinType::Long:      
+    if (CGM.getLangOpts().OpenCL)
+      BTName = "long";
+    else
+      BTName = "long int"; 
+    break;
   case BuiltinType::LongLong:  BTName = "long long int"; break;
-  case BuiltinType::ULong:     BTName = "long unsigned int"; break;
+  case BuiltinType::ULong:     
+    if (CGM.getLangOpts().OpenCL)
+      BTName = "unsigned long";
+    else
+      BTName = "long unsigned int"; 
+    break;
   case BuiltinType::ULongLong: BTName = "long long unsigned int"; break;
   default:
     BTName = BT->getName(CGM.getLangOpts());
@@ -1843,6 +1886,13 @@ llvm::DIType CGDebugInfo::CreateType(const AtomicType *Ty,
   return getOrCreateType(Ty->getValueType(), U);
 }
 
+llvm::DIType CGDebugInfo::CreateType(const PipeType *Ty, 
+                                     llvm::DIFile U) {
+  // Ignore the atomic wrapping
+  // FIXME: What is the correct representation?
+  return getOrCreateType(Ty->getElementType(), U);
+}
+
 /// CreateEnumType - get enumeration type.
 llvm::DIType CGDebugInfo::CreateEnumType(const EnumType *Ty) {
   const EnumDecl *ED = Ty->getDecl();
@@ -2153,6 +2203,9 @@ llvm::DIType CGDebugInfo::CreateTypeNode(QualType Ty, llvm::DIFile Unit) {
 
   case Type::Atomic:
     return CreateType(cast<AtomicType>(Ty), Unit);
+
+  case Type::Pipe:
+    return CreateType(cast<PipeType>(Ty), Unit);
 
   case Type::Attributed:
   case Type::TemplateSpecialization:

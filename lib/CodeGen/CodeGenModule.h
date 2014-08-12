@@ -409,6 +409,8 @@ class CodeGenModule : public CodeGenTypeCache {
   llvm::Type *BlockDescriptorType;
   llvm::Type *GenericBlockLiteralType;
 
+  llvm::DenseMap<const VarDecl*, llvm::Constant *> OCLGlobalBlockFunctions;
+
   struct {
     int GlobalUniqueCount;
   } Block;
@@ -706,7 +708,12 @@ public:
   /// GetAddrOfGlobalBlock - Gets the address of a block which
   /// requires no captures.
   llvm::Constant *GetAddrOfGlobalBlock(const BlockExpr *BE, const char *);
-  
+
+  /// 
+  llvm::Constant *GetOCLGlobalBlockFunction(const VarDecl *D) {
+    return OCLGlobalBlockFunctions[D];
+  }
+
   /// GetAddrOfConstantCFString - Return a pointer to a constant CFString object
   /// for the given string.
   llvm::Constant *GetAddrOfConstantCFString(const StringLiteral *Literal);
@@ -968,6 +975,12 @@ public:
   /// Emit all the global annotations.
   void EmitGlobalAnnotations();
 
+  /// Emit OpenCL related annotations.
+  void EmitOCLAnnotations();
+
+  /// Emit OCL compiler options
+  void EmitOCLBuildOptions();
+
   /// Emit an annotation string.
   llvm::Constant *EmitAnnotationString(StringRef Str);
 
@@ -1135,6 +1148,9 @@ private:
   /// SimplifyPersonality - Check whether we can use a "simpler", more
   /// core exceptions personality function.
   void SimplifyPersonality();
+
+  // Get a metadata vector containing the build options
+  llvm::SmallVector<llvm::Value *, 5> getBuildOptions();
 };
 }  // end namespace CodeGen
 }  // end namespace clang

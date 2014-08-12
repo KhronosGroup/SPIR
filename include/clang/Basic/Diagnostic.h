@@ -17,6 +17,7 @@
 
 #include "clang/Basic/DiagnosticIDs.h"
 #include "clang/Basic/DiagnosticOptions.h"
+#include "clang/Basic/OpenCL.h"
 #include "clang/Basic/SourceLocation.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/DenseMap.h"
@@ -1029,6 +1030,26 @@ inline const DiagnosticBuilder &operator<<(const DiagnosticBuilder &DB,
   DB.AddTaggedVal(reinterpret_cast<intptr_t>(II),
                   DiagnosticsEngine::ak_identifierinfo);
   return DB;
+}
+
+inline const DiagnosticBuilder &operator<<(const DiagnosticBuilder &DB,
+                                           OpenCLImageAccess IA) {
+  const char *S;
+  switch (IA) {
+    case CLIA_read_only:
+      S = "read_only";
+      break;
+    case CLIA_write_only:
+      S = "write_only";
+      break;
+    case CLIA_read_write:
+      S = "read_write";
+      break;
+    default:
+      S = "unknown";
+  }
+
+  return DB << S;
 }
 
 // Adds a DeclContext to the diagnostic. The enable_if template magic is here

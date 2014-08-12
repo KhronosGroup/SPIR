@@ -638,6 +638,7 @@ public:
     case CK_NonAtomicToAtomic:
     case CK_NoOp:
     case CK_ConstructorConversion:
+    case CK_IntToOCLSampler:
       return C;
 
     case CK_Dependent: llvm_unreachable("saw dependent cast!");

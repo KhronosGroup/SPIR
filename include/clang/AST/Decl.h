@@ -689,7 +689,7 @@ private:
     friend class VarDecl;
     friend class ASTDeclReader;
 
-    unsigned SClass : 3;
+    unsigned SClass : 4;
     unsigned TSCSpec : 2;
     unsigned InitStyle : 2;
 
@@ -846,7 +846,8 @@ public:
   /// storage.
   bool hasExternalStorage() const {
     return getStorageClass() == SC_Extern ||
-           getStorageClass() == SC_PrivateExtern;
+           getStorageClass() == SC_PrivateExtern ||
+           getStorageClass() == SC_OpenCLConstantExtern;
   }
 
   /// \brief Returns true for all variables that do not have local storage.

@@ -44,6 +44,7 @@
 #include "clang/Sema/Template.h"
 using namespace clang;
 using namespace sema;
+#include <sstream>
 
 /// \brief Determine whether the use of this declaration is valid, without
 /// emitting diagnostics.
@@ -139,6 +140,96 @@ static AvailabilityResult DiagnoseAvailabilityOfDecl(Sema &S,
       break;
     }
     return Result;
+}
+
+// \brief Preform dynamic type checking on the actual arguments passed to the
+// call.
+static bool CheckEnqueueKernel(const CallExpr *TheCall, ArrayRef<Expr*> Args,
+                               Sema &S) {
+  // The index of the block paramater in overload I.
+  #define BLOCK_INDEX_I   3U
+  // The index of the block paramater in overload II.
+  #define BLOCK_INDEX_II  6U
+
+  // Minimum number of arguments in overload I.
+  #define MIN_NUM_ARGS_I  5U
+  // Minimum number of arguments in overload II.
+  #define MIN_NUM_ARGS_II 8U
+
+  QualType BlkTy;
+
+  // There are two overloads of the function which receives blocks, we need
+  // to figure if the call is one of them.
+  const unsigned NumArgs = Args.size();
+  unsigned BlkIdx = 0;
+
+  if (NumArgs >= MIN_NUM_ARGS_I) {
+    QualType ArgTy = Args[BLOCK_INDEX_I]->getType();
+
+    if (ArgTy->isBlockPointerType()) {
+      BlkTy = ArgTy->getPointeeType();
+      BlkIdx = BLOCK_INDEX_I;
+    }
+    else if (NumArgs >= MIN_NUM_ARGS_II) {
+      ArgTy = Args[BLOCK_INDEX_II]->getType();
+      if (ArgTy->isBlockPointerType()) {
+        BlkTy = ArgTy->getPointeeType();
+        BlkIdx = BLOCK_INDEX_II;
+      }
+    }
+  }
+
+  if (BlkTy.isNull())
+    return false;
+
+  bool Invalid = false;
+
+  // Making sure that if the type is a pointer, it is in local AS.
+  const FunctionProtoType *BlkProto = BlkTy->getAs<FunctionProtoType>();
+  for (unsigned i = 0; i<BlkProto->getNumArgs(); i++) {
+    QualType ParmTy = BlkProto->getArgType(i);
+    if (!ParmTy->isPointerType() ||
+        ParmTy->getPointeeType().getAddressSpace() != LangAS::opencl_local) {
+      S.Diag(Args[BlkIdx]->getLocStart(), diag::err_invalid_block_as_parameter)
+             << BlkTy << TheCall->getSourceRange();
+      Invalid = true;
+    }  
+  }
+
+  // Making sure that all variadic arguments are of type unsigned int.
+  unsigned VariadicIdx = ((FunctionDecl*)TheCall->getCalleeDecl())->
+           getMinRequiredArguments();
+
+  // Making sure that the number of local arg sizes corresponds the number of
+  // pointers in the block.
+  unsigned NumLocalSizes = NumArgs - VariadicIdx +1;
+  if (BlkProto->getNumArgs() != NumLocalSizes) {
+    S.Diag(Args[BlkIdx]->getLocStart(),
+           diag::err_enqueue_kernel_num_args_mismatch) <<
+    TheCall->getSourceRange();
+    Invalid = true;
+  }
+
+ for (unsigned i=(VariadicIdx-1); i<NumArgs; i++) {
+    const Expr *Arg = Args[i];
+    const BuiltinType *BITy = Arg->getType().getCanonicalType()->
+                              getAs<BuiltinType>();
+    if (BITy && (BITy->getKind() == BuiltinType::UInt || 
+                 BITy->getKind() == BuiltinType::ULong || 
+                 BITy->getKind() == BuiltinType::UInt128 || 
+                 BITy->getKind() == BuiltinType::ULongLong)){
+         //at va positions natively accept UInt type 
+          //and accept U types to be interpreted as 32bit sizes of local mem 
+          continue;
+      }
+      else {
+          S.Diag(Arg->getLocStart(), diag::err_variadic_enqueue_kernel) <<
+          TheCall->getSourceRange();
+          Invalid = true;
+      }
+  }
+
+  return Invalid;
 }
 
 /// \brief Emit a note explaining that this function is deleted.
@@ -692,6 +783,34 @@ ExprResult Sema::UsualUnaryConversions(Expr *E) {
     }
   }
   return Owned(E);
+}
+
+// Find out which conversion function to call for a vector with the given 
+// element type.
+//
+static std::string vec_conversion_function_for_type(BuiltinType::Kind elem_type)
+{
+    switch (elem_type)
+    {
+        case BuiltinType::Float: 
+            return "convert_double";
+        case BuiltinType::Char_S:
+        case BuiltinType::SChar:
+        case BuiltinType::Short:
+            return "convert_int";
+        case BuiltinType::Char_U:
+        case BuiltinType::UChar:
+        case BuiltinType::UShort:
+            return "convert_uint";
+        default:
+            // We won't get here because the call to this function will happen
+            // only if elem_type->isPromotableIntegerType(), which apart
+            // from the above types includes bool, and vectors of bools don't
+            // currently exist in OpenCL
+            //
+            assert(0 && "Invalid vector type in conversion");
+            return "";
+    }
 }
 
 /// DefaultArgumentPromotion (C99 6.5.2.2p6). Used for function calls that
@@ -3079,7 +3198,9 @@ ExprResult Sema::ActOnNumericConstant(const Token &Tok, Scope *UDLScope) {
 
   if (Literal.isFloatingLiteral()) {
     QualType Ty;
-    if (Literal.isFloat)
+    if (Literal.isHalf)
+      Ty = Context.HalfTy;
+    else if (Literal.isFloat)
       Ty = Context.FloatTy;
     else if (!Literal.isLong)
       Ty = Context.DoubleTy;
@@ -3714,6 +3835,7 @@ Sema::CreateBuiltinArraySubscriptExpr(Expr *Base, SourceLocation LLoc,
                                       Expr *Idx, SourceLocation RLoc) {
   Expr *LHSExp = Base;
   Expr *RHSExp = Idx;
+  bool LHSIsPointerType = false;
 
   // Perform default conversions.
   if (!LHSExp->getType()->getAs<VectorType>()) {
@@ -3745,6 +3867,7 @@ Sema::CreateBuiltinArraySubscriptExpr(Expr *Base, SourceLocation LLoc,
     BaseExpr = LHSExp;
     IndexExpr = RHSExp;
     ResultType = PTy->getPointeeType();
+    LHSIsPointerType = true;
   } else if (const ObjCObjectPointerType *PTy =
                LHSTy->getAs<ObjCObjectPointerType>()) {
     BaseExpr = LHSExp;
@@ -3843,6 +3966,13 @@ Sema::CreateBuiltinArraySubscriptExpr(Expr *Base, SourceLocation LLoc,
       RequireCompleteType(LLoc, ResultType,
                           diag::err_subscript_incomplete_type, BaseExpr))
     return ExprError();
+
+  if (getLangOpts().OpenCL && ResultType->isHalfType() && !LHSIsPointerType &&
+      !getOpenCLOptions().cl_khr_fp16) {
+    Diag(BaseExpr->getLocStart(), diag::err_opencl_subscript) << ResultType <<
+    BaseExpr->getType() << BaseExpr->getSourceRange();
+    return ExprError();
+  }
 
   assert(VK == VK_RValue || LangOpts.CPlusPlus ||
          !ResultType.isCForbiddenLValueType());
@@ -4639,6 +4769,11 @@ Sema::BuildResolvedCallExpr(Expr *Fn, NamedDecl *NDecl,
             << FDecl->getName() << Fn->getSourceRange());
     }
   }
+
+  if (LangOpts.OpenCL && LangOpts.OpenCLVersion >= 200)
+    if (FDecl && FDecl->getName() == "enqueue_kernel")
+      if(CheckEnqueueKernel(TheCall, Args, *this))
+        return ExprError();
 
   // Check for a valid return type
   if (CheckCallReturnType(FuncT->getResultType(),
@@ -5515,6 +5650,18 @@ static bool checkPointerIntegerMismatch(Sema &S, ExprResult &Int,
   return true;
 }
 
+static bool checkBlockType(Sema &S, const Expr *E) {
+  if (const CallExpr *CE = dyn_cast<CallExpr>(E)) {
+    QualType Ty = CE->getCallee()->getType();
+    if (Ty->isBlockPointerType()) {
+      S.Diag(E->getExprLoc(), diag::err_ternary_with_block);
+      return false;
+    }
+  }
+
+  return false;
+}
+
 /// Note that LHS is not null here, even if this is the gnu "x ?: y" extension.
 /// In that case, LHS = cond.
 /// C99 6.5.15
@@ -5538,21 +5685,43 @@ QualType Sema::CheckConditionalOperands(ExprResult &Cond, ExprResult &LHS,
   VK = VK_RValue;
   OK = OK_Ordinary;
 
-  // First, check the condition.
-  Cond = UsualUnaryConversions(Cond.take());
-  if (Cond.isInvalid())
-    return QualType();
-  if (checkCondition(*this, Cond.get()))
-    return QualType();
+  // OpenCL v1.2 s6.3.i:
+  // Don't perform UsualUnaryConversions in OpenCL, instead use 
+  // DefaultFunctionArrayLvalueConversion which is called implicitly by
+  // UsualUnaryConversions
+  if (getLangOpts().OpenCL) {
+    Cond = DefaultFunctionArrayLvalueConversion(Cond.take());
+    if (Cond.isInvalid())
+      return QualType();
 
-  // Now check the two expressions.
-  if (LHS.get()->getType()->isVectorType() ||
-      RHS.get()->getType()->isVectorType())
-    return CheckVectorOperands(LHS, RHS, QuestionLoc, /*isCompAssign*/false);
+    // Now check the two expressions.
+    if (LHS.get()->getType()->isVectorType() ||
+        RHS.get()->getType()->isVectorType())
+      return CheckVectorOperands(LHS, RHS, QuestionLoc, /*isCompAssign*/false);
 
-  UsualArithmeticConversions(LHS, RHS);
-  if (LHS.isInvalid() || RHS.isInvalid())
-    return QualType();
+    LHS = DefaultFunctionArrayLvalueConversion(LHS.take());
+    if (LHS.isInvalid())
+      return QualType();
+    RHS = DefaultFunctionArrayLvalueConversion(RHS.take());
+    if (RHS.isInvalid())
+      return QualType();
+  } else {
+    // First, check the condition.
+    Cond = UsualUnaryConversions(Cond.take());
+    if (Cond.isInvalid())
+      return QualType();
+    if (checkCondition(*this, Cond.get()))
+      return QualType();
+
+    // Now check the two expressions.
+    if (LHS.get()->getType()->isVectorType() ||
+        RHS.get()->getType()->isVectorType())
+      return CheckVectorOperands(LHS, RHS, QuestionLoc, /*isCompAssign*/false);
+
+    UsualArithmeticConversions(LHS, RHS);
+    if (LHS.isInvalid() || RHS.isInvalid())
+      return QualType();
+  }
 
   QualType CondTy = Cond.get()->getType();
   QualType LHSTy = LHS.get()->getType();
@@ -5564,6 +5733,12 @@ QualType Sema::CheckConditionalOperands(ExprResult &Cond, ExprResult &LHS,
   if (getLangOpts().OpenCL && CondTy->isVectorType())
     if (checkConditionalConvertScalarsToVectors(*this, LHS, RHS, CondTy))
       return QualType();
+
+  // OpenCL 6.12.5 forbids blocks from being part of ternary expressions.
+  if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200) {
+    if (checkBlockType(*this, LHS.get()) || checkBlockType(*this, RHS.get()))
+      return QualType();
+  }
   
   // If both operands have arithmetic type, do the usual arithmetic conversions
   // to find a common type: C99 6.5.15p3,5.
@@ -5991,7 +6166,8 @@ checkPointerTypesForAssignment(Sema &S, QualType LHSType, QualType RHSType) {
 
   if (!lhq.compatiblyIncludes(rhq)) {
     // Treat address-space mismatches as fatal.  TODO: address subspaces
-    if (lhq.getAddressSpace() != rhq.getAddressSpace())
+    if ((lhq.getAddressSpace() != rhq.getAddressSpace()) &&
+      !(lhq.getAddressSpace() == LangAS::opencl_generic && rhq.getAddressSpace() != LangAS::opencl_constant))
       ConvTy = Sema::IncompatiblePointerDiscardsQualifiers;
 
     // It's okay to add or remove GC or lifetime qualifiers when converting to
@@ -6010,6 +6186,10 @@ checkPointerTypesForAssignment(Sema &S, QualType LHSType, QualType RHSType) {
     // as still compatible in C.
     else ConvTy = Sema::CompatiblePointerDiscardsQualifiers;
   }
+
+  // Check pipe access qualifiers
+  //if ( LHSType->isPipeType() && lhq.getImageAccess() != rhq.getImageAccess() && rhq.hasImageAccess() )
+  //    return Sema::IncompatiblePointerDiscardsQualifiers;
 
   // C99 6.5.16.1p1 (constraint 4): If one operand is a pointer to an object or
   // incomplete type and the other is a pointer to a qualified or unqualified
@@ -8015,6 +8195,18 @@ QualType Sema::CheckCompareOperands(ExprResult &LHS, ExprResult &RHS,
     return ResultTy;
   }
 
+  if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200) {
+    if (LHSIsNull && RHSType->isQueueType()) {
+      LHS = ImpCastExprToType(LHS.take(), RHSType, CK_NullToPointer);
+      return ResultTy;
+    }
+
+    if (LHSType->isQueueType() && RHSIsNull) {
+      RHS = ImpCastExprToType(RHS.take(), LHSType, CK_NullToPointer);
+      return ResultTy;
+    }
+  }
+
   return InvalidOperands(Loc, LHS, RHS);
 }
 
@@ -8865,6 +9057,15 @@ QualType Sema::CheckAddressOfOperand(ExprResult &OrigOp, SourceLocation OpLoc) {
   // If the operand has type "type", the result has type "pointer to type".
   if (op->getType()->isObjCObjectType())
     return Context.getObjCObjectPointerType(op->getType());
+
+  if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200) {
+    const QualType Ty = OrigOp.get()->getType();
+    if (Ty->isBlockPointerType()) {
+      Diag(OpLoc, diag::err_typecheck_unary_expr) << Ty << op->getSourceRange();
+      return QualType();
+    }
+  }
+
   return Context.getPointerType(op->getType());
 }
 
@@ -8891,8 +9092,24 @@ static QualType CheckIndirectionOperand(Sema &S, Expr *Op, ExprValueKind &VK,
   // is an incomplete type or void.  It would be possible to warn about
   // dereferencing a void pointer, but it's completely well-defined, and such a
   // warning is unlikely to catch any mistakes.
-  if (const PointerType *PT = OpTy->getAs<PointerType>())
+  if (const PointerType *PT = OpTy->getAs<PointerType>()) {
     Result = PT->getPointeeType();
+    // OpenCL v1.2 s6.1.1.1 p2:
+    // The half data type can only be used to declare a pointer to a buffer that
+    // contains half values
+    if (S.getLangOpts().OpenCL) {
+      if (Result->isHalfType() && !S.getLangOpts().CLEnableHalf) {
+        S.Diag(OpLoc, diag::err_dereferencing_half_ptr) << OpTy << Op->getSourceRange();
+        return QualType();
+      }
+
+      if (S.getLangOpts().OpenCLVersion >= 200 && Result->isBlockPointerType()) {
+        S.Diag(OpLoc, diag::err_opencl_dereferencing) << OpTy <<
+        Op->getSourceRange();
+        return QualType();
+      }
+    }
+  }
   else if (const ObjCObjectPointerType *OPT =
              OpTy->getAs<ObjCObjectPointerType>())
     Result = OPT->getPointeeType();
@@ -8906,6 +9123,13 @@ static QualType CheckIndirectionOperand(Sema &S, Expr *Op, ExprValueKind &VK,
   if (Result.isNull()) {
     S.Diag(OpLoc, diag::err_typecheck_indirection_requires_pointer)
       << OpTy << Op->getSourceRange();
+    return QualType();
+  }
+
+  if (S.getLangOpts().OpenCL &&Result->isHalfType() &&
+      !S.getOpenCLOptions().cl_khr_fp16) {
+    S.Diag(OpLoc, diag::err_opencl_dereferencing) << OpTy <<
+    Op->getSourceRange();
     return QualType();
   }
 
@@ -9079,6 +9303,22 @@ ExprResult Sema::CreateBuiltinBinOp(SourceLocation OpLoc,
     if (Init.isInvalid())
       return Init;
     RHSExpr = Init.take();
+  }
+
+  if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200) {
+    QualType LHSTy = LHSExpr->getType(), RHSTy = RHSExpr->getType();
+    // OpenCL 2.0 Section 6.13.11.1 allows atomic varibles to be initialized by
+    // the ATOMIC_VAR_INIT macro.
+    if (LHSTy->isAtomicType() || RHSTy->isAtomicType()) {
+      SourceRange SR(LHSExpr->getLocStart(), RHSExpr->getLocEnd());
+      if (BO_Assign == Opc)
+        Diag(OpLoc, diag::err_atomic_init_constant) << SR;
+      else {
+        Diag(OpLoc, diag::err_typecheck_invalid_operands) << LHSTy.getAsString()
+        << RHSTy.getAsString() << SR;
+      }
+      return ExprError();
+    }
   }
 
   ExprResult LHS = Owned(LHSExpr), RHS = Owned(RHSExpr);
@@ -9555,6 +9795,18 @@ ExprResult Sema::BuildBinOp(Scope *S, SourceLocation OpLoc,
 ExprResult Sema::CreateBuiltinUnaryOp(SourceLocation OpLoc,
                                       UnaryOperatorKind Opc,
                                       Expr *InputExpr) {
+
+  if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200) {
+    QualType Ty = InputExpr->getType();
+
+    // The only legal unary operation for atomics is '&'.
+    if (Opc != UO_AddrOf && Ty->isAtomicType()) {
+        Diag(OpLoc, diag::err_typecheck_unary_expr) << Ty.getAsString() <<
+        InputExpr->getSourceRange();
+        return ExprError();
+    }
+  }
+
   ExprResult Input = Owned(InputExpr);
   ExprValueKind VK = VK_RValue;
   ExprObjectKind OK = OK_Ordinary;
@@ -11469,7 +11721,7 @@ static bool captureInBlock(BlockScopeInfo *BSI, VarDecl *Var,
   bool ByRef = false;
       
   // Blocks are not allowed to capture arrays.
-  if (CaptureType->isArrayType()) {
+  if (CaptureType->isArrayType() && !S.getLangOpts().OpenCL) {
     if (BuildAndDiagnose) {
       S.Diag(Loc, diag::err_ref_array_type);
       S.Diag(Var->getLocation(), diag::note_previous_decl) 

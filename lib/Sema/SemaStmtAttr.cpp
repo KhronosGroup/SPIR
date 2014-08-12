@@ -44,6 +44,45 @@ static Attr *handleFallThroughAttr(Sema &S, Stmt *St, const AttributeList &A,
   return ::new (S.Context) FallThroughAttr(A.getRange(), S.Context);
 }
 
+static Attr *handleOpenCLUnrollHint(Sema &S, Stmt *St, const AttributeList &A,
+                                    SourceRange Range) {
+  assert(A.getKind() == AttributeList::AT_OpenCLUnrollHint);
+
+  // opencl_unroll_hint can have 0 arguments (compiler determines unrolling
+  // factor) or 1 argument (the unroll factor provided by the user).
+
+  unsigned numArgs = A.getNumArgs();
+
+  if (numArgs > 1) {
+    S.Diag(A.getLoc(), diag::err_attribute_too_many_arguments) << 1;
+    return 0;
+  }
+
+  unsigned unrollingFactor = 0;
+
+  if (numArgs == 1) {
+    Expr *E = A.getArgAsExpr(0);
+    assert(E != NULL);
+    llvm::APSInt ArgVal(32);
+
+    if (E->isTypeDependent() || E->isValueDependent() ||
+        !E->isIntegerConstantExpr(ArgVal, S.Context)) {
+      S.Diag(A.getLoc(), diag::err_attribute_argument_type)
+        << A.getName()->getName()  << AANT_ArgumentIntegerConstant
+        << E->getSourceRange();
+      return 0;
+    }
+
+    int64_t val = ArgVal.getSExtValue();
+
+    if (val <= 0) {
+      S.Diag(A.getRange().getBegin(), diag::err_opencl_unroll_hint_factor);
+      return 0;
+    }
+  }
+
+  return ::new (S.Context) OpenCLUnrollHintAttr(A.getRange(), S.Context, unrollingFactor);
+}
 
 static Attr *ProcessStmtAttribute(Sema &S, Stmt *St, const AttributeList &A,
                                   SourceRange Range) {
@@ -55,6 +94,8 @@ static Attr *ProcessStmtAttribute(Sema &S, Stmt *St, const AttributeList &A,
     return 0;
   case AttributeList::AT_FallThrough:
     return handleFallThroughAttr(S, St, A, Range);
+  case AttributeList::AT_OpenCLUnrollHint:
+    return handleOpenCLUnrollHint(S, St, A, Range);
   default:
     // if we're here, then we parsed a known attribute, but didn't recognize
     // it as a statement attribute => it is declaration attribute

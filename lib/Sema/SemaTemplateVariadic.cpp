@@ -735,9 +735,18 @@ bool Sema::containsUnexpandedParameterPacks(Declarator &D) {
   case TST_image1d_buffer_t:
   case TST_image2d_t:
   case TST_image2d_array_t:
+  case TST_image2d_depth_t:
+  case TST_image2d_array_depth_t:
+  case TST_image2d_msaa_t:
+  case TST_image2d_array_msaa_t:
+  case TST_image2d_msaa_depth_t:
+  case TST_image2d_array_msaa_depth_t:
   case TST_image3d_t:
   case TST_sampler_t:
   case TST_event_t:
+  case TST_queue_t:
+  case TST_clk_event_t:
+  case TST_reserve_id_t:
   case TST_error:
     break;
   }
@@ -748,6 +757,7 @@ bool Sema::containsUnexpandedParameterPacks(Declarator &D) {
     case DeclaratorChunk::Pointer:
     case DeclaratorChunk::Reference:
     case DeclaratorChunk::Paren:
+    case DeclaratorChunk::Pipe:
       // These declarator chunks cannot contain any parameter packs.
       break;
         

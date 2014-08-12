@@ -4938,6 +4938,33 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
   QualType R = TInfo->getType();
   DeclarationName Name = GetNameForDeclarator(D).getName();
 
+  if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200 &&
+      R->isPipeType()) {
+    Diag(D.getIdentifierLoc(), diag::err_pipe_can_be_used_only_as_parameter);
+    D.setInvalidType();
+  }
+
+  // OpenCL v1.2 s6.5 p5
+  // There is no generic address space name for program scope variables. 
+  // All program scope variables must be declared in the __constant address space.
+  if (getLangOpts().OpenCL && !S->getParent() &&
+      LangAS::opencl_constant != R.getAddressSpace()) {
+    // One exception is the sampler_t which can be declared as "const" instead
+    // of "__constant" address space.
+    if (R->isSamplerT() && R.isConstant(Context));
+    else if (R->isOpenCLSpecificType()) {
+      Diag(D.getIdentifierLoc(), diag::err_invalid_type_for_program_scope_var);
+      D.setInvalidType(); 
+    } else if (getLangOpts().OpenCLVersion < 200) {
+        Diag(D.getIdentifierLoc(), diag::err_program_scope_variable_non_constant);
+        D.setInvalidType();
+    } else if (LangAS::opencl_global != R.getAddressSpace()) {
+      Diag(D.getIdentifierLoc(),
+             diag::err_program_scope_variable_non_constant_or_global);
+      D.setInvalidType(); 
+    }
+  }
+
   DeclSpec::SCS SCSpec = D.getDeclSpec().getStorageClassSpec();
   VarDecl::StorageClass SC =
     StorageClassSpecToVarDeclStorageClass(D.getDeclSpec());
@@ -5002,6 +5029,12 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
     // OpenCL __local address space.
     if (R.getAddressSpace() == LangAS::opencl_local) {
       SC = SC_OpenCLWorkGroupLocal;
+	}
+    if (R.getAddressSpace() == LangAS::opencl_constant) {
+      if (SC == SC_Extern)
+        SC = SC_OpenCLConstantExtern;
+      else
+        SC = SC_OpenCLConstant;
     }
 
     // OpenCL v1.2 s6.9.b p4:
@@ -5071,6 +5104,8 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
       case SC_PrivateExtern:
         llvm_unreachable("C storage class in c++!");
       case SC_OpenCLWorkGroupLocal:
+      case SC_OpenCLConstant:
+      case SC_OpenCLConstantExtern:
         llvm_unreachable("OpenCL storage class in c++!");
       }
     }    
@@ -5383,6 +5418,8 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
       case SC_Extern:
       case SC_PrivateExtern:
       case SC_OpenCLWorkGroupLocal:
+      case SC_OpenCLConstant:
+      case SC_OpenCLConstantExtern:
         break;
       }
     }
@@ -5730,21 +5767,37 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
 
   // OpenCL v1.2 s6.5 - All program scope variables must be declared in the
   // __constant address space.
-  if (getLangOpts().OpenCL && NewVD->isFileVarDecl()
-      && T.getAddressSpace() != LangAS::opencl_constant
-      && !T->isSamplerT()){
-    Diag(NewVD->getLocation(), diag::err_opencl_global_invalid_addr_space);
-    NewVD->setInvalidDecl();
-    return;
+  if (getLangOpts().OpenCL && NewVD->isFileVarDecl()) {
+    if (getLangOpts().OpenCLVersion < 200) {
+      if (T.getAddressSpace() != LangAS::opencl_constant &&
+          !T->isSamplerT()) {
+        Diag(NewVD->getLocation(), diag::err_opencl_global_invalid_addr_space);
+        NewVD->setInvalidDecl();
+        return;
+      }
+    } else if (T.getAddressSpace() != LangAS::opencl_constant &&
+               T.getAddressSpace() != LangAS::opencl_global &&
+               !T->isSamplerT()) {
+        Diag(NewVD->getLocation(), diag::err_opencl20_global_invalid_addr_space);
+        NewVD->setInvalidDecl();
+        return;
+    }
   }
   
   // OpenCL v1.2 s6.8 -- The static qualifier is valid only in program
   // scope.
-  if ((getLangOpts().OpenCLVersion >= 120)
-      && NewVD->isStaticLocal()) {
-    Diag(NewVD->getLocation(), diag::err_static_function_scope);
-    NewVD->setInvalidDecl();
-    return;
+  if ( NewVD->isStaticLocal() ) {
+    if ( LangOpts.OpenCLVersion >= 200 ) {
+      if ( T.getAddressSpace() != LangAS::opencl_global && T.getAddressSpace() != LangAS::opencl_constant ) {
+        Diag(NewVD->getLocation(), diag::err_static_variables);
+        NewVD->setInvalidDecl();
+        return;
+      }
+    } else if (LangOpts.OpenCLVersion >= 120) {
+      Diag(NewVD->getLocation(), diag::err_static_function_scope);
+      NewVD->setInvalidDecl();
+      return;
+    }
   }
 
   if (NewVD->hasLocalStorage() && T.isObjCGCWeak()
@@ -5831,6 +5884,24 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
     // Can't perform this check until the type is deduced.
     NewVD->setInvalidDecl();
     return;
+  }
+
+  // OpenCL 2.0: Enforce block 6.12.5: block's prototype cannot be variadic.
+  if (LangOpts.OpenCLVersion >= 200 && T->isBlockPointerType()) {
+    const BlockPointerType *BlkTy = T->getAs<BlockPointerType>();
+    assert(BlkTy && "Not a block pointer.");
+
+    const FunctionProtoType *FTy =
+      BlkTy->getPointeeType()->getAs<FunctionProtoType>();
+    assert(FTy && "Not a function prototype.");
+
+    if (FTy->isVariadic()) {
+      Diag(NewVD->getLocation(), diag::err_block_proto_variadic) << FTy
+      << NewVD->getSourceRange();
+      NewVD->setInvalidDecl();
+      return;
+    }
+
   }
 }
 
@@ -6407,6 +6478,9 @@ static OpenCLParamType getOpenCLKernelParameterType(QualType PT) {
 
   if (PT->isHalfType())
     return InvalidKernelParam;
+    
+  if (PT->isReserveIdT())
+    return InvalidKernelParam;  
 
   if (PT->isRecordType())
     return RecordKernelParam;
@@ -7331,6 +7405,24 @@ Sema::ActOnFunctionDeclarator(Scope *S, Declarator &D, DeclContext *DC,
          PE = NewFD->param_end(); PI != PE; ++PI) {
       ParmVarDecl *Param = *PI;
       checkIsValidOpenCLKernelParameter(*this, D, Param, ValidTypes);
+    }
+  }
+
+  for (FunctionDecl::param_iterator PI = NewFD->param_begin(),
+       PE = NewFD->param_end(); PI != PE; ++PI) {
+    ParmVarDecl *Param = *PI;
+    QualType PT = Param->getType();
+
+    // OpenCL 2.0 pipe restrictions forbids pipe packet types to be non-value
+    // types.
+    if (getLangOpts().OpenCLVersion >= 200) {
+      if(const PipeType *PipeTy = PT->getAs<PipeType>()) {
+        QualType ElemTy = PipeTy->getElementType();
+        if (ElemTy->isReferenceType() || ElemTy->isPointerType()) {
+          Diag(D.getIdentifierLoc(), diag::err_reference_pipe_type );
+          D.setInvalidType();
+        }
+      }
     }
   }
 
@@ -8324,8 +8416,9 @@ void Sema::AddInitializerToDecl(Decl *RealDecl, Expr *Init,
     // static storage duration shall be constant expressions or string literals.
     // C++ does not have this restriction.
     if (!getLangOpts().CPlusPlus && !VDecl->isInvalidDecl()) {
-      if (VDecl->getStorageClass() == SC_Static)
-        CheckForConstantInitializer(Init, DclT);
+      if (VDecl->getStorageClass() == SC_Static || 
+        VDecl->getStorageClass() == SC_OpenCLConstant)
+      CheckForConstantInitializer(Init, DclT);
       // C89 is stricter than C99 for non-static aggregate types.
       // C89 6.5.7p3: All the expressions [...] in an initializer list
       // for an object that has aggregate or union type shall be
@@ -8757,6 +8850,8 @@ void Sema::ActOnCXXForRangeDecl(Decl *D) {
     Error = 4;
     break;
   case SC_OpenCLWorkGroupLocal:
+  case SC_OpenCLConstant:
+  case SC_OpenCLConstantExtern:
     llvm_unreachable("Unexpected storage class");
   }
   if (VD->isConstexpr())
@@ -8900,6 +8995,13 @@ Sema::FinalizeDeclaration(Decl *ThisDecl) {
   VarDecl *VD = dyn_cast_or_null<VarDecl>(ThisDecl);
   if (!VD)
     return;
+
+  if (VD && (VD->getStorageClass() == SC_OpenCLConstant)) {
+    if (!VD->hasInit()) {
+      Diag(VD->getLocEnd(), diag::err_constant_without_init);
+      return;
+    }
+  }
 
   if (UsedAttr *Attr = VD->getAttr<UsedAttr>()) {
     if (!Attr->isInherited() && !VD->isThisDeclarationADefinition()) {
@@ -9319,9 +9421,13 @@ ParmVarDecl *Sema::CheckParameter(DeclContext *DC, SourceLocation StartLoc,
   // Since all parameters have automatic store duration, they can not have
   // an address space.
   if (T.getAddressSpace() != 0) {
-    Diag(NameLoc, diag::err_arg_with_address_space);
-    New->setInvalidDecl();
-  }   
+    if (getLangOpts().OpenCL && T->isArrayType()) {
+      // In OpenCL we allow arrays to be qualified with address space
+    } else {
+      Diag(NameLoc, diag::err_arg_with_address_space);
+      New->setInvalidDecl();
+    }
+  }
 
   return New;
 }
@@ -9926,6 +10032,9 @@ NamedDecl *Sema::ImplicitlyDefineFunction(SourceLocation Loc,
   unsigned diag_id;
   if (II.getName().startswith("__builtin_"))
     diag_id = diag::warn_builtin_unknown;
+  else if (getLangOpts().OpenCL)
+    // Don't allow imlicit function declarations in OpenCL
+    diag_id = diag::err_opencl_implicit_function_decl;
   else if (getLangOpts().C99)
     diag_id = diag::ext_implicit_function_decl;
   else

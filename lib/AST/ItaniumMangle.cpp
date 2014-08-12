@@ -858,6 +858,7 @@ void CXXNameMangler::mangleUnresolvedPrefix(NestedNameSpecifier *qualifier,
     case Type::ObjCInterface:
     case Type::ObjCObjectPointer:
     case Type::Atomic:
+    case Type::Pipe:
       llvm_unreachable("type is illegal as a nested name specifier");
 
     case Type::SubstTemplateTypeParmPack:
@@ -1972,9 +1973,18 @@ void CXXNameMangler::mangleType(const BuiltinType *T) {
   case BuiltinType::OCLImage1dBuffer: Out << "17ocl_image1dbuffer"; break;
   case BuiltinType::OCLImage2d: Out << "11ocl_image2d"; break;
   case BuiltinType::OCLImage2dArray: Out << "16ocl_image2darray"; break;
+  case BuiltinType::OCLImage2dDepth: Out << "16ocl_image2ddepth"; break;
+  case BuiltinType::OCLImage2dArrayDepth: Out << "21ocl_image2darraydepth"; break;
+  case BuiltinType::OCLImage2dMSAA: Out << "15ocl_image2dmsaa"; break;
+  case BuiltinType::OCLImage2dArrayMSAA: Out << "20ocl_image2darraymsaa"; break;
+  case BuiltinType::OCLImage2dMSAADepth: Out << "20ocl_image2dmsaadepth"; break;
+  case BuiltinType::OCLImage2dArrayMSAADepth: Out << "25ocl_image2darraymsaadepth"; break;
   case BuiltinType::OCLImage3d: Out << "11ocl_image3d"; break;
   case BuiltinType::OCLSampler: Out << "11ocl_sampler"; break;
   case BuiltinType::OCLEvent: Out << "9ocl_event"; break;
+  case BuiltinType::OCLQueue: Out << "9ocl_queue"; break;
+  case BuiltinType::OCLCLKEvent: Out << "13ocl_clk_event"; break;
+  case BuiltinType::OCLReserveId: Out << "15ocl_rewserve_id"; break;
   }
 }
 
@@ -2442,6 +2452,12 @@ void CXXNameMangler::mangleType(const AtomicType *T) {
   // (Until there's a standardized mangling...)
   Out << "U7_Atomic";
   mangleType(T->getValueType());
+}
+
+void CXXNameMangler::mangleType(const PipeType *T) {
+  // <type> ::= U <source-name> <type>	# vendor extended type qualifier
+  // (Until there's a standardized mangling...)
+  Out << "8ocl_pipe";
 }
 
 void CXXNameMangler::mangleIntegerLiteral(QualType T,

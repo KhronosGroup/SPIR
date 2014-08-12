@@ -1180,6 +1180,27 @@ BUILTIN(__builtin_smulll_overflow, "bSLLiCSLLiCSLLi*", "n")
 // Clang builtins (not available in GCC).
 BUILTIN(__builtin_addressof, "v*v&", "nct")
 
+// OpenCL 2.0 Pipe functions
+//
+// We need the variadic prototype, since the packet type could be anything.
+BUILTIN(read_pipe, "i.", "tn")
+BUILTIN(write_pipe, "i.", "tn")
+
+BUILTIN(reserve_read_pipe, "i.", "tn") 
+BUILTIN(reserve_write_pipe, "i.", "tn")
+
+BUILTIN(commit_write_pipe, "v.", "tn")
+BUILTIN(commit_read_pipe, "v.", "tn")
+
+BUILTIN(work_group_reserve_read_pipe, "i.", "tn")
+BUILTIN(work_group_reserve_write_pipe, "i.", "tn")
+
+BUILTIN(work_group_commit_read_pipe, "v.", "tn")
+BUILTIN(work_group_commit_write_pipe, "v.", "tn")
+
+BUILTIN(get_pipe_num_packets, "Ui.", "tn")
+BUILTIN(get_pipe_max_packets, "Ui.", "tn")
+
 #undef BUILTIN
 #undef LIBBUILTIN
 #undef LANGBUILTIN

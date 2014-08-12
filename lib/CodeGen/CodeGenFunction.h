@@ -1099,6 +1099,11 @@ public:
                                         const DeclMapTy &ldm,
                                         bool IsLambdaConversionToBlock);
 
+  llvm::Value *GenerateOCLBlockBind(llvm::Constant *blockFunc,
+                                    int ctxSize,
+                                    int ctxAlign,
+                                    llvm::Value *ctx);
+
   llvm::Constant *GenerateCopyHelperFunction(const CGBlockInfo &blockInfo);
   llvm::Constant *GenerateDestroyHelperFunction(const CGBlockInfo &blockInfo);
   llvm::Constant *GenerateObjCAtomicSetterCopyHelperFunction(

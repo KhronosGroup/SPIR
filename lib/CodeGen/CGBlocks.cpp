@@ -14,6 +14,7 @@
 #include "CGBlocks.h"
 #include "CGDebugInfo.h"
 #include "CGObjCRuntime.h"
+#include "CGOpenCLRuntime.h"
 #include "CodeGenFunction.h"
 #include "CodeGenModule.h"
 #include "clang/AST/DeclObjC.h"
@@ -104,8 +105,15 @@ static llvm::Constant *buildBlockDescriptor(CodeGenModule &CGM,
   // Signature.  Mandatory ObjC-style method descriptor @encode sequence.
   std::string typeAtEncoding =
     CGM.getContext().getObjCEncodingForBlock(blockInfo.getBlockExpr());
-  elements.push_back(llvm::ConstantExpr::getBitCast(
-                          CGM.GetAddrOfConstantCString(typeAtEncoding), i8p));
+
+  if (C.getLangOpts().OpenCL) {
+    elements.push_back(llvm::ConstantExpr::getAddrSpaceCast(
+                            CGM.GetAddrOfConstantCString(typeAtEncoding), i8p));
+  }
+  else {
+    elements.push_back(llvm::ConstantExpr::getBitCast(
+                            CGM.GetAddrOfConstantCString(typeAtEncoding), i8p));
+  }
   
   // GC layout.
   if (C.getLangOpts().ObjC1) {
@@ -334,7 +342,10 @@ static void computeBlockInfo(CodeGenModule &CGM, CodeGenFunction *CGF,
   const BlockDecl *block = info.getBlockDecl();
 
   SmallVector<llvm::Type*, 8> elementTypes;
-  initializeForBlockHeader(CGM, info, elementTypes);
+
+  // OpenCL doesn't use block header (Guy)
+  if (!CGM.getLangOpts().OpenCL)
+    initializeForBlockHeader(CGM, info, elementTypes);
 
   if (!block->hasCaptures()) {
     info.StructureType =
@@ -524,7 +535,9 @@ static void computeBlockInfo(CodeGenModule &CGM, CodeGenFunction *CGF,
   
   // At this point, we just have to add padding if the end align still
   // isn't aligned right.
-  if (endAlign < maxFieldAlign) {
+  if (blockSize.getQuantity() == 0)
+    endAlign = maxFieldAlign;
+  else if (endAlign < maxFieldAlign) {
     CharUnits newBlockSize = blockSize.RoundUpToAlignment(maxFieldAlign);
     CharUnits padding = newBlockSize - blockSize;
 
@@ -535,7 +548,7 @@ static void computeBlockInfo(CodeGenModule &CGM, CodeGenFunction *CGF,
   }
 
   assert(endAlign >= maxFieldAlign);
-  assert(endAlign == getLowBit(blockSize));
+  assert(blockSize.isZero() || (endAlign == getLowBit(blockSize)));
   // Slam everything else on now.  This works because they have
   // strictly decreasing alignment and we expect that size is always a
   // multiple of alignment.
@@ -575,6 +588,11 @@ static void enterBlockScope(CodeGenFunction &CGF, BlockDecl *block) {
   blockInfo.Address =
     CGF.CreateTempAlloca(blockInfo.StructureType, "block");
   blockInfo.Address->setAlignment(blockInfo.BlockAlign.getQuantity());
+
+  if (CGF.getLangOpts().OpenCL) {
+    blockInfo.Address->setName("captured");
+    return;
+  }
 
   // If there are cleanups to emit, enter them (but inactive).
   if (!blockInfo.NeedsCopyDispose) return;
@@ -687,6 +705,22 @@ llvm::Value *CodeGenFunction::EmitBlockLiteral(const BlockExpr *blockExpr) {
   return EmitBlockLiteral(*blockInfo);
 }
 
+llvm::Value *CodeGenFunction::GenerateOCLBlockBind(llvm::Constant *blockFunc,
+                                                   int ctxSize,
+                                                   int ctxAlign,
+                                                   llvm::Value *ctx) {
+    llvm::Type *ArgTys[] = {VoidPtrTy, IntTy, IntTy, VoidPtrTy};
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+                                            CGM.getOpenCLRuntime().getBlockType(),
+                                            llvm::ArrayRef<llvm::Type*>(ArgTys),
+                                            false);
+    return Builder.CreateCall4(CGM.CreateRuntimeFunction(FTy, "spir_block_bind"),
+                               blockFunc,
+                               Builder.getInt32(ctxSize),
+                               Builder.getInt32(ctxAlign),
+                               ctx);
+}
+
 llvm::Value *CodeGenFunction::EmitBlockLiteral(const CGBlockInfo &blockInfo) {
   // Using the computed layout, generate the actual block function.
   bool isLambdaConv = blockInfo.getBlockDecl()->isConversionFromLambda();
@@ -695,6 +729,24 @@ llvm::Value *CodeGenFunction::EmitBlockLiteral(const CGBlockInfo &blockInfo) {
                                                        LocalDeclMap,
                                                        isLambdaConv);
   blockFn = llvm::ConstantExpr::getBitCast(blockFn, VoidPtrTy);
+
+  if (CGM.getLangOpts().OpenCL) {
+    llvm::Type *ArgTys[] = {VoidPtrTy, IntTy, IntTy, VoidPtrTy};
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+                                            CGM.getOpenCLRuntime().getBlockType(),
+                                            llvm::ArrayRef<llvm::Type*>(ArgTys),
+                                            false);
+    llvm::Value *captured;
+    if (blockInfo.CanBeGlobal)
+      captured = llvm::Constant::getNullValue(VoidPtrTy);
+    else
+      captured = Builder.CreateBitCast(blockInfo.Address, VoidPtrTy);
+
+    return GenerateOCLBlockBind(blockFn,
+                                blockInfo.BlockSize.getQuantity(),
+                                blockInfo.BlockAlign.getQuantity(),
+                                captured);
+  }
 
   // If there is nothing to capture, we can emit this as a global block.
   if (blockInfo.CanBeGlobal)
@@ -938,18 +990,33 @@ RValue CodeGenFunction::EmitBlockCallExpr(const CallExpr *E,
 
   llvm::Value *Callee = EmitScalarExpr(E->getCallee());
 
-  // Get a pointer to the generic block literal.
-  llvm::Type *BlockLiteralTy =
-    llvm::PointerType::getUnqual(CGM.getGenericBlockLiteralType());
+  llvm::Value *Func;
+  llvm::Value *BlockLiteral;
 
-  // Bitcast the callee to a block literal.
-  llvm::Value *BlockLiteral =
-    Builder.CreateBitCast(Callee, BlockLiteralTy, "block.literal");
+  if (CGM.getLangOpts().OpenCL) {
+    llvm::Type *ArgTy[] = {CGM.getOpenCLRuntime().getBlockType()};
+    llvm::FunctionType *FTy = llvm::FunctionType::get(
+                                            VoidPtrTy,
+                                            llvm::ArrayRef<llvm::Type*>(ArgTy),
+                                            false);
+    Func = Builder.CreateCall(CGM.CreateRuntimeFunction(FTy, "spir_get_block_invoke"), Callee);
+    BlockLiteral = Builder.CreateCall(CGM.CreateRuntimeFunction(FTy, "spir_get_block_context"), Callee);
+  } else {
+    // Get a pointer to the generic block literal.
+    llvm::Type *BlockLiteralTy =
+      llvm::PointerType::getUnqual(CGM.getGenericBlockLiteralType());
 
-  // Get the function pointer from the literal.
-  llvm::Value *FuncPtr = Builder.CreateStructGEP(BlockLiteral, 3);
+    // Bitcast the callee to a block literal.
+    BlockLiteral = Builder.CreateBitCast(Callee, BlockLiteralTy, "block.literal");
 
-  BlockLiteral = Builder.CreateBitCast(BlockLiteral, VoidPtrTy);
+    // Get the function pointer from the literal.
+    llvm::Value *FuncPtr = Builder.CreateStructGEP(BlockLiteral, 3);
+
+    BlockLiteral = Builder.CreateBitCast(BlockLiteral, VoidPtrTy);
+
+    // Load the function.
+    Func = Builder.CreateLoad(FuncPtr);
+  }
 
   // Add the block literal.
   CallArgList Args;
@@ -960,9 +1027,6 @@ RValue CodeGenFunction::EmitBlockCallExpr(const CallExpr *E,
   // And the rest of the arguments.
   EmitCallArgs(Args, FnType->getAs<FunctionProtoType>(),
                E->arg_begin(), E->arg_end());
-
-  // Load the function.
-  llvm::Value *Func = Builder.CreateLoad(FuncPtr);
 
   const FunctionType *FuncTy = FnType->castAs<FunctionType>();
   const CGFunctionInfo &FnInfo =
@@ -1034,6 +1098,13 @@ CodeGenModule::GetAddrOfGlobalBlock(const BlockExpr *blockExpr,
                                                            LocalDeclMap,
                                                            false);
   }
+
+  if (getLangOpts().OpenCL) {
+    // In OpenCL, we bind the block lazily, so here we just generate the
+    // block invoke function
+    return blockFn;
+  }
+
   blockFn = llvm::ConstantExpr::getBitCast(blockFn, VoidPtrTy);
 
   return buildGlobalBlock(*this, blockInfo, blockFn);

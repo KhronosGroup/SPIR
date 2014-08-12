@@ -651,6 +651,12 @@ void Parser::ParseOpenCLQualifiers(DeclSpec &DS) {
           PP.getIdentifierInfo("address_space"), Loc, LangAS::opencl_constant);
       break;
 
+    case tok::kw___generic:
+      DS.getAttributes().addNewInteger(
+          Actions.getASTContext(),
+          PP.getIdentifierInfo("address_space"), Loc, LangAS::opencl_generic);
+      break;
+
     case tok::kw___read_only:
       DS.getAttributes().addNewInteger(
           Actions.getASTContext(),
@@ -3104,6 +3110,31 @@ void Parser::ParseDeclarationSpecifiers(DeclSpec &DS,
       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image3d_t, Loc,
                                      PrevSpec, DiagID);
       break;
+
+    case tok::kw_image2d_depth_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_depth_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_msaa_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_msaa_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_msaa_depth_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_msaa_depth_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_array_msaa_depth_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_msaa_depth_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_array_msaa_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_msaa_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
+    case tok::kw_image2d_array_depth_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_depth_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
     case tok::kw_sampler_t:
       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_sampler_t, Loc,
                                      PrevSpec, DiagID);
@@ -3112,6 +3143,28 @@ void Parser::ParseDeclarationSpecifiers(DeclSpec &DS,
       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_event_t, Loc,
                                      PrevSpec, DiagID);
       break;
+    case tok::kw_queue_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_queue_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
+    case tok::kw_clk_event_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_clk_event_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
+    case tok::kw_pipe:
+      if (!getLangOpts().OpenCL || (getLangOpts().OpenCLVersion < 200)) {
+        // OpenCL 2.0 defined this keyword. OpenCL 1.2 and earlier should
+        // support the "pipe" word as identifier.
+        Tok.getIdentifierInfo()->RevertTokenIDToIdentifier();
+        goto DoneWithDeclSpec;
+      }
+      isInvalid = DS.SetTypePipe(true, Loc, PrevSpec, DiagID);
+      break;
+    case tok::kw_reserve_id_t:
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_reserve_id_t, Loc,
+                                     PrevSpec, DiagID);
+      break;
+
     case tok::kw___unknown_anytype:
       isInvalid = DS.SetTypeSpecType(TST_unknown_anytype, Loc,
                                      PrevSpec, DiagID);
@@ -3205,6 +3258,7 @@ void Parser::ParseDeclarationSpecifiers(DeclSpec &DS,
     case tok::kw___global:
     case tok::kw___local:
     case tok::kw___constant:
+    case tok::kw___generic:
     case tok::kw___read_only:
     case tok::kw___write_only:
     case tok::kw___read_write:
@@ -3431,7 +3485,7 @@ void Parser::ParseStructUnionBody(SourceLocation RecordLoc,
 
     if (Tok.is(tok::semi)) {
       ConsumeToken();
-    } else if (Tok.is(tok::r_brace)) {
+    } else if (Tok.is(tok::r_brace) && !getLangOpts().OpenCL) {
       ExpectAndConsume(tok::semi, diag::ext_expected_semi_decl_list);
       break;
     } else {
@@ -3937,6 +3991,7 @@ bool Parser::isTypeQualifier() const {
   case tok::kw___local:
   case tok::kw___global:
   case tok::kw___constant:
+  case tok::kw___generic:
   case tok::kw___read_only:
   case tok::kw___read_write:
   case tok::kw___write_only:
@@ -3982,8 +4037,16 @@ bool Parser::isKnownToBeTypeSpecifier(const Token &Tok) const {
   case tok::kw_image2d_t:
   case tok::kw_image2d_array_t:
   case tok::kw_image3d_t:
+  case tok::kw_image2d_depth_t:
+  case tok::kw_image2d_msaa_t:
+  case tok::kw_image2d_msaa_depth_t:
+  case tok::kw_image2d_array_msaa_depth_t:
+  case tok::kw_image2d_array_msaa_t:
+  case tok::kw_image2d_array_depth_t:
   case tok::kw_sampler_t:
   case tok::kw_event_t:
+  case tok::kw_queue_t:
+  case tok::kw_clk_event_t:
 
     // struct-or-union-specifier (C99) or class-specifier (C++)
   case tok::kw_class:
@@ -4064,8 +4127,16 @@ bool Parser::isTypeSpecifierQualifier() {
   case tok::kw_image2d_t:
   case tok::kw_image2d_array_t:
   case tok::kw_image3d_t:
+  case tok::kw_image2d_depth_t:
+  case tok::kw_image2d_msaa_t:
+  case tok::kw_image2d_msaa_depth_t:
+  case tok::kw_image2d_array_msaa_depth_t:
+  case tok::kw_image2d_array_msaa_t:
+  case tok::kw_image2d_array_depth_t:
   case tok::kw_sampler_t:
   case tok::kw_event_t:
+  case tok::kw_queue_t:
+  case tok::kw_clk_event_t:
 
     // struct-or-union-specifier (C99) or class-specifier (C++)
   case tok::kw_class:
@@ -4105,6 +4176,7 @@ bool Parser::isTypeSpecifierQualifier() {
   case tok::kw___local:
   case tok::kw___global:
   case tok::kw___constant:
+  case tok::kw___generic:
   case tok::kw___read_only:
   case tok::kw___read_write:
   case tok::kw___write_only:
@@ -4113,6 +4185,9 @@ bool Parser::isTypeSpecifierQualifier() {
 
   case tok::kw_private:
     return getLangOpts().OpenCL;
+
+  case tok::kw_reserve_id_t:
+    return getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200;
 
   // C11 _Atomic
   case tok::kw__Atomic:
@@ -4131,6 +4206,9 @@ bool Parser::isDeclarationSpecifier(bool DisambiguatingWithExpression) {
 
   case tok::kw_private:
     return getLangOpts().OpenCL;
+
+  case tok::kw_pipe:
+    return getLangOpts().OpenCL && (getLangOpts().OpenCLVersion >= 200);
 
   case tok::identifier:   // foo::bar
     // Unfortunate hack to support "Class.factoryMethod" notation.
@@ -4220,8 +4298,17 @@ bool Parser::isDeclarationSpecifier(bool DisambiguatingWithExpression) {
   case tok::kw_image2d_t:
   case tok::kw_image2d_array_t:
   case tok::kw_image3d_t:
+  case tok::kw_image2d_depth_t:
+  case tok::kw_image2d_msaa_t:
+  case tok::kw_image2d_msaa_depth_t:
+  case tok::kw_image2d_array_msaa_depth_t:
+  case tok::kw_image2d_array_msaa_t:
+  case tok::kw_image2d_array_depth_t:
   case tok::kw_sampler_t:
   case tok::kw_event_t:
+  case tok::kw_queue_t:
+  case tok::kw_clk_event_t:
+  case tok::kw_reserve_id_t:
 
     // struct-or-union-specifier (C99) or class-specifier (C++)
   case tok::kw_class:
@@ -4292,6 +4379,7 @@ bool Parser::isDeclarationSpecifier(bool DisambiguatingWithExpression) {
   case tok::kw___local:
   case tok::kw___global:
   case tok::kw___constant:
+  case tok::kw___generic:
   case tok::kw___read_only:
   case tok::kw___read_write:
   case tok::kw___write_only:
@@ -4462,6 +4550,7 @@ void Parser::ParseTypeQualifierListOpt(DeclSpec &DS,
     case tok::kw___global:
     case tok::kw___local:
     case tok::kw___constant:
+    case tok::kw___generic:
     case tok::kw___read_only:
     case tok::kw___write_only:
     case tok::kw___read_write:
@@ -4534,11 +4623,25 @@ static bool isPtrOperatorToken(tok::TokenKind Kind, const LangOptions &Lang) {
   if (Kind == tok::star || Kind == tok::caret)
     return true;
 
+  if ((Kind == tok::kw_pipe) && Lang.OpenCL && (Lang.OpenCLVersion >= 200))
+    return true;
+
   // We parse rvalue refs in C++03, because otherwise the errors are scary.
   if (!Lang.CPlusPlus)
     return false;
 
   return Kind == tok::amp || Kind == tok::ampamp;
+}
+
+// Indicates whether the given declarator is a pipe declarator.
+static bool isPipeDeclerator(const Declarator &D) {
+  const unsigned NumTypes = D.getNumTypeObjects();
+
+  for (unsigned Idx = 0; Idx != NumTypes; ++Idx)
+    if (DeclaratorChunk::Pipe == D.getTypeObject(Idx).Kind)
+      return true;
+
+  return false;
 }
 
 /// ParseDeclaratorInternal - Parse a C or C++ declarator. The direct-declarator
@@ -4615,6 +4718,18 @@ void Parser::ParseDeclaratorInternal(Declarator &D,
   }
 
   tok::TokenKind Kind = Tok.getKind();
+
+  // Add pipe type info, only if it is not already there. (It may already been
+  // added by the recursive call).
+  if (D.getDeclSpec().isTypeSpecPipe() && !isPipeDeclerator(D)) {
+    DeclSpec &DS = D.getMutableDeclSpec();
+
+    D.AddTypeInfo(DeclaratorChunk::getPipe(DS.getTypeQualifiers(), 
+                                           DS.getPipeLoc()),
+                  DS.getAttributes(),
+                  SourceLocation());
+  }
+
   // Not a pointer, C++ reference, or block.
   if (!isPtrOperatorToken(Kind, getLangOpts())) {
     if (DirectDeclParser)

@@ -372,7 +372,9 @@ static bool ParseCodeGenArgs(CodeGenOptions &Opts, ArgList &Args, InputKind IK,
   Opts.DisableTailCalls = Args.hasArg(OPT_mdisable_tail_calls);
   Opts.FloatABI = Args.getLastArgValue(OPT_mfloat_abi);
   Opts.HiddenWeakVTables = Args.hasArg(OPT_fhidden_weak_vtables);
-  Opts.LessPreciseFPMAD = Args.hasArg(OPT_cl_mad_enable);
+  Opts.LessPreciseFPMAD = Args.hasArg(OPT_cl_mad_enable) ||
+                          Args.hasArg(OPT_cl_unsafe_math_optimizations) ||
+                          Args.hasArg(OPT_cl_fast_relaxed_math);
   Opts.LimitFloatPrecision = Args.getLastArgValue(OPT_mlimit_float_precision);
   Opts.NoInfsFPMath = (Args.hasArg(OPT_menable_no_infinities) ||
                        Args.hasArg(OPT_cl_finite_math_only)||
@@ -413,6 +415,13 @@ static bool ParseCodeGenArgs(CodeGenOptions &Opts, ArgList &Args, InputKind IK,
   Opts.MainFileName = Args.getLastArgValue(OPT_main_file_name);
   Opts.VerifyModule = !Args.hasArg(OPT_disable_llvm_verifier);
   Opts.SanitizeRecover = !Args.hasArg(OPT_fno_sanitize_recover);
+
+  Opts.DenormsAreZero = Args.hasArg(OPT_cl_denorms_are_zero);
+  Opts.CorrectFPDivideSqrt = Args.hasArg(OPT_cl_fp32_correctly_rounded_divide_sqrt);
+  Opts.OptDisable = Args.hasArg(OPT_cl_opt_disable);
+  Opts.NoSignedZeros = Args.hasArg(OPT_cl_no_signed_zeros) ||
+                       Args.hasArg(OPT_cl_unsafe_math_optimizations) ||
+                       Args.hasArg(OPT_cl_fast_relaxed_math);
 
   Opts.DisableGCov = Args.hasArg(OPT_test_coverage);
   Opts.EmitGcovArcs = Args.hasArg(OPT_femit_coverage_data);
@@ -488,6 +497,7 @@ static bool ParseCodeGenArgs(CodeGenOptions &Opts, ArgList &Args, InputKind IK,
     }
   }
 
+  Opts.SPIRCompileOptions = Args.getLastArgValue(OPT_cl_spir_compile_options);
   if (Arg *A = Args.getLastArg(OPT_ffp_contract)) {
     StringRef Val = A->getValue();
     if (Val == "fast")
@@ -1065,7 +1075,7 @@ void CompilerInvocation::setLangDefaults(LangOptions &Opts, InputKind IK,
   // Set OpenCL Version.
   if (LangStd == LangStandard::lang_opencl) {
     Opts.OpenCL = 1;
-    Opts.OpenCLVersion = 100;
+    Opts.OpenCLVersion = 120;
   }
   else if (LangStd == LangStandard::lang_opencl11) {
       Opts.OpenCL = 1;
@@ -1074,6 +1084,10 @@ void CompilerInvocation::setLangDefaults(LangOptions &Opts, InputKind IK,
   else if (LangStd == LangStandard::lang_opencl12) {
     Opts.OpenCL = 1;
     Opts.OpenCLVersion = 120;
+  }
+  else if (LangStd == LangStandard::lang_opencl20) {
+    Opts.OpenCL = 1;
+    Opts.OpenCLVersion = 200;
   }
   
   // OpenCL has some additional defaults.
@@ -1182,6 +1196,7 @@ static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
     .Case("CL", LangStandard::lang_opencl)
     .Case("CL1.1", LangStandard::lang_opencl11)
     .Case("CL1.2", LangStandard::lang_opencl12)
+    .Case("CL2.0", LangStandard::lang_opencl20)
     .Default(LangStandard::lang_unspecified);
     
     if (OpenCLLangStd == LangStandard::lang_unspecified) {
@@ -1310,7 +1325,11 @@ static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
   Opts.TraditionalCPP = Args.hasArg(OPT_traditional_cpp);
 
   Opts.RTTI = !Args.hasArg(OPT_fno_rtti);
-  Opts.Blocks = Args.hasArg(OPT_fblocks);
+  if (Opts.OpenCLVersion >= 200) {
+    Opts.Blocks = 1;
+  } else {
+    Opts.Blocks = Args.hasArg(OPT_fblocks);
+  }
   Opts.BlocksRuntimeOptional = Args.hasArg(OPT_fblocks_runtime_optional);
   Opts.Modules = Args.hasArg(OPT_fmodules);
   Opts.ModulesDeclUse = Args.hasArg(OPT_fmodules_decluse);
@@ -1415,6 +1434,8 @@ static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
 
   Opts.RetainCommentsFromSystemHeaders =
       Args.hasArg(OPT_fretain_comments_from_system_headers);
+  
+  Opts.CLEnableHalf = Args.hasArg(OPT_cl_enable_half);
 
   unsigned SSP = getLastArgIntValue(Args, OPT_stack_protector, 0, Diags);
   switch (SSP) {

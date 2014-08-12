@@ -105,7 +105,10 @@ namespace {
     KEYARC = 0x800,
     KEYNOMS = 0x01000,
     WCHARSUPPORT = 0x02000,
-    KEYALL = (0xffff & ~KEYNOMS) // Because KEYNOMS is used to exclude.
+    KEYNOOPENCL = 0x04000,
+    KEYALL = (0xffff & ~KEYNOMS & ~KEYNOOPENCL) // Because KEYNOMS and 
+                                                // KEYNOOPENCL are used 
+                                                // to exclude.
   };
 }
 
@@ -142,6 +145,11 @@ static void AddKeyword(StringRef Keyword,
   // Don't add this keyword under MicrosoftMode.
   if (LangOpts.MicrosoftMode && (Flags & KEYNOMS))
      return;
+
+  // Don't add this keyword under OpenCL.
+  if (LangOpts.OpenCL && (Flags & KEYNOOPENCL))
+     return;
+
   // Don't add this keyword if disabled in this language.
   if (AddResult == 0) return;
 

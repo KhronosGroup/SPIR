@@ -32,6 +32,11 @@ namespace clang {
     TSS_unsigned
   };
   
+  enum TypeSpecifiersPipe {
+    TSP_unspecified,
+    TSP_pipe
+  };
+
   /// \brief Specifies the kind of type.
   enum TypeSpecifierType {
     TST_unspecified,
@@ -69,9 +74,18 @@ namespace clang {
     TST_image2d_t,        // OpenCL image2d_t
     TST_image2d_array_t,  // OpenCL image2d_array_t
     TST_image3d_t,        // OpenCL image3d_t
+    TST_image2d_depth_t,  // OpenCL image2d_depth_t
+    TST_image2d_msaa_t,   // OpenCL image2d_msaa_t
+    TST_image2d_msaa_depth_t, // OpenCL image2d_msaa_depth_t
+    TST_image2d_array_msaa_depth_t, // OpenCL image2d_array_msaa_depth_t
+    TST_image2d_array_msaa_t, // OpenCL image2d_array_msaa_t
+    TST_image2d_array_depth_t, // OpenCL image2d_array_depth_t
     TST_sampler_t,        // OpenCL sampler_t
     TST_event_t,          // OpenCL event_t
-    TST_error         // erroneous type
+    TST_queue_t,          // OpenCL queue_t
+    TST_clk_event_t,      // OpenCL clk_event_t
+    TST_reserve_id_t,     // OpenCL reserve_id_t
+    TST_error             // erroneous type
   };
   
   /// \brief Structure that packs information about the type specifiers that
@@ -184,6 +198,8 @@ namespace clang {
 
     // These are only legal on variables.
     SC_OpenCLWorkGroupLocal,
+    SC_OpenCLConstant,
+    SC_OpenCLConstantExtern,
     SC_Auto,
     SC_Register
   };
@@ -217,7 +233,8 @@ namespace clang {
     CC_AAPCS,       // __attribute__((pcs("aapcs")))
     CC_AAPCS_VFP,   // __attribute__((pcs("aapcs-vfp")))
     CC_PnaclCall,   // __attribute__((pnaclcall))
-    CC_IntelOclBicc // __attribute__((intel_ocl_bicc))
+    CC_IntelOclBicc, // __attribute__((intel_ocl_bicc))
+    CC_SpirFunction
   };
 
   /// \brief Checks whether the given calling convention is callee-cleanup.

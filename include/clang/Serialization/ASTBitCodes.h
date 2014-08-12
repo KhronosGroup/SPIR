@@ -739,10 +739,28 @@ namespace clang {
       PREDEF_TYPE_IMAGE2D_ARR_ID = 42,
       /// \brief OpenCL 3d image type.
       PREDEF_TYPE_IMAGE3D_ID    = 43,
-      /// \brief OpenCL event type.
-      PREDEF_TYPE_EVENT_ID      = 44,
+      /// \brief OpenCL 2d depth image type.
+      PREDEF_TYPE_IMAGE2DDepth_ID = 44,
+      /// \brief OpenCL 2d msaa image type.
+      PREDEF_TYPE_IMAGE2DMSAA_ID = 45,
+      /// \brief OpenCL 2d msaa depth type.
+      PREDEF_TYPE_IMAGE2DMSAADepth_ID = 46,
+      /// \brief OpenCL 2d array msaa depth type.
+      PREDEF_TYPE_IMAGE2DArrayMSAADepth_ID = 47,
+      /// \brief OpenCL 2d array msaa type.
+      PREDEF_TYPE_IMAGE2DArrayMSAA_ID = 48,
+      /// \brief OpenCL 2d array depth type.
+      PREDEF_TYPE_IMAGE2DArrayDepth_ID = 49,
       /// \brief OpenCL sampler type.
-      PREDEF_TYPE_SAMPLER_ID    = 45
+      PREDEF_TYPE_SAMPLER_ID    = 50,
+      /// \brief OpenCL event type.
+      PREDEF_TYPE_EVENT_ID      = 51,
+      /// \brief OpenCL queue type.
+      PREDEF_TYPE_QUEUE_ID      = 52,
+      /// \brief OpenCL clk_event type.
+      PREDEF_TYPE_CLK_EVENT_ID  = 54,
+      /// \brief OpenCL reserve_id type.
+      PREDEF_TYPE_RESERVE_ID_ID  = 55
     };
 
     /// \brief The number of predefined type IDs that are reserved for
@@ -840,8 +858,10 @@ namespace clang {
       TYPE_UNARY_TRANSFORM       = 39,
       /// \brief An AtomicType record.
       TYPE_ATOMIC                = 40,
+      /// \brief An PipeType record.
+      TYPE_PIPE                  = 41,
       /// \brief A DecayedType record.
-      TYPE_DECAYED               = 41
+      TYPE_DECAYED               = 42
     };
 
     /// \brief The type IDs for special types constructed by semantic

@@ -686,6 +686,7 @@ static const LangAS::Map *getAddressSpaceMap(const TargetInfo &T,
       1, // opencl_global
       2, // opencl_local
       3, // opencl_constant
+      7, // opencl_generic
       4, // cuda_device
       5, // cuda_constant
       6  // cuda_shared
@@ -739,7 +740,8 @@ ASTContext::ASTContext(LangOptions& LOpts, SourceManager &SM,
     ExternalSource(0), Listener(0),
     Comments(SM), CommentsLoaded(false),
     CommentCommandTraits(BumpAlloc, LOpts.CommentOpts),
-    LastSDM(0, 0)
+    LastSDM(0, 0),
+    disabledFPContract(false)
 {
   if (size_reserve > 0) Types.reserve(size_reserve);
   TUDecl = TranslationUnitDecl::Create(*this);
@@ -1016,8 +1018,19 @@ void ASTContext::InitBuiltinTypes(const TargetInfo &Target) {
     InitBuiltinType(OCLImage2dArrayTy, BuiltinType::OCLImage2dArray);
     InitBuiltinType(OCLImage3dTy, BuiltinType::OCLImage3d);
 
+    // MSAA Types
+    InitBuiltinType(OCLImage2dDepthTy,          BuiltinType::OCLImage2dDepth);
+    InitBuiltinType(OCLImage2dMSAATy,           BuiltinType::OCLImage2dMSAA);
+    InitBuiltinType(OCLImage2dMSAADepthTy,      BuiltinType::OCLImage2dMSAADepth);
+    InitBuiltinType(OCLImage2dArrayMSAADepthTy, BuiltinType::OCLImage2dArrayMSAADepth);
+    InitBuiltinType(OCLImage2dArrayMSAATy,      BuiltinType::OCLImage2dArrayMSAA);
+    InitBuiltinType(OCLImage2dArrayDepthTy,     BuiltinType::OCLImage2dArrayDepth);
+
     InitBuiltinType(OCLSamplerTy, BuiltinType::OCLSampler);
     InitBuiltinType(OCLEventTy, BuiltinType::OCLEvent);
+    InitBuiltinType(OCLQueueTy, BuiltinType::OCLQueue);
+    InitBuiltinType(OCLCLKEventTy, BuiltinType::OCLCLKEvent);
+    InitBuiltinType(OCLReserveIdTy, BuiltinType::OCLReserveId);
   }
   
   // Builtin type for __objc_yes and __objc_no
@@ -1583,6 +1596,15 @@ ASTContext::getTypeInfoImpl(const Type *T) const {
     case BuiltinType::OCLImage2d:
     case BuiltinType::OCLImage2dArray:
     case BuiltinType::OCLImage3d:
+    case BuiltinType::OCLImage2dDepth:
+    case BuiltinType::OCLImage2dMSAA:
+    case BuiltinType::OCLImage2dMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAA:
+    case BuiltinType::OCLImage2dArrayDepth:
+    case BuiltinType::OCLQueue:
+    case BuiltinType::OCLCLKEvent:
+    case BuiltinType::OCLReserveId:
       // Currently these types are pointers to opaque types.
       Width = Target->getPointerWidth(0);
       Align = Target->getPointerAlign(0);
@@ -1716,6 +1738,15 @@ ASTContext::getTypeInfoImpl(const Type *T) const {
       Align = static_cast<unsigned>(Width);
     }
   }
+  break;
+
+  case Type::Pipe: {
+    std::pair<uint64_t, unsigned> Info
+      = getTypeInfo(cast<PipeType>(T)->getElementType());
+    Width = Info.first;
+    Align = Info.second;
+  }
+  break;
 
   }
 
@@ -2437,6 +2468,7 @@ QualType ASTContext::getVariableArrayDecayedType(QualType type) const {
   case Type::FunctionProto:
   case Type::BlockPointer:
   case Type::MemberPointer:
+  case Type::Pipe:
     return type;
 
   // These types can be variably-modified.  All these modifications
@@ -2882,6 +2914,33 @@ ASTContext::getFunctionType(QualType ResultTy, ArrayRef<QualType> ArgArray,
   Types.push_back(FTP);
   FunctionProtoTypes.InsertNode(FTP, InsertPos);
   return QualType(FTP, 0);
+}
+
+/// getPipeType - Return pipe type for the specified type.
+QualType ASTContext::getPipeType(QualType T) const {
+  // Unique pointers, to guarantee there is only one pointer of a particular
+  // structure.
+  llvm::FoldingSetNodeID ID;
+  PipeType::Profile(ID, T);
+
+  void *InsertPos = 0;
+  if (PipeType *PT = PipeTypes.FindNodeOrInsertPos(ID, InsertPos))
+    return QualType(PT, 0);
+
+  // If the atomic value type isn't canonical, this won't be a canonical type
+  // either, so fill in the canonical type field.
+  QualType Canonical;
+  if (!T.isCanonical()) {
+    Canonical = getPipeType(getCanonicalType(T));
+
+    // Get the new insert position for the node we care about.
+    PipeType *NewIP = PipeTypes.FindNodeOrInsertPos(ID, InsertPos);
+    assert(!NewIP && "Shouldn't be in the map!"); (void)NewIP;
+  }
+  PipeType *New = new (*this, TypeAlignment) PipeType(T, Canonical);
+  Types.push_back(New);
+  PipeTypes.InsertNode(New, InsertPos);
+  return QualType(New, 0);
 }
 
 #ifndef NDEBUG
@@ -5097,8 +5156,17 @@ static char getObjCEncodingForPrimitiveKind(const ASTContext *C,
     case BuiltinType::OCLImage2d:
     case BuiltinType::OCLImage2dArray:
     case BuiltinType::OCLImage3d:
+    case BuiltinType::OCLImage2dDepth:
+    case BuiltinType::OCLImage2dMSAA:
+    case BuiltinType::OCLImage2dMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAA:
+    case BuiltinType::OCLImage2dArrayDepth:
     case BuiltinType::OCLEvent:
     case BuiltinType::OCLSampler:
+    case BuiltinType::OCLQueue:
+    case BuiltinType::OCLCLKEvent:
+    case BuiltinType::OCLReserveId:
     case BuiltinType::Dependent:
 #define BUILTIN_TYPE(KIND, ID)
 #define PLACEHOLDER_TYPE(KIND, ID) \
@@ -7001,13 +7069,31 @@ QualType ASTContext::mergeFunctionTypes(QualType lhs, QualType rhs,
     unsigned lproto_nargs = lproto->getNumArgs();
     unsigned rproto_nargs = rproto->getNumArgs();
 
-    // Compatible functions must have the same number of arguments
-    if (lproto_nargs != rproto_nargs)
-      return QualType();
+    if ( LangOpts.OpenCLVersion < 200 || !lproto->isVariadic() ) {
+      // Compatible functions must have the same number of arguments
+      if (lproto_nargs != rproto_nargs)
+        return QualType();
 
-    // Variadic and non-variadic functions aren't compatible
-    if (lproto->isVariadic() != rproto->isVariadic())
-      return QualType();
+      // Variadic and non-variadic functions aren't compatible
+      if (lproto->isVariadic() != rproto->isVariadic())
+        return QualType();
+
+    } else {
+
+      if ( !lproto->isVariadic() && !lproto->isVariadic() ) {
+        if (lproto_nargs != rproto_nargs)
+          return QualType();
+
+      } else if ( lproto->isVariadic() ) {
+        if (lproto_nargs > rproto_nargs)
+          return QualType();
+
+      } else if ( rproto->isVariadic() ) {
+        if (lproto_nargs < rproto_nargs)
+          return QualType();
+
+      }
+    }
 
     if (lproto->getTypeQuals() != rproto->getTypeQuals())
       return QualType();
@@ -7378,6 +7464,24 @@ QualType ASTContext::mergeTypes(QualType LHS, QualType RHS,
       return LHS;
 
     return QualType();
+  }
+  case Type::Pipe:
+  {
+    // Merge two pointer types, while trying to preserve typedef info
+    QualType LHSValue = LHS->getAs<PipeType>()->getElementType();
+    QualType RHSValue = RHS->getAs<PipeType>()->getElementType();
+    if (Unqualified) {
+      LHSValue = LHSValue.getUnqualifiedType();
+      RHSValue = RHSValue.getUnqualifiedType();
+    }
+    QualType ResultType = mergeTypes(LHSValue, RHSValue, false, 
+                                     Unqualified);
+    if (ResultType.isNull()) return QualType();
+    if (getCanonicalType(LHSValue) == getCanonicalType(ResultType))
+      return LHS;
+    if (getCanonicalType(RHSValue) == getCanonicalType(ResultType))
+      return RHS;
+    return getPipeType(ResultType);
   }
   }
 
@@ -7857,7 +7961,7 @@ GVALinkage ASTContext::GetGVALinkageForFunction(const FunctionDecl *FD) {
   if (!FD->isInlined())
     return External;
 
-  if ((!getLangOpts().CPlusPlus && !getLangOpts().MicrosoftMode) ||
+  if ((!getLangOpts().CPlusPlus && !getLangOpts().MicrosoftMode && !getLangOpts().OpenCL) ||
       FD->hasAttr<GNUInlineAttr>()) {
     // GNU or C99 inline semantics. Determine whether this symbol should be
     // externally visible.
@@ -7987,6 +8091,10 @@ CallingConv ASTContext::getDefaultCallingConvention(bool IsVariadic,
   // Pass through to the C++ ABI object
   if (IsCXXMethod)
     return ABI->getDefaultMethodCallConv(IsVariadic);
+
+  if (getTargetInfo().getTriple().getArch() == llvm::Triple::spir ||
+    getTargetInfo().getTriple().getArch() == llvm::Triple::spir64)
+    return CC_SpirFunction;
 
   return (LangOpts.MRTD && !IsVariadic) ? CC_X86StdCall : CC_C;
 }

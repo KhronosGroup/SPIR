@@ -267,6 +267,16 @@ Sema::BuildPossibleImplicitMemberExpr(const CXXScopeSpec &SS,
   llvm_unreachable("unexpected instance member access kind");
 }
 
+// OpenCL spec (Section 6.1.7 Vector Components):
+// The component group notation can occur on the left hand side of an expression. To form an lvalue,
+// swizzling must be applied to an l-value of vector type, contain no duplicate components,
+// and it results in an l-value of scalar or vector type, depending on number of components
+// specified. Each component must be a supported scalar or vector type.
+static bool IsValidSwizzleLength(unsigned len)
+{
+  return (len >= 1 && len <= 4) || len == 8 || len == 16;
+}
+
 /// Check an ext-vector component access expression.
 ///
 /// VK should be set in advance to the value kind of the base
@@ -342,6 +352,20 @@ CheckExtVectorComponent(Sema &S, QualType baseType, ExprValueKind &VK,
           << baseType << SourceRange(CompLoc);
         return QualType();
       }
+    }
+  }
+
+  if (!HalvingSwizzle) {
+    compStr = CompName->getNameStart();
+
+    if (HexSwizzle)
+      compStr++;
+
+    unsigned swizzleLength = StringRef(compStr).size();
+    if (IsValidSwizzleLength(swizzleLength) == false) {
+      S.Diag(OpLoc, diag::err_ext_vector_component_invalid_length)
+        << swizzleLength << SourceRange(CompLoc);
+      return QualType();
     }
   }
 
