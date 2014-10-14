@@ -5689,23 +5689,23 @@ QualType Sema::CheckConditionalOperands(ExprResult &Cond, ExprResult &LHS,
   // Don't perform UsualUnaryConversions in OpenCL, instead use 
   // DefaultFunctionArrayLvalueConversion which is called implicitly by
   // UsualUnaryConversions
-  if (getLangOpts().OpenCL) {
-    Cond = DefaultFunctionArrayLvalueConversion(Cond.take());
-    if (Cond.isInvalid())
-      return QualType();
-
-    // Now check the two expressions.
-    if (LHS.get()->getType()->isVectorType() ||
-        RHS.get()->getType()->isVectorType())
-      return CheckVectorOperands(LHS, RHS, QuestionLoc, /*isCompAssign*/false);
-
-    LHS = DefaultFunctionArrayLvalueConversion(LHS.take());
-    if (LHS.isInvalid())
-      return QualType();
-    RHS = DefaultFunctionArrayLvalueConversion(RHS.take());
-    if (RHS.isInvalid())
-      return QualType();
-  } else {
+//  if (getLangOpts().OpenCL) {
+//    Cond = DefaultFunctionArrayLvalueConversion(Cond.take());
+//    if (Cond.isInvalid())
+//      return QualType();
+//
+//    // Now check the two expressions.
+//    if (LHS.get()->getType()->isVectorType() ||
+//        RHS.get()->getType()->isVectorType())
+//      return CheckVectorOperands(LHS, RHS, QuestionLoc, /*isCompAssign*/false);
+//
+//    LHS = DefaultFunctionArrayLvalueConversion(LHS.take());
+//    if (LHS.isInvalid())
+//      return QualType();
+//    RHS = DefaultFunctionArrayLvalueConversion(RHS.take());
+//    if (RHS.isInvalid())
+//      return QualType();
+//  } else {
     // First, check the condition.
     Cond = UsualUnaryConversions(Cond.take());
     if (Cond.isInvalid())
@@ -5721,7 +5721,7 @@ QualType Sema::CheckConditionalOperands(ExprResult &Cond, ExprResult &LHS,
     UsualArithmeticConversions(LHS, RHS);
     if (LHS.isInvalid() || RHS.isInvalid())
       return QualType();
-  }
+//  }
 
   QualType CondTy = Cond.get()->getType();
   QualType LHSTy = LHS.get()->getType();
