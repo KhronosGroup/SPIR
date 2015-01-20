@@ -8092,11 +8092,9 @@ CallingConv ASTContext::getDefaultCallingConvention(bool IsVariadic,
   if (IsCXXMethod)
     return ABI->getDefaultMethodCallConv(IsVariadic);
 
-  if (getTargetInfo().getTriple().getArch() == llvm::Triple::spir ||
-    getTargetInfo().getTriple().getArch() == llvm::Triple::spir64)
-    return CC_SpirFunction;
+  if (LangOpts.MRTD && !IsVariadic) return CC_X86StdCall;
 
-  return (LangOpts.MRTD && !IsVariadic) ? CC_X86StdCall : CC_C;
+  return Target->getDefaultCallingConv(TargetInfo::CCMT_Unknown);
 }
 
 bool ASTContext::isNearlyEmpty(const CXXRecordDecl *RD) const {

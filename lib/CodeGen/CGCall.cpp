@@ -48,7 +48,7 @@ static unsigned ClangCallConvToLLVMCallConv(CallingConv CC) {
   case CC_AAPCS_VFP: return llvm::CallingConv::ARM_AAPCS_VFP;
   case CC_IntelOclBicc: return llvm::CallingConv::Intel_OCL_BI;
   case CC_SpirFunction: return llvm::CallingConv::SPIR_FUNC;
-  // TODO: add support for CC_X86Pascal to llvm
+  case CC_SpirKernel: return llvm::CallingConv::SPIR_KERNEL;
   }
 }
 

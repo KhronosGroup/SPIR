@@ -678,6 +678,9 @@ void TypePrinter::printFunctionProtoAfter(const FunctionProtoType *T,
     case CC_SpirFunction:
       OS << "spir_function";
       break;
+    case CC_SpirKernel:
+      OS << "spir_kernel";
+      break;
     }
   }
 

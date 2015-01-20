@@ -5441,6 +5441,15 @@ namespace {
     virtual BuiltinVaListKind getBuiltinVaListKind() const {
       return TargetInfo::VoidPtrBuiltinVaList;
     }
+
+    virtual CallingConvCheckResult checkCallingConvention(CallingConv CC) const {
+      return (CC == CC_SpirFunction ||
+              CC == CC_SpirKernel) ? CCCR_OK : CCCR_Warning;
+    }
+
+    virtual CallingConv getDefaultCallingConv(CallingConvMethodType MT) const {
+      return CC_SpirFunction;
+    }
   };
 
 
