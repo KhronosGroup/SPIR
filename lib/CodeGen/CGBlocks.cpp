@@ -730,6 +730,9 @@ llvm::Value *CodeGenFunction::EmitBlockLiteral(const CGBlockInfo &blockInfo) {
                                                        isLambdaConv);
   blockFn = llvm::ConstantExpr::getBitCast(blockFn, VoidPtrTy);
 
+  llvm::AllocaInst *blockAddr = blockInfo.Address;
+  assert(blockAddr && "block has no address!");
+
   if (CGM.getLangOpts().OpenCL) {
     llvm::Type *ArgTys[] = {VoidPtrTy, IntTy, IntTy, VoidPtrTy};
     llvm::FunctionType *FTy = llvm::FunctionType::get(
@@ -742,45 +745,45 @@ llvm::Value *CodeGenFunction::EmitBlockLiteral(const CGBlockInfo &blockInfo) {
     else
       captured = Builder.CreateBitCast(blockInfo.Address, VoidPtrTy);
 
-    return GenerateOCLBlockBind(blockFn,
-                                blockInfo.BlockSize.getQuantity(),
-                                blockInfo.BlockAlign.getQuantity(),
-                                captured);
+    GenerateOCLBlockBind(blockFn, blockInfo.BlockSize.getQuantity(),
+                         blockInfo.BlockAlign.getQuantity(), captured);
+  } else {
+    // If there is nothing to capture, we can emit this as a global block.
+    if (blockInfo.CanBeGlobal)
+      return buildGlobalBlock(CGM, blockInfo, blockFn);
+
+    // Otherwise, we have to emit this as a local block.
+
+    llvm::Constant *isa = CGM.getNSConcreteStackBlock();
+    isa = llvm::ConstantExpr::getBitCast(isa, VoidPtrTy);
+
+    // Build the block descriptor.
+    llvm::Constant *descriptor = buildBlockDescriptor(CGM, blockInfo);
+
+    // Compute the initial on-stack block flags.
+    BlockFlags flags = BLOCK_HAS_SIGNATURE;
+    if (blockInfo.HasCapturedVariableLayout)
+      flags |= BLOCK_HAS_EXTENDED_LAYOUT;
+    if (blockInfo.NeedsCopyDispose)
+      flags |= BLOCK_HAS_COPY_DISPOSE;
+    if (blockInfo.HasCXXObject)
+      flags |= BLOCK_HAS_CXX_OBJ;
+    if (blockInfo.UsesStret)
+      flags |= BLOCK_USE_STRET;
+
+    // Initialize the block literal.
+    Builder.CreateStore(isa,
+                        Builder.CreateStructGEP(blockAddr, 0, "block.isa"));
+    Builder.CreateStore(llvm::ConstantInt::get(IntTy, flags.getBitMask()),
+                        Builder.CreateStructGEP(blockAddr, 1, "block.flags"));
+    Builder.CreateStore(
+        llvm::ConstantInt::get(IntTy, 0),
+        Builder.CreateStructGEP(blockAddr, 2, "block.reserved"));
+    Builder.CreateStore(blockFn,
+                        Builder.CreateStructGEP(blockAddr, 3, "block.invoke"));
+    Builder.CreateStore(
+        descriptor, Builder.CreateStructGEP(blockAddr, 4, "block.descriptor"));
   }
-
-  // If there is nothing to capture, we can emit this as a global block.
-  if (blockInfo.CanBeGlobal)
-    return buildGlobalBlock(CGM, blockInfo, blockFn);
-
-  // Otherwise, we have to emit this as a local block.
-
-  llvm::Constant *isa = CGM.getNSConcreteStackBlock();
-  isa = llvm::ConstantExpr::getBitCast(isa, VoidPtrTy);
-
-  // Build the block descriptor.
-  llvm::Constant *descriptor = buildBlockDescriptor(CGM, blockInfo);
-
-  llvm::AllocaInst *blockAddr = blockInfo.Address;
-  assert(blockAddr && "block has no address!");
-
-  // Compute the initial on-stack block flags.
-  BlockFlags flags = BLOCK_HAS_SIGNATURE;
-  if (blockInfo.HasCapturedVariableLayout) flags |= BLOCK_HAS_EXTENDED_LAYOUT;
-  if (blockInfo.NeedsCopyDispose) flags |= BLOCK_HAS_COPY_DISPOSE;
-  if (blockInfo.HasCXXObject) flags |= BLOCK_HAS_CXX_OBJ;
-  if (blockInfo.UsesStret) flags |= BLOCK_USE_STRET;
-
-  // Initialize the block literal.
-  Builder.CreateStore(isa, Builder.CreateStructGEP(blockAddr, 0, "block.isa"));
-  Builder.CreateStore(llvm::ConstantInt::get(IntTy, flags.getBitMask()),
-                      Builder.CreateStructGEP(blockAddr, 1, "block.flags"));
-  Builder.CreateStore(llvm::ConstantInt::get(IntTy, 0),
-                      Builder.CreateStructGEP(blockAddr, 2, "block.reserved"));
-  Builder.CreateStore(blockFn, Builder.CreateStructGEP(blockAddr, 3,
-                                                       "block.invoke"));
-  Builder.CreateStore(descriptor, Builder.CreateStructGEP(blockAddr, 4,
-                                                          "block.descriptor"));
-
   // Finally, capture all the values into the block.
   const BlockDecl *blockDecl = blockInfo.getBlockDecl();
 
