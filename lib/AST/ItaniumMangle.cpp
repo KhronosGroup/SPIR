@@ -1985,7 +1985,7 @@ void CXXNameMangler::mangleType(const BuiltinType *T) {
   case BuiltinType::OCLSampler: Out << "11ocl_sampler"; break;
   case BuiltinType::OCLEvent: Out << "9ocl_event"; break;
   case BuiltinType::OCLQueue: Out << "9ocl_queue"; break;
-  case BuiltinType::OCLCLKEvent: Out << "13ocl_clk_event"; break;
+  case BuiltinType::OCLCLKEvent: Out << "12ocl_clkevent"; break;
   case BuiltinType::OCLReserveId: Out << "15ocl_rewserve_id"; break;
   }
 }
