@@ -61,7 +61,14 @@ class CGDebugInfo {
   llvm::DIType OCLImage1dDITy, OCLImage1dArrayDITy, OCLImage1dBufferDITy;
   llvm::DIType OCLImage2dDITy, OCLImage2dArrayDITy;
   llvm::DIType OCLImage3dDITy;
+  llvm::DIType OCLImage2dDepthDITy, OCLImage2dMSAADITy, OCLImage2dMSAADepthDITy;
+  llvm::DIType OCLImage2dArrayMSAADepthDITy, OCLImage2dArrayMSAADITy;
+  llvm::DIType OCLImage2dArrayDepthDITy;
+
   llvm::DIType OCLEventDITy;
+  llvm::DIType OCLQueueDITy;
+  llvm::DIType OCLCLKEventDITy;
+  llvm::DIType OCLReserveIdTy;
   llvm::DIType BlockLiteralGeneric;
 
   /// TypeCache - Cache of previously constructed Types.

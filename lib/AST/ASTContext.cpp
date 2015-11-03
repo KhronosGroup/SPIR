@@ -1026,8 +1026,19 @@ void ASTContext::InitBuiltinTypes(const TargetInfo &Target) {
     InitBuiltinType(OCLImage2dArrayTy, BuiltinType::OCLImage2dArray);
     InitBuiltinType(OCLImage3dTy, BuiltinType::OCLImage3d);
 
+    // MSAA Types
+    InitBuiltinType(OCLImage2dDepthTy,          BuiltinType::OCLImage2dDepth);
+    InitBuiltinType(OCLImage2dMSAATy,           BuiltinType::OCLImage2dMSAA);
+    InitBuiltinType(OCLImage2dMSAADepthTy,      BuiltinType::OCLImage2dMSAADepth);
+    InitBuiltinType(OCLImage2dArrayMSAADepthTy, BuiltinType::OCLImage2dArrayMSAADepth);
+    InitBuiltinType(OCLImage2dArrayMSAATy,      BuiltinType::OCLImage2dArrayMSAA);
+    InitBuiltinType(OCLImage2dArrayDepthTy,     BuiltinType::OCLImage2dArrayDepth);
+
     InitBuiltinType(OCLSamplerTy, BuiltinType::OCLSampler);
     InitBuiltinType(OCLEventTy, BuiltinType::OCLEvent);
+    InitBuiltinType(OCLQueueTy, BuiltinType::OCLQueue);
+    InitBuiltinType(OCLCLKEventTy, BuiltinType::OCLCLKEvent);
+    InitBuiltinType(OCLReserveIdTy, BuiltinType::OCLReserveId);
   }
   
   // Builtin type for __objc_yes and __objc_no
@@ -1600,6 +1611,15 @@ TypeInfo ASTContext::getTypeInfoImpl(const Type *T) const {
     case BuiltinType::OCLImage2d:
     case BuiltinType::OCLImage2dArray:
     case BuiltinType::OCLImage3d:
+    case BuiltinType::OCLImage2dDepth:
+    case BuiltinType::OCLImage2dMSAA:
+    case BuiltinType::OCLImage2dMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAA:
+    case BuiltinType::OCLImage2dArrayDepth:
+    case BuiltinType::OCLQueue:
+    case BuiltinType::OCLCLKEvent:
+    case BuiltinType::OCLReserveId:
       // Currently these types are pointers to opaque types.
       Width = Target->getPointerWidth(0);
       Align = Target->getPointerAlign(0);
@@ -5231,8 +5251,17 @@ static char getObjCEncodingForPrimitiveKind(const ASTContext *C,
     case BuiltinType::OCLImage2d:
     case BuiltinType::OCLImage2dArray:
     case BuiltinType::OCLImage3d:
+    case BuiltinType::OCLImage2dDepth:
+    case BuiltinType::OCLImage2dMSAA:
+    case BuiltinType::OCLImage2dMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAADepth:
+    case BuiltinType::OCLImage2dArrayMSAA:
+    case BuiltinType::OCLImage2dArrayDepth:
     case BuiltinType::OCLEvent:
     case BuiltinType::OCLSampler:
+    case BuiltinType::OCLQueue:
+    case BuiltinType::OCLCLKEvent:
+    case BuiltinType::OCLReserveId:
     case BuiltinType::Dependent:
 #define BUILTIN_TYPE(KIND, ID)
 #define PLACEHOLDER_TYPE(KIND, ID) \

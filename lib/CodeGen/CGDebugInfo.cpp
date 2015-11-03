@@ -444,12 +444,45 @@ llvm::DIType CGDebugInfo::CreateType(const BuiltinType *BT) {
                                     OCLImage2dArrayDITy);
   case BuiltinType::OCLImage3d:
     return getOrCreateStructPtrType("opencl_image3d_t", OCLImage3dDITy);
+
+  case BuiltinType::OCLImage2dDepth:
+    return getOrCreateStructPtrType("opencl_image2d_depth_t",
+                                    OCLImage2dDepthDITy);
+
+  case BuiltinType::OCLImage2dMSAA:
+    return getOrCreateStructPtrType("opencl_image2d_msaa_t",
+                                    OCLImage2dMSAADITy);
+
+  case BuiltinType::OCLImage2dMSAADepth:
+    return getOrCreateStructPtrType("opencl_image2d_msaa_depth_t",
+                                    OCLImage2dMSAADepthDITy);
+  case BuiltinType::OCLImage2dArrayMSAADepth:
+    return getOrCreateStructPtrType("opencl_image2d_array_msaa_depth_t",
+                                    OCLImage2dArrayMSAADepthDITy);
+
+  case BuiltinType::OCLImage2dArrayMSAA:
+    return getOrCreateStructPtrType("opencl_image2d_array_msaa_t",
+                                    OCLImage2dArrayMSAADITy);
+
+  case BuiltinType::OCLImage2dArrayDepth:
+    return getOrCreateStructPtrType("opencl_image2d_array_depth_t",
+                                    OCLImage2dArrayDepthDITy);
+
   case BuiltinType::OCLSampler:
     return DBuilder.createBasicType(
         "opencl_sampler_t", CGM.getContext().getTypeSize(BT),
         CGM.getContext().getTypeAlign(BT), llvm::dwarf::DW_ATE_unsigned);
   case BuiltinType::OCLEvent:
     return getOrCreateStructPtrType("opencl_event_t", OCLEventDITy);
+  case BuiltinType::OCLQueue:
+    return getOrCreateStructPtrType("opencl_queue_t",
+                                    OCLQueueDITy);
+  case BuiltinType::OCLCLKEvent:
+    return getOrCreateStructPtrType("opencl_clk_event_t",
+                                    OCLCLKEventDITy);
+  case BuiltinType::OCLReserveId:
+    return getOrCreateStructPtrType("opencl_reserve_id_t",
+                                    OCLReserveIdTy);
 
   case BuiltinType::UChar:
   case BuiltinType::Char_U:

@@ -1599,11 +1599,21 @@ public:
   bool isImage2dArrayT() const;                 // OpenCL image2d_array_t
   bool isImage3dT() const;                      // OpenCL image3d_t
 
+  bool isImage2dDepthT() const;
+  bool isImage2dMSAAT() const;
+  bool isImage2dMSAADepthT() const;
+  bool isImage2dArrayMSAADepthT() const;
+  bool isImage2dArrayMSAAT() const;
+  bool isImage2dArrayDepthT() const;
+
   bool isImageType() const;                     // Any OpenCL image type
+  bool isImageDepthType() const;                // Any OpenCL depth image type
+  bool isImageMSAAType() const;                 // Any OpenCL msaa image type
 
   bool isSamplerT() const;                      // OpenCL sampler_t
   bool isEventT() const;                        // OpenCL event_t
-
+  bool isReserveIdT() const;                    // OpenCL reserve_id_t
+  bool isExecType() const;                      // OpenCL new execution model types
   bool isOpenCLSpecificType() const;            // Any OpenCL specific type
 
   /// Determines if this type, which must satisfy
@@ -5068,6 +5078,30 @@ inline bool Type::isImage3dT() const {
   return isSpecificBuiltinType(BuiltinType::OCLImage3d);
 }
 
+inline bool Type::isImage2dDepthT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dDepth);
+}
+
+inline bool Type::isImage2dMSAAT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dMSAA);
+}
+
+inline bool Type::isImage2dMSAADepthT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dMSAADepth);
+}
+
+inline bool Type::isImage2dArrayMSAADepthT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dArrayMSAADepth);
+}
+
+inline bool Type::isImage2dArrayMSAAT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dArrayMSAA);
+}
+
+inline bool Type::isImage2dArrayDepthT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLImage2dArrayDepth);
+}
+
 inline bool Type::isSamplerT() const {
   return isSpecificBuiltinType(BuiltinType::OCLSampler);
 }
@@ -5076,14 +5110,35 @@ inline bool Type::isEventT() const {
   return isSpecificBuiltinType(BuiltinType::OCLEvent);
 }
 
+inline bool Type::isReserveIdT() const {
+  return isSpecificBuiltinType(BuiltinType::OCLReserveId);
+}
+
 inline bool Type::isImageType() const {
   return isImage3dT() ||
          isImage2dT() || isImage2dArrayT() ||
+         isImage2dDepthT() || isImage2dArrayDepthT() ||
+         isImage2dMSAAT() || isImage2dArrayMSAAT() ||
+         isImage2dMSAADepthT() || isImage2dArrayMSAADepthT() ||
          isImage1dT() || isImage1dArrayT() || isImage1dBufferT();
 }
 
+inline bool Type::isImageDepthType() const {
+  return isImage2dDepthT() || isImage2dArrayDepthT();
+}
+
+inline bool Type::isImageMSAAType() const {
+  return isImage2dMSAAT() || isImage2dArrayMSAAT() ||
+         isImage2dMSAADepthT() || isImage2dArrayMSAADepthT();
+}
+
+inline bool Type::isExecType() const {
+  return isSpecificBuiltinType(BuiltinType::OCLQueue) ||
+         isSpecificBuiltinType(BuiltinType::OCLCLKEvent);
+}
+
 inline bool Type::isOpenCLSpecificType() const {
-  return isSamplerT() || isEventT() || isImageType();
+  return isSamplerT() || isEventT() || isImageType() || isExecType() || isReserveIdT();
 }
 
 inline bool Type::isTemplateTypeParmType() const {

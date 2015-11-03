@@ -744,6 +744,23 @@ bool Sema::containsUnexpandedParameterPacks(Declarator &D) {
   case TST_auto:
   case TST_decltype_auto:
   case TST_unknown_anytype:
+  case TST_image1d_t:
+  case TST_image1d_array_t:
+  case TST_image1d_buffer_t:
+  case TST_image2d_t:
+  case TST_image2d_array_t:
+  case TST_image2d_depth_t:
+  case TST_image2d_array_depth_t:
+  case TST_image2d_msaa_t:
+  case TST_image2d_array_msaa_t:
+  case TST_image2d_msaa_depth_t:
+  case TST_image2d_array_msaa_depth_t:
+  case TST_image3d_t:
+  case TST_sampler_t:
+  case TST_event_t:
+  case TST_queue_t:
+  case TST_clk_event_t:
+  case TST_reserve_id_t:
   case TST_error:
     break;
   }

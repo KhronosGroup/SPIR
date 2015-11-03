@@ -806,8 +806,11 @@ public:
   CanQualType ObjCBuiltinBoolTy;
   CanQualType OCLImage1dTy, OCLImage1dArrayTy, OCLImage1dBufferTy;
   CanQualType OCLImage2dTy, OCLImage2dArrayTy;
+  CanQualType OCLImage2dDepthTy, OCLImage2dMSAATy, OCLImage2dMSAADepthTy;
+  CanQualType OCLImage2dArrayMSAADepthTy, OCLImage2dArrayMSAATy, OCLImage2dArrayDepthTy;
   CanQualType OCLImage3dTy;
   CanQualType OCLSamplerTy, OCLEventTy;
+  CanQualType OCLQueueTy, OCLCLKEventTy, OCLReserveIdTy;
 
   // Types for deductions in C++0x [stmt.ranged]'s desugaring. Built on demand.
   mutable QualType AutoDeductTy;     // Deduction against 'auto'.
