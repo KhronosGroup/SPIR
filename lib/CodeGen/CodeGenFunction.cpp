@@ -72,6 +72,7 @@ llvm::Type *CodeGenFunction::ConvertType(QualType T) {
 }
 
 bool CodeGenFunction::hasAggregateLLVMType(QualType type) {
+  if(type.getCanonicalType()->isSamplerT()) return true;
   switch (type.getCanonicalType()->getTypeClass()) {
 #define TYPE(name, parent)
 #define ABSTRACT_TYPE(name, parent)

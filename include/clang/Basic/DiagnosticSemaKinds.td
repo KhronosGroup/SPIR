@@ -5999,7 +5999,7 @@ def err_static_kernel : Error<
 def err_static_function_scope : Error<
   "variables in function scope cannot be declared static">;
 def err_sampler_initializer_not_integer : Error<
-  "sampler_t initialization requires integer, not %0">;
+  "sampler_t initialization requires 32-bit integer, not %0">;
 def err_sampler_initializer_not_constant : Error<
   "sampler_t initialization requires compile time constant">;
 def err_sampler_argument_required : Error<
