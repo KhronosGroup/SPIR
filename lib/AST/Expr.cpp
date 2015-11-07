@@ -1636,6 +1636,8 @@ const char *CastExpr::getCastKindName() const {
     return "BuiltinFnToFnPtr";
   case CK_ZeroToOCLEvent:
     return "ZeroToOCLEvent";
+  case CK_IntToOCLSampler:
+    return "IntToOCLSampler";
   }
 
   llvm_unreachable("Unhandled cast kind!");

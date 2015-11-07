@@ -4380,8 +4380,7 @@ static bool TryOCLSamplerInitialization(Sema &S,
                                         InitializationSequence &Sequence,
                                         QualType DestType,
                                         Expr *Initializer) {
-  if (!S.getLangOpts().OpenCL || !DestType->isSamplerT() ||
-    !Initializer->isIntegerConstantExpr(S.getASTContext()))
+  if (!S.getLangOpts().OpenCL || !DestType->isSamplerT())
     return false;
 
   Sequence.AddOCLSamplerInitStep(DestType);
@@ -6217,20 +6216,28 @@ InitializationSequence::Perform(Sema &S,
       bool isConst = CurInit.get()->isConstantInitializer(S.Context, false);
       InitializedEntity::EntityKind EntityKind = Entity.getKind();
 
-      if (EntityKind == InitializedEntity::EK_Variable ||
-          EntityKind == InitializedEntity::EK_Parameter) {
+      if (SourceType->isSamplerT() && DestType->isSamplerT()) {
+        // copy-assignment or copy-initialization
+      }
+      else if (EntityKind == InitializedEntity::EK_Variable ||
+               EntityKind == InitializedEntity::EK_Parameter) {
         if (!isConst)
           S.Diag(Kind.getLocation(), diag::err_sampler_initializer_not_constant);
-        else if (!SourceType->isIntegerType())
+        if (!SourceType->isIntegerType() ||
+            32 != S.Context.getIntWidth(SourceType))
           S.Diag(Kind.getLocation(), diag::err_sampler_initializer_not_integer)
             << SourceType;
       } else {
         llvm_unreachable("Invalid EntityKind!");
       }
 
-      CurInit = S.ImpCastExprToType(CurInit.take(), Step->Type,
-                                    CK_IntToOCLSampler,
-                                    CurInit.get()->getValueKind());
+      ExprResult Result = CurInit;
+      Sema::AssignConvertType ConvTy =
+        S.CheckSingleAssignmentConstraints(Step->Type, Result, true,
+            Entity.getKind() == InitializedEntity::EK_Parameter_CF_Audited);
+      if (Result.isInvalid())
+        return ExprError();
+      CurInit = Result;
       break;
     }
     case SK_OCLZeroEvent: {

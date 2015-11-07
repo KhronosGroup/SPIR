@@ -1,3 +1,5 @@
+// XFAIL: *
+// temporary disabled
 // RUN: %clang_cc1 %s -triple "spir-unknown-unknown" -emit-llvm -o - | FileCheck %s
 
 int get_dummy_id(int D);

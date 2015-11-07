@@ -2,7 +2,7 @@
 // OpenCL essentially reduces all shift amounts to the last word-size bits before evaluating.
 // Test this both for variables and constants evaluated in the front-end.
 
-// CHECK: @gtest1 = constant i64 2147483648
+// CHECK: @gtest1 = addrspace(2) constant i64 2147483648
 __constant const unsigned long gtest1 = 1UL << 31;
 
 // CHECK: @negativeShift32

@@ -2657,6 +2657,9 @@ ABIArgInfo WinX86_64ABIInfo::classify(QualType Ty, bool IsReturnType) const {
     return ABIArgInfo::getIndirect(0, /*ByVal=*/false);
   }
 
+  if (Ty->isSamplerT())
+    return ABIArgInfo::getIndirect(4, /*ByVal=*/true);
+
   if (Ty->isPromotableIntegerType())
     return ABIArgInfo::getExtend();
 

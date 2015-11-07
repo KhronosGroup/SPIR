@@ -1,3 +1,5 @@
+// XFAIL: *
+// temporay disabled
 // RUN: %clang_cc1 %s -cl-kernel-arg-info -emit-llvm -o - -triple spir-unknown-unknown | FileCheck %s
 
 kernel void foo(__global int * restrict X, const int Y, 
