@@ -638,8 +638,17 @@ public:
     case CK_NonAtomicToAtomic:
     case CK_NoOp:
     case CK_ConstructorConversion:
-    case CK_IntToOCLSampler:
       return C;
+
+    case CK_IntToOCLSampler: {
+      llvm::StructType* STy = CGM.getModule().getTypeByName("opencl.sampler_t");
+      if(STy == nullptr) {
+        STy = llvm::StructType::create(CGM.getLLVMContext(), C->getType(),
+                                       "opencl.sampler_t");
+      }
+      return llvm::ConstantStruct::get(STy, C);
+    }
+
 
     case CK_Dependent: llvm_unreachable("saw dependent cast!");
 

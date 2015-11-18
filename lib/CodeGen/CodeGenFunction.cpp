@@ -87,6 +87,7 @@ llvm::Type *CodeGenFunction::ConvertType(QualType T) {
 
 TypeEvaluationKind CodeGenFunction::getEvaluationKind(QualType type) {
   type = type.getCanonicalType();
+  if(type->isSamplerT()) return TEK_Aggregate;
   while (true) {
     switch (type->getTypeClass()) {
 #define TYPE(name, parent)

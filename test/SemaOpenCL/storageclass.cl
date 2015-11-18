@@ -2,7 +2,7 @@
 
 static constant int A = 0;
 
-int X = 0; // expected-error{{global variables must have a constant address space qualifier}}
+int X = 0; // expected-error{{program scope variables are required to be declared in constant address space}}
 
 // static is not allowed at local scope.
 void kernel foo() {

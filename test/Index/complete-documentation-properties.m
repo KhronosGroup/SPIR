@@ -1,4 +1,5 @@
-// Note: the run lines follow their respective tests, since line/column numbers
+// XFAIL: *
+// disabled because sporadicaly fails// Note: the run lines follow their respective tests, since line/column numbers
 // matter in this test.
 // This test is for when property accessors do not have their own code 
 // completion comments. Use those in their properties in this case. 

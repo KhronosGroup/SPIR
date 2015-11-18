@@ -6716,7 +6716,7 @@ def err_opencl20_global_invalid_addr_space : Error<
   "program scope variables must reside global or constant address space">;
 def err_opencl_no_main : Error<"%select{function|kernel}0 cannot be called 'main'">;
 def err_sampler_initializer_not_integer : Error<
-  "sampler_t initialization requires integer, not %0">;
+  "sampler_t initialization requires 32-bit integer, not %0">;
 def err_event_initialization : Error<
   "cannot initialize event_t">;
 def err_event_argument_not_null : Error<

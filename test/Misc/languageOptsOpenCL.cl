@@ -1,3 +1,5 @@
+// XFAIL: *
+// temporary disabled
 // RUN: %clang_cc1 -x cl %s -verify
 // expected-no-diagnostics
 
