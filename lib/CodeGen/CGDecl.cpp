@@ -809,7 +809,7 @@ CodeGenFunction::EmitAutoVarAlloca(const VarDecl &D) {
       // reference or bitfield members, and a few other cases, and checking
       // for POD-ness protects us from some of these.
       if (D.getInit() &&
-          (Ty->isArrayType() || Ty->isRecordType()) &&
+          (Ty->isArrayType() || Ty->isRecordType() || Ty->isSamplerT()) &&
           (Ty.isPODType(getContext()) ||
            getContext().getBaseElementType(Ty)->isObjCObjectPointerType()) &&
           D.getInit()->isConstantInitializer(getContext(), false)) {
