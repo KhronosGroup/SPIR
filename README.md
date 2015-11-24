@@ -27,7 +27,7 @@ Or could be cloned from LLVM git repository:
   git checkout --track -b release_32 remotes/origin/release_32
 ```
 
-Assuming that the LLVM source code is located at $LLVM_SRC_ROOT, then the clang
+Assuming that the LLVM source code is located at **$LLVM_SRC_ROOT**, then the clang
 source code should be installed as: **$LLVM_SRC_ROOT/tools/clang**.
 
 The directory is not required to be called clang, but doing so will allow the
@@ -86,8 +86,8 @@ command lines:
   clang -cc1 -emit-llvm-bc -triple <triple> <OpenCL compile options> -cl-spir-compile-options "<OpenCL compile options>" -include <opencl_spir.h> -o <output> <input>
 ```
 
-* <triple>: for 32 bit SPIR use spir-unknown-unknown, for 64 bit SPIR use spir64-unknown-unknown.
-* **Note**: <OpenCL compile options> appears twice. The command line option -cl-spir-compile-options "<OpenCL compile options>" specifies the compile options that occur in the SPIR metadata.
+* `<triple>`: for 32 bit SPIR use spir-unknown-unknown, for 64 bit SPIR use spir64-unknown-unknown.
+* **Note**: `<OpenCL compile options>` appears twice. The command line option `-cl-spir-compile-options "<OpenCL compile options>"` specifies the compile options that occur in the SPIR metadata.
 * <opencl_spir.h>: download opencl_spir.h from https://github.com/KhronosGroup/SPIR-Tools/blob/master/headers/opencl_spir.h
 
 ----------------
