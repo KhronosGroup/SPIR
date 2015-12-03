@@ -20,6 +20,7 @@
 #include "clang/AST/DeclObjC.h"
 #include "clang/AST/DeclTemplate.h"
 #include "clang/AST/Expr.h"
+#include "clang/AST/Type.h"
 #include "clang/AST/TypeLoc.h"
 #include "clang/AST/TypeLocVisitor.h"
 #include "clang/Basic/PartialDiagnostic.h"
@@ -278,7 +279,8 @@ enum TypeAttrLocation {
 
 static void processTypeAttrs(TypeProcessingState &state,
                              QualType &type, TypeAttrLocation TAL,
-                             AttributeList *attrs);
+                             AttributeList *attrs, Declarator &D,
+                             unsigned int OpenCLVersion);
 
 static bool handleFunctionTypeAttr(TypeProcessingState &state,
                                    AttributeList &attr,
@@ -410,6 +412,7 @@ static void distributeObjCPointerTypeAttr(TypeProcessingState &state,
     // Don't walk through these.
     case DeclaratorChunk::Reference:
     case DeclaratorChunk::MemberPointer:
+    case DeclaratorChunk::Pipe:
       goto error;
     }
   }
@@ -442,6 +445,7 @@ distributeObjCPointerTypeAttrFromDeclarator(TypeProcessingState &state,
     case DeclaratorChunk::MemberPointer:
     case DeclaratorChunk::Paren:
     case DeclaratorChunk::Array:
+    case DeclaratorChunk::Pipe:
       continue;
 
     case DeclaratorChunk::Function:
@@ -503,6 +507,7 @@ static void distributeFunctionTypeAttr(TypeProcessingState &state,
     case DeclaratorChunk::Array:
     case DeclaratorChunk::Reference:
     case DeclaratorChunk::MemberPointer:
+    case DeclaratorChunk::Pipe:
       continue;
     }
   }
@@ -804,6 +809,9 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
         // value being declared, poison it as invalid so we don't get chains of
         // errors.
         declarator.setInvalidType(true);
+      } else if (S.getLangOpts().OpenCL) {
+        S.Diag(DeclLoc, diag::err_opencl_missing_type_specifier)
+          << DS.getSourceRange();
       } else {
         S.Diag(DeclLoc, diag::ext_missing_type_specifier)
           << DS.getSourceRange();
@@ -966,12 +974,21 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
               << Result << "cl_khr_int64_extended_atomics";
           declarator.setInvalidType(true);
         }
-        if (!S.getOpenCLOptions().cl_khr_fp64 && BT &&
-            BT->getKind() == BuiltinType::Double) {
+        if (!((S.getLangOpts().OpenCLVersion >= 120) ||
+              S.getOpenCLOptions().cl_khr_fp64) &&
+            BT && BT->getKind() == BuiltinType::Double) {
           S.Diag(DS.getTypeSpecTypeLoc(), diag::err_type_requires_extension)
               << Result << "cl_khr_fp64";
           declarator.setInvalidType(true);
         }
+      }
+
+      if (!((S.getLangOpts().OpenCLVersion >= 120) ||
+            S.getOpenCLOptions().cl_khr_fp64) &&
+          (Result->isDoubleType() || Result->isDoubleVecType())) {
+        S.Diag(DS.getTypeSpecTypeLoc(), diag::err_type_requires_extension)
+            << Result << "cl_khr_fp64";
+        declarator.setInvalidType(true);
       }
     }
 
@@ -1178,8 +1195,9 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
   // Apply any type attributes from the decl spec.  This may cause the
   // list of type attributes to be temporarily saved while the type
   // attributes are pushed around.
-  if (AttributeList *attrs = DS.getAttributes().getList())
-    processTypeAttrs(state, Result, TAL_DeclSpec, attrs);
+  if (!DS.isTypeSpecPipe())         // pipe attributes will be handled later ( at GetFullTypeForDeclarator )
+    processTypeAttrs(state, Result, TAL_DeclSpec, DS.getAttributes().getList(),
+                     declarator, S.getLangOpts().OpenCLVersion);
 
   // Apply const/volatile/restrict qualifiers to T.
   if (unsigned TypeQuals = DS.getTypeQualifiers()) {
@@ -1555,6 +1573,24 @@ QualType Sema::BuildReferenceType(QualType T, bool SpelledAsLValue,
   return Context.getRValueReferenceType(T);
 }
 
+/// \brief Build a Pipe type.
+///
+/// \param T The type to which we'll be building a Pipe.
+///
+/// \param Loc The location of the entity whose type involves this
+/// pointer type or, if there is no such entity, the location of the
+/// type that will have pointer type.
+///
+/// \returns A suitable pipe type, if there are no
+/// errors. Otherwise, returns a NULL type.
+QualType Sema::BuildPipeType(QualType T,
+                                SourceLocation Loc) {
+  assert(!T->isObjCObjectType() && "Should build ObjCObjectPointerType");
+
+  // Build the pointer type.
+  return Context.getPipeType(T);
+}
+
 /// Check whether the specified array size makes the array type a VLA.  If so,
 /// return true, if not, return the size of the array in SizeVal.
 static bool isArraySizeVLA(Sema &S, Expr *ArraySize, llvm::APSInt &SizeVal) {
@@ -1573,7 +1609,8 @@ static bool isArraySizeVLA(Sema &S, Expr *ArraySize, llvm::APSInt &SizeVal) {
   } Diagnoser;
 
   return S.VerifyIntegerConstantExpression(ArraySize, &SizeVal, Diagnoser,
-                                           S.LangOpts.GNUMode).isInvalid();
+                                           S.LangOpts.GNUMode ||
+                                           S.LangOpts.OpenCL).isInvalid();
 }
 
 
@@ -1782,6 +1819,13 @@ QualType Sema::BuildArrayType(QualType T, ArrayType::ArraySizeModifier ASM,
   if (T->isVariableArrayType()) {
     // Warn about VLAs for -Wvla.
     Diag(Loc, diag::warn_vla_used);
+  }
+
+  QualType ElemTy = Context.getBaseElementType(T);
+  if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200 &&
+      ElemTy->isBlockPointerType()) {
+    Diag(Loc, diag::err_invalid_block_array);
+    return QualType();
   }
 
   return T;
@@ -2030,6 +2074,7 @@ static void inferARCWriteback(TypeProcessingState &state,
     case DeclaratorChunk::Array: // suppress if written (id[])?
     case DeclaratorChunk::Function:
     case DeclaratorChunk::MemberPointer:
+    case DeclaratorChunk::Pipe:
       return;
     }
   }
@@ -2232,8 +2277,8 @@ static QualType GetDeclSpecTypeForDeclarator(TypeProcessingState &state,
     // Constructors and destructors don't have return types. Use
     // "void" instead.
     T = SemaRef.Context.VoidTy;
-    if (AttributeList *attrs = D.getDeclSpec().getAttributes().getList())
-      processTypeAttrs(state, T, TAL_DeclSpec, attrs);
+    processTypeAttrs(state, T, TAL_DeclSpec, D.getDeclSpec().getAttributes().getList(),
+                     D, SemaRef.getLangOpts().OpenCLVersion);
     break;
 
   case UnqualifiedId::IK_ConversionFunctionId:
@@ -2773,6 +2818,7 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
             break;
           case DeclaratorChunk::Function:
           case DeclaratorChunk::BlockPointer:
+          case DeclaratorChunk::Pipe:
             // These are invalid anyway, so just ignore.
             break;
           }
@@ -2963,7 +3009,7 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
 
       FunctionType::ExtInfo EI(getCCForDeclaratorChunk(S, D, FTI, chunkIndex));
 
-      if (!FTI.NumParams && !FTI.isVariadic && !LangOpts.CPlusPlus) {
+      if (!FTI.NumParams && !FTI.isVariadic && !LangOpts.CPlusPlus  && !LangOpts.OpenCL) {
         // Simple void foo(), where the incoming T is the result type.
         T = Context.getFunctionNoProtoType(T, EI);
       } else {
@@ -3113,7 +3159,7 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
 
       break;
     }
-    case DeclaratorChunk::MemberPointer:
+    case DeclaratorChunk::MemberPointer: {
       // The scope spec must refer to a class, or be dependent.
       CXXScopeSpec &SS = DeclType.Mem.Scope();
       QualType ClsType;
@@ -3168,14 +3214,19 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
       break;
     }
 
+    case DeclaratorChunk::Pipe:
+      T = S.BuildPipeType(T, DeclType.Loc );
+      break;
+    }
+
     if (T.isNull()) {
       D.setInvalidType(true);
       T = Context.IntTy;
     }
 
     // See if there are any attributes on this declarator chunk.
-    if (AttributeList *attrs = const_cast<AttributeList*>(DeclType.getAttrs()))
-      processTypeAttrs(state, T, TAL_DeclChunk, attrs);
+    processTypeAttrs(state, T, TAL_DeclChunk, const_cast<AttributeList*>(
+      DeclType.getAttrs()), D, S.getLangOpts().OpenCLVersion);
   }
 
   assert(!T.isNull() && "T must not be null after this point");
@@ -3268,8 +3319,8 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
   }
 
   // Apply any undistributed attributes from the declarator.
-  if (AttributeList *attrs = D.getAttributes())
-    processTypeAttrs(state, T, TAL_DeclName, attrs);
+    processTypeAttrs(state, T, TAL_DeclName, D.getAttributes(), D,
+                     S.getLangOpts().OpenCLVersion);
 
   // Diagnose any ignored type attributes.
   state.diagnoseIgnoredTypeAttrs(T);
@@ -3463,6 +3514,7 @@ static void transferARCOwnership(TypeProcessingState &state,
 
     case DeclaratorChunk::Function:
     case DeclaratorChunk::MemberPointer:
+    case DeclaratorChunk::Pipe:
       return;
     }
   }
@@ -3753,6 +3805,14 @@ namespace {
       }
     }
 
+    void VisitPipeTypeLoc(PipeTypeLoc TL) {
+      TL.setKWLoc(DS.getTypeSpecTypeLoc());
+
+      TypeSourceInfo *TInfo = 0;
+      Sema::GetTypeFromParser(DS.getRepAsType(), &TInfo);
+      TL.getValueLoc().initializeFullCopy(TInfo->getTypeLoc());
+    }
+
     void VisitTypeLoc(TypeLoc TL) {
       // FIXME: add other typespec types and change this to an assert.
       TL.initialize(Context, DS.getTypeSpecTypeLoc());
@@ -3872,6 +3932,10 @@ namespace {
       assert(Chunk.Kind == DeclaratorChunk::Paren);
       TL.setLParenLoc(Chunk.Loc);
       TL.setRParenLoc(Chunk.EndLoc);
+    }
+    void VisitPipeTypeLoc(PipeTypeLoc TL) {
+      assert(Chunk.Kind == DeclaratorChunk::Pipe);
+      TL.setKWLoc(Chunk.Loc);
     }
 
     void VisitTypeLoc(TypeLoc TL) {
@@ -4937,128 +5001,159 @@ static void HandleNeonVectorTypeAttr(QualType& CurType,
 }
 
 static void processTypeAttrs(TypeProcessingState &state, QualType &type,
-                             TypeAttrLocation TAL, AttributeList *attrs) {
+                             TypeAttrLocation TAL, AttributeList *attrs,
+                             Declarator &D, unsigned int OpenCLVersion) {
   // Scan through and apply attributes to this type where it makes sense.  Some
   // attributes (such as __address_space__, __vector_size__, etc) apply to the
   // type, but others can be present in the type specifiers even though they
   // apply to the decl.  Here we apply type attributes and ignore the rest.
 
   AttributeList *next;
-  do {
-    AttributeList &attr = *attrs;
-    next = attr.getNext();
+  bool hasOpenCLAddressSpace = false;
+  if (attrs)
+    do {
+      AttributeList &attr = *attrs;
+      next = attr.getNext();
 
-    // Skip attributes that were marked to be invalid.
-    if (attr.isInvalid())
-      continue;
+      // Skip attributes that were marked to be invalid.
+      if (attr.isInvalid())
+        continue;
 
-    if (attr.isCXX11Attribute()) {
-      // [[gnu::...]] attributes are treated as declaration attributes, so may
-      // not appertain to a DeclaratorChunk, even if we handle them as type
-      // attributes.
-      if (attr.getScopeName() && attr.getScopeName()->isStr("gnu")) {
-        if (TAL == TAL_DeclChunk) {
-          state.getSema().Diag(attr.getLoc(),
-                               diag::warn_cxx11_gnu_attribute_on_type)
-              << attr.getName();
+      if (attr.isCXX11Attribute()) {
+        // [[gnu::...]] attributes are treated as declaration attributes, so may
+        // not appertain to a DeclaratorChunk, even if we handle them as type
+        // attributes.
+        if (attr.getScopeName() && attr.getScopeName()->isStr("gnu")) {
+          if (TAL == TAL_DeclChunk) {
+            state.getSema().Diag(attr.getLoc(),
+                                 diag::warn_cxx11_gnu_attribute_on_type)
+                << attr.getName();
+            continue;
+          }
+        } else if (TAL != TAL_DeclChunk) {
+          // Otherwise, only consider type processing for a C++11 attribute if
+          // it's actually been applied to a type.
           continue;
         }
-      } else if (TAL != TAL_DeclChunk) {
-        // Otherwise, only consider type processing for a C++11 attribute if
-        // it's actually been applied to a type.
-        continue;
       }
-    }
 
-    // If this is an attribute we can handle, do so now,
-    // otherwise, add it to the FnAttrs list for rechaining.
-    switch (attr.getKind()) {
-    default:
-      // A C++11 attribute on a declarator chunk must appertain to a type.
-      if (attr.isCXX11Attribute() && TAL == TAL_DeclChunk) {
-        state.getSema().Diag(attr.getLoc(), diag::err_attribute_not_type_attr)
-          << attr.getName();
+      // If this is an attribute we can handle, do so now,
+      // otherwise, add it to the FnAttrs list for rechaining.
+      switch (attr.getKind()) {
+      default:
+        // A C++11 attribute on a declarator chunk must appertain to a type.
+        if (attr.isCXX11Attribute() && TAL == TAL_DeclChunk) {
+          state.getSema().Diag(attr.getLoc(), diag::err_attribute_not_type_attr)
+            << attr.getName();
+          attr.setUsedAsTypeAttr();
+        }
+        break;
+
+      case AttributeList::UnknownAttribute:
+        if (attr.isCXX11Attribute() && TAL == TAL_DeclChunk)
+          state.getSema().Diag(attr.getLoc(),
+                               diag::warn_unknown_attribute_ignored)
+            << attr.getName();
+        break;
+
+      case AttributeList::IgnoredAttribute:
+        break;
+
+      case AttributeList::AT_MayAlias:
+        // FIXME: This attribute needs to actually be handled, but if we ignore
+        // it it breaks large amounts of Linux software.
         attr.setUsedAsTypeAttr();
-      }
-      break;
-
-    case AttributeList::UnknownAttribute:
-      if (attr.isCXX11Attribute() && TAL == TAL_DeclChunk)
-        state.getSema().Diag(attr.getLoc(),
-                             diag::warn_unknown_attribute_ignored)
-          << attr.getName();
-      break;
-
-    case AttributeList::IgnoredAttribute:
-      break;
-
-    case AttributeList::AT_MayAlias:
-      // FIXME: This attribute needs to actually be handled, but if we ignore
-      // it it breaks large amounts of Linux software.
-      attr.setUsedAsTypeAttr();
-      break;
+        break;
     case AttributeList::AT_OpenCLPrivateAddressSpace:
     case AttributeList::AT_OpenCLGlobalAddressSpace:
     case AttributeList::AT_OpenCLLocalAddressSpace:
     case AttributeList::AT_OpenCLConstantAddressSpace:
     case AttributeList::AT_OpenCLGenericAddressSpace:
-    case AttributeList::AT_AddressSpace:
-      HandleAddressSpaceTypeAttribute(type, attr, state.getSema());
-      attr.setUsedAsTypeAttr();
-      break;
-    OBJC_POINTER_TYPE_ATTRS_CASELIST:
-      if (!handleObjCPointerTypeAttr(state, attr, type))
-        distributeObjCPointerTypeAttr(state, attr, type);
-      attr.setUsedAsTypeAttr();
-      break;
-    case AttributeList::AT_VectorSize:
-      HandleVectorSizeAttr(type, attr, state.getSema());
-      attr.setUsedAsTypeAttr();
-      break;
-    case AttributeList::AT_ExtVectorType:
-      HandleExtVectorTypeAttr(type, attr, state.getSema());
-      attr.setUsedAsTypeAttr();
-      break;
-    case AttributeList::AT_NeonVectorType:
-      HandleNeonVectorTypeAttr(type, attr, state.getSema(),
+      case AttributeList::AT_AddressSpace:
+        HandleAddressSpaceTypeAttribute(type, attr, state.getSema());
+        attr.setUsedAsTypeAttr();
+        hasOpenCLAddressSpace = true;
+        break;
+      OBJC_POINTER_TYPE_ATTRS_CASELIST:
+        if (!handleObjCPointerTypeAttr(state, attr, type))
+          distributeObjCPointerTypeAttr(state, attr, type);
+        attr.setUsedAsTypeAttr();
+        break;
+      case AttributeList::AT_VectorSize:
+        HandleVectorSizeAttr(type, attr, state.getSema());
+        attr.setUsedAsTypeAttr();
+        break;
+      case AttributeList::AT_ExtVectorType:
+        HandleExtVectorTypeAttr(type, attr, state.getSema());
+        attr.setUsedAsTypeAttr();
+        break;
+      case AttributeList::AT_NeonVectorType:
+        HandleNeonVectorTypeAttr(type, attr, state.getSema(),
                                VectorType::NeonVector);
-      attr.setUsedAsTypeAttr();
-      break;
-    case AttributeList::AT_NeonPolyVectorType:
-      HandleNeonVectorTypeAttr(type, attr, state.getSema(),
+        attr.setUsedAsTypeAttr();
+        break;
+      case AttributeList::AT_NeonPolyVectorType:
+        HandleNeonVectorTypeAttr(type, attr, state.getSema(),
                                VectorType::NeonPolyVector);
-      attr.setUsedAsTypeAttr();
-      break;
-    case AttributeList::AT_OpenCLImageAccess:
+        attr.setUsedAsTypeAttr();
+        break;
+      case AttributeList::AT_OpenCLImageAccess:
       // FIXME: there should be some type checking happening here, I would
       // imagine, but the original handler's checking was entirely superfluous.
-      attr.setUsedAsTypeAttr();
-      break;
-
-    MS_TYPE_ATTRS_CASELIST:
-      if (!handleMSPointerTypeQualifierAttr(state, attr, type))
         attr.setUsedAsTypeAttr();
-      break;
-
-    case AttributeList::AT_NSReturnsRetained:
-      if (!state.getSema().getLangOpts().ObjCAutoRefCount)
         break;
-      // fallthrough into the function attrs
 
-    FUNCTION_TYPE_ATTRS_CASELIST:
-      attr.setUsedAsTypeAttr();
+      MS_TYPE_ATTRS_CASELIST:
+        if (!handleMSPointerTypeQualifierAttr(state, attr, type))
+          attr.setUsedAsTypeAttr();
+        break;
 
-      // Never process function type attributes as part of the
-      // declaration-specifiers.
-      if (TAL == TAL_DeclSpec)
-        distributeFunctionTypeAttrFromDeclSpec(state, attr, type);
+      case AttributeList::AT_NSReturnsRetained:
+        if (!state.getSema().getLangOpts().ObjCAutoRefCount)
+          break;
+        // fallthrough into the function attrs
 
-      // Otherwise, handle the possible delays.
-      else if (!handleFunctionTypeAttr(state, attr, type))
-        distributeFunctionTypeAttr(state, attr, type);
-      break;
-    }
-  } while ((attrs = next));
+      FUNCTION_TYPE_ATTRS_CASELIST:
+        attr.setUsedAsTypeAttr();
+
+        // Never process function type attributes as part of the
+        // declaration-specifiers.
+        if (TAL == TAL_DeclSpec)
+          distributeFunctionTypeAttrFromDeclSpec(state, attr, type);
+
+        // Otherwise, handle the possible delays.
+        else if (!handleFunctionTypeAttr(state, attr, type))
+          distributeFunctionTypeAttr(state, attr, type);
+        break;
+      }
+    } while ((attrs = next));
+
+  // If address space is not set, OpenCL 2.0 defines non private default
+  // address spaces for some cases:
+  // OpenCL 2.0, section 6.5:
+  // The address space for a variable at program scope or a static variable
+  // inside a function can either be __global or __constant, but defaults to
+  // __global if not specified.
+  // (...)
+  // Pointers that are declared without pointing to a named address space point
+  // to the generic address space.
+  if (OpenCLVersion >= 200 && !hasOpenCLAddressSpace &&
+    type.getAddressSpace() == 0) {
+    if (state.getCurrentChunkIndex() > 0 &&
+        D.getTypeObject(state.getCurrentChunkIndex()-1).Kind == DeclaratorChunk::Pointer)
+      type = state.getSema().Context.getAddrSpaceQualType(type, LangAS::opencl_generic);
+    else if (state.getCurrentChunkIndex() == 0 &&
+                 D.getContext() == Declarator::FileContext &&
+                 !D.isFunctionDeclarator() &&
+                 !D.isFunctionDefinition() &&
+                 D.getDeclSpec().getStorageClassSpec() != DeclSpec::SCS_typedef &&
+                 !type->isSamplerT())
+      type = state.getSema().Context.getAddrSpaceQualType(type, LangAS::opencl_global);
+    else if(state.getCurrentChunkIndex() == 0 &&
+            D.getContext() == Declarator::BlockContext &&
+            D.getDeclSpec().getStorageClassSpec() == DeclSpec::SCS_static)
+      type = state.getSema().Context.getAddrSpaceQualType(type, LangAS::opencl_global);
+  }
 }
 
 /// \brief Ensure that the type of the given expression is complete.

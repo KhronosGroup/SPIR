@@ -55,6 +55,7 @@ add_clang_library(clangCodeGen
   CGOpenCLRuntime.cpp
   CGOpenMPRuntime.cpp
   CGRecordLayoutBuilder.cpp
+  CGSPIRMetadataAdder.cpp
   CGStmt.cpp
   CGStmtOpenMP.cpp
   CGVTT.cpp

@@ -943,6 +943,9 @@ def err_pragma_optimize_extra_argument : Error<
 def err_opencl_unknown_type_specifier : Error<
   "OpenCL does not support the '%0' %select{type qualifier|storage class specifier}1">;
 
+def err_opencl_unroll_hint_on_non_loop : Error<
+  "OpenCL only supports opencl_unroll_hint on for, while, and do statements">;
+
 // OpenCL EXTENSION pragma (OpenCL 1.1 [9.1])
 def warn_pragma_expected_colon : Warning<
   "missing ':' after %0 - ignoring">, InGroup<IgnoredPragmas>;
@@ -950,6 +953,12 @@ def warn_pragma_expected_enable_disable : Warning<
   "expected 'enable' or 'disable' - ignoring">, InGroup<IgnoredPragmas>;
 def warn_pragma_unknown_extension : Warning<
   "unknown OpenCL extension %0 - ignoring">, InGroup<IgnoredPragmas>;
+def err_pragma_enabled_unsupported : Error<
+  "OpenCL extension %0 is unsupported">;
+
+def err_opencl_address_of_label : Error<
+  "OpenCL does not support address of label ('&&') GNU extension">;
+
 
 def err_seh_expected_handler : Error<
   "expected '__except' or '__finally' block">;

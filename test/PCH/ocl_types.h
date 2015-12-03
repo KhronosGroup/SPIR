@@ -23,3 +23,14 @@ typedef sampler_t smp_t;
 
 // event_t
 typedef event_t evt_t;
+
+// pipe specifier
+
+typedef struct _person {
+  int id;
+  const char *name;
+} Person;
+
+void int_pipe_function(pipe int);
+
+void person_pipe_function(pipe Person);

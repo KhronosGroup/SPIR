@@ -1563,6 +1563,16 @@ Value *ScalarExprEmitter::VisitCastExpr(CastExpr *CE) {
     return llvm::Constant::getNullValue(ConvertType(DestTy));
   }
 
+  case CK_ZeroToOCLQueue: {
+    assert(DestTy->isQueueType() && "CK_ZeroToOCLQueue cast on non queue_t type");
+    return llvm::Constant::getNullValue(ConvertType(DestTy));
+  }
+
+  case CK_IntToOCLSampler: {
+    assert(DestTy->isSamplerT() && "CK_IntToOCLSampler cast to non sampler type");
+    return Visit(E);
+  }
+
   }
 
   llvm_unreachable("unknown scalar cast");
@@ -2457,9 +2467,9 @@ static Value *emitPointerArithmetic(CodeGenFunction &CGF,
   // GNU void* casts amount to no-ops since our void* type is i8*, but this is
   // future proof.
   if (elementType->isVoidType() || elementType->isFunctionType()) {
-    Value *result = CGF.Builder.CreateBitCast(pointer, CGF.VoidPtrTy);
+    Value *result = CGF.Builder.CreatePointerCast(pointer, CGF.VoidPtrTy);
     result = CGF.Builder.CreateGEP(result, index, "add.ptr");
-    return CGF.Builder.CreateBitCast(result, pointer->getType());
+    return CGF.Builder.CreatePointerCast(result, pointer->getType());
   }
 
   if (CGF.getLangOpts().isSignedOverflowDefined())
@@ -3229,30 +3239,9 @@ VisitAbstractConditionalOperator(const AbstractConditionalOperator *E) {
 
     llvm::Value *zeroVec = llvm::Constant::getNullValue(vecTy);
     llvm::Value *TestMSB = Builder.CreateICmpSLT(CondV, zeroVec);
-    llvm::Value *tmp = Builder.CreateSExt(TestMSB,
-                                          llvm::VectorType::get(elemType,
-                                                                numElem),
-                                          "sext");
-    llvm::Value *tmp2 = Builder.CreateNot(tmp);
+    return Builder.CreateSelect(TestMSB, LHS, RHS);
 
-    // Cast float to int to perform ANDs if necessary.
-    llvm::Value *RHSTmp = RHS;
-    llvm::Value *LHSTmp = LHS;
-    bool wasCast = false;
-    llvm::VectorType *rhsVTy = cast<llvm::VectorType>(RHS->getType());
-    if (rhsVTy->getElementType()->isFloatingPointTy()) {
-      RHSTmp = Builder.CreateBitCast(RHS, tmp2->getType());
-      LHSTmp = Builder.CreateBitCast(LHS, tmp->getType());
-      wasCast = true;
-    }
 
-    llvm::Value *tmp3 = Builder.CreateAnd(RHSTmp, tmp2);
-    llvm::Value *tmp4 = Builder.CreateAnd(LHSTmp, tmp);
-    llvm::Value *tmp5 = Builder.CreateOr(tmp3, tmp4, "cond");
-    if (wasCast)
-      tmp5 = Builder.CreateBitCast(tmp5, RHS->getType());
-
-    return tmp5;
   }
 
   // If this is a really simple expression (like x ? 4 : 5), emit this as a
@@ -3350,30 +3339,35 @@ Value *ScalarExprEmitter::VisitAsTypeExpr(AsTypeExpr *E) {
   Value *Src  = CGF.EmitScalarExpr(E->getSrcExpr());
   llvm::Type *DstTy = ConvertType(E->getType());
 
-  // Going from vec4->vec3 or vec3->vec4 is a special case and requires
+  // Going from or to 3-element vector is a special case and requires
   // a shuffle vector instead of a bitcast.
   llvm::Type *SrcTy = Src->getType();
-  if (isa<llvm::VectorType>(DstTy) && isa<llvm::VectorType>(SrcTy)) {
-    unsigned numElementsDst = cast<llvm::VectorType>(DstTy)->getNumElements();
-    unsigned numElementsSrc = cast<llvm::VectorType>(SrcTy)->getNumElements();
-    if ((numElementsDst == 3 && numElementsSrc == 4)
-        || (numElementsDst == 4 && numElementsSrc == 3)) {
+  bool srcIsVectorType = isa<llvm::VectorType>(SrcTy);
+  bool dstIsVectorType = isa<llvm::VectorType>(DstTy);
 
+  if ( srcIsVectorType || dstIsVectorType ) {
 
-      // In the case of going from int4->float3, a bitcast is needed before
-      // doing a shuffle.
-      llvm::Type *srcElemTy =
-      cast<llvm::VectorType>(SrcTy)->getElementType();
-      llvm::Type *dstElemTy =
-      cast<llvm::VectorType>(DstTy)->getElementType();
+    llvm::VectorType *DstVecTy = dstIsVectorType ? cast<llvm::VectorType>(DstTy) : 0;
+    unsigned numElementsDst    = dstIsVectorType ? DstVecTy->getNumElements()    : 1;
+    unsigned elemSizeDst       = dstIsVectorType ? DstVecTy->getElementType()->getPrimitiveSizeInBits() : DstTy->getPrimitiveSizeInBits();
+    unsigned bitWidthDst       = dstIsVectorType ? DstVecTy->getBitWidth() : elemSizeDst;
 
-      if ((srcElemTy->isIntegerTy() && dstElemTy->isFloatTy())
-          || (srcElemTy->isFloatTy() && dstElemTy->isIntegerTy())) {
-        // Create a float type of the same size as the source or destination.
-        llvm::VectorType *newSrcTy = llvm::VectorType::get(dstElemTy,
-                                                                 numElementsSrc);
+    llvm::VectorType *SrcVecTy = srcIsVectorType ? cast<llvm::VectorType>(SrcTy) : 0;
+    unsigned numElementsSrc    = srcIsVectorType ? SrcVecTy->getNumElements()    : 1;
+    unsigned elemSizeSrc       = srcIsVectorType ? SrcVecTy->getElementType()->getPrimitiveSizeInBits() : SrcTy->getPrimitiveSizeInBits();
+    unsigned bitWidthSrc       = srcIsVectorType ? SrcVecTy->getBitWidth() : elemSizeSrc;
 
-        Src = Builder.CreateBitCast(Src, newSrcTy, "astypeCast");
+    if ((numElementsDst == 3 && numElementsSrc != 3
+         && bitWidthSrc == 4 * elemSizeDst)
+        || (numElementsSrc == 3 && numElementsDst != 3
+         && bitWidthDst == 4 * elemSizeSrc)) {
+
+      // Make the source vector element sizes to be the same as 3-element
+      // vector element sizes.
+      if (numElementsDst == 3) {
+        llvm::Type *dstElemTy = dstIsVectorType ? DstVecTy->getElementType() : DstTy;
+        llvm::VectorType *newSrcTy = llvm::VectorType::get(dstElemTy, 4);
+        Src = Builder.CreateBitCast(Src, newSrcTy, "astypeTo4ElemVector");
       }
 
       llvm::Value *UnV = llvm::UndefValue::get(Src->getType());
@@ -3383,14 +3377,24 @@ Value *ScalarExprEmitter::VisitAsTypeExpr(AsTypeExpr *E) {
       Args.push_back(Builder.getInt32(1));
       Args.push_back(Builder.getInt32(2));
 
-      if (numElementsDst == 4)
+      if (numElementsSrc == 3)
         Args.push_back(llvm::UndefValue::get(CGF.Int32Ty));
 
       llvm::Constant *Mask = llvm::ConstantVector::get(Args);
 
-      return Builder.CreateShuffleVector(Src, UnV, Mask, "astype");
+      Src = Builder.CreateShuffleVector(Src, UnV, Mask, "astype");
+
+      if (numElementsSrc == 3) {
+        llvm::Type *newDstTy = dstIsVectorType ? DstVecTy : DstTy;
+        Src = Builder.CreateBitCast(Src, newDstTy, "astypeTo4ElemVector");
+      }
+
+      return Src;
     }
   }
+
+  if (SrcTy->isPointerTy() || DstTy->isPointerTy())
+    return Builder.CreatePointerCast(Src, DstTy, "astype");
 
   return Builder.CreateBitCast(Src, DstTy, "astype");
 }

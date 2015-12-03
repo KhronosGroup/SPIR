@@ -459,6 +459,13 @@ void Parser::HandlePragmaOpenCLExtension() {
     PP.Diag(NameLoc, diag::warn_pragma_unknown_extension) << ename;
     return;
   }
+
+  // Check if pragma is supported
+  const OpenCLOptions &supported = PP.getSupportedPragmas();
+#define OPENCLEXT(nm) if ((supported.nm == 0) && (f.nm == 1)) { \
+    PP.Diag(NameLoc, diag::err_pragma_enabled_unsupported) << ename;\
+  }
+#include "clang/Basic/OpenCLExtensions.def"
 }
 
 void Parser::HandlePragmaMSPointersToMembers() {

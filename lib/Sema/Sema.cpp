@@ -81,6 +81,7 @@ Sema::Sema(Preprocessor &pp, ASTContext &ctxt, ASTConsumer &consumer,
     CollectStats(false), CodeCompleter(CodeCompleter),
     CurContext(nullptr), OriginalLexicalContext(nullptr),
     PackContext(nullptr), MSStructPragmaOn(false),
+	OpenCLFeatures(pp.getLangOpts(), pp.getSupportedPragmas()),
     MSPointerToMemberRepresentationMethod(
         LangOpts.getMSPointerToMemberRepresentationMethod()),
     VtorDispModeStack(1, MSVtorDispAttr::Mode(LangOpts.VtorDispMode)),

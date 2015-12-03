@@ -879,6 +879,7 @@ void CXXNameMangler::mangleUnresolvedPrefix(NestedNameSpecifier *qualifier,
     case Type::ObjCInterface:
     case Type::ObjCObjectPointer:
     case Type::Atomic:
+    case Type::Pipe:
       llvm_unreachable("type is illegal as a nested name specifier");
 
     case Type::SubstTemplateTypeParmPack:
@@ -1758,6 +1759,7 @@ void CXXNameMangler::mangleQualifiers(Qualifiers Quals) {
       case LangAS::opencl_global:   ASString = "CLglobal";   break;
       case LangAS::opencl_local:    ASString = "CLlocal";    break;
       case LangAS::opencl_constant: ASString = "CLconstant"; break;
+      case LangAS::opencl_generic:  ASString = "CLgeneric";  break;
       //  <CUDA-addrspace> ::= "CU" [ "device" | "constant" | "shared" ]
       case LangAS::cuda_device:     ASString = "CUdevice";   break;
       case LangAS::cuda_constant:   ASString = "CUconstant"; break;
@@ -1830,7 +1832,7 @@ static bool isTypeSubstitutable(Qualifiers Quals, const Type *Ty) {
   if (Ty->isSpecificBuiltinType(BuiltinType::ObjCSel))
     return true;
   if (Ty->isOpenCLSpecificType())
-    return true;
+    return false;
   if (Ty->isBuiltinType())
     return false;
 
@@ -2510,6 +2512,12 @@ void CXXNameMangler::mangleType(const AtomicType *T) {
   // (Until there's a standardized mangling...)
   Out << "U7_Atomic";
   mangleType(T->getValueType());
+}
+
+void CXXNameMangler::mangleType(const PipeType *T) {
+  // <type> ::= U <source-name> <type>	# vendor extended type qualifier
+  // (Until there's a standardized mangling...)
+  Out << "8ocl_pipe";
 }
 
 void CXXNameMangler::mangleIntegerLiteral(QualType T,

@@ -83,6 +83,8 @@ namespace clang {
     ICK_TransparentUnionConversion, ///< Transparent Union Conversions
     ICK_Writeback_Conversion,  ///< Objective-C ARC writeback conversion
     ICK_Zero_Event_Conversion, ///< Zero constant to event (OpenCL1.2 6.12.10)
+    ICK_Zero_Queue_Conversion, ///< Zero constant to queue
+    ICK_Int_Sampler_Conversion, ///< Integer constant to OpenCL sampler
     ICK_Num_Conversion_Kinds   ///< The number of conversion kinds
   };
 
@@ -94,6 +96,7 @@ namespace clang {
     ICR_Exact_Match = 0,         ///< Exact Match
     ICR_Promotion,               ///< Promotion
     ICR_Conversion,              ///< Conversion
+    ICR_OCL_Scalar_Widening,     ///< OpenCL Scalar Widening
     ICR_Complex_Real_Conversion, ///< Complex <-> Real conversion
     ICR_Writeback_Conversion     ///< ObjC ARC writeback conversion
   };
@@ -575,6 +578,8 @@ namespace clang {
     /// (CUDA) This candidate was not viable because the callee
     /// was not accessible from the caller's target (i.e. host->device,
     /// global->host, device->host).
+    /// (OpenCL) This candidate was not viable because the callee
+    /// uses extensions that are not enabled or supported.
     ovl_fail_bad_target,
 
     /// This candidate function was not viable because an enable_if

@@ -102,6 +102,7 @@ class Preprocessor : public RefCountedBase<Preprocessor> {
   std::unique_ptr<ScratchBuffer> ScratchBuf;
   HeaderSearch      &HeaderInfo;
   ModuleLoader      &TheModuleLoader;
+  OpenCLOptions     SupportedPragmas;
 
   /// \brief External source of macros.
   ExternalPreprocessorSource *ExternalSource;
@@ -499,6 +500,12 @@ public:
   
   DiagnosticsEngine &getDiagnostics() const { return *Diags; }
   void setDiagnostics(DiagnosticsEngine &D) { Diags = &D; }
+
+  const OpenCLOptions &getSupportedPragmas() const { return SupportedPragmas; }
+  void setSupportedPragmas(const OpenCLOptions &opts)
+  {
+    SupportedPragmas = opts;
+  }
 
   const LangOptions &getLangOpts() const { return LangOpts; }
   const TargetInfo &getTargetInfo() const { return *Target; }

@@ -610,13 +610,19 @@ def OpenCLKernel : InheritableAttr {
   let Documentation = [Undocumented];
 }
 
+def OpenCLUnrollHint : InheritableAttr {
+  let Spellings = [GNU<"opencl_unroll_hint">];
+  let Args = [UnsignedArgument<"UnrollHint">];
+  let Documentation = [Undocumented];
+}
+
 // This attribute is both a type attribute, and a declaration attribute (for
 // parameter variables).
 def OpenCLImageAccess : Attr {
   let Spellings = [Keyword<"__read_only">, Keyword<"read_only">,
                    Keyword<"__write_only">, Keyword<"write_only">,
                    Keyword<"__read_write">, Keyword<"read_write">];
-  let Subjects = SubjectList<[ParmVar], ErrorDiag>;
+  let Subjects = SubjectList<[ParmVar, TypedefName], ErrorDiag, "ExpectedParameter">;
   let Accessors = [Accessor<"isReadOnly", [Keyword<"__read_only">,
                                            Keyword<"read_only">]>,
                    Accessor<"isReadWrite", [Keyword<"__read_write">,
@@ -649,6 +655,11 @@ def OpenCLConstantAddressSpace : TypeAttr {
 def OpenCLGenericAddressSpace : TypeAttr {
   let Spellings = [Keyword<"__generic">, Keyword<"generic">];
   let Documentation = [OpenCLAddressSpaceGenericDocs];
+}
+
+def OpenCLNoSVM : Attr {
+  let Spellings = [GNU<"nosvm">];
+  let Documentation = [Undocumented];
 }
 
 def Deprecated : InheritableAttr {

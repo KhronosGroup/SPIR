@@ -744,7 +744,8 @@ ASTContext::ASTContext(LangOptions &LOpts, SourceManager &SM,
       Idents(idents), Selectors(sels), BuiltinInfo(builtins),
       DeclarationNames(*this), ExternalSource(nullptr), Listener(nullptr),
       Comments(SM), CommentsLoaded(false),
-      CommentCommandTraits(BumpAlloc, LOpts.CommentOpts), LastSDM(nullptr, 0) {
+      CommentCommandTraits(BumpAlloc, LOpts.CommentOpts), LastSDM(nullptr, 0),
+      disabledFPContract(false) {
   TUDecl = TranslationUnitDecl::Create(*this);
 }
 
@@ -1754,6 +1755,14 @@ TypeInfo ASTContext::getTypeInfoImpl(const Type *T) const {
       Align = static_cast<unsigned>(Width);
     }
   }
+  break;
+
+  case Type::Pipe: {
+    TypeInfo Info = getTypeInfo(cast<PipeType>(T)->getElementType());
+    Width = Info.Width;
+    Align = Info.Align;
+  }
+  break;
 
   }
 
@@ -2539,6 +2548,7 @@ QualType ASTContext::getVariableArrayDecayedType(QualType type) const {
   case Type::FunctionProto:
   case Type::BlockPointer:
   case Type::MemberPointer:
+  case Type::Pipe:
     return type;
 
   // These types can be variably-modified.  All these modifications
@@ -2981,6 +2991,33 @@ ASTContext::getFunctionType(QualType ResultTy, ArrayRef<QualType> ArgArray,
   Types.push_back(FTP);
   FunctionProtoTypes.InsertNode(FTP, InsertPos);
   return QualType(FTP, 0);
+}
+
+/// getPipeType - Return pipe type for the specified type.
+QualType ASTContext::getPipeType(QualType T) const {
+  // Unique pointers, to guarantee there is only one pointer of a particular
+  // structure.
+  llvm::FoldingSetNodeID ID;
+  PipeType::Profile(ID, T);
+
+  void *InsertPos = 0;
+  if (PipeType *PT = PipeTypes.FindNodeOrInsertPos(ID, InsertPos))
+    return QualType(PT, 0);
+
+  // If the atomic value type isn't canonical, this won't be a canonical type
+  // either, so fill in the canonical type field.
+  QualType Canonical;
+  if (!T.isCanonical()) {
+    Canonical = getPipeType(getCanonicalType(T));
+
+    // Get the new insert position for the node we care about.
+    PipeType *NewIP = PipeTypes.FindNodeOrInsertPos(ID, InsertPos);
+    assert(!NewIP && "Shouldn't be in the map!"); (void)NewIP;
+  }
+  PipeType *New = new (*this, TypeAlignment) PipeType(T, Canonical);
+  Types.push_back(New);
+  PipeTypes.InsertNode(New, InsertPos);
+  return QualType(New, 0);
 }
 
 #ifndef NDEBUG
@@ -7010,13 +7047,34 @@ QualType ASTContext::mergeFunctionTypes(QualType lhs, QualType rhs,
   if (lproto && rproto) { // two C99 style function prototypes
     assert(!lproto->hasExceptionSpec() && !rproto->hasExceptionSpec() &&
            "C++ shouldn't be here");
-    // Compatible functions must have the same number of parameters
-    if (lproto->getNumParams() != rproto->getNumParams())
-      return QualType();
+    unsigned lproto_nargs = lproto->getNumParams();
+    unsigned rproto_nargs = rproto->getNumParams();
 
-    // Variadic and non-variadic functions aren't compatible
-    if (lproto->isVariadic() != rproto->isVariadic())
-      return QualType();
+    if ( LangOpts.OpenCLVersion < 200 || !lproto->isVariadic() ) {
+      // Compatible functions must have the same number of arguments
+      if (lproto_nargs != rproto_nargs)
+        return QualType();
+
+      // Variadic and non-variadic functions aren't compatible
+      if (lproto->isVariadic() != rproto->isVariadic())
+        return QualType();
+
+    } else {
+
+      if ( !lproto->isVariadic() && !lproto->isVariadic() ) {
+        if (lproto_nargs != rproto_nargs)
+          return QualType();
+
+      } else if ( lproto->isVariadic() ) {
+        if (lproto_nargs > rproto_nargs)
+          return QualType();
+
+      } else if ( rproto->isVariadic() ) {
+        if (lproto_nargs < rproto_nargs)
+          return QualType();
+
+      }
+    }
 
     if (lproto->getTypeQuals() != rproto->getTypeQuals())
       return QualType();
@@ -7386,6 +7444,24 @@ QualType ASTContext::mergeTypes(QualType LHS, QualType RHS,
       return LHS;
 
     return QualType();
+  }
+  case Type::Pipe:
+  {
+    // Merge two pointer types, while trying to preserve typedef info
+    QualType LHSValue = LHS->getAs<PipeType>()->getElementType();
+    QualType RHSValue = RHS->getAs<PipeType>()->getElementType();
+    if (Unqualified) {
+      LHSValue = LHSValue.getUnqualifiedType();
+      RHSValue = RHSValue.getUnqualifiedType();
+    }
+    QualType ResultType = mergeTypes(LHSValue, RHSValue, false,
+                                     Unqualified);
+    if (ResultType.isNull()) return QualType();
+    if (getCanonicalType(LHSValue) == getCanonicalType(ResultType))
+      return LHS;
+    if (getCanonicalType(RHSValue) == getCanonicalType(ResultType))
+      return RHS;
+    return getPipeType(ResultType);
   }
   }
 
@@ -7885,7 +7961,8 @@ static GVALinkage basicGVALinkageForFunction(const ASTContext &Context,
   if (!FD->isInlined())
     return External;
 
-  if ((!Context.getLangOpts().CPlusPlus && !Context.getLangOpts().MSVCCompat &&
+  if ((!Context.getLangOpts().CPlusPlus && !Context.getLangOpts().OpenCL &&
+       !Context.getLangOpts().MSVCCompat &&
        !FD->hasAttr<DLLExportAttr>()) ||
       FD->hasAttr<GNUInlineAttr>()) {
     // FIXME: This doesn't match gcc's behavior for dllexport inline functions.
@@ -8066,6 +8143,10 @@ bool ASTContext::DeclMustBeEmitted(const Decl *D) {
 
 CallingConv ASTContext::getDefaultCallingConvention(bool IsVariadic,
                                                     bool IsCXXMethod) const {
+  if (getTargetInfo().getTriple().getArch() == llvm::Triple::spir ||
+    getTargetInfo().getTriple().getArch() == llvm::Triple::spir64)
+    return CC_SpirFunction;
+
   // Pass through to the C++ ABI object
   if (IsCXXMethod)
     return ABI->getDefaultMethodCallConv(IsVariadic);

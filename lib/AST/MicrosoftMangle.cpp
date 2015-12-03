@@ -2090,6 +2090,15 @@ void MicrosoftCXXNameMangler::mangleType(const AtomicType *T,
     << Range;
 }
 
+void MicrosoftCXXNameMangler::mangleType(const PipeType *T,
+                                         SourceRange Range) {
+  DiagnosticsEngine &Diags = Context.getDiags();
+  unsigned DiagID = Diags.getCustomDiagID(DiagnosticsEngine::Error,
+    "cannot mangle this OpenCL pipe type yet");
+  Diags.Report(Range.getBegin(), DiagID)
+    << Range;
+}
+
 void MicrosoftMangleContextImpl::mangleCXXName(const NamedDecl *D,
                                                raw_ostream &Out) {
   assert((isa<FunctionDecl>(D) || isa<VarDecl>(D)) &&

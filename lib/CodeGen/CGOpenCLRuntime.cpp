@@ -92,3 +92,74 @@ llvm::Type *CGOpenCLRuntime::convertOpenCLSpecificType(const Type *T) {
                            Ctx, "opencl.reserve_id_t"), 0);
   }
 }
+
+llvm::Type *CGOpenCLRuntime::getPipeType() {
+  if (!PipeTy)
+    PipeTy = llvm::PointerType::get(llvm::StructType::create(
+                                    CGM.getLLVMContext(), "opencl.pipe_t"), 1U);
+
+  return PipeTy;
+}
+
+llvm::Value *CGOpenCLRuntime::getPipeElemSize(const Expr *PipeArg) {
+  const PipeType* PipeTy = PipeArg->getType()->getAs<PipeType>();
+  // The type of the last (implicit) argument to be passed.
+  llvm::Type *Int32Ty = llvm::IntegerType::getInt32Ty(CGM.getLLVMContext());
+  unsigned TypeSizeInBits = CGM.getContext().getTypeSize(
+                                                      PipeTy->getElementType());
+  return llvm::ConstantInt::get(Int32Ty,
+                                TypeSizeInBits/8, // Size in bytes.
+                                false);
+}
+
+//
+// Ocl20Mangler
+//
+
+Ocl20Mangler::Ocl20Mangler(llvm::SmallVectorImpl<char>& SS): MangledString(&SS) {}
+
+Ocl20Mangler& Ocl20Mangler::appendReservedId() {
+  this->appendString("16ocl_reserve_id_t");
+  return *this;
+}
+
+Ocl20Mangler& Ocl20Mangler::appendPipe() {
+  this->appendString("10ocl_pipe_t");
+  return *this;
+}
+
+Ocl20Mangler& Ocl20Mangler::appendInt() {
+  MangledString->push_back('i');
+  return *this;
+}
+
+Ocl20Mangler& Ocl20Mangler::appendUint() {
+  MangledString->push_back('j');
+  return *this;
+}
+
+Ocl20Mangler& Ocl20Mangler::appendVoid() {
+  MangledString->push_back('v');
+  return *this;
+}
+
+Ocl20Mangler& Ocl20Mangler::appendPointer() {
+  this->appendString("P");
+  return *this;
+}
+
+Ocl20Mangler& Ocl20Mangler::appendPointer(int addressSpace) {
+  assert(addressSpace >=0 && addressSpace <= 4 &&
+         "Illegal address space for OpenCL");
+  if (!addressSpace)
+    return appendPointer();
+
+  this->appendString("PU3AS");
+  MangledString->push_back('0' + addressSpace);
+  return *this;
+}
+
+Ocl20Mangler& Ocl20Mangler::appendString(llvm::StringRef S) {
+  MangledString->append(S.begin(), S.end());
+  return *this;
+}

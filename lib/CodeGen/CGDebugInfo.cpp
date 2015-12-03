@@ -525,13 +525,19 @@ llvm::DIType CGDebugInfo::CreateType(const BuiltinType *BT) {
 
   switch (BT->getKind()) {
   case BuiltinType::Long:
-    BTName = "long int";
+    if (CGM.getLangOpts().OpenCL)
+      BTName = "long";
+    else
+      BTName = "long int";
     break;
   case BuiltinType::LongLong:
     BTName = "long long int";
     break;
   case BuiltinType::ULong:
-    BTName = "long unsigned int";
+    if (CGM.getLangOpts().OpenCL)
+      BTName = "unsigned long";
+    else
+      BTName = "long unsigned int";
     break;
   case BuiltinType::ULongLong:
     BTName = "long long unsigned int";
@@ -1933,6 +1939,13 @@ llvm::DIType CGDebugInfo::CreateType(const AtomicType *Ty, llvm::DIFile U) {
   return getOrCreateType(Ty->getValueType(), U);
 }
 
+llvm::DIType CGDebugInfo::CreateType(const PipeType *Ty,
+                                     llvm::DIFile U) {
+  // Ignore the atomic wrapping
+  // FIXME: What is the correct representation?
+  return getOrCreateType(Ty->getElementType(), U);
+}
+
 /// CreateEnumType - get enumeration type.
 llvm::DIType CGDebugInfo::CreateEnumType(const EnumType *Ty) {
   const EnumDecl *ED = Ty->getDecl();
@@ -2192,6 +2205,9 @@ llvm::DIType CGDebugInfo::CreateTypeNode(QualType Ty, llvm::DIFile Unit) {
 
   case Type::Atomic:
     return CreateType(cast<AtomicType>(Ty), Unit);
+
+  case Type::Pipe:
+    return CreateType(cast<PipeType>(Ty), Unit);
 
   case Type::TemplateSpecialization:
     return CreateType(cast<TemplateSpecializationType>(Ty), Unit);

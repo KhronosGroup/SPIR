@@ -74,8 +74,11 @@ static bool hasFunctionProto(const Decl *D) {
 /// hasFunctionProto first).
 static unsigned getFunctionOrMethodNumParams(const Decl *D) {
   if (const FunctionType *FnTy = D->getFunctionType())
-    return cast<FunctionProtoType>(FnTy)->getNumParams();
-  if (const BlockDecl *BD = dyn_cast<BlockDecl>(D))
+    if (hasFunctionProto(D))
+      return cast<FunctionProtoType>(FnTy)->getNumParams();
+    else
+      return 0;
+  if (const auto *BD = dyn_cast<BlockDecl>(D))
     return BD->getNumParams();
   return cast<ObjCMethodDecl>(D)->param_size();
 }
@@ -3330,6 +3333,91 @@ static void handleCallConvAttr(Sema &S, Decl *D, const AttributeList &Attr) {
   }
 }
 
+static void handleOpenCLImageAccessAttr(Sema &S, Decl *D, const AttributeList &Attr){
+  // Since this method is called more then once, we would like to avoid the
+  // same errors over and over again.
+  if (D->isInvalidDecl())
+    return;
+
+  assert(!Attr.isInvalid());
+
+  //Expr *E = Attr.getArgAsExpr(0);
+  //llvm::APSInt ArgNum(32);
+  //if (E->isTypeDependent() || E->isValueDependent() ||
+  //    !E->isIntegerConstantExpr(ArgNum, S.Context)) {
+  //  S.Diag(Attr.getLoc(), diag::err_attribute_argument_type)
+  //    << Attr.getName()->getName() << AANT_ArgumentIntegerConstant << E->getSourceRange();
+  //  D->setInvalidDecl(true);
+  //  return;
+  //}
+
+  OpenCLImageAccessAttr *ImgAttr = ::new (S.Context) OpenCLImageAccessAttr(
+    Attr.getRange(), S.Context, Attr.getAttributeSpellingListIndex());
+
+  if (const ParmVarDecl *PDecl = llvm::dyn_cast<ParmVarDecl>(D)) {
+    const Type *DeclTy = PDecl->getType().getCanonicalType().getTypePtr();
+    if (DeclTy->isPipeType() && ImgAttr->isReadWrite()) {
+      S.Diag(D->getLocation(), diag::err_read_write_not_allowed_for_pipes) <<
+      D->getSourceRange();
+      D->setInvalidDecl(true);
+      return;
+    }
+  } else {
+    // We ignore the typedef, we will handle the type once it serves as actual
+    // function argument.
+    return;
+  }
+
+  // Avoid the insertion of duplicated image access attribute with same value.
+  if (D->hasAttrs()) {
+    typedef specific_attr_iterator<OpenCLImageAccessAttr> ImgIter;
+    ImgIter it(D->getAttrs().begin()), e (D->getAttrs().end());
+
+    if (it != e) {
+      if((*it)->getSemanticSpelling() != ImgAttr->getSemanticSpelling()) {
+        S.Diag(D->getLocation(), diag::err_multiple_access_qualifiers) <<
+        D->getSourceRange();
+        D->setInvalidDecl(true);
+      }
+
+      // Dealocating the attribute from the AST's pool.
+      ImgAttr->OpenCLImageAccessAttr::~OpenCLImageAccessAttr();
+      S.Context.Deallocate(ImgAttr);
+      return;
+    }
+  }
+
+  D->addAttr(ImgAttr);
+}
+
+// OpenCL 2.0 spec, section 6.7.2:
+// The optional __attribute__((nosvm)) qualifier can be used with a pointer
+// variable to informa the compiler that the pointer does not refer to a shared
+// virtual memory region.
+static void handleOpenCLNoSVMAttr(Sema &S, Decl *D, const AttributeList &Attr){
+  if (S.getLangOpts().OpenCLVersion < 200) {
+    S.Diag(Attr.getLoc(), diag::err_nosvm_opencl_version);
+    Attr.setInvalid();
+    return;
+  }
+
+  if (!isa<VarDecl>(D)) {
+    S.Diag(Attr.getLoc(), diag::err_nosvm_attr_not_pointer);
+    Attr.setInvalid();
+    return;
+  }
+
+  VarDecl *VD = llvm::cast<VarDecl>(D);
+
+  if (!VD->getType()->isPointerType()) {
+    S.Diag(Attr.getLoc(), diag::err_nosvm_attr_not_pointer);
+    Attr.setInvalid();
+    return;
+  }
+
+  D->addAttr(OpenCLNoSVMAttr::CreateImplicit(S.Context, Attr.getRange()));
+}
+
 bool Sema::CheckCallingConvAttr(const AttributeList &attr, CallingConv &CC, 
                                 const FunctionDecl *FD) {
   if (attr.isInvalid())
@@ -4652,7 +4740,11 @@ static void ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D,
     handleSimpleAttribute<OpenCLKernelAttr>(S, D, Attr);
     break;
   case AttributeList::AT_OpenCLImageAccess:
-    handleSimpleAttribute<OpenCLImageAccessAttr>(S, D, Attr);
+    handleOpenCLImageAccessAttr(S, D, Attr);
+    //handleSimpleAttribute<OpenCLImageAccessAttr>(S, D, Attr);
+    break;
+  case AttributeList::AT_OpenCLNoSVM:
+    handleOpenCLNoSVMAttr(S, D, Attr);
     break;
 
   // Microsoft attributes:

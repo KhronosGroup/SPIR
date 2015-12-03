@@ -803,6 +803,13 @@ bool Type::isFloatingType() const {
   return false;
 }
 
+bool Type::isDoubleType() const {
+  if (const BuiltinType *BT = dyn_cast<BuiltinType>(CanonicalType))
+    return BT->getKind() >= BuiltinType::Double &&
+           BT->getKind() <= BuiltinType::LongDouble;
+  return false;
+}
+
 bool Type::hasFloatingRepresentation() const {
   if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
     return VT->getElementType()->isFloatingType();
@@ -822,6 +829,30 @@ bool Type::isRealType() const {
            BT->getKind() <= BuiltinType::LongDouble;
   if (const EnumType *ET = dyn_cast<EnumType>(CanonicalType))
       return ET->getDecl()->isComplete() && !ET->getDecl()->isScoped();
+  return false;
+}
+
+bool Type::isFloatingVecType() const {
+  if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
+    return VT->getElementType()->isFloatingType();
+  return false;
+}
+
+bool Type::isDoubleVecType() const {
+  if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
+    return VT->getElementType()->isDoubleType();
+  return false;
+}
+
+bool Type::isIntegerVecType() const {
+  if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
+    return VT->getElementType()->isIntegerType();
+  return false;
+}
+
+bool Type::isRealVecType() const {
+  if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
+    return VT->getElementType()->isRealType();
   return false;
 }
 
@@ -2250,6 +2281,8 @@ static CachedProperties computeCachedProperties(const Type *T) {
     return Cache::get(cast<ObjCObjectPointerType>(T)->getPointeeType());
   case Type::Atomic:
     return Cache::get(cast<AtomicType>(T)->getValueType());
+  case Type::Pipe:
+    return Cache::get(cast<PipeType>(T)->getElementType());
   }
 
   llvm_unreachable("unhandled type class");

@@ -595,6 +595,15 @@ def cl_std_EQ : Joined<["-"], "cl-std=">,
 def cl_denorms_are_zero : Flag<["-"], "cl-denorms-are-zero">,
   HelpText<"OpenCL only. Allow denormals to be flushed to zero">;
 
+def cl_fp32_correctly_rounded_divide_sqrt : Flag<["-"], "cl-fp32-correctly-rounded-divide-sqrt">,
+  HelpText<"OpenCL only. This option causes single precision floating-point divide and sqrt to be correctly rounded.">;
+def cl_enable_half : Flag<["-"], "cl-enable-half">,
+  HelpText<"OpenCL only. This option enables the dereferencing of half pointers">;
+
+// SPIR generator options
+def cl_spir_compile_options : Separate<["-"], "cl-spir-compile-options">,
+  HelpText<"SPIR compilation options to record in metadata">;
+
 //===----------------------------------------------------------------------===//
 // CUDA Options
 //===----------------------------------------------------------------------===//

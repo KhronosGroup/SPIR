@@ -597,10 +597,34 @@ void CodeGenFunction::EmitCondBrHints(llvm::LLVMContext &Context,
   for (const auto *Attr : Attrs) {
     const LoopHintAttr *LH = dyn_cast<LoopHintAttr>(Attr);
 
-    // Skip non loop hint attributes
-    if (!LH)
+    if (!LH) {
+      // Maybe it is OpenCL unroll hint
+      const OpenCLUnrollHintAttr * OpenCLHint = dyn_cast<OpenCLUnrollHintAttr>(Attr);
+      // Skip non loop hint attributes
+      if(!OpenCLHint)
+          continue;
+      llvm::Constant *Value = 0;
+      llvm::MDString *Name = 0;
+      unsigned int unrollCount = OpenCLHint->getUnrollHint();
+      if(unrollCount == 0) {
+        Name = llvm::MDString::get(Context, "llvm.loop.unroll.full");
+        Value = Builder.getTrue();
+      }
+      else if(unrollCount == 1) {
+        Name = llvm::MDString::get(Context, "llvm.loop.unroll.disable");
+        Value = Builder.getFalse();
+      }
+      else {
+        Name = llvm::MDString::get(Context, "llvm.loop.unroll.count");
+        Value = llvm::ConstantInt::get(Int32Ty, unrollCount);
+      }
+      SmallVector<llvm::Metadata *, 2> OpValues;
+      OpValues.push_back(Name);
+      OpValues.push_back(llvm::ConstantAsMetadata::get(Value));
+      // Set or overwrite metadata indicated by Name.
+      Metadata.push_back(llvm::MDNode::get(Context, OpValues));
       continue;
-
+    }
     LoopHintAttr::OptionType Option = LH->getOption();
     LoopHintAttr::LoopHintState State = LH->getState();
     const char *MetadataName;

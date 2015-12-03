@@ -1668,6 +1668,8 @@ const char *CastExpr::getCastKindName() const {
     return "BuiltinFnToFnPtr";
   case CK_ZeroToOCLEvent:
     return "ZeroToOCLEvent";
+  case CK_ZeroToOCLQueue:
+    return "ZeroToOCLQueue";
   case CK_AddressSpaceConversion:
     return "AddressSpaceConversion";
   }
@@ -2841,6 +2843,7 @@ bool Expr::isConstantInitializer(ASTContext &Ctx, bool IsForRef,
         CE->getCastKind() == CK_ToUnion ||
         CE->getCastKind() == CK_ConstructorConversion ||
         CE->getCastKind() == CK_NonAtomicToAtomic ||
+        CE->getCastKind() == CK_IntToOCLSampler ||
         CE->getCastKind() == CK_AtomicToNonAtomic)
       return CE->getSubExpr()->isConstantInitializer(Ctx, false, Culprit);
 

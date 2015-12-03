@@ -6328,6 +6328,8 @@ namespace {
       return Feature == "spir";
     }
 
+    bool isCLZForZeroUndef() const override { return false; }
+
     void getTargetBuiltins(const Builtin::Info *&Records,
                            unsigned &NumRecords) const override {}
     const char *getClobbers() const override {

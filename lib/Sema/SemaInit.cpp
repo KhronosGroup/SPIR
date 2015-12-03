@@ -930,7 +930,8 @@ void InitListChecker::CheckSubElementType(const InitializedEntity &Entity,
   }
 
   // FIXME: Need to handle atomic aggregate types with implicit init lists.
-  if (ElemType->isScalarType() || ElemType->isAtomicType())
+  if (ElemType->isScalarType() || ElemType->isAtomicType() ||
+      (SemaRef.getLangOpts().OpenCLVersion >= 200 && ElemType->isExecType()))
     return CheckScalarType(Entity, IList, ElemType, Index,
                            StructuredList, StructuredIndex);
 
@@ -1016,7 +1017,7 @@ void InitListChecker::CheckSubElementType(const InitializedEntity &Entity,
   //   subaggregate, brace elision is assumed and the initializer is
   //   considered for the initialization of the first member of
   //   the subaggregate.
-  if (!SemaRef.getLangOpts().OpenCL && 
+  if (!SemaRef.getLangOpts().OpenCL &&
       (ElemType->isAggregateType() || ElemType->isVectorType())) {
     CheckImplicitInitList(Entity, IList, ElemType, Index, StructuredList,
                           StructuredIndex);
@@ -2747,6 +2748,7 @@ void InitializationSequence::Step::Destroy() {
   case SK_StdInitializerListConstructorCall:
   case SK_OCLSamplerInit:
   case SK_OCLZeroEvent:
+  case SK_OCLZeroQueue:
     break;
 
   case SK_ConversionSequence:
@@ -3007,6 +3009,13 @@ void InitializationSequence::AddOCLSamplerInitStep(QualType T) {
 void InitializationSequence::AddOCLZeroEventStep(QualType T) {
   Step S;
   S.Kind = SK_OCLZeroEvent;
+  S.Type = T;
+  Steps.push_back(S);
+}
+
+void InitializationSequence::AddOCLZeroQueueStep(QualType T) {
+  Step S;
+  S.Kind = SK_OCLZeroQueue;
   S.Type = T;
   Steps.push_back(S);
 }
@@ -4505,6 +4514,20 @@ static bool TryOCLZeroEventInitialization(Sema &S,
   return true;
 }
 
+static bool TryOCLZeroQueueInitialization(Sema &S,
+                                          InitializationSequence &Sequence,
+                                          QualType DestType,
+                                          Expr *Initializer) {
+  if (!S.getLangOpts().OpenCL || S.getLangOpts().OpenCLVersion < 200 ||
+      !DestType->isQueueType() ||
+      !Initializer->isIntegerConstantExpr(S.getASTContext()) ||
+      (Initializer->EvaluateKnownConstInt(S.getASTContext()) != 0))
+    return false;
+
+  Sequence.AddOCLZeroQueueStep(DestType);
+  return true;
+}
+
 InitializationSequence::InitializationSequence(Sema &S,
                                                const InitializedEntity &Entity,
                                                const InitializationKind &Kind,
@@ -4686,6 +4709,9 @@ void InitializationSequence::InitializeFrom(Sema &S,
       return;
 
     if (TryOCLZeroEventInitialization(S, *this, DestType, Initializer))
+      return;
+
+    if (TryOCLZeroQueueInitialization(S, *this, DestType, Initializer))
       return;
 
     // Handle initialization in C
@@ -5714,6 +5740,20 @@ InitializationSequence::Perform(Sema &S,
       << Init->getSourceRange();
   }
 
+  QualType ETy = Entity.getType();
+  Qualifiers TyQualifiers = ETy.getQualifiers();
+  bool HasGlobalAS = TyQualifiers.hasAddressSpace() &&
+                     TyQualifiers.getAddressSpace() == LangAS::opencl_global;
+
+  if (S.getLangOpts().OpenCL && S.getLangOpts().OpenCLVersion >= 200 &&
+      ETy->isAtomicType() && !HasGlobalAS &&
+      Entity.getKind() == InitializedEntity::EK_Variable && Args.size() > 0) {
+    const Expr *Init = Args[0];
+    S.Diag(Init->getLocStart(), diag::err_atomic_init_addressspace) <<
+    SourceRange(Entity.getDecl()->getLocStart(), Init->getLocEnd());
+    return ExprError();
+  }
+
   // Diagnose cases where we initialize a pointer to an array temporary, and the
   // pointer obviously outlives the temporary.
   if (Args.size() == 1 && Args[0]->getType()->isArrayType() &&
@@ -5768,7 +5808,8 @@ InitializationSequence::Perform(Sema &S,
   case SK_ProduceObjCObject:
   case SK_StdInitializerList:
   case SK_OCLSamplerInit:
-  case SK_OCLZeroEvent: {
+  case SK_OCLZeroEvent:
+  case SK_OCLZeroQueue: {
     assert(Args.size() == 1);
     CurInit = Args[0];
     if (!CurInit.get()) return ExprError();
@@ -6329,15 +6370,22 @@ InitializationSequence::Perform(Sema &S,
              "Sampler initialization on non-sampler type.");
 
       QualType SourceType = CurInit.get()->getType();
+      bool isConst = CurInit.get()->isConstantInitializer(S.Context, false);
+      InitializedEntity::EntityKind EntityKind = Entity.getKind();
 
-      if (Entity.isParameterKind()) {
-        if (!SourceType->isSamplerT())
-          S.Diag(Kind.getLocation(), diag::err_sampler_argument_required)
+      if (EntityKind == InitializedEntity::EK_Variable ||
+          EntityKind == InitializedEntity::EK_Parameter) {
+        if (!isConst)
+          S.Diag(Kind.getLocation(), diag::err_sampler_initializer_not_constant);
+        else if (!SourceType->isIntegerType())
+          S.Diag(Kind.getLocation(), diag::err_sampler_initializer_not_integer)
             << SourceType;
-      } else if (Entity.getKind() != InitializedEntity::EK_Variable) {
+      } else
         llvm_unreachable("Invalid EntityKind!");
-      }
 
+      CurInit = S.ImpCastExprToType(CurInit.get(), Step->Type,
+                                    CK_IntToOCLSampler,
+                                    CurInit.get()->getValueKind());
       break;
     }
     case SK_OCLZeroEvent: {
@@ -6346,6 +6394,15 @@ InitializationSequence::Perform(Sema &S,
 
       CurInit = S.ImpCastExprToType(CurInit.get(), Step->Type,
                                     CK_ZeroToOCLEvent,
+                                    CurInit.get()->getValueKind());
+      break;
+    }
+    case SK_OCLZeroQueue: {
+      assert(Step->Type->isQueueType() &&
+             "Event initialization on non queue type.");
+
+      CurInit = S.ImpCastExprToType(CurInit.get(), Step->Type,
+                                    CK_ZeroToOCLQueue,
                                     CurInit.get()->getValueKind());
       break;
     }
@@ -7123,6 +7180,10 @@ void InitializationSequence::dump(raw_ostream &OS) const {
 
     case SK_OCLZeroEvent:
       OS << "OpenCL event_t from zero";
+      break;
+
+    case SK_OCLZeroQueue:
+      OS << "OpenCL queue_t from zero";
       break;
     }
 

@@ -439,6 +439,12 @@ ASTTypeWriter::VisitAtomicType(const AtomicType *T) {
   Code = TYPE_ATOMIC;
 }
 
+void
+ASTTypeWriter::VisitPipeType(const PipeType *T) {
+  Writer.AddTypeRef(T->getElementType(), Record);
+  Code = TYPE_PIPE;
+}
+
 namespace {
 
 class TypeLocWriter : public TypeLocVisitor<TypeLocWriter> {
@@ -660,6 +666,9 @@ void TypeLocWriter::VisitAtomicTypeLoc(AtomicTypeLoc TL) {
   Writer.AddSourceLocation(TL.getKWLoc(), Record);
   Writer.AddSourceLocation(TL.getLParenLoc(), Record);
   Writer.AddSourceLocation(TL.getRParenLoc(), Record);
+}
+void TypeLocWriter::VisitPipeTypeLoc(PipeTypeLoc TL) {
+  Writer.AddSourceLocation(TL.getKWLoc(), Record);
 }
 
 void ASTWriter::WriteTypeAbbrevs() {

@@ -1,9 +1,9 @@
 // Test this without pch.
-// RUN: %clang_cc1 -include %S/ocl_types.h -fsyntax-only %s
+// RUN: %clang_cc1 -include %S/ocl_types.h -fsyntax-only %s -cl-std=CL2.0
 
 // Test with pch.
-// RUN: %clang_cc1 -x cl -emit-pch -o %t %S/ocl_types.h
-// RUN: %clang_cc1 -include-pch %t -fsyntax-only %s -ast-print
+// RUN: %clang_cc1 -x cl -emit-pch -o %t %S/ocl_types.h -cl-std=CL2.0
+// RUN: %clang_cc1 -include-pch %t -fsyntax-only %s -ast-print -cl-std=CL2.0
 
 void foo1(img1d_t img);
 
@@ -23,4 +23,12 @@ void foo7(smp_t smp) {
 
 void foo8(evt_t evt) {
   evt_t loc_evt;
+}
+
+void foo9(pipe int P) {
+  int_pipe_function(P);
+}
+
+void foo10(pipe Person P) {
+  person_pipe_function(P);
 }

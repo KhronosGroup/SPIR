@@ -20,6 +20,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "clang/Basic/LangOptions.h"
 
 namespace llvm {
   class MemoryBuffer;
@@ -54,6 +55,9 @@ public:
   /// \brief Whether we should maintain a detailed record of all macro
   /// definitions and expansions.
   unsigned DetailedRecord : 1;
+
+  /// Initialize the preprocessor list of supported pragmas
+  OpenCLOptions SupportedPragmas;
 
   /// The implicit PCH included at the start of the translation unit, or empty.
   std::string ImplicitPCHInclude;

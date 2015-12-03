@@ -1,4 +1,4 @@
-// RUN: %clang_cc1 %s -verify -pedantic -fsyntax-only
+// RUN: %clang_cc1 %s -verify -pedantic -fsyntax-only -cl-std=CL2.0
 
 __constant int ci = 1;
 
@@ -6,10 +6,15 @@ __kernel void foo(__global int *gip) {
   __local int li;
   __local int lj = 2; // expected-error {{'__local' variable cannot have an initializer}}
 
-  int *ip;
+  __private int *ip;
   ip = gip; // expected-error {{assigning '__global int *' to 'int *' changes address space of pointer}}
   ip = &li; // expected-error {{assigning '__local int *' to 'int *' changes address space of pointer}}
   ip = &ci; // expected-error {{assigning '__constant int *' to 'int *' changes address space of pointer}}
+
+  __generic int *genip;
+  genip = &ci; // expected-error {{assigning '__constant int *' to '__generic int *' changes address space of pointer}}
+
+  int __generic; // expected-error {{declaration does not declare anything}}
 }
 
 void explicit_cast(global int* g, local int* l, constant int* c, private int* p, const constant int *cc)

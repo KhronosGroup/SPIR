@@ -67,6 +67,28 @@ int cc1_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
   std::unique_ptr<CompilerInstance> Clang(new CompilerInstance());
   IntrusiveRefCntPtr<DiagnosticIDs> DiagID(new DiagnosticIDs());
 
+  // Enable OpenCL supported pragmas by default.
+  OpenCLOptions &SP = Clang->getPreprocessorOpts().SupportedPragmas;
+  SP.cl_khr_3d_image_writes = 1;
+  SP.cl_khr_byte_addressable_store = 1;
+  SP.cl_khr_depth_images = 1;
+  SP.cl_khr_d3d10_sharing = 1;
+  SP.cl_khr_fp16 = 1;
+  SP.cl_khr_fp64 = 1;
+  SP.cl_khr_gl_event = 1;
+  SP.cl_khr_gl_msaa_sharing = 1;
+  SP.cl_khr_gl_sharing = 1;
+  SP.cl_khr_int64_base_atomics = 1;
+  SP.cl_khr_int64_extended_atomics = 1;
+  SP.cl_khr_global_int32_base_atomics = 1;
+  SP.cl_khr_global_int32_extended_atomics = 1;
+  SP.cl_khr_local_int32_base_atomics = 1;
+  SP.cl_khr_local_int32_extended_atomics = 1;
+  SP.cl_khr_subgroups = 1;
+  SP.cl_intel_subgroups = 1;
+
+  SP.cl_clang_storage_class_specifiers = 1;
+
   // Initialize targets first, so that --version shows registered targets.
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();

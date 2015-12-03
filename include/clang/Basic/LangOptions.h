@@ -135,8 +135,36 @@ public:
 #define OPENCLEXT(nm)  unsigned nm : 1;
 #include "clang/Basic/OpenCLExtensions.def"
 
+  OpenCLOptions(LangOptions LangOpts, const OpenCLOptions& SupportedPragmas) {
+#define OPENCLEXT(nm)     nm = 0;
+#define OPENCLEXT_1_2(nm) \
+    if (LangOpts.OpenCL) { \
+      if(LangOpts.OpenCLVersion >= 120 && SupportedPragmas.nm == 1) { \
+        nm = 1; \
+      } else { \
+        nm = 0; \
+      } \
+    }
+
+    #include "clang/Basic/OpenCLExtensions.def"
+  }
+
+  OpenCLOptions(LangOptions LangOpts) {
+#define OPENCLEXT(nm)   nm = 0;
+#define OPENCLEXT_1_2(nm) \
+    if (LangOpts.OpenCL) { \
+      if(LangOpts.OpenCLVersion >= 120) { \
+        nm = 1; \
+      } else { \
+        nm = 0; \
+      } \
+    }
+#include "clang/Basic/OpenCLExtensions.def"
+  }
+
   OpenCLOptions() {
 #define OPENCLEXT(nm)   nm = 0;
+#define OPENCLEXT_1_2(nm) nm = 0;
 #include "clang/Basic/OpenCLExtensions.def"
   }
 };

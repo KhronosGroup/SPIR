@@ -510,6 +510,8 @@ KEYWORD(vec_step                    , KEYOPENCL|KEYALTIVEC)
 KEYWORD(queue_t                     , KEYOPENCL)
 KEYWORD(clk_event_t                 , KEYOPENCL)
 KEYWORD(reserve_id_t                , KEYOPENCL)
+KEYWORD(pipe                        , KEYOPENCL)
+
 // Borland Extensions.
 KEYWORD(__pascal                    , KEYALL)
 

@@ -23,6 +23,7 @@
 #include "clang/Basic/DiagnosticOptions.h"
 #include "clang/Basic/PartialDiagnostic.h"
 #include "clang/Basic/TargetInfo.h"
+#include "clang/Lex/Preprocessor.h"
 #include "clang/Sema/Initialization.h"
 #include "clang/Sema/Lookup.h"
 #include "clang/Sema/SemaInternal.h"
@@ -126,11 +127,13 @@ ImplicitConversionRank clang::GetConversionRank(ImplicitConversionKind Kind) {
     ICR_Conversion,
     ICR_Conversion,
     ICR_Conversion,
-    ICR_Conversion,
+    ICR_OCL_Scalar_Widening,
     ICR_Complex_Real_Conversion,
     ICR_Conversion,
     ICR_Conversion,
-    ICR_Writeback_Conversion
+    ICR_Writeback_Conversion,
+    ICR_Conversion,
+    ICR_Conversion
   };
   return Rank[(int)Kind];
 }
@@ -162,7 +165,9 @@ static const char* GetImplicitConversionName(ImplicitConversionKind Kind) {
     "Complex-real conversion",
     "Block Pointer conversion",
     "Transparent Union Conversion",
-    "Writeback conversion"
+    "Writeback conversion",
+    "Zero Event conversion",
+    "Integer-to-Sampler conversion"
   };
   return Name[Kind];
 }
@@ -1617,6 +1622,15 @@ static bool IsStandardConversion(Sema &S, Expr* From, QualType ToType,
              From->isIntegerConstantExpr(S.getASTContext()) &&
              (From->EvaluateKnownConstInt(S.getASTContext()) == 0)) {
     SCS.Second = ICK_Zero_Event_Conversion;
+    FromType = ToType;
+  } else if (ToType->isQueueType() &&
+             From->isIntegerConstantExpr(S.getASTContext()) &&
+             (From->EvaluateKnownConstInt(S.getASTContext()) == 0)) {
+    SCS.Second = ICK_Zero_Queue_Conversion;
+    FromType = ToType;
+  } else if (ToType->isSamplerT() &&
+             From->isIntegerConstantExpr(S.getASTContext())) {
+    SCS.Second = ICK_Int_Sampler_Conversion;
     FromType = ToType;
   } else {
     // No second conversion required.
@@ -4897,6 +4911,8 @@ static bool CheckConvertedConstantConversions(Sema &S,
   case ICK_NoReturn_Adjustment:
   case ICK_Integral_Promotion:
   case ICK_Integral_Conversion: // Narrowing conversions are checked elsewhere.
+  case ICK_Zero_Queue_Conversion:
+  case ICK_Int_Sampler_Conversion:
     return true;
 
   case ICK_Boolean_Conversion:
@@ -5633,6 +5649,41 @@ Sema::AddOverloadCandidate(FunctionDecl *Function,
     Candidate.Viable = false;
     Candidate.FailureKind = ovl_fail_too_few_arguments;
     return;
+  }
+
+  // OpenCL
+  // A candidate function that uses extentions that are not enabled or
+  // supported is not viable.
+  bool hasHalf = getOpenCLOptions().cl_khr_fp16 &&
+                 PP.getSupportedPragmas().cl_khr_fp16;
+  bool hasDouble = PP.getSupportedPragmas().cl_khr_fp64;
+
+  if (getLangOpts().OpenCL) {
+    if (!hasHalf && Function->getReturnType()->isHalfType()) {
+      Candidate.Viable = false;
+      Candidate.FailureKind = ovl_fail_bad_target;
+      return;
+    }
+    if (!hasDouble && Function->getReturnType()->isDoubleType()) {
+      Candidate.Viable = false;
+      Candidate.FailureKind = ovl_fail_bad_target;
+      return;
+    }
+    for (FunctionDecl::param_iterator PI = Function->param_begin(),
+         PE = Function->param_end(); PI != PE; ++PI) {
+      ParmVarDecl *Param = *PI;
+      QualType PT = Param->getType();
+      if (!hasHalf && PT->isHalfType()) {
+        Candidate.Viable = false;
+        Candidate.FailureKind = ovl_fail_bad_target;
+        return;
+      }
+      if (!hasDouble && PT->isDoubleType()) {
+        Candidate.Viable = false;
+        Candidate.FailureKind = ovl_fail_bad_target;
+        return;
+      }
+    }
   }
 
   // (CUDA B.1): Check for invalid calls between targets.

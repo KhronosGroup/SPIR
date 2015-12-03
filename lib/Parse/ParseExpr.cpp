@@ -432,12 +432,14 @@ Parser::ParseRHSOfBinaryExpression(ExprResult LHS, prec::Level MinPrec) {
 ///
 ExprResult Parser::ParseCastExpression(bool isUnaryExpression,
                                        bool isAddressOfOperand,
-                                       TypeCastState isTypeCast) {
+                                       TypeCastState isTypeCast,
+                                       bool isVectorLiteral) {
   bool NotCastExpr;
   ExprResult Res = ParseCastExpression(isUnaryExpression,
                                        isAddressOfOperand,
                                        NotCastExpr,
-                                       isTypeCast);
+                                       isTypeCast,
+                                       isVectorLiteral);
   if (NotCastExpr)
     Diag(Tok, diag::err_expected_expression);
   return Res;
@@ -640,7 +642,8 @@ class CastExpressionIdValidator : public CorrectionCandidateCallback {
 ExprResult Parser::ParseCastExpression(bool isUnaryExpression,
                                        bool isAddressOfOperand,
                                        bool &NotCastExpr,
-                                       TypeCastState isTypeCast) {
+                                       TypeCastState isTypeCast,
+                                       bool isVectorLiteral) {
   ExprResult Res;
   tok::TokenKind SavedKind = Tok.getKind();
   NotCastExpr = false;
@@ -667,6 +670,11 @@ ExprResult Parser::ParseCastExpression(bool isUnaryExpression,
     SourceLocation RParenLoc;
     Res = ParseParenExpression(ParenExprType, false/*stopIfCastExr*/,
                                isTypeCast == IsTypeCast, CastTy, RParenLoc);
+
+    if (isVectorLiteral)
+    {
+        return Res;
+    }
 
     switch (ParenExprType) {
     case SimpleExpr:   break;    // Nothing else to do.
@@ -979,7 +987,7 @@ ExprResult Parser::ParseCastExpression(bool isUnaryExpression,
   case tok::amp: {         // unary-expression: '&' cast-expression
     // Special treatment because of member pointers
     SourceLocation SavedLoc = ConsumeToken();
-    Res = ParseCastExpression(false, true);
+    Res = ParseCastExpression(false, true, NotTypeCast, false);
     if (!Res.isInvalid())
       Res = Actions.ActOnUnaryOp(getCurScope(), SavedLoc, SavedKind, Res.get());
     return Res;
@@ -1023,6 +1031,9 @@ ExprResult Parser::ParseCastExpression(bool isUnaryExpression,
     SourceLocation AmpAmpLoc = ConsumeToken();
     if (Tok.isNot(tok::identifier))
       return ExprError(Diag(Tok, diag::err_expected) << tok::identifier);
+
+    if (getLangOpts().OpenCL)
+      return ExprError(Diag(Tok, diag::err_opencl_address_of_label));
 
     if (getCurScope()->getFnParent() == nullptr)
       return ExprError(Diag(Tok, diag::err_address_of_label_outside_fn));
@@ -1096,7 +1107,6 @@ ExprResult Parser::ParseCastExpression(bool isUnaryExpression,
   case tok::kw_void:
   case tok::kw_typename:
   case tok::kw_typeof:
-  case tok::kw___vector:
   case tok::kw_image1d_t:
   case tok::kw_image1d_array_t:
   case tok::kw_image1d_buffer_t:
@@ -1113,7 +1123,7 @@ ExprResult Parser::ParseCastExpression(bool isUnaryExpression,
   case tok::kw_event_t:
   case tok::kw_queue_t:
   case tok::kw_clk_event_t:
-    {
+  case tok::kw___vector: {
     if (!getLangOpts().CPlusPlus) {
       Diag(Tok, diag::err_expected_expression);
       return ExprError();
@@ -2204,6 +2214,48 @@ Parser::ParseParenExpression(ParenParseOption &ExprType, bool stopIfCastExpr,
         return ParseCompoundLiteralExpression(Ty.get(), OpenLoc, RParenLoc);
       }
 
+      if (Tok.is(tok::l_paren)) {
+        // This could be OpenCL vector Literals
+        if (getLangOpts().OpenCL)
+        {
+          TypeResult Ty;
+          {
+            InMessageExpressionRAIIObject InMessage(*this, false);
+            Ty = Actions.ActOnTypeName(getCurScope(), DeclaratorInfo);
+          }
+          if(Ty.isInvalid())
+          {
+             return ExprError();
+          }
+          QualType QT = Ty.get().get().getCanonicalType();
+          if (QT->isVectorType())
+          {
+            // We parsed '(' vector-type-name ')' followed by '('
+
+            // Parse the cast-expression that follows it next.
+            // isVectorLiteral = true will make sure we don't parse any
+            // Postfix expression yet
+            Result = ParseCastExpression(/*isUnaryExpression=*/false,
+                                         /*isAddressOfOperand=*/false,
+                                         /*isTypeCast=*/IsTypeCast,
+                                         /*isVectorLiteral=*/true);
+
+            if (!Result.isInvalid()) {
+              Result = Actions.ActOnCastExpr(getCurScope(), OpenLoc,
+                                             DeclaratorInfo, CastTy,
+                                             RParenLoc, Result.get());
+            }
+
+            // After we performed the cast we can check for postfix-expr pieces.
+            if (!Result.isInvalid()) {
+              Result = ParsePostfixExpressionSuffix(Result);
+            }
+
+            return Result;
+          }
+        }
+      }
+
       if (ExprType == CastExpr) {
         // We parsed '(' type-name ')' and the thing after it wasn't a '{'.
 
@@ -2606,7 +2658,10 @@ void Parser::ParseBlockId(SourceLocation CaretLoc) {
   ParseDeclarator(DeclaratorInfo);
 
   // We do this for: ^ __attribute__((noreturn)) {, as DS has the attributes.
-  DeclaratorInfo.takeAttributes(DS.getAttributes(), SourceLocation());
+  // FIXME: Disable this line for OpenCL in order to handle ^global int*(...).
+  // Otherwise the 'global' would taken to the refer to the whole block rather then to the return type
+  if (!getLangOpts().OpenCL)
+    DeclaratorInfo.takeAttributes(DS.getAttributes(), SourceLocation());
 
   MaybeParseGNUAttributes(DeclaratorInfo);
 

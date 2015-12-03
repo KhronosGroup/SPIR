@@ -1699,6 +1699,8 @@ const char *VarDecl::getStorageClassSpecifierString(StorageClass SC) {
   case SC_Auto:                 return "auto";
   case SC_Extern:               return "extern";
   case SC_OpenCLWorkGroupLocal: return "<<work-group-local>>";
+  case SC_OpenCLConstantExtern: return "<<opencl-constant-extern>>";
+  case SC_OpenCLConstant:       return "<<opencl-constant>>";
   case SC_PrivateExtern:        return "__private_extern__";
   case SC_Register:             return "register";
   case SC_Static:               return "static";
@@ -2599,6 +2601,16 @@ unsigned FunctionDecl::getBuiltinID() const {
 
   // If this is a static function, it's not a builtin.
   if (getStorageClass() == SC_Static)
+    return 0;
+
+  // OpenCL v1.2 s6.9.f:
+  // The library functions defined in the C99 standard headers assert.h,
+  // ctype.h, complex.h, errno.h, fenv.h, float.h, inttypes.h, limits.h,
+  // locale.h, setjmp.h, signal.h, stdarg.h, stdio.h, stdlib.h, string.h,
+  // tgmath.h, time.h, wchar.h and wctype.h are not available and cannot
+  // be included by a program.
+  if (Context.getLangOpts().OpenCL &&
+      Context.BuiltinInfo.isPredefinedLibFunction(BuiltinID))
     return 0;
 
   return BuiltinID;

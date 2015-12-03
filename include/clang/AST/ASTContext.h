@@ -129,6 +129,7 @@ class ASTContext : public RefCountedBase<ASTContext> {
   mutable llvm::FoldingSet<AutoType> AutoTypes;
   mutable llvm::FoldingSet<AtomicType> AtomicTypes;
   llvm::FoldingSet<AttributedType> AttributedTypes;
+  mutable llvm::FoldingSet<PipeType> PipeTypes;
 
   mutable llvm::FoldingSet<QualifiedTemplateName> QualifiedTemplateNames;
   mutable llvm::FoldingSet<DependentTemplateName> DependentTemplateNames;
@@ -391,6 +392,8 @@ private:
   ///  this ASTContext object.
   LangOptions &LangOpts;
 
+  bool disabledFPContract;
+
   /// \brief Blacklist object that is used by sanitizers to decide which
   /// entities should not be instrumented.
   std::unique_ptr<SanitizerBlacklist> SanitizerBL;
@@ -523,6 +526,10 @@ public:
   const SanitizerBlacklist &getSanitizerBlacklist() const {
     return *SanitizerBL;
   }
+
+  void disableFPContract() { disabledFPContract = true; }
+
+  bool isFPContractDisabled() const { return disabledFPContract; }
 
   DiagnosticsEngine &getDiagnostics() const;
 
@@ -978,6 +985,9 @@ public:
   /// Gets the struct used to keep track of the descriptor for pointer to
   /// blocks.
   QualType getBlockDescriptorType() const;
+
+  /// \brief Return pipe type for the specified type.
+  QualType getPipeType(QualType T) const;
 
   /// Gets the struct used to keep track of the extended descriptor for
   /// pointer to blocks.

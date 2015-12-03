@@ -898,6 +898,9 @@ void clang::InitializePreprocessor(Preprocessor &PP,
   llvm::raw_string_ostream Predefines(PredefineBuffer);
   MacroBuilder Builder(Predefines);
 
+  // Setup pragma support
+  PP.setSupportedPragmas(InitOpts.SupportedPragmas);
+
   // Emit line markers for various builtin sections of the file.  We don't do
   // this in asm preprocessor mode, because "# 4" is not a line marker directive
   // in this mode.

@@ -47,6 +47,23 @@ static bool isAggregateTypeForABI(QualType T) {
          T->isMemberFunctionPointerType();
 }
 
+static ABIArgInfo classifyOpenCL(QualType Ty) {
+
+  if (Ty->isVoidType())
+    return ABIArgInfo::getIgnore();
+
+  if (const EnumType *EnumTy = Ty->getAs<EnumType>())
+    Ty = EnumTy->getDecl()->getIntegerType();
+
+  if (const RecordType *RT = Ty->getAs<RecordType>())
+    return ABIArgInfo::getIndirect(0, /*ByVal=*/false);
+
+  if (Ty->isPromotableIntegerType())
+    return ABIArgInfo::getExtend();
+
+  return ABIArgInfo::getDirect();
+}
+
 ABIInfo::~ABIInfo() {}
 
 static CGCXXABI::RecordArgABI getRecordArgABI(const RecordType *RT,
@@ -1123,6 +1140,20 @@ ABIArgInfo X86_32ABIInfo::classifyArgumentType(QualType Ty,
 }
 
 void X86_32ABIInfo::computeInfo(CGFunctionInfo &FI) const {
+
+  QualType RetTy = FI.getReturnType();
+
+  if (getContext().getLangOpts().OpenCL) {
+    // Use OpenCL clessify to prevent coercing
+    FI.getReturnInfo() = classifyOpenCL(RetTy);
+
+    for (CGFunctionInfo::arg_iterator it = FI.arg_begin(), ie = FI.arg_end();
+         it != ie; ++it)
+      it->info= classifyOpenCL(it->type);
+
+    return;
+  }
+
   CCState State(FI.getCallingConvention());
   if (State.CC == llvm::CallingConv::X86_FastCall)
     State.FreeRegs = 2;
@@ -2675,6 +2706,19 @@ ABIArgInfo X86_64ABIInfo::classifyArgumentType(
 
 void X86_64ABIInfo::computeInfo(CGFunctionInfo &FI) const {
 
+  QualType RetTy = FI.getReturnType();
+
+  if (getContext().getLangOpts().OpenCL) {
+    // Use OpenCL clessify to prevent coercing
+    FI.getReturnInfo() = classifyOpenCL(RetTy);
+
+    for (CGFunctionInfo::arg_iterator it = FI.arg_begin(), ie = FI.arg_end();
+         it != ie; ++it)
+      it->info= classifyOpenCL(it->type);
+
+    return;
+  }
+
   if (!getCXXABI().classifyReturnType(FI))
     FI.getReturnInfo() = classifyReturnType(FI.getReturnType());
 
@@ -3012,6 +3056,17 @@ void WinX86_64ABIInfo::computeInfo(CGFunctionInfo &FI) const {
   unsigned FreeSSERegs = IsVectorCall ? 4 : 0;
   if (!getCXXABI().classifyReturnType(FI))
     FI.getReturnInfo() = classify(FI.getReturnType(), FreeSSERegs, true);
+
+  if (getContext().getLangOpts().OpenCL) {
+    // Use OpenCL clessify to prevent coercing
+    FI.getReturnInfo() = classifyOpenCL(FI.getReturnType());
+
+    for (CGFunctionInfo::arg_iterator it = FI.arg_begin(), ie = FI.arg_end();
+         it != ie; ++it)
+      it->info= classifyOpenCL(it->type);
+
+    return;
+  }
 
   // We can use up to 6 SSE register parameters with vectorcall.
   FreeSSERegs = IsVectorCall ? 6 : 0;

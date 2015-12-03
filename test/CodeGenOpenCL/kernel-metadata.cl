@@ -1,4 +1,4 @@
-// RUN: %clang_cc1 %s -emit-llvm -o - | FileCheck %s
+// RUN: %clang_cc1 %s -emit-llvm -triple spir-unknown-unknown -o - | FileCheck %s
 
 void normal_function() {
 }

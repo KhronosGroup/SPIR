@@ -297,6 +297,12 @@ enum CastKind {
   // Convert a zero value for OpenCL event_t initialization.
   CK_ZeroToOCLEvent,
 
+  // Convert a zero value for OpenCL queue_t initialization.
+  CK_ZeroToOCLQueue,
+
+  // Convert an integer initializer to an OpenCL sampler
+  CK_IntToOCLSampler,
+
   // Convert a pointer to a different address space.
   CK_AddressSpaceConversion
 };

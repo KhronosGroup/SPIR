@@ -32,6 +32,11 @@ namespace clang {
     TSS_unsigned
   };
   
+  enum TypeSpecifiersPipe {
+    TSP_unspecified,
+    TSP_pipe
+  };
+
   /// \brief Specifies the kind of type.
   enum TypeSpecifierType {
     TST_unspecified,
@@ -193,6 +198,8 @@ namespace clang {
 
     // These are only legal on variables.
     SC_OpenCLWorkGroupLocal,
+    SC_OpenCLConstant,
+    SC_OpenCLConstantExtern,
     SC_Auto,
     SC_Register
   };

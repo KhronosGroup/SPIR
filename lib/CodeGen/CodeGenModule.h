@@ -1032,6 +1032,12 @@ public:
   /// Emit all the global annotations.
   void EmitGlobalAnnotations();
 
+  /// Emit OpenCL related annotations.
+  void EmitOCLAnnotations();
+
+  /// Emit OCL compiler options
+  void EmitOCLBuildOptions();
+
   /// Emit an annotation string.
   llvm::Constant *EmitAnnotationString(StringRef Str);
 
@@ -1213,6 +1219,9 @@ private:
   /// Check whether we can use a "simpler", more core exceptions personality
   /// function.
   void SimplifyPersonality();
+
+  // Get a metadata vector containing the build options
+  llvm::SmallVector<llvm::Metadata *, 5> getBuildOptions();
 };
 }  // end namespace CodeGen
 }  // end namespace clang

@@ -30,6 +30,9 @@
 #include "llvm/IR/Intrinsics.h"
 #include "llvm/IR/MDBuilder.h"
 #include "llvm/IR/Operator.h"
+
+#include <sstream>
+
 using namespace clang;
 using namespace CodeGen;
 
@@ -134,6 +137,7 @@ TypeEvaluationKind CodeGenFunction::getEvaluationKind(QualType type) {
     case Type::FunctionNoProto:
     case Type::Enum:
     case Type::ObjCObjectPointer:
+    case Type::Pipe:
       return TEK_Scalar;
 
     // Complexes.
@@ -352,6 +356,112 @@ void CodeGenFunction::EmitMCountInstrumentation() {
   EmitNounwindRuntimeCall(MCountFn);
 }
 
+// Returns true if the given module has SPIR (32/64) target
+static bool isSpirTarget(const llvm::Module *M) {
+  assert (M && "NULL module given");
+  return llvm::StringRef(M->getTargetTriple()).startswith("spir");
+}
+
+// Metadata values extractors.
+static std::string getScalarMetadataValue(const clang::Type *Ty,
+                                          const PrintingPolicy &Policy) {
+  assert(Ty && "NULL type");
+
+  if (!Ty->isUnsignedIntegerType())
+    return QualType(Ty, 0).getAsString(Policy);
+
+  std::string TyName = QualType(Ty, 0).getAsString();
+  if (llvm::StringRef(TyName).startswith("unsigned")) {
+    // Replace unsigned <ty> with u<ty>
+    TyName.erase(1, 8);
+  }
+
+  return TyName;
+}
+
+// Creates a canonical name for complex types. In case of anonymous types, the
+// function appends the meta-type name as prefix: e.g., in case the type is
+// defined as: typedef struct {...} S, the method returns struct S.
+static std::string canonicalName(const std::string &TyName,
+                                 const std::string &MetaTyName) {
+  if (StringRef(TyName).startswith(MetaTyName))
+    return TyName;
+
+  return std::string(MetaTyName) + " __"  + TyName;
+}
+
+static std::string getComplexMetadataValue(const clang::Type *Ty,
+                                           const PrintingPolicy &Policy) {
+  std::string TyName = QualType(Ty, 0).getCanonicalType().getAsString();
+
+  if (Ty->isStructureType())
+    return canonicalName(TyName, "struct");
+
+  if (Ty->isUnionType())
+    return canonicalName(TyName, "union");
+
+  if (Ty->isEnumeralType())
+    return canonicalName(TyName, "enum");
+
+  return getScalarMetadataValue(Ty, Policy);
+}
+
+static std::string getVectorMetadataValue(const clang::ExtVectorType *Ty,
+                                          const PrintingPolicy &Policy) {
+  assert(Ty && "NULL type");
+
+  const clang::VectorType *VTy = llvm::dyn_cast<clang::VectorType>(Ty);
+  assert(VTy && "Cast to vector failed");
+
+  std::stringstream Ret;
+  Ret << getScalarMetadataValue(VTy->getElementType().getTypePtr(), Policy);
+  Ret << VTy->getNumElements();
+
+  return Ret.str();
+}
+
+template <typename T>
+static std::string getPointerMetadataValue(const T *Ty,
+                                           bool CanTy,
+                                           const PrintingPolicy &Policy) {
+  assert(Ty && "Null type");
+
+  std::string Ret;
+  const clang::Type *PTy = Ty->getPointeeType().getTypePtr();
+  assert(PTy && "Null Pointee");
+
+  if (const ExtVectorType *VTy = llvm::dyn_cast<ExtVectorType>(PTy))
+    Ret = getVectorMetadataValue(VTy, Policy);
+  else
+    Ret = CanTy ? getComplexMetadataValue(PTy, Policy) : getScalarMetadataValue(PTy, Policy);
+
+  return Ret + "*";
+}
+
+static std::string getPipeMetadataValue(const clang::PipeType *Ty,
+                                        const PrintingPolicy &Policy) {
+  assert(Ty && "Null type");
+
+  const clang::QualType ElemTy = Ty->getElementType();
+  if (const clang::ExtVectorType *VTy = ElemTy->getAs<ExtVectorType>())
+    return getVectorMetadataValue(VTy, Policy);
+
+  return getScalarMetadataValue(ElemTy.getTypePtr(), Policy);
+}
+
+static llvm::MDString *getAccessAttribute(const ParmVarDecl *PDecl,
+                                          llvm::LLVMContext &Context) {
+  if (PDecl->hasAttr<OpenCLImageAccessAttr>() &&
+    PDecl->getAttr<OpenCLImageAccessAttr>()->isWriteOnly())
+    return llvm::MDString::get(Context, "write_only");
+
+  if (PDecl->hasAttr<OpenCLImageAccessAttr>() &&
+    PDecl->getAttr<OpenCLImageAccessAttr>()->isReadWrite())
+    return llvm::MDString::get(Context, "read_write");
+
+  return llvm::MDString::get(Context, "read_only");
+}
+
 // OpenCL v1.2 s5.6.4.6 allows the compiler to store kernel argument
 // information in the program executable. The argument information stored
 // includes the argument name, its type, the address and access qualifiers used.
@@ -359,6 +469,12 @@ static void GenOpenCLArgMetadata(const FunctionDecl *FD, llvm::Function *Fn,
                                  CodeGenModule &CGM, llvm::LLVMContext &Context,
                                  SmallVector<llvm::Metadata *, 5> &kernelMDArgs,
                                  CGBuilderTy &Builder, ASTContext &ASTCtx) {
+  bool EmitVerbose = CGM.getCodeGenOpts().EmitOpenCLArgMetadata;
+
+  if (!isSpirTarget(Fn->getParent()) && !EmitVerbose) {
+    return;
+  }
+
   // Create MDNodes that represent the kernel arg metadata.
   // Each MDNode is a list in the form of "key", N number of values which is
   // the same number of values as their are kernel arguments.
@@ -387,15 +503,36 @@ static void GenOpenCLArgMetadata(const FunctionDecl *FD, llvm::Function *Fn,
   argTypeQuals.push_back(llvm::MDString::get(Context, "kernel_arg_type_qual"));
 
   // MDNode for the kernel argument names.
-  SmallVector<llvm::Metadata *, 8> argNames;
-  argNames.push_back(llvm::MDString::get(Context, "kernel_arg_name"));
+  SmallVector<llvm::Metadata*, 8> argNames;
+  if (EmitVerbose)
+    argNames.push_back(llvm::MDString::get(Context, "kernel_arg_name"));
 
   for (unsigned i = 0, e = FD->getNumParams(); i != e; ++i) {
     const ParmVarDecl *parm = FD->getParamDecl(i);
     QualType ty = parm->getType();
+    bool IsCanonical = ty.isCanonical();
+
+    // Values to be added to the metadata.
     std::string typeQuals;
+    std::string baseTyName;
+    std::string tyName;
 
     if (ty->isPointerType()) {
+      // Get argument type name.
+      if (const PointerType *PTy = dyn_cast<PointerType>(ty.getTypePtr()))
+        tyName = getPointerMetadataValue<PointerType>(PTy, false, Policy);
+      else if (const DecayedType *DTy = dyn_cast<DecayedType>(ty.getTypePtr()))
+        tyName = getPointerMetadataValue<DecayedType>(DTy, false, Policy);
+      else
+        tyName = getScalarMetadataValue(ty.getTypePtr(), Policy);
+
+      // Acquiring the base type of the parameter.
+      if (IsCanonical)
+        baseTyName = tyName;
+      else
+        baseTyName = getPointerMetadataValue<PointerType>(ty.getCanonicalType()->
+                                             getAs<PointerType>(), true, Policy);
+
       QualType pointeeTy = ty->getPointeeType();
 
       // Get address qualifier.
@@ -403,15 +540,14 @@ static void GenOpenCLArgMetadata(const FunctionDecl *FD, llvm::Function *Fn,
           ASTCtx.getTargetAddressSpace(pointeeTy.getAddressSpace()))));
 
       // Get argument type name.
-      std::string typeName =
-          pointeeTy.getUnqualifiedType().getAsString(Policy) + "*";
+      std::string typeName = QualType(pointeeTy.getTypePtr(), 0).getAsString() + "*";
 
       // Turn "unsigned type" to "utype"
       std::string::size_type pos = typeName.find("unsigned");
       if (pointeeTy.isCanonical() && pos != std::string::npos)
         typeName.erase(pos+1, 8);
 
-      argTypeNames.push_back(llvm::MDString::get(Context, typeName));
+      //argTypeNames.push_back(llvm::MDString::get(Context, typeName));
 
       std::string baseTypeName =
           pointeeTy.getUnqualifiedType().getCanonicalType().getAsString(
@@ -423,7 +559,7 @@ static void GenOpenCLArgMetadata(const FunctionDecl *FD, llvm::Function *Fn,
       if (pos != std::string::npos)
         baseTypeName.erase(pos+1, 8);
 
-      argBaseTypeNames.push_back(llvm::MDString::get(Context, baseTypeName));
+      //argBaseTypeNames.push_back(llvm::MDString::get(Context, baseTypeName));
 
       // Get argument type qualifiers:
       if (ty.isRestrictQualified())
@@ -433,57 +569,62 @@ static void GenOpenCLArgMetadata(const FunctionDecl *FD, llvm::Function *Fn,
         typeQuals += typeQuals.empty() ? "const" : " const";
       if (pointeeTy.isVolatileQualified())
         typeQuals += typeQuals.empty() ? "volatile" : " volatile";
-    } else {
-      uint32_t AddrSpc = 0;
-      if (ty->isImageType())
-        AddrSpc =
-          CGM.getContext().getTargetAddressSpace(LangAS::opencl_global);
 
-      addressQuals.push_back(
-          llvm::ConstantAsMetadata::get(Builder.getInt32(AddrSpc)));
-
+    } else if (ty->isPipeType()) {
       // Get argument type name.
-      std::string typeName = ty.getUnqualifiedType().getAsString(Policy);
+      tyName = getPipeMetadataValue(ty->getAs<PipeType>(), Policy);
 
-      // Turn "unsigned type" to "utype"
-      std::string::size_type pos = typeName.find("unsigned");
-      if (ty.isCanonical() && pos != std::string::npos)
-        typeName.erase(pos+1, 8);
+      // Acquiring the base type of the parameter.
+      if (IsCanonical)
+        baseTyName = tyName;
+      else
+        baseTyName = getPipeMetadataValue(ty.getCanonicalType()->
+                                          getAs<PipeType>(), Policy);
 
-      argTypeNames.push_back(llvm::MDString::get(Context, typeName));
+      // Get address qualifier.
+      addressQuals.push_back(llvm::ConstantAsMetadata::get(Builder.getInt32(ASTCtx.getTargetAddressSpace(LangAS::opencl_global))));
 
-      std::string baseTypeName =
-          ty.getUnqualifiedType().getCanonicalType().getAsString(Policy);
+      // Get argument type qualifiers.
+      typeQuals += typeQuals.empty() ? "pipe" : " pipe";
+    } else {
+      // Get argument type name.
+      tyName = getScalarMetadataValue(ty.getTypePtr(), Policy);
 
-      // Turn "unsigned type" to "utype"
-      pos = baseTypeName.find("unsigned");
-      if (pos != std::string::npos)
-        baseTypeName.erase(pos+1, 8);
+      // Acquiring the base type of the parameter.
+      QualType baseTy = IsCanonical ? ty : ty.getCanonicalType();
+      if (ty->isVectorType())
+        baseTyName = getVectorMetadataValue(
+          llvm::dyn_cast<clang::ExtVectorType>(baseTy.getTypePtr()), Policy);
+      else
+        baseTyName = getComplexMetadataValue(baseTy.getTypePtr(), Policy);
 
-      argBaseTypeNames.push_back(llvm::MDString::get(Context, baseTypeName));
-
-      // Get argument type qualifiers:
-      if (ty.isConstQualified())
-        typeQuals = "const";
-      if (ty.isVolatileQualified())
-        typeQuals += typeQuals.empty() ? "volatile" : " volatile";
+      // Get address qualifier.
+      if (ty->isImageType()) {
+        addressQuals.push_back(llvm::ConstantAsMetadata::get(Builder.getInt32(ASTCtx.getTargetAddressSpace(LangAS::opencl_global))));
+      } else {
+        addressQuals.push_back(llvm::ConstantAsMetadata::get(Builder.getInt32(0)));
+      }
     }
+
+    // Adding the type and base type to the metadata.
+    assert(!tyName.empty() && "Empty type name");
+    argTypeNames.push_back(llvm::MDString::get(Context, tyName));
+    assert(!baseTyName.empty() && "Empty base type name");
+    argBaseTypeNames.push_back(llvm::MDString::get(Context, baseTyName));
 
     argTypeQuals.push_back(llvm::MDString::get(Context, typeQuals));
 
     // Get image access qualifier:
-    if (ty->isImageType()) {
-      const OpenCLImageAccessAttr *A = parm->getAttr<OpenCLImageAccessAttr>();
-      if (A && A->isWriteOnly())
-        accessQuals.push_back(llvm::MDString::get(Context, "write_only"));
-      else
-        accessQuals.push_back(llvm::MDString::get(Context, "read_only"));
-      // FIXME: what about read_write?
-    } else
+    if (ty->isImageType() || ty->isPipeType())
+      accessQuals.push_back(getAccessAttribute(parm, Context));
+    else
       accessQuals.push_back(llvm::MDString::get(Context, "none"));
 
-    // Get argument name.
-    argNames.push_back(llvm::MDString::get(Context, parm->getName()));
+    if (EmitVerbose) {
+      // Get argument name.
+      argNames.push_back(llvm::MDString::get(Context, parm->getName()));
+    }
+
   }
 
   kernelMDArgs.push_back(llvm::MDNode::get(Context, addressQuals));
@@ -512,16 +653,18 @@ void CodeGenFunction::EmitOpenCLKernelMetadata(const FunctionDecl *FD,
   if (const VecTypeHintAttr *A = FD->getAttr<VecTypeHintAttr>()) {
     QualType hintQTy = A->getTypeHint();
     const ExtVectorType *hintEltQTy = hintQTy->getAs<ExtVectorType>();
-    bool isSignedInteger =
+    bool isSignedType =
         hintQTy->isSignedIntegerType() ||
-        (hintEltQTy && hintEltQTy->getElementType()->isSignedIntegerType());
+        (hintEltQTy && hintEltQTy->getElementType()->isSignedIntegerType()) ||
+        hintQTy->isFloatingType() ||
+        (hintEltQTy && hintEltQTy->getElementType()->isFloatingType());
     llvm::Metadata *attrMDArgs[] = {
         llvm::MDString::get(Context, "vec_type_hint"),
         llvm::ConstantAsMetadata::get(llvm::UndefValue::get(
             CGM.getTypes().ConvertType(A->getTypeHint()))),
         llvm::ConstantAsMetadata::get(llvm::ConstantInt::get(
             llvm::IntegerType::get(Context, 32),
-            llvm::APInt(32, (uint64_t)(isSignedInteger ? 1 : 0))))};
+            llvm::APInt(32, (uint64_t)(isSignedType ? 1 : 0))))};
     kernelMDArgs.push_back(llvm::MDNode::get(Context, attrMDArgs));
   }
 
@@ -1606,6 +1749,10 @@ void CodeGenFunction::EmitVariablyModifiedType(QualType type) {
 
     case Type::Atomic:
       type = cast<AtomicType>(ty)->getValueType();
+      break;
+
+    case Type::Pipe:
+      type = cast<PipeType>(ty)->getElementType();
       break;
     }
   } while (type->isVariablyModifiedType());
