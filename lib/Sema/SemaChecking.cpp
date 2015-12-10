@@ -1503,13 +1503,13 @@ bool Sema::CheckFunctionCall(FunctionDecl *FDecl, CallExpr *TheCall,
   // using a sampler.
   // FIXME: this code is buggy - there should be additional check that TheCall
   // is OpenCL built-in function call.
-  if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200) {
-    if (checkOpenCLRead(TheCall)) {
-      Diag(TheCall->getLocStart(), diag::err_read_write_with_samplers) <<
-      TheCall->getSourceRange();
-      return true;
-    }
-  }
+  //if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 200) {
+  //  if (checkOpenCLRead(TheCall)) {
+  //    Diag(TheCall->getLocStart(), diag::err_read_write_with_samplers) <<
+  //    TheCall->getSourceRange();
+  //    return true;
+  //  }
+  //}
 
   unsigned CMId = FDecl->getMemoryFunctionKind();
   if (CMId == 0)
