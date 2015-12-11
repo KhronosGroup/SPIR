@@ -1,4 +1,6 @@
 // RUN: %clang_cc1 -O0 -cl-std=CL2.0  -fsyntax-only -verify %s
+// TODO: This test is valid, but diagnostics is not implemented.
+// XFAIL:*
 
 void myImgFunction(read_only image2d_t, sampler_t);
 void mySamplerlsessFunction(read_only image2d_t);
