@@ -27,6 +27,7 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/FormattedStream.h"
 #include "llvm/Support/PrettyStackTrace.h"
+#include "llvm/Support/SPIRV.h"
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/Timer.h"
 #include "llvm/Support/raw_ostream.h"
@@ -580,6 +581,7 @@ void EmitAssemblyHelper::EmitAssembly(BackendAction Action, raw_ostream *OS) {
 
   bool UsesCodeGen = (Action != Backend_EmitNothing &&
                       Action != Backend_EmitBC &&
+                      Action != Backend_EmitSPIRV &&
                       Action != Backend_EmitLL);
   if (!TM)
     TM.reset(CreateTargetMachine(UsesCodeGen));
@@ -593,6 +595,10 @@ void EmitAssemblyHelper::EmitAssembly(BackendAction Action, raw_ostream *OS) {
 
   case Backend_EmitBC:
     getPerModulePasses()->add(createBitcodeWriterPass(*OS));
+    break;
+
+  case Backend_EmitSPIRV:
+    getPerModulePasses()->add(createSPIRVWriterPass(*OS));
     break;
 
   case Backend_EmitLL:

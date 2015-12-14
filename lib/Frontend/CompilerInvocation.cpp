@@ -74,7 +74,7 @@ using namespace llvm::opt;
 static unsigned getOptimizationLevel(ArgList &Args, InputKind IK,
                                      DiagnosticsEngine &Diags) {
   unsigned DefaultOpt = 0;
-  if (IK == IK_OpenCL && !Args.hasArg(OPT_cl_opt_disable))
+  if (IK == IK_OpenCL && (!Args.hasArg(OPT_cl_opt_disable) && !Args.hasArg(OPT_emit_spirv)))
     DefaultOpt = 2;
 
   if (Arg *A = Args.getLastArg(options::OPT_O_Group)) {
@@ -512,7 +512,7 @@ static bool ParseCodeGenArgs(CodeGenOptions &Opts, ArgList &Args, InputKind IK,
 
   Opts.InstrumentFunctions = Args.hasArg(OPT_finstrument_functions);
   Opts.InstrumentForProfiling = Args.hasArg(OPT_pg);
-  Opts.EmitOpenCLArgMetadata = Args.hasArg(OPT_cl_kernel_arg_info);
+  Opts.EmitOpenCLArgMetadata = Args.hasArg(OPT_cl_kernel_arg_info) || Args.hasArg(OPT_emit_spirv);
   Opts.CompressDebugSections = Args.hasArg(OPT_compress_debug_sections);
   Opts.DebugCompilationDir = Args.getLastArgValue(OPT_fdebug_compilation_dir);
   Opts.LinkBitcodeFile = Args.getLastArgValue(OPT_mlink_bitcode_file);
@@ -789,6 +789,8 @@ static InputKind ParseFrontendArgs(FrontendOptions &Opts, ArgList &Args,
       Opts.ProgramAction = frontend::EmitAssembly; break;
     case OPT_emit_llvm_bc:
       Opts.ProgramAction = frontend::EmitBC; break;
+    case OPT_emit_spirv:
+      Opts.ProgramAction = frontend::EmitSPIRV; break;
     case OPT_emit_html:
       Opts.ProgramAction = frontend::EmitHTML; break;
     case OPT_emit_llvm:
@@ -1785,6 +1787,7 @@ static void ParsePreprocessorOutputArgs(PreprocessorOutputOptions &Opts,
   case frontend::ASTView:
   case frontend::EmitAssembly:
   case frontend::EmitBC:
+  case frontend::EmitSPIRV:
   case frontend::EmitHTML:
   case frontend::EmitLLVM:
   case frontend::EmitLLVMOnly:
