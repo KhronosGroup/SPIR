@@ -467,6 +467,8 @@ private:
   llvm::Type *BlockDescriptorType;
   llvm::Type *GenericBlockLiteralType;
 
+  llvm::DenseMap<const VarDecl*, llvm::Constant *> OCLGlobalBlockFunctions;
+
   struct {
     int GlobalUniqueCount;
   } Block;
@@ -775,7 +777,11 @@ public:
 
   /// Gets the address of a block which requires no captures.
   llvm::Constant *GetAddrOfGlobalBlock(const BlockExpr *BE, const char *);
-  
+  /// 
+  llvm::Constant *GetOCLGlobalBlockFunction(const VarDecl *D) {
+    return OCLGlobalBlockFunctions[D];
+  }
+
   /// Return a pointer to a constant CFString object for the given string.
   llvm::Constant *GetAddrOfConstantCFString(const StringLiteral *Literal);
 

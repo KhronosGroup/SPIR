@@ -34,8 +34,9 @@ protected:
   CodeGenModule &CGM;
 
   llvm::Type *PipeTy;
+  llvm::Type *BlockTy;
 public:
-  CGOpenCLRuntime(CodeGenModule &CGM) : CGM(CGM), PipeTy(0) {}
+  CGOpenCLRuntime(CodeGenModule &CGM) : CGM(CGM), PipeTy(0), BlockTy(0) {}
   virtual ~CGOpenCLRuntime();
 
   /// Emit the IR required for a work-group-local variable declaration, and add
@@ -48,9 +49,12 @@ public:
 
   llvm::Type *getPipeType();
 
+  llvm::Type *getBlockType();
+
   // \brief Returnes a value which indicates the size in bytes of the pipe
   // element.
   llvm::Value *getPipeElemSize(const Expr *PipeArg);
+  llvm::Value *getPipeElemAlign(const Expr *PipeArg);
 };
 
 class Ocl20Mangler {

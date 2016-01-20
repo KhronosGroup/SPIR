@@ -101,11 +101,29 @@ llvm::Type *CGOpenCLRuntime::getPipeType() {
   return PipeTy;
 }
 
+llvm::Type *CGOpenCLRuntime::getBlockType() {
+  if (!BlockTy)
+    BlockTy = llvm::PointerType::get(llvm::StructType::create(
+                                     CGM.getLLVMContext(), "opencl.block"), 0);
+  return BlockTy;
+}
+
 llvm::Value *CGOpenCLRuntime::getPipeElemSize(const Expr *PipeArg) {
   const PipeType* PipeTy = PipeArg->getType()->getAs<PipeType>();
   // The type of the last (implicit) argument to be passed.
   llvm::Type *Int32Ty = llvm::IntegerType::getInt32Ty(CGM.getLLVMContext());
   unsigned TypeSizeInBits = CGM.getContext().getTypeSize(
+                                                      PipeTy->getElementType());
+  return llvm::ConstantInt::get(Int32Ty,
+                                TypeSizeInBits/8, // Size in bytes.
+                                false);
+}
+
+llvm::Value *CGOpenCLRuntime::getPipeElemAlign(const Expr *PipeArg) {
+  const PipeType* PipeTy = PipeArg->getType()->getAs<PipeType>();
+  // The type of the last (implicit) argument to be passed.
+  llvm::Type *Int32Ty = llvm::IntegerType::getInt32Ty(CGM.getLLVMContext());
+  unsigned TypeSizeInBits = CGM.getContext().getTypeAlign(
                                                       PipeTy->getElementType());
   return llvm::ConstantInt::get(Int32Ty,
                                 TypeSizeInBits/8, // Size in bytes.

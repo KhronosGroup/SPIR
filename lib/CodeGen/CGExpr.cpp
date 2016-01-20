@@ -1952,8 +1952,18 @@ LValue CodeGenFunction::EmitDeclRefLValue(const DeclRefExpr *E) {
 
   if (const auto *VD = dyn_cast<VarDecl>(ND)) {
     // Check if this is a global variable.
-    if (VD->hasLinkage() || VD->isStaticDataMember())
+    if (VD->hasLinkage() || VD->isStaticDataMember()) {
+      if (CGM.getLangOpts().OpenCL && VD->getType()->isBlockPointerType()) {
+        // Look up the block function and bind it with NULL
+        llvm::Constant *blockFnc = CGM.GetOCLGlobalBlockFunction(VD);
+        blockFnc = llvm::ConstantExpr::getBitCast(blockFnc, Int8PtrTy);
+        llvm::Value *block = GenerateOCLBlockBind(blockFnc, 0, 0, llvm::Constant::getNullValue(Int8PtrTy));
+        llvm::Value *Ptr = CreateMemTemp(VD->getType());
+        Builder.CreateStore(block, Ptr);
+        return MakeNaturalAlignAddrLValue(Ptr, VD->getType());
+      }
       return EmitGlobalVarDeclLValue(*this, E, VD);
+    }
 
     bool isBlockVariable = VD->hasAttr<BlocksAttr>();
 
