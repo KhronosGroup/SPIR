@@ -1880,7 +1880,9 @@ void CXXNameMangler::mangleType(QualType T) {
   Qualifiers quals = split.Quals;
   const Type *ty = split.Ty;
 
-  bool isSubstitutable = isTypeSubstitutable(quals, ty);
+  bool isSubstitutable =
+      isTypeSubstitutable(quals, ty) &&
+      !(Context.getASTContext().getLangOpts().OpenCL && isa<ExtVectorType>(T));
   if (isSubstitutable && mangleSubstitution(T))
     return;
 
