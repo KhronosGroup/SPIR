@@ -11279,7 +11279,7 @@ bool is_valid_event (clk_event_t event);
 
 void __attribute__((overloadable)) capture_event_profiling_info(clk_event_t, clk_profiling_info, __global void* value);
 
-queue_t get_default_queue();
+queue_t __attribute__((overloadable)) get_default_queue();
 
 //
 // c11 atomics definitions
