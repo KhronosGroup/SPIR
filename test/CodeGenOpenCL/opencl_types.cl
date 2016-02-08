@@ -1,7 +1,7 @@
 // RUN: %clang_cc1 %s -emit-llvm -o - -O0 | FileCheck %s
 
 constant sampler_t glb_smp = 7;
-// CHECK: constant i32 7
+// CHECK: constant %opencl.sampler_t { i32 7 }
 
 void fnc1(image1d_t img) {}
 // CHECK: @fnc1(%opencl.image1d_t*
@@ -22,18 +22,26 @@ void fnc3(image3d_t img) {}
 // CHECK: @fnc3(%opencl.image3d_t*
 
 void fnc4smp(sampler_t s) {}
-// CHECK-LABEL: define void @fnc4smp(i32
+// CHECK: define void @fnc4smp(i32
 
 kernel void foo(image1d_t img) {
-	sampler_t smp = 5;
-// CHECK: alloca i32
+// CHECK: define void @foo(%opencl.image1d_t*
+
+  sampler_t smp = 5;
+// CHECK: alloca %opencl.sampler_t
+
 	event_t evt;
 // CHECK: alloca %opencl.event_t*
-// CHECK: store i32 5,
-  fnc4smp(smp);
-// CHECK: call void @fnc4smp(i32
+
+fnc4smp(smp);
+// CHECK: [[SMP_ELEM_PTR:%[A-Za-z0-9_\.]+]] = getelementptr %opencl.sampler_t* {{.*}}, i32 0, i32 0
+// CHECK: [[SMP_VAL:%[A-Za-z0-9_\.]+]] = load i32* [[SMP_ELEM_PTR]]
+// CHECK: call void @fnc4smp(i32 [[SMP_VAL]]
+
   fnc4smp(glb_smp);
-// CHECK: call void @fnc4smp(i32
+// CHECK-DAG: getelementptr {{[a-z]* ?\(?}}%opencl.sampler_t* {{.*}}, i32 0, i32 0
+// CHECK-DAG: [[SMP_VAL:%[A-Za-z0-9_\.]+]] = load i32*
+// CHECK: call void @fnc4smp(i32 [[SMP_VAL]]
 }
 
 void __attribute__((overloadable)) bad1(image1d_t b, image2d_t c, image2d_t d) {}

@@ -13,7 +13,7 @@ global int *global baz_ptr = &baz;
 // CHECK: @baz_ptr = addrspace(1) global i32 addrspace(1)* @baz, align 4
 
 const sampler_t sampler = 10;
-// CHECK: @sampler = constant i32 10, align 4
+// CHECK: @sampler = constant %opencl.sampler_t { i32 10 }, align 4
 
 static global int bat; // OK. Internal linkage
 // CHECK: @bat = internal addrspace(1) global i32 0, align 4

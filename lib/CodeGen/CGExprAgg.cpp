@@ -684,7 +684,16 @@ void AggExprEmitter::VisitCastExpr(CastExpr *E) {
            "Implicit cast types must be compatible");
     Visit(E->getSubExpr());
     break;
-      
+
+  case CK_IntToOCLSampler: {
+    const Expr *SE = cast<CastExpr>(E)->getSubExpr();
+    llvm::APSInt samplerValue;
+    bool IsInt = SE->EvaluateAsInt(samplerValue, CGF.CGM.getContext());
+    assert(IsInt && "expected 32-bit unsigned integer constant");
+    llvm::Value *data = Builder.CreateConstInBoundsGEP2_32(Dest.getAddr(), 0, 0);
+    Builder.CreateStore(Builder.getInt(samplerValue), data);
+    break;
+  }
   case CK_LValueBitCast:
     llvm_unreachable("should not be emitting lvalue bitcast as rvalue");
 
@@ -732,7 +741,6 @@ void AggExprEmitter::VisitCastExpr(CastExpr *E) {
   case CK_ZeroToOCLEvent:
   case CK_ZeroToOCLQueue:
   case CK_AddressSpaceConversion:
-  case CK_IntToOCLSampler:
     llvm_unreachable("cast kind invalid for aggregate types");
   }
 }
