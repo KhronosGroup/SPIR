@@ -11271,7 +11271,7 @@ void __attribute__((overloadable)) retain_event(clk_event_t);
 
 void __attribute__((overloadable)) release_event(clk_event_t);
 
-clk_event_t create_user_event();
+clk_event_t create_user_event(void);
 
 void __attribute__((overloadable)) set_user_event_status( clk_event_t e, int state );
 
@@ -11279,7 +11279,7 @@ bool is_valid_event (clk_event_t event);
 
 void __attribute__((overloadable)) capture_event_profiling_info(clk_event_t, clk_profiling_info, __global void* value);
 
-queue_t __attribute__((overloadable)) get_default_queue();
+queue_t __attribute__((overloadable)) get_default_queue(void);
 
 //
 // c11 atomics definitions
@@ -11585,8 +11585,8 @@ DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(double)
 
 // Workitem builtins
 size_t __attribute__((overloadable)) get_enqueued_local_size(uint dimindx);
-size_t __attribute__((overloadable)) get_global_linear_id();
-size_t __attribute__((overloadable)) get_local_linear_id();
+size_t __attribute__((overloadable)) get_global_linear_id(void);
+size_t __attribute__((overloadable)) get_local_linear_id(void);
 
 /**
  * Queue a memory fence to ensure correct ordering of memory
