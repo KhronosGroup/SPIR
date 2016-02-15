@@ -1464,6 +1464,12 @@ void CodeGenFunction::EmitAggregateCopy(llvm::Value *DestPtr,
   // we need to use a different call here.  We use isVolatile to indicate when
   // either the source or the destination is volatile.
 
+  if(Ty->isSamplerT()) {
+    llvm::LoadInst *src_smp = Builder.CreateLoad(SrcPtr);
+    Builder.CreateStore(src_smp, DestPtr);
+    return;
+  }
+
   llvm::PointerType *DPT = cast<llvm::PointerType>(DestPtr->getType());
   llvm::Type *DBP =
     llvm::Type::getInt8PtrTy(getLLVMContext(), DPT->getAddressSpace());

@@ -36,8 +36,8 @@ kernel void bar(const sampler_t ast) {
 
     constant sampler_t cst = 6;
     const sampler_t ost = cst;
-// CHECK: [[OST:%[A-Za-z0-9_\.]+]] = bitcast %opencl.sampler_t* %ost to i8*
-// CHECK: call void @llvm.memcpy.p0i8.p2i8.i32(i8* [[OST]], i8 addrspace(2)* bitcast (%opencl.sampler_t addrspace(2)* @bar.cst to i8 addrspace(2)*), i32 4, i32 4, i1 false)
+// CHECK: [[SMP:%[0-9]+]] = load %opencl.sampler_t addrspace(2)* @bar.cst
+// CHECK: store %opencl.sampler_t [[SMP]], %opencl.sampler_t* %ost
 
     const sampler_t lst = CLK_NORMALIZED_COORDS_TRUE|CLK_ADDRESS_REPEAT|CLK_FILTER_NEAREST;
     foo(lst);
@@ -46,23 +46,23 @@ kernel void bar(const sampler_t ast) {
     const int q = CLK_NORMALIZED_COORDS_TRUE|CLK_ADDRESS_REPEAT;
     foo(q);
 // CHECK: [[Q_PTR:%[A-Za-z0-9_\.]+]] = getelementptr inbounds %opencl.sampler_t* [[Q_SAMPLER]], i32 0, i32 0
-// CHECK:  store i32 3, i32* [[Q_PTR]]
-// CHECK:  call spir_func void @foo(%opencl.sampler_t* byval [[Q_SAMPLER]])
+// CHECK: store i32 3, i32* [[Q_PTR]]
+// CHECK: call spir_func void @foo(%opencl.sampler_t* byval [[Q_SAMPLER]])
 
     foo(CLK_NORMALIZED_COORDS_TRUE|CLK_ADDRESS_REPEAT);
 // CHECK: [[LIT_PTR:%[A-Za-z0-9_\.]+]] = getelementptr inbounds %opencl.sampler_t* [[LITERAL_ARG]], i32 0, i32 0
-// CHECK:  store i32 3, i32* [[LIT_PTR]]
-// CHECK:  call spir_func void @foo(%opencl.sampler_t* byval [[LITERAL_ARG]])
+// CHECK: store i32 3, i32* [[LIT_PTR]]
+// CHECK: call spir_func void @foo(%opencl.sampler_t* byval [[LITERAL_ARG]])
 
     constant sampler_t dd = q;
     foo(dd);
-// CHECK:  [[DD_PTR:%[A-Za-z0-9_\.]+]] = bitcast %opencl.sampler_t* [[DD_SAMPLER]] to i8*
-// CHECK:  call void @llvm.memcpy.p0i8.p2i8.i32(i8* [[DD_PTR]], i8 addrspace(2)* bitcast (%opencl.sampler_t addrspace(2)* @bar.dd to i8 addrspace(2)*), i32 4, i32 4, i1 false)
-// CHECK:  call spir_func void @foo(%opencl.sampler_t* byval [[DD_SAMPLER]])
+// CHECK: [[SMP:%[0-9]+]] = load %opencl.sampler_t addrspace(2)* @bar.dd
+// CHECK: store %opencl.sampler_t [[SMP]], %opencl.sampler_t* [[TMP:%[A-Za-z0-9_\.]+]]
+// CHECK: call spir_func void @foo(%opencl.sampler_t* byval [[TMP]])
 
     foo(1);
-// CHECK:  [[LIT_PTR:%[A-Za-z0-9_\.]+]] = getelementptr inbounds %opencl.sampler_t* [[LITERAL_ARG2]], i32 0, i32 0
-// CHECK:  store i32 1, i32* [[LIT_PTR]]
-// CHECK:  call spir_func void @foo(%opencl.sampler_t* byval [[LITERAL_ARG2]])
+// CHECK: [[LIT_PTR:%[A-Za-z0-9_\.]+]] = getelementptr inbounds %opencl.sampler_t* [[LITERAL_ARG2]], i32 0, i32 0
+// CHECK: store i32 1, i32* [[LIT_PTR]]
+// CHECK: call spir_func void @foo(%opencl.sampler_t* byval [[LITERAL_ARG2]])
 
 }

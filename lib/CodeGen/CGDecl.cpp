@@ -1124,6 +1124,11 @@ void CodeGenFunction::EmitAutoVarInit(const AutoVarEmission &emission) {
     constant = CGM.EmitConstantInit(D, this);
   }
 
+  if(type->isSamplerT() && constant) {
+    Builder.CreateStore(constant, Loc);
+    return;
+  }
+
   if (!constant) {
     LValue lv = MakeAddrLValue(Loc, type, alignment);
     lv.setNonGC(true);
