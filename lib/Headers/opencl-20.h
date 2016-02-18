@@ -11188,15 +11188,14 @@ void __attribute__((overloadable)) prefetch(const __global void *p, size_t num_e
 #define CL_QUEUED                                   0x3
 
 #define CLK_SUCCESS                                 0
-#define CLK_ENQUEUE_FAILURE                         1
-
-#define CLK_INVALID_QUEUE                           -20
-#define CLK_INVALID_NDRANGE                         -30
-#define CLK_INVALID_EVENT_WAIT_LIST                 -40
-#define CLK_DEVICE_QUEUE_FULL                       -50
-#define CLK_INVALID_ARG_SIZE                        -60
-#define CLK_EVENT_ALLOCATION_FAILURE                -70
-#define CLK_OUT_OF_RESOURCES                        -80
+#define CLK_ENQUEUE_FAILURE                         -101
+#define CLK_INVALID_QUEUE                           -102
+#define CLK_INVALID_NDRANGE                         -160
+#define CLK_INVALID_EVENT_WAIT_LIST                 -57
+#define CLK_DEVICE_QUEUE_FULL                       -161
+#define CLK_INVALID_ARG_SIZE                        -51
+#define CLK_EVENT_ALLOCATION_FAILURE                -100
+#define CLK_OUT_OF_RESOURCES                        -5
 
 #define CLK_NULL_QUEUE                              0
 #define CLK_NULL_EVENT (__builtin_astype(((void*)(UINT32MAX)), clk_event_t))
