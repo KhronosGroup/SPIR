@@ -11202,9 +11202,9 @@ void __attribute__((overloadable)) prefetch(const __global void *p, size_t num_e
 #define CLK_NULL_EVENT (__builtin_astype(((void*)(UINT32MAX)), clk_event_t))
 
 // execution model related definitions
-#define CLK_ENQUEUE_FLAGS_NO_WAIT                   0xf0
-#define CLK_ENQUEUE_FLAGS_WAIT_KERNEL               0xf1
-#define CLK_ENQUEUE_FLAGS_WAIT_WORK_GROUP           0xf2
+#define CLK_ENQUEUE_FLAGS_NO_WAIT                   0x0
+#define CLK_ENQUEUE_FLAGS_WAIT_KERNEL               0x1
+#define CLK_ENQUEUE_FLAGS_WAIT_WORK_GROUP           0x2
 
 typedef int kernel_enqueue_flags_t;
 typedef int clk_profiling_info;
