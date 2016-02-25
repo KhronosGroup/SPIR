@@ -1,7 +1,9 @@
 // RUN: %clang_cc1 %s -emit-llvm -triple spir-unknown-unknown -o - -O0 | FileCheck %s
+// RUN: %clang_cc1 %s -emit-llvm -triple spir-unknown-unknown -o - -O0 -cl-keep-sampler-type | FileCheck -check-prefix CHECK-SAMPLER-TYPE %s
 
 constant sampler_t glb_smp = 7;
-// CHECK: constant %opencl.sampler_t { i32 7 }
+// CHECK: constant i32 7
+// CHECK-SAMPLER-TYPE: constant %opencl.sampler_t { i32 7 }
 
 void fnc1(image1d_t img) {}
 // CHECK: @fnc1(%opencl.image1d_t {{.*}}*
@@ -22,25 +24,31 @@ void fnc3(image3d_t img) {}
 // CHECK: @fnc3(%opencl.image3d_t {{.*}}*
 
 void fnc4smp(sampler_t s) {}
-// CHECK: @fnc4smp(%opencl.sampler_t* byval
+// CHECK: define spir_func void @fnc4smp(i32
+// CHECK-SAMPLER-TYPE: define spir_func void @fnc4smp(%opencl.sampler_t* byval
 
 kernel void foo(image1d_t img) {
-  // CHECK: define spir_kernel void @foo(%opencl.image1d_t {{.*}}*
+// CHECK: define spir_kernel void @foo(%opencl.image1d_t {{.*}}*
+// CHECK-SAMPLER-TYPE: define spir_kernel void @foo(%opencl.image1d_t {{.*}}*
 
   sampler_t smp = 5;
-  // CHECK: [[SMP_PTR:%[A-Za-z0-9_\.]+]] = alloca %opencl.sampler_t
+  // CHECK: alloca i32
+  // CHECK-SAMPLER-TYPE: [[SMP_PTR:%[A-Za-z0-9_\.]+]] = alloca %opencl.sampler_t
 
 	event_t evt;
   // CHECK: alloca %opencl.event_t*
 
   fnc4smp(smp);
-  // CHECK: store %opencl.sampler_t { i32 5 }, %opencl.sampler_t* [[SMP_PTR]]
-  // CHECK: call spir_func void @fnc4smp(%opencl.sampler_t* byval [[SMP_PTR]])
+  // CHECK: store i32 5,
+  // CHECK: call spir_func void @fnc4smp(i32
+  // CHECK-SAMPLER-TYPE: store %opencl.sampler_t { i32 5 }, %opencl.sampler_t* [[SMP_PTR]]
+  // CHECK-SAMPLER-TYPE: call spir_func void @fnc4smp(%opencl.sampler_t* byval [[SMP_PTR]])
 
   fnc4smp(glb_smp);
-  // CHECK: [[SMP:%[A-Za-z0-9_\.]+]] = load %opencl.sampler_t addrspace(2)* @glb_smp
-  // CHECK: store %opencl.sampler_t [[SMP]], %opencl.sampler_t* [[TMP:%[A-Za-z0-9_\.]+]]
-  // CHECK: call spir_func void @fnc4smp(%opencl.sampler_t* byval [[TMP]])
+  // CHECK: call spir_func void @fnc4smp(i32
+  // CHECK-SAMPLER-TYPE: [[SMP:%[A-Za-z0-9_\.]+]] = load %opencl.sampler_t addrspace(2)* @glb_smp
+  // CHECK-SAMPLER-TYPE: store %opencl.sampler_t [[SMP]], %opencl.sampler_t* [[TMP:%[A-Za-z0-9_\.]+]]
+  // CHECK-SAMPLER-TYPE: call spir_func void @fnc4smp(%opencl.sampler_t* byval [[TMP]])
 }
 
 void __attribute__((overloadable)) bad1(image1d_t b, image2d_t c, image2d_t d) {}

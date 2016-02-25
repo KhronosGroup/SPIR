@@ -1384,7 +1384,8 @@ static void CheckAggExprForMemSetUse(AggValueSlot &Slot, const Expr *E,
 /// the value of the aggregate expression is not needed.  If VolatileDest is
 /// true, DestPtr cannot be 0.
 void CodeGenFunction::EmitAggExpr(const Expr *E, AggValueSlot Slot) {
-  assert(E && hasAggregateEvaluationKind(E->getType()) &&
+  assert(E && hasAggregateEvaluationKind(E->getType(),
+                                         getLangOpts().CLKeepSamplerType) &&
          "Invalid aggregate expression to emit");
   assert((Slot.getAddr() != nullptr || Slot.isIgnored()) &&
          "slot has bits but no address");
@@ -1464,7 +1465,7 @@ void CodeGenFunction::EmitAggregateCopy(llvm::Value *DestPtr,
   // we need to use a different call here.  We use isVolatile to indicate when
   // either the source or the destination is volatile.
 
-  if(Ty->isSamplerT()) {
+  if(Ty->isSamplerT() && CGM.getLangOpts().CLKeepSamplerType) {
     llvm::LoadInst *src_smp = Builder.CreateLoad(SrcPtr);
     Builder.CreateStore(src_smp, DestPtr);
     return;

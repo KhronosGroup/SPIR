@@ -2261,7 +2261,8 @@ void CastOperation::CheckCStyleCast() {
       return;
     }
 
-    if(SrcType->isIntegerType() && DestType->isSamplerT()) {
+    if (SrcType->isIntegerType() && DestType->isSamplerT() &&
+        Self.getLangOpts().CLKeepSamplerType) {
       Kind = CK_IntToOCLSampler;
       return;
     }

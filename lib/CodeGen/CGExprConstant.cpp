@@ -660,6 +660,8 @@ public:
       return C;
 
     case CK_IntToOCLSampler: {
+      if (!CGM.getLangOpts().CLKeepSamplerType)
+        return C;
       llvm::StructType* STy = CGM.getModule().getTypeByName("opencl.sampler_t");
       if(STy == nullptr) {
         STy = llvm::StructType::create(CGM.getLLVMContext(), C->getType(),

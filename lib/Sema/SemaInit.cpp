@@ -4485,7 +4485,9 @@ static bool TryOCLSamplerInitialization(Sema &S,
                                         InitializationSequence &Sequence,
                                         QualType DestType,
                                         Expr *Initializer) {
-  if (!S.getLangOpts().OpenCL || !DestType->isSamplerT())
+  if (!S.getLangOpts().OpenCL || !DestType->isSamplerT() ||
+      (!Initializer->isIntegerConstantExpr(S.getASTContext()) &&
+       !S.getLangOpts().CLKeepSamplerType))
     return false;
 
   Sequence.AddOCLSamplerInitStep(DestType);
@@ -6372,7 +6374,8 @@ InitializationSequence::Perform(Sema &S,
       bool isConst = CurInit.get()->isConstantInitializer(S.Context, false);
       InitializedEntity::EntityKind EntityKind = Entity.getKind();
 
-      if (SourceType->isSamplerT() && DestType->isSamplerT()) {
+      if (SourceType->isSamplerT() && DestType->isSamplerT() &&
+          S.getLangOpts().CLKeepSamplerType) {
         // copy-assignment or copy-initialization
       }
       else if (EntityKind == InitializedEntity::EK_Variable ||
@@ -6386,13 +6389,19 @@ InitializationSequence::Perform(Sema &S,
       } else
         llvm_unreachable("Invalid EntityKind!");
 
-      ExprResult Result = CurInit;
-      Sema::AssignConvertType ConvTy =
+
+      if(S.getLangOpts().CLKeepSamplerType) {
+        ExprResult Result = CurInit;
         S.CheckSingleAssignmentConstraints(Step->Type, Result, true,
-            Entity.getKind() == InitializedEntity::EK_Parameter_CF_Audited);
-      if (Result.isInvalid())
-        return ExprError();
-      CurInit = Result;
+          Entity.getKind() == InitializedEntity::EK_Parameter_CF_Audited);
+        if (Result.isInvalid())
+          return ExprError();
+        CurInit = Result;
+      } else {
+        CurInit = S.ImpCastExprToType(CurInit.get(), Step->Type,
+                                      CK_IntToOCLSampler,
+                                      CurInit.get()->getValueKind());
+      }
       break;
     }
     case SK_OCLZeroEvent: {
