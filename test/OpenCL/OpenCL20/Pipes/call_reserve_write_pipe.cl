@@ -11,14 +11,14 @@ kernel void test_reserved_write_pipe(global int *Dst, read_only pipe int OutPipe
   IntegerWidth iw;
   iw.Long = 0;
   // CHECK:  zext i8 %{{.*}} to i32
-  // CHECK: call %opencl.reserve_id_t* @_Z18reserve_write_pipePU3AS110ocl_pipe_tji(%opencl.pipe_t addrspace(1)* %{{.*}}, i32 %{{.*}}, i32 4)
+  // CHECK: call %opencl.reserve_id_t* @_Z18reserve_write_pipePU3AS18ocl_pipejjj(%opencl.pipe_t addrspace(1)* %{{.*}}, i32 %{{.*}}, i32 4, i32 4)
   reserve_id_t id = reserve_write_pipe (OutPipe, iw.Char);
   // CHECK:  zext i16 %{{.*}} to i32
-  // CHECK: call %opencl.reserve_id_t* @_Z18reserve_write_pipePU3AS110ocl_pipe_tji(%opencl.pipe_t addrspace(1)* %{{.*}}, i32 %{{.*}}, i32 4)
+  // CHECK: call %opencl.reserve_id_t* @_Z18reserve_write_pipePU3AS18ocl_pipejjj(%opencl.pipe_t addrspace(1)* %{{.*}}, i32 %{{.*}}, i32 4, i32 4)
   id = reserve_write_pipe (OutPipe, iw.Short);
-  // CHECK: call %opencl.reserve_id_t* @_Z18reserve_write_pipePU3AS110ocl_pipe_tji(%opencl.pipe_t addrspace(1)* %{{.*}}, i32 %{{.*}}, i32 4)
+  // CHECK: call %opencl.reserve_id_t* @_Z18reserve_write_pipePU3AS18ocl_pipejjj(%opencl.pipe_t addrspace(1)* %{{.*}}, i32 %{{.*}}, i32 4, i32 4)
   id = reserve_write_pipe (OutPipe, iw.Int);
   // CHECK:  trunc i64 %{{.*}} to i32
-  // CHECK: call %opencl.reserve_id_t* @_Z18reserve_write_pipePU3AS110ocl_pipe_tji(%opencl.pipe_t addrspace(1)* %{{.*}}, i32 %{{.*}}, i32 4)
+  // CHECK: call %opencl.reserve_id_t* @_Z18reserve_write_pipePU3AS18ocl_pipejjj(%opencl.pipe_t addrspace(1)* %{{.*}}, i32 %{{.*}}, i32 4, i32 4)
   id = reserve_write_pipe (OutPipe, iw.Long);
 }

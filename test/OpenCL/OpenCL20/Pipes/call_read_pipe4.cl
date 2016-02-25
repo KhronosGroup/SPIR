@@ -14,14 +14,14 @@ kernel void test_read_pipe(global int *Dst, read_only pipe int Pipe) {
   IntegerWidth iw;
   iw.Long = 0;
 // CHECK:  zext i8 %{{.*}} to i32
-// CHECK:  call i32 @_Z9read_pipePU3AS110ocl_pipe_t16ocl_reserve_id_tjPU3AS4vi(%opencl.pipe_t addrspace(1)* %{{.*}}, %opencl.reserve_id_t* %{{.*}}, i32 %{{.*}}, i8 addrspace(4)* %{{.*}}, i32 4)
+// CHECK:  call i32 @_Z9read_pipePU3AS18ocl_pipe13ocl_reserveidjPU3AS4vjj(%opencl.pipe_t addrspace(1)* %{{.*}}, %opencl.reserve_id_t* %{{.*}}, i32 %{{.*}}, i8 addrspace(4)* %{{.*}}, i32 4, i32 4)
   read_pipe (Pipe, ID, iw.Char, Dst);
 // CHECK:  zext i16 %{{.*}} to i32
-// CHECK:  call i32 @_Z9read_pipePU3AS110ocl_pipe_t16ocl_reserve_id_tjPU3AS4vi(%opencl.pipe_t addrspace(1)* %{{.*}}, %opencl.reserve_id_t* %{{.*}}, i32 %{{.*}}, i8 addrspace(4)* %{{.*}}, i32 4)
+// CHECK:  call i32 @_Z9read_pipePU3AS18ocl_pipe13ocl_reserveidjPU3AS4vjj(%opencl.pipe_t addrspace(1)* %{{.*}}, %opencl.reserve_id_t* %{{.*}}, i32 %{{.*}}, i8 addrspace(4)* %{{.*}}, i32 4, i32 4)
   read_pipe (Pipe, ID, iw.Short, Dst);
-// CHECK:  call i32 @_Z9read_pipePU3AS110ocl_pipe_t16ocl_reserve_id_tjPU3AS4vi(%opencl.pipe_t addrspace(1)* %{{.*}}, %opencl.reserve_id_t* %{{.*}}, i32 %{{.*}}, i8 addrspace(4)* %{{.*}}, i32 4)
+// CHECK:  call i32 @_Z9read_pipePU3AS18ocl_pipe13ocl_reserveidjPU3AS4vjj(%opencl.pipe_t addrspace(1)* %{{.*}}, %opencl.reserve_id_t* %{{.*}}, i32 %{{.*}}, i8 addrspace(4)* %{{.*}}, i32 4, i32 4)
   read_pipe (Pipe, ID, iw.Int, Dst);
 // CHECK:  trunc i64 %{{.*}} to i32
-// CHECK:  call i32 @_Z9read_pipePU3AS110ocl_pipe_t16ocl_reserve_id_tjPU3AS4vi(%opencl.pipe_t addrspace(1)* %{{.*}}, %opencl.reserve_id_t* %{{.*}}, i32 %{{.*}}, i8 addrspace(4)* %{{.*}}, i32 4)
+// CHECK:  call i32 @_Z9read_pipePU3AS18ocl_pipe13ocl_reserveidjPU3AS4vjj(%opencl.pipe_t addrspace(1)* %{{.*}}, %opencl.reserve_id_t* %{{.*}}, i32 %{{.*}}, i8 addrspace(4)* %{{.*}}, i32 4, i32 4)
   read_pipe (Pipe, ID, iw.Long, Dst);
 }
