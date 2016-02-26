@@ -4486,8 +4486,7 @@ static bool TryOCLSamplerInitialization(Sema &S,
                                         QualType DestType,
                                         Expr *Initializer) {
   if (!S.getLangOpts().OpenCL || !DestType->isSamplerT() ||
-      (!Initializer->isIntegerConstantExpr(S.getASTContext()) &&
-       !S.getLangOpts().CLKeepSamplerType))
+    !Initializer->isIntegerConstantExpr(S.getASTContext()))
     return false;
 
   Sequence.AddOCLSamplerInitStep(DestType);
@@ -6374,34 +6373,19 @@ InitializationSequence::Perform(Sema &S,
       bool isConst = CurInit.get()->isConstantInitializer(S.Context, false);
       InitializedEntity::EntityKind EntityKind = Entity.getKind();
 
-      if (SourceType->isSamplerT() && DestType->isSamplerT() &&
-          S.getLangOpts().CLKeepSamplerType) {
-        // copy-assignment or copy-initialization
-      }
-      else if (EntityKind == InitializedEntity::EK_Variable ||
-               EntityKind == InitializedEntity::EK_Parameter) {
+      if (EntityKind == InitializedEntity::EK_Variable ||
+          EntityKind == InitializedEntity::EK_Parameter) {
         if (!isConst)
           S.Diag(Kind.getLocation(), diag::err_sampler_initializer_not_constant);
-        if (!SourceType->isIntegerType() ||
-            32 != S.Context.getIntWidth(SourceType))
+        else if (!SourceType->isIntegerType())
           S.Diag(Kind.getLocation(), diag::err_sampler_initializer_not_integer)
             << SourceType;
       } else
         llvm_unreachable("Invalid EntityKind!");
 
-
-      if(S.getLangOpts().CLKeepSamplerType) {
-        ExprResult Result = CurInit;
-        S.CheckSingleAssignmentConstraints(Step->Type, Result, true,
-          Entity.getKind() == InitializedEntity::EK_Parameter_CF_Audited);
-        if (Result.isInvalid())
-          return ExprError();
-        CurInit = Result;
-      } else {
-        CurInit = S.ImpCastExprToType(CurInit.get(), Step->Type,
-                                      CK_IntToOCLSampler,
-                                      CurInit.get()->getValueKind());
-      }
+      CurInit = S.ImpCastExprToType(CurInit.get(), Step->Type,
+                                    CK_IntToOCLSampler,
+                                    CurInit.get()->getValueKind());
       break;
     }
     case SK_OCLZeroEvent: {

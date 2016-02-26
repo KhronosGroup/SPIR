@@ -889,8 +889,7 @@ CodeGenFunction::EmitAutoVarAlloca(const VarDecl &D) {
     // isConstantInitializer produces wrong answers for structs with
     // reference or bitfield members, and a few other cases, and checking
     // for POD-ness protects us from some of these.
-    if (D.getInit() && (Ty->isArrayType() || Ty->isRecordType() ||
-                       (Ty->isSamplerT() && getLangOpts().CLKeepSamplerType)) &&
+    if (D.getInit() && (Ty->isArrayType() || Ty->isRecordType()) &&
         (D.isConstexpr() ||
          ((Ty.isPODType(getContext()) ||
            getContext().getBaseElementType(Ty)->isObjCObjectPointerType()) &&
@@ -1125,11 +1124,6 @@ void CodeGenFunction::EmitAutoVarInit(const AutoVarEmission &emission) {
     constant = CGM.EmitConstantInit(D, this);
   }
 
-  if (constant && type->isSamplerT() && getLangOpts().CLKeepSamplerType) {
-    Builder.CreateStore(constant, Loc);
-    return;
-  }
-
   if (!constant) {
     LValue lv = MakeAddrLValue(Loc, type, alignment);
     lv.setNonGC(true);
@@ -1209,7 +1203,7 @@ void CodeGenFunction::EmitExprAsInit(const Expr *init, const ValueDecl *D,
     EmitStoreThroughLValue(rvalue, lvalue, true);
     return;
   }
-  switch (getEvaluationKind(type, getLangOpts().CLKeepSamplerType)) {
+  switch (getEvaluationKind(type)) {
   case TEK_Scalar:
     EmitScalarInit(init, D, lvalue, capturedByInit);
     return;
@@ -1685,8 +1679,7 @@ void CodeGenFunction::EmitParmDecl(const VarDecl &D, llvm::Value *Arg,
 
   llvm::Value *DeclPtr;
   bool DoStore = false;
-  bool IsScalar = hasScalarEvaluationKind(Ty,
-                                          CGM.getLangOpts().CLKeepSamplerType);
+  bool IsScalar = hasScalarEvaluationKind(Ty);
   CharUnits Align = getContext().getDeclAlign(&D);
   // If we already have a pointer to the argument, reuse the input pointer.
   if (ArgIsPointer) {
