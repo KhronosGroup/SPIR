@@ -1746,7 +1746,7 @@ void CodeGenFunction::EmitFunctionProlog(const CGFunctionInfo &FI,
       assert(NumIRArgs == 1);
       llvm::Value *V = FnArgs[FirstIRArg];
 
-      if (!hasScalarEvaluationKind(Ty, getLangOpts().CLKeepSamplerType)) {
+      if (!hasScalarEvaluationKind(Ty)) {
         // Aggregates and complex variables are accessed by reference.  All we
         // need to do is realign the value, if requested
         if (ArgI.getIndirectRealign()) {
@@ -2763,8 +2763,7 @@ void CodeGenFunction::EmitCallArg(CallArgList &args, const Expr *E,
     return args.add(EmitReferenceBindingToExpr(E), type);
   }
 
-  bool HasAggregateEvalKind =
-    hasAggregateEvaluationKind(type, CGM.getLangOpts().CLKeepSamplerType);
+  bool HasAggregateEvalKind = hasAggregateEvaluationKind(type);
 
   // In the Microsoft C++ ABI, aggregate arguments are destructed by the callee.
   // However, we still have to push an EH-only cleanup in case we unwind before

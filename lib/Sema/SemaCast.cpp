@@ -2261,12 +2261,6 @@ void CastOperation::CheckCStyleCast() {
       return;
     }
 
-    if (SrcType->isIntegerType() && DestType->isSamplerT() &&
-        Self.getLangOpts().CLKeepSamplerType) {
-      Kind = CK_IntToOCLSampler;
-      return;
-    }
-
     // Reject any other conversions to non-scalar types.
     Self.Diag(OpRange.getBegin(), diag::err_typecheck_cond_expect_scalar)
       << DestType << SrcExpr.get()->getSourceRange();
