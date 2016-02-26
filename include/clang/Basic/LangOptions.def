@@ -222,6 +222,7 @@ LANGOPT(SanitizeAddressFieldPadding, 2, 0, "controls how aggressive is ASan "
                                            "aggressive, 2: more aggressive)")
 
 LANGOPT(CLEnableHalf            , 1, 0, "cl-enable-half flag used")
+LANGOPT(CLKeepSamplerType, 1, 0, "Preserve type of sampler variables in emitted SPIR")
 
 #undef LANGOPT
 #undef COMPATIBLE_LANGOPT

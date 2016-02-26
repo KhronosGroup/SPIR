@@ -605,7 +605,8 @@ def cl_enable_half : Flag<["-"], "cl-enable-half">,
 // SPIR generator options
 def cl_spir_compile_options : Separate<["-"], "cl-spir-compile-options">,
   HelpText<"SPIR compilation options to record in metadata">;
-
+def cl_keep_sampler_type : Flag<["-"], "cl-keep-sampler-type">,
+  HelpText<"OpenCL only. Preserve type of sampler variables in emitted IR">;
 //===----------------------------------------------------------------------===//
 // CUDA Options
 //===----------------------------------------------------------------------===//

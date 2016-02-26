@@ -118,7 +118,7 @@ void CodeGenFunction::EmitIgnoredExpr(const Expr *E) {
 RValue CodeGenFunction::EmitAnyExpr(const Expr *E,
                                     AggValueSlot aggSlot,
                                     bool ignoreResult) {
-  switch (getEvaluationKind(E->getType())) {
+  switch (getEvaluationKind(E->getType(), getLangOpts().CLKeepSamplerType)) {
   case TEK_Scalar:
     return RValue::get(EmitScalarExpr(E, ignoreResult));
   case TEK_Complex:
@@ -137,7 +137,7 @@ RValue CodeGenFunction::EmitAnyExpr(const Expr *E,
 RValue CodeGenFunction::EmitAnyExprToTemp(const Expr *E) {
   AggValueSlot AggSlot = AggValueSlot::ignored();
 
-  if (hasAggregateEvaluationKind(E->getType()))
+  if (hasAggregateEvaluationKind(E->getType(), getLangOpts().CLKeepSamplerType))
     AggSlot = CreateAggTemp(E->getType(), "agg.tmp");
   return EmitAnyExpr(E, AggSlot);
 }

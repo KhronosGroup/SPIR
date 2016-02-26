@@ -1379,14 +1379,17 @@ public:
 
   /// hasAggregateLLVMType - Return true if the specified AST type will map into
   /// an aggregate LLVM type or is void.
-  static TypeEvaluationKind getEvaluationKind(QualType T);
+  static TypeEvaluationKind getEvaluationKind(QualType T,
+                                              bool keepSamplerType = false);
 
-  static bool hasScalarEvaluationKind(QualType T) {
-    return getEvaluationKind(T) == TEK_Scalar;
+  static bool hasScalarEvaluationKind(QualType T,
+                                      bool keepSamplerType = false) {
+    return getEvaluationKind(T, keepSamplerType) == TEK_Scalar;
   }
 
-  static bool hasAggregateEvaluationKind(QualType T) {
-    return getEvaluationKind(T) == TEK_Aggregate;
+  static bool hasAggregateEvaluationKind(QualType T,
+                                         bool keepSamplerType = false) {
+    return getEvaluationKind(T, keepSamplerType) == TEK_Aggregate;
   }
 
   /// createBasicBlock - Create an LLVM basic block.
