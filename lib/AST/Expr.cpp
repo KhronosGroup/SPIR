@@ -1672,6 +1672,8 @@ const char *CastExpr::getCastKindName() const {
     return "ZeroToOCLQueue";
   case CK_AddressSpaceConversion:
     return "AddressSpaceConversion";
+  case CK_IntToOCLSampler:
+    return "IntToOCLSampler";
   }
 
   llvm_unreachable("Unhandled cast kind!");
