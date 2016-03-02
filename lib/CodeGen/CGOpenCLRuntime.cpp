@@ -141,12 +141,12 @@ llvm::Value *CGOpenCLRuntime::getPipeElemAlign(const Expr *PipeArg) {
 Ocl20Mangler::Ocl20Mangler(llvm::SmallVectorImpl<char>& SS): MangledString(&SS) {}
 
 Ocl20Mangler& Ocl20Mangler::appendReservedId() {
-  this->appendString("16ocl_reserve_id_t");
+  this->appendString("13ocl_reserveid");
   return *this;
 }
 
 Ocl20Mangler& Ocl20Mangler::appendPipe() {
-  this->appendString("10ocl_pipe_t");
+  this->appendString("8ocl_pipe");
   return *this;
 }
 

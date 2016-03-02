@@ -1651,6 +1651,8 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
     Value *Arg0 = EmitScalarExpr(E->getArg(0)),
           *Arg1 = EmitScalarExpr(E->getArg(1));
     Value *PacketSize = CGOpenCLRuntime(CGM).getPipeElemSize(E->getArg(0));
+    Value *PacketAlign = CGOpenCLRuntime(CGM).getPipeElemAlign(E->getArg(0));
+
     llvm::SmallString<128> Out;
 
     // Type of the packet parameter.
@@ -1663,37 +1665,38 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
       SmallString<64> SS;
       Ocl20Mangler Mangler(SS);
       Mangler.appendPointer(1).appendPipe().appendPointer(4).appendVoid().
-              appendInt();
+              appendUint().appendUint();
 
       llvm::StringRef ManglerRef = SS.str();
       Twine NameTwine(NamePrefix, ManglerRef);
       StringRef Name = NameTwine.toStringRef(Out);
       // Re-Creating the function type for this call, since the original type
       // is variadic, which we convert to a specific type to match this call.
-      llvm::Type *ArgTys[] = {Arg0->getType(), I8PTy, Int32Ty};
+      llvm::Type *ArgTys[] = {Arg0->getType(), I8PTy, Int32Ty, Int32Ty};
       llvm::FunctionType *FTy = llvm::FunctionType::get(
                                             Int32Ty,
                                             llvm::ArrayRef<llvm::Type*>(ArgTys),
                                             false);
       Value *BCast = Builder.CreatePointerCast(Arg1, I8PTy);
-      return RValue::get(Builder.CreateCall3(CGM.CreateRuntimeFunction(FTy,
+      return RValue::get(Builder.CreateCall4(CGM.CreateRuntimeFunction(FTy,
                                                                        Name),
                                              Arg0,
                                              BCast,
-                                             PacketSize));
+                                             PacketSize,
+                                             PacketAlign));
     } else {
       assert(4 == E->getNumArgs() && "Illegal number of parameters to pipe function");
 
       SmallString<64> SS;
       Ocl20Mangler Mangler(SS);
       Mangler.appendPointer(1).appendPipe().appendReservedId().
-              appendUint().appendPointer(4).appendVoid().appendInt();
+              appendUint().appendPointer(4).appendVoid().appendUint().appendUint();
 
       llvm::StringRef ManglerRef = SS.str();
       Twine NameTwine(NamePrefix, ManglerRef);
       StringRef Name = NameTwine.toStringRef(Out);
       llvm::Type *ArgTys[] = {Arg0->getType(), Arg1->getType(), Int32Ty, I8PTy,
-                              Int32Ty};
+                              Int32Ty, Int32Ty};
       Value *Arg2 = EmitScalarExpr(E->getArg(2)),
             *Arg3 = EmitScalarExpr(E->getArg(3));
       llvm::FunctionType *FTy = llvm::FunctionType::get(
@@ -1705,13 +1708,10 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
       // we may need to cast it.
       if (Arg2->getType() != Int32Ty)
         Arg2 = Builder.CreateZExtOrTrunc(Arg2, Int32Ty);
-      return RValue::get(Builder.CreateCall5(CGM.CreateRuntimeFunction(FTy,
+      Value *Args[] = {Arg0, Arg1, Arg2, BCast, PacketSize, PacketAlign};
+      return RValue::get(Builder.CreateCall(CGM.CreateRuntimeFunction(FTy,
                                                                       Name),
-                                             Arg0,
-                                             Arg1,
-                                             Arg2,
-                                             BCast,
-                                             PacketSize));
+                                            Args));
     }
   }
   case Builtin::BIreserve_read_pipe:
@@ -1737,7 +1737,7 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
 
     SmallString<64> SS;
     Ocl20Mangler Mangler(SS);
-    Mangler.appendPointer(1).appendPipe().appendUint().appendInt();
+    Mangler.appendPointer(1).appendPipe().appendUint().appendUint().appendUint();
     llvm::StringRef ManglerRef = SS.str();
     llvm::Twine NameTwine(NamePrefix, ManglerRef);
 
@@ -1746,12 +1746,13 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
     CGOpenCLRuntime CGOcl(CGM);
 
     Value *PacketSize = CGOcl.getPipeElemSize(E->getArg(0));
+    Value *PacketAlign = CGOpenCLRuntime(CGM).getPipeElemAlign(E->getArg(0));
     Value *Arg0 = EmitScalarExpr(E->getArg(0)),
           *Arg1 = EmitScalarExpr(E->getArg(1));
     llvm::Type *ReservedIDTy = ConvertType(getContext().OCLReserveIdTy);
 
-    // Building the fucntion's prototype.
-    llvm::Type *ArgTys[] = {Arg0->getType(), Int32Ty, Int32Ty};
+    // Building the function's prototype.
+    llvm::Type *ArgTys[] = {Arg0->getType(), Int32Ty, Int32Ty, Int32Ty};
     llvm::FunctionType *FTy = llvm::FunctionType::get(
                                             ReservedIDTy,
                                             llvm::ArrayRef<llvm::Type*>(ArgTys),
@@ -1760,10 +1761,11 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
     // we may need to cast it.
     if (Arg1->getType() != Int32Ty)
       Arg1 = Builder.CreateZExtOrTrunc(Arg1, Int32Ty);
-    return RValue::get( Builder.CreateCall3(CGM.CreateRuntimeFunction(FTy, Name),
+    return RValue::get( Builder.CreateCall4(CGM.CreateRuntimeFunction(FTy, Name),
                                            Arg0,
                                            Arg1,
-                                           PacketSize));
+                                           PacketSize,
+                                           PacketAlign));
   }
   case Builtin::BIcommit_read_pipe:
   case Builtin::BIcommit_write_pipe:
@@ -1788,7 +1790,8 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
 
     SmallString<64> SS;
     Ocl20Mangler Mangler(SS);
-    Mangler.appendPointer(1).appendPipe().appendReservedId().appendInt();
+    Mangler.appendPointer(1).appendPipe().appendReservedId()
+        .appendUint().appendUint();
     llvm::StringRef ManglerRef = SS.str();
     llvm::Twine NameTwine(NamePrefix, ManglerRef);
 
@@ -1797,20 +1800,22 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
     CGOpenCLRuntime CGOcl(CGM);
 
     Value *PacketSize = CGOcl.getPipeElemSize(E->getArg(0));
+    Value *PacketAlign = CGOcl.getPipeElemAlign(E->getArg(0));
     Value *Arg0 = EmitScalarExpr(E->getArg(0)),
           *Arg1 = EmitScalarExpr(E->getArg(1));
 
     // Building the function's prototype.
-    llvm::Type *ArgTys[] = {Arg0->getType(), Arg1->getType(), Int32Ty};
+    llvm::Type *ArgTys[] = {Arg0->getType(), Arg1->getType(), Int32Ty, Int32Ty};
     llvm::FunctionType *FTy = llvm::FunctionType::get(
                                         llvm::Type::getVoidTy(getLLVMContext()),
                                         llvm::ArrayRef<llvm::Type*>(ArgTys),
                                         false);
 
-    return RValue::get(Builder.CreateCall3(CGM.CreateRuntimeFunction(FTy, Name),
+    return RValue::get(Builder.CreateCall4(CGM.CreateRuntimeFunction(FTy, Name),
                                            Arg0,
                                            Arg1,
-                                           PacketSize));
+                                           PacketSize,
+                                           PacketAlign));
   }
   case Builtin::BI__readfsdword: {
     Value *IntToPtr =
@@ -1830,7 +1835,7 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
       NamePrefix = "_Z20get_pipe_max_packets";
     SmallString<64> SS;
     Ocl20Mangler Mangler(SS);
-    Mangler.appendPointer(1).appendPipe().appendInt();
+    Mangler.appendPointer(1).appendPipe().appendUint().appendUint();
     llvm::StringRef ManglerRef = SS.str();
     llvm::Twine NameTwine(NamePrefix, ManglerRef);
     llvm::SmallString<128> Out;
@@ -1839,15 +1844,17 @@ RValue CodeGenFunction::EmitBuiltinExpr(const FunctionDecl *FD,
     // Building the function's prototype.
     CGOpenCLRuntime CGOcl(CGM);
     Value *PacketSize = CGOcl.getPipeElemSize(E->getArg(0));
+    Value *PacketAlign = CGOcl.getPipeElemAlign(E->getArg(0));
     Value *Arg0 = EmitScalarExpr(E->getArg(0));
-    llvm::Type *ArgTys[] = {Arg0->getType(), Int32Ty};
+    llvm::Type *ArgTys[] = {Arg0->getType(), Int32Ty, Int32Ty};
     llvm::FunctionType *FTy = llvm::FunctionType::get(Int32Ty,
                                            llvm::ArrayRef<llvm::Type*>(ArgTys),
                                            false);
 
-    return RValue::get(Builder.CreateCall2(CGM.CreateRuntimeFunction(FTy, Name),
+    return RValue::get(Builder.CreateCall3(CGM.CreateRuntimeFunction(FTy, Name),
                                            Arg0,
-                                           PacketSize));
+                                           PacketSize,
+                                           PacketAlign));
   }
   }
 
