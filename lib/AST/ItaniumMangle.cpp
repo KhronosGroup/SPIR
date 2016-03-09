@@ -1859,9 +1859,7 @@ void CXXNameMangler::mangleType(QualType T) {
   Qualifiers quals = split.Quals;
   const Type *ty = split.Ty;
 
-  // OpenCL vector types like int4 are built-in types and they aren't substitutable.
-  // Current implementation defines them as ExtVectorType, which is not a built-in type.
-  bool isSubstitutable = quals || (!isa<BuiltinType>(T) && !(Context.getASTContext().getLangOpts().OpenCL && isa<ExtVectorType>(T)));
+  bool isSubstitutable = quals || !isa<BuiltinType>(T);
   if (isSubstitutable && mangleSubstitution(T))
     return;
 
