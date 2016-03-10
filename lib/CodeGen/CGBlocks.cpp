@@ -744,14 +744,8 @@ llvm::Value *CodeGenFunction::EmitBlockLiteral(const CGBlockInfo &blockInfo) {
   blockFn = llvm::ConstantExpr::getBitCast(blockFn, VoidPtrTy);
 
   llvm::AllocaInst *blockAddr = blockInfo.Address;
-  assert(blockAddr && "block has no address!");
 
   if (CGM.getLangOpts().OpenCL) {
-    llvm::Type *ArgTys[] = {VoidPtrTy, IntTy, IntTy, VoidPtrTy};
-    llvm::FunctionType *FTy =
-        llvm::FunctionType::get(CGM.getOpenCLRuntime().getBlockType(),
-                                llvm::ArrayRef<llvm::Type *>(ArgTys), false);
-
     if (blockInfo.CanBeGlobal)
       return GenerateOCLBlockBind(blockFn, blockInfo.BlockSize.getQuantity(),
                                   blockInfo.BlockAlign.getQuantity(),
@@ -768,6 +762,8 @@ llvm::Value *CodeGenFunction::EmitBlockLiteral(const CGBlockInfo &blockInfo) {
 
     // Build the block descriptor.
     llvm::Constant *descriptor = buildBlockDescriptor(CGM, blockInfo);
+    blockAddr = blockInfo.Address;
+    assert(blockAddr && "block has no address!");
 
     // Compute the initial on-stack block flags.
     BlockFlags flags = BLOCK_HAS_SIGNATURE;
