@@ -3,11 +3,11 @@
 // Memory ordering values.
 enum {
   memory_order_relaxed = 0,
-  memory_order_consume = 1,
-  memory_order_acquire = 2,
-  memory_order_release = 3,
-  memory_order_acq_rel = 4,
-  memory_order_seq_cst = 5
+  memory_order_acquire = 1,
+  memory_order_release = 2,
+  memory_order_acq_rel = 3,
+  memory_order_seq_cst = 4,
+  memory_order_consume = 5
 };
 
 typedef struct { void *a, *b; } pointer_pair_t;
@@ -67,7 +67,7 @@ void test3(pointer_pair_t pair) {
 // CHECK-NEXT: [[T1:%.*]] = bitcast [[QUAD_T]]* {{%.*}} to i8*
 // CHECK-NEXT: call void @llvm.memcpy.p0i8.p0i8.i64(i8* [[T0]], i8* [[T1]], i64 32, i32 8, i1 false)
 // CHECK-NEXT: [[T0:%.*]] = bitcast [[QUAD_T]]* [[TEMP]] to i8*
-// CHECK-NEXT: call void @__atomic_store(i64 32, i8* bitcast ([[QUAD_T]]* @a_pointer_quad to i8*), i8* [[T0]], i32 5)
+// CHECK-NEXT: call void @__atomic_store(i64 32, i8* bitcast ([[QUAD_T]]* @a_pointer_quad to i8*), i8* [[T0]], i32 4)
 void test4(pointer_quad_t quad) {
   __c11_atomic_store(&a_pointer_quad, quad, memory_order_seq_cst);
 }

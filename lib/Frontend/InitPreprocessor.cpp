@@ -485,11 +485,11 @@ static void InitializePredefinedMacros(const TargetInfo &TI,
 
   // Define macros for the C11 / C++11 memory orderings
   Builder.defineMacro("__ATOMIC_RELAXED", "0");
-  Builder.defineMacro("__ATOMIC_CONSUME", "1");
-  Builder.defineMacro("__ATOMIC_ACQUIRE", "2");
-  Builder.defineMacro("__ATOMIC_RELEASE", "3");
-  Builder.defineMacro("__ATOMIC_ACQ_REL", "4");
-  Builder.defineMacro("__ATOMIC_SEQ_CST", "5");
+  Builder.defineMacro("__ATOMIC_ACQUIRE", "1");
+  Builder.defineMacro("__ATOMIC_RELEASE", "2");
+  Builder.defineMacro("__ATOMIC_ACQ_REL", "3");
+  Builder.defineMacro("__ATOMIC_SEQ_CST", "4");
+  Builder.defineMacro("__ATOMIC_CONSUME", "5");
 
   // Support for #pragma redefine_extname (Sun compatibility)
   Builder.defineMacro("__PRAGMA_REDEFINE_EXTNAME", "1");
