@@ -1583,7 +1583,7 @@ bool Sema::CheckOtherCall(CallExpr *TheCall, const FunctionProtoType *Proto) {
 
 static bool isValidOrderingForOp(int64_t Ordering, AtomicExpr::AtomicOp Op) {
   if (Ordering < AtomicExpr::AO_ABI_memory_order_relaxed ||
-      Ordering > AtomicExpr::AO_ABI_memory_order_seq_cst)
+      Ordering > AtomicExpr::AO_ABI_memory_order_consume)
     return false;
 
   switch (Op) {

@@ -10,8 +10,8 @@
 // Basic IRGen tests for __c11_atomic_* and GNU __atomic_*
 
 typedef enum memory_order {
-  memory_order_relaxed, memory_order_consume, memory_order_acquire,
-  memory_order_release, memory_order_acq_rel, memory_order_seq_cst
+  memory_order_relaxed, memory_order_acquire, memory_order_release,
+  memory_order_acq_rel, memory_order_seq_cst, memory_order_consume
 } memory_order;
 
 int fi1(_Atomic(int) *i) {
@@ -246,47 +246,47 @@ _Atomic(struct foo) bigAtomic;
 void structAtomicStore() {
   // CHECK: @structAtomicStore
   struct foo f = {0};
-  __c11_atomic_store(&bigAtomic, f, 5);
+  __c11_atomic_store(&bigAtomic, f, memory_order_seq_cst);
   // CHECK: call void @__atomic_store(i64 512, i8* bitcast ({{.*}} @bigAtomic to i8*),
 
   struct bar b = {0};
-  __atomic_store(&smallThing, &b, 5);
+  __atomic_store(&smallThing, &b, memory_order_seq_cst);
   // CHECK: call void @__atomic_store(i64 3, i8* {{.*}} @smallThing
 
-  __atomic_store(&bigThing, &f, 5);
+  __atomic_store(&bigThing, &f, memory_order_seq_cst);
   // CHECK: call void @__atomic_store(i64 512, i8* {{.*}} @bigThing
 }
 void structAtomicLoad() {
   // CHECK: @structAtomicLoad
-  struct foo f = __c11_atomic_load(&bigAtomic, 5);
+  struct foo f = __c11_atomic_load(&bigAtomic, memory_order_seq_cst);
   // CHECK: call void @__atomic_load(i64 512, i8* bitcast ({{.*}} @bigAtomic to i8*),
 
   struct bar b;
-  __atomic_load(&smallThing, &b, 5);
+  __atomic_load(&smallThing, &b, memory_order_seq_cst);
   // CHECK: call void @__atomic_load(i64 3, i8* {{.*}} @smallThing
 
-  __atomic_load(&bigThing, &f, 5);
+  __atomic_load(&bigThing, &f, memory_order_seq_cst);
   // CHECK: call void @__atomic_load(i64 512, i8* {{.*}} @bigThing
 }
 struct foo structAtomicExchange() {
   // CHECK: @structAtomicExchange
   struct foo f = {0};
   struct foo old;
-  __atomic_exchange(&f, &bigThing, &old, 5);
+  __atomic_exchange(&f, &bigThing, &old, memory_order_seq_cst);
   // CHECK: call void @__atomic_exchange(i64 512, {{.*}}, i8* bitcast ({{.*}} @bigThing to i8*),
 
-  return __c11_atomic_exchange(&bigAtomic, f, 5);
+  return __c11_atomic_exchange(&bigAtomic, f, memory_order_seq_cst);
   // CHECK: call void @__atomic_exchange(i64 512, i8* bitcast ({{.*}} @bigAtomic to i8*),
 }
 int structAtomicCmpExchange() {
   // CHECK: @structAtomicCmpExchange
-  _Bool x = __atomic_compare_exchange(&smallThing, &thing1, &thing2, 1, 5, 5);
+  _Bool x = __atomic_compare_exchange(&smallThing, &thing1, &thing2, 1, memory_order_seq_cst, memory_order_seq_cst);
   // CHECK: call zeroext i1 @__atomic_compare_exchange(i64 3, {{.*}} @smallThing{{.*}} @thing1{{.*}} @thing2
 
   struct foo f = {0};
   struct foo g = {0};
   g.big[12] = 12;
-  return x & __c11_atomic_compare_exchange_strong(&bigAtomic, &f, g, 5, 5);
+  return x & __c11_atomic_compare_exchange_strong(&bigAtomic, &f, g, memory_order_seq_cst, memory_order_seq_cst);
   // CHECK: call zeroext i1 @__atomic_compare_exchange(i64 512, i8* bitcast ({{.*}} @bigAtomic to i8*),
 }
 

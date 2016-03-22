@@ -355,36 +355,36 @@ void structAtomicStore() {
   // CHECK-LABEL: @structAtomicStore
   struct foo f = {0};
   struct bar b = {0};
-  __atomic_store(&smallThing, &b, 5);
+  __atomic_store(&smallThing, &b, memory_order_seq_cst);
   // CHECK: call void @__atomic_store(i32 3, i8* {{.*}} @smallThing
 
-  __atomic_store(&bigThing, &f, 5);
+  __atomic_store(&bigThing, &f, memory_order_seq_cst);
   // CHECK: call void @__atomic_store(i32 512, i8* {{.*}} @bigThing
 }
 void structAtomicLoad() {
   // CHECK-LABEL: @structAtomicLoad
   struct bar b;
-  __atomic_load(&smallThing, &b, 5);
+  __atomic_load(&smallThing, &b, memory_order_seq_cst);
   // CHECK: call void @__atomic_load(i32 3, i8* {{.*}} @smallThing
 
   struct foo f = {0};
-  __atomic_load(&bigThing, &f, 5);
+  __atomic_load(&bigThing, &f, memory_order_seq_cst);
   // CHECK: call void @__atomic_load(i32 512, i8* {{.*}} @bigThing
 }
 struct foo structAtomicExchange() {
   // CHECK-LABEL: @structAtomicExchange
   struct foo f = {0};
   struct foo old;
-  __atomic_exchange(&f, &bigThing, &old, 5);
+  __atomic_exchange(&f, &bigThing, &old, memory_order_seq_cst);
   // CHECK: call void @__atomic_exchange(i32 512, {{.*}}, i8* bitcast ({{.*}} @bigThing to i8*),
 
-  return __c11_atomic_exchange(&bigAtomic, f, 5);
+  return __c11_atomic_exchange(&bigAtomic, f, memory_order_seq_cst);
   // CHECK: call void @__atomic_exchange(i32 512, i8* bitcast ({{.*}} @bigAtomic to i8*),
 }
 int structAtomicCmpExchange() {
   // CHECK-LABEL: @structAtomicCmpExchange
   // CHECK: %[[x_mem:.*]] = alloca i8
-  _Bool x = __atomic_compare_exchange(&smallThing, &thing1, &thing2, 1, 5, 5);
+  _Bool x = __atomic_compare_exchange(&smallThing, &thing1, &thing2, 1, memory_order_seq_cst, memory_order_seq_cst);
   // CHECK: %[[call1:.*]] = call zeroext i1 @__atomic_compare_exchange(i32 3, {{.*}} @smallThing{{.*}} @thing1{{.*}} @thing2
   // CHECK: %[[zext1:.*]] = zext i1 %[[call1]] to i8
   // CHECK: store i8 %[[zext1]], i8* %[[x_mem]], align 1
@@ -395,7 +395,7 @@ int structAtomicCmpExchange() {
   struct foo f = {0};
   struct foo g = {0};
   g.big[12] = 12;
-  return x & __c11_atomic_compare_exchange_strong(&bigAtomic, &f, g, 5, 5);
+  return x & __c11_atomic_compare_exchange_strong(&bigAtomic, &f, g, memory_order_seq_cst, memory_order_seq_cst);
   // CHECK: %[[call2:.*]] = call zeroext i1 @__atomic_compare_exchange(i32 512, i8* bitcast ({{.*}} @bigAtomic to i8*),
   // CHECK: %[[conv2:.*]] = zext i1 %[[call2]] to i32
   // CHECK: %[[and:.*]] = and i32 %[[conv1]], %[[conv2]]
@@ -445,11 +445,11 @@ void failureOrder(_Atomic(int) *ptr, int *ptr2) {
 void generalFailureOrder(_Atomic(int) *ptr, int *ptr2, int success, int fail) {
   __c11_atomic_compare_exchange_strong(ptr, ptr2, 42, success, fail);
   // CHECK: switch i32 {{.*}}, label %[[MONOTONIC:[0-9a-zA-Z._]+]] [
-  // CHECK-NEXT: i32 1, label %[[ACQUIRE:[0-9a-zA-Z._]+]]
-  // CHECK-NEXT: i32 2, label %[[ACQUIRE]]
-  // CHECK-NEXT: i32 3, label %[[RELEASE:[0-9a-zA-Z._]+]]
-  // CHECK-NEXT: i32 4, label %[[ACQREL:[0-9a-zA-Z._]+]]
-  // CHECK-NEXT: i32 5, label %[[SEQCST:[0-9a-zA-Z._]+]]
+  // CHECK-NEXT: i32 5, label %[[ACQUIRE:[0-9a-zA-Z._]+]]
+  // CHECK-NEXT: i32 1, label %[[ACQUIRE]]
+  // CHECK-NEXT: i32 2, label %[[RELEASE:[0-9a-zA-Z._]+]]
+  // CHECK-NEXT: i32 3, label %[[ACQREL:[0-9a-zA-Z._]+]]
+  // CHECK-NEXT: i32 4, label %[[SEQCST:[0-9a-zA-Z._]+]]
 
   // CHECK: [[MONOTONIC]]
   // CHECK: switch {{.*}}, label %[[MONOTONIC_MONOTONIC:[0-9a-zA-Z._]+]] [
@@ -457,8 +457,8 @@ void generalFailureOrder(_Atomic(int) *ptr, int *ptr2, int success, int fail) {
 
   // CHECK: [[ACQUIRE]]
   // CHECK: switch {{.*}}, label %[[ACQUIRE_MONOTONIC:[0-9a-zA-Z._]+]] [
+  // CHECK-NEXT: i32 5, label %[[ACQUIRE_ACQUIRE:[0-9a-zA-Z._]+]]
   // CHECK-NEXT: i32 1, label %[[ACQUIRE_ACQUIRE:[0-9a-zA-Z._]+]]
-  // CHECK-NEXT: i32 2, label %[[ACQUIRE_ACQUIRE:[0-9a-zA-Z._]+]]
   // CHECK-NEXT: ]
 
   // CHECK: [[RELEASE]]
@@ -467,15 +467,15 @@ void generalFailureOrder(_Atomic(int) *ptr, int *ptr2, int success, int fail) {
 
   // CHECK: [[ACQREL]]
   // CHECK: switch {{.*}}, label %[[ACQREL_MONOTONIC:[0-9a-zA-Z._]+]] [
+  // CHECK-NEXT: i32 5, label %[[ACQREL_ACQUIRE:[0-9a-zA-Z._]+]]
   // CHECK-NEXT: i32 1, label %[[ACQREL_ACQUIRE:[0-9a-zA-Z._]+]]
-  // CHECK-NEXT: i32 2, label %[[ACQREL_ACQUIRE:[0-9a-zA-Z._]+]]
   // CHECK-NEXT: ]
 
   // CHECK: [[SEQCST]]
   // CHECK: switch {{.*}}, label %[[SEQCST_MONOTONIC:[0-9a-zA-Z._]+]] [
+  // CHECK-NEXT: i32 5, label %[[SEQCST_ACQUIRE:[0-9a-zA-Z._]+]]
   // CHECK-NEXT: i32 1, label %[[SEQCST_ACQUIRE:[0-9a-zA-Z._]+]]
-  // CHECK-NEXT: i32 2, label %[[SEQCST_ACQUIRE:[0-9a-zA-Z._]+]]
-  // CHECK-NEXT: i32 5, label %[[SEQCST_SEQCST:[0-9a-zA-Z._]+]]
+  // CHECK-NEXT: i32 4, label %[[SEQCST_SEQCST:[0-9a-zA-Z._]+]]
   // CHECK-NEXT: ]
 
   // CHECK: [[MONOTONIC_MONOTONIC]]
