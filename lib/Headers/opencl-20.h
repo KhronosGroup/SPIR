@@ -3914,6 +3914,7 @@ int4 __attribute__((overloadable)) read_imagei(read_only image3d_t image, sample
 uint4 __attribute__((overloadable)) read_imageui(read_only image3d_t image, sampler_t sampler, int4 coord);
 uint4 __attribute__((overloadable)) read_imageui(read_only image3d_t image, sampler_t sampler, float4 coord);
 
+#if defined(cl_khr_gl_msaa_sharing)
 /**
  * Use the coordinate (cood.xy) and sample to do an
  * element lookup in the 2D multi-sample image specified
@@ -4006,36 +4007,43 @@ float __attribute__((overloadable)) read_imagef(read_only image2d_msaa_depth_t i
 float __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, sampler_t sampler, float2 coord);
 float __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, sampler_t sampler, int2 coord);
 float __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, int2 coord);
+#endif
 
 /**
  * Return the image width in pixels.
  */
 int __attribute__((overloadable)) get_image_width(image2d_t image);
 int __attribute__((overloadable)) get_image_width(image2d_depth_t image);
+int __attribute__((overloadable)) get_image_width(image3d_t image);
+#if defined(cl_khr_gl_msaa_sharing)
 int __attribute__((overloadable)) get_image_width(image2d_msaa_t image);
 int __attribute__((overloadable)) get_image_width(image2d_msaa_depth_t image);
-int __attribute__((overloadable)) get_image_width(image3d_t image);
+#endif
 
 /**
  * Return the image height in pixels.
  */
 int __attribute__((overloadable)) get_image_height(image2d_t image);
 int __attribute__((overloadable)) get_image_height(image2d_depth_t image);
+int __attribute__((overloadable)) get_image_height(image3d_t image);
+#if defined(cl_khr_gl_msaa_sharing)
 int __attribute__((overloadable)) get_image_height(image2d_msaa_t image);
 int __attribute__((overloadable)) get_image_height(image2d_msaa_depth_t image);
-int __attribute__((overloadable)) get_image_height(image3d_t image);
+#endif
 
 /**
  * Return the image depth in pixels.
  */
 int __attribute__((overloadable)) get_image_depth(image3d_t image);
 
+#if defined(cl_khr_gl_msaa_sharing)
 /**
 * Return the number of samples associated with image
 */
 int __attribute__((overloadable)) get_image_num_samples(image2d_msaa_t image);
 int __attribute__((overloadable)) get_image_num_samples(image2d_msaa_depth_t image);
 int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_depth_t image);
+#endif
 
 /**
  * Return the channel data type. Valid values are:
@@ -4099,8 +4107,10 @@ int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_depth
 int __attribute__((overloadable)) get_image_channel_data_type(image2d_t image);
 int __attribute__((overloadable)) get_image_channel_data_type(image3d_t image);
 int __attribute__((overloadable)) get_image_channel_data_type(image2d_depth_t image);
+#if defined(cl_khr_gl_msaa_sharing)
 int __attribute__((overloadable)) get_image_channel_data_type(image2d_msaa_t image);
 int __attribute__((overloadable)) get_image_channel_data_type(image2d_msaa_depth_t image);
+#endif
 
 /**
  * Return the image channel order. Valid values are:
@@ -4121,8 +4131,10 @@ int __attribute__((overloadable)) get_image_channel_data_type(image2d_msaa_depth
 int __attribute__((overloadable)) get_image_channel_order(image2d_t image);
 int __attribute__((overloadable)) get_image_channel_order(image3d_t image);
 int __attribute__((overloadable)) get_image_channel_order(image2d_depth_t image);
+#if defined(cl_khr_gl_msaa_sharing)
 int __attribute__((overloadable)) get_image_channel_order(image2d_msaa_t image);
 int __attribute__((overloadable)) get_image_channel_order(image2d_msaa_depth_t image);
+#endif
 
 /**
  * Return the 2D image width and height as an int2
@@ -4131,8 +4143,10 @@ int __attribute__((overloadable)) get_image_channel_order(image2d_msaa_depth_t i
  */
 int2 __attribute__((overloadable)) get_image_dim(image2d_t image);
 int2 __attribute__((overloadable)) get_image_dim(image2d_depth_t image);
+#if defined(cl_khr_gl_msaa_sharing)
 int2 __attribute__((overloadable)) get_image_dim(image2d_msaa_t image);
 int2 __attribute__((overloadable)) get_image_dim(image2d_msaa_depth_t image);
+#endif
 
 /**
  * Return the 3D image width, height, and depth as an
@@ -12463,6 +12477,7 @@ void __attribute__((overloadable)) write_imagef(write_only image2d_array_t image
 void __attribute__((overloadable)) write_imagei(write_only image2d_array_t image_array, int4 coord, int4 color);
 void __attribute__((overloadable)) write_imageui(write_only image2d_array_t image_array, int4 coord, uint4 color);
 
+#if defined(cl_khr_gl_msaa_sharing)
 /**
  * Use coord.xy and sample to do an element
  * lookup in the 2D multi-sample image layer
@@ -12528,6 +12543,7 @@ uint4 __attribute__((overloadable)) read_imageui(read_only image2d_array_msaa_t 
  * in the description above are undefined.
  */
 float __attribute__((overloadable)) read_imagef(read_only image2d_array_msaa_depth_t image, int4 coord, int sample);
+#endif
 
 /**
  * Use coord.xy to do an element lookup in the
@@ -12602,10 +12618,12 @@ float __attribute__((overloadable)) read_imagef(read_only image2d_array_depth_t 
 void __attribute__((overloadable)) write_imagef(write_only image2d_depth_t image, int2 coord, float color);
 void __attribute__((overloadable)) write_imagef(write_only image2d_array_depth_t image, int4 coord, float color);
 
+#if defined(cl_khr_gl_msaa_sharing)
 /**
  * Return the number of samples associated with image
  */
 int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_t image);
+#endif
 
 /**
  * Return the image width.
@@ -12616,8 +12634,10 @@ int __attribute__((overloadable)) get_image_width(image1d_buffer_t image);
 int __attribute__((overloadable)) get_image_width(image1d_array_t image);
 int __attribute__((overloadable)) get_image_width(image2d_array_t image);
 int __attribute__((overloadable)) get_image_width(image2d_array_depth_t image);
+#if defined(cl_khr_gl_msaa_sharing)
 int __attribute__((overloadable)) get_image_width(image2d_array_msaa_t image);
 int __attribute__((overloadable)) get_image_width(image2d_array_msaa_depth_t image);
+#endif
 
 /**
  * Return the image height.
@@ -12625,8 +12645,10 @@ int __attribute__((overloadable)) get_image_width(image2d_array_msaa_depth_t ima
 
 int __attribute__((overloadable)) get_image_height(image2d_array_t image);
 int __attribute__((overloadable)) get_image_height(image2d_array_depth_t image);
+#if defined(cl_khr_gl_msaa_sharing)
 int __attribute__((overloadable)) get_image_height(image2d_array_msaa_t image);
 int __attribute__((overloadable)) get_image_height(image2d_array_msaa_depth_t image);
+#endif
 
 /**
  * Return the image array size.
@@ -12635,8 +12657,10 @@ int __attribute__((overloadable)) get_image_height(image2d_array_msaa_depth_t im
 size_t __attribute__((overloadable)) get_image_array_size(image1d_array_t image_array);
 size_t __attribute__((overloadable)) get_image_array_size(image2d_array_t image_array);
 size_t __attribute__((overloadable)) get_image_array_size(image2d_array_depth_t image_array);
+#if defined(cl_khr_gl_msaa_sharing)
 size_t __attribute__((overloadable)) get_image_array_size(image2d_array_msaa_t image_array);
 size_t __attribute__((overloadable)) get_image_array_size(image2d_array_msaa_depth_t image_array);
+#endif
 
 /**
  * Return the channel data type. Valid values are:
@@ -12662,8 +12686,10 @@ int __attribute__((overloadable)) get_image_channel_data_type(image1d_buffer_t i
 int __attribute__((overloadable)) get_image_channel_data_type(image1d_array_t image);
 int __attribute__((overloadable)) get_image_channel_data_type(image2d_array_t image);
 int __attribute__((overloadable)) get_image_channel_data_type(image2d_array_depth_t image);
+#if defined(cl_khr_gl_msaa_sharing)
 int __attribute__((overloadable)) get_image_channel_data_type(image2d_array_msaa_t image);
 int __attribute__((overloadable)) get_image_channel_data_type(image2d_array_msaa_depth_t image);
+#endif
 
 /**
  * Return the image channel order. Valid values are:
@@ -12690,8 +12716,10 @@ int __attribute__((overloadable)) get_image_channel_order(image1d_buffer_t image
 int __attribute__((overloadable)) get_image_channel_order(image1d_array_t image);
 int __attribute__((overloadable)) get_image_channel_order(image2d_array_t image);
 int __attribute__((overloadable)) get_image_channel_order(image2d_array_depth_t image);
+#if defined(cl_khr_gl_msaa_sharing)
 int __attribute__((overloadable)) get_image_channel_order(image2d_array_msaa_t image);
 int __attribute__((overloadable)) get_image_channel_order(image2d_array_msaa_depth_t image);
+#endif
 
 /**
  * Return the 2D image width and height as an int2
@@ -12700,8 +12728,10 @@ int __attribute__((overloadable)) get_image_channel_order(image2d_array_msaa_dep
  */
 int2 __attribute__((overloadable)) get_image_dim(image2d_array_t image);
 int2 __attribute__((overloadable)) get_image_dim(image2d_array_depth_t image);
+#if defined(cl_khr_gl_msaa_sharing)
 int2 __attribute__((overloadable)) get_image_dim(image2d_array_msaa_t image);
 int2 __attribute__((overloadable)) get_image_dim(image2d_array_msaa_depth_t image);
+#endif
 
 /**
 * Sampler-less Image Access
