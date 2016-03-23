@@ -11233,12 +11233,14 @@ bool __attribute__((overloadable)) is_valid_reserve_id(reserve_id_t reserve_id);
 #define CLK_PROFILING_COMMAND_EXEC_TIME 0x1
 
 #define MAX_WORK_DIM        3
+#if defined(__clang__) && (__clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 9))
 typedef struct {
     unsigned int workDimension;
     size_t globalWorkOffset[MAX_WORK_DIM];
     size_t globalWorkSize[MAX_WORK_DIM];
     size_t localWorkSize[MAX_WORK_DIM];
 } ndrange_t;
+#endif
 
 ndrange_t __attribute__((overloadable)) ndrange_1D(size_t);
 ndrange_t __attribute__((overloadable)) ndrange_1D(size_t, size_t );
