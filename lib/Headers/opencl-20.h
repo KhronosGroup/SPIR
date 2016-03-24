@@ -12625,6 +12625,7 @@ void __attribute__((overloadable)) write_imagef(write_only image2d_array_depth_t
  * Return the number of samples associated with image
  */
 int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_t image);
+int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_depth_t image);
 #endif
 
 /**

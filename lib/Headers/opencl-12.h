@@ -6478,7 +6478,7 @@ double16 const_func __attribute__((overloadable)) shuffle2(double16 x, double16 
 float4 __attribute__((overloadable)) const_func read_imagef(__read_only image2d_t image, sampler_t sampler, int2 coord);
 float4 __attribute__((overloadable)) const_func read_imagef(__read_only image2d_t image, sampler_t sampler, float2 coord);
 
-#if defines(cl_khr_depth_images)
+#if defined(cl_khr_depth_images)
 float __attribute__((overloadable)) const_func read_imagef(__read_only image2d_depth_t image, sampler_t sampler, int2 coord);
 float __attribute__((overloadable)) const_func read_imagef(__read_only image2d_depth_t image, sampler_t sampler, float2 coord);
 float __attribute__((overloadable)) const_func read_imagef(__read_only image2d_depth_t image, int2 coord);
@@ -14134,6 +14134,92 @@ void __attribute__((overloadable)) prefetch(const __global half3 *p, size_t num_
 void __attribute__((overloadable)) prefetch(const __global half4 *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global half8 *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global half16 *p, size_t num_elements);
+
+// vload
+half2 __attribute__((overloadable)) vload2(size_t offset, const __global half *p);
+half3 __attribute__((overloadable)) vload3(size_t offset, const __global half *p);
+half4 __attribute__((overloadable)) vload4(size_t offset, const __global half *p);
+half8 __attribute__((overloadable)) vload8(size_t offset, const __global half *p);
+half16 __attribute__((overloadable)) vload16(size_t offset, const __global half *p);
+half2 __attribute__((overloadable)) vload2(size_t offset, const __local half *p);
+half3 __attribute__((overloadable)) vload3(size_t offset, const __local half *p);
+half4 __attribute__((overloadable)) vload4(size_t offset, const __local half *p);
+half8 __attribute__((overloadable)) vload8(size_t offset, const __local half *p);
+half16 __attribute__((overloadable)) vload16(size_t offset, const __local half *p);
+half2 __attribute__((overloadable)) vload2(size_t offset, const __private half *p);
+half3 __attribute__((overloadable)) vload3(size_t offset, const __private half *p);
+half4 __attribute__((overloadable)) vload4(size_t offset, const __private half *p);
+half8 __attribute__((overloadable)) vload8(size_t offset, const __private half *p);
+half16 __attribute__((overloadable)) vload16(size_t offset, const __private half *p);
+half2 __attribute__((overloadable)) vload2(size_t offset, const __constant half *p);
+half3 __attribute__((overloadable)) vload3(size_t offset, const __constant half *p);
+half4 __attribute__((overloadable)) vload4(size_t offset, const __constant half *p);
+half8 __attribute__((overloadable)) vload8(size_t offset, const __constant half *p);
+half16 __attribute__((overloadable)) vload16(size_t offset, const __constant half *p);
+
+// vstore
+void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __private half *p);
 #endif // cl_khr_fp16
+
+#if defined(cl_khr_gl_msaa_sharing)
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_msaa_t image, int2 coord, int sample);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_msaa_t image, int2 coord, int sample);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_msaa_t image, int2 coord, int sample);
+
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_array_msaa_t image, int4 coord, int sample);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_array_msaa_t image, int4 coord, int sample);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_array_msaa_t image, int4 coord, int sample);
+
+float __attribute__((overloadable)) read_imagef(read_only image2d_msaa_depth_t image, int2 coord, int sample);
+
+float __attribute__((overloadable)) read_imagef(read_only image2d_array_msaa_depth_t image, int4 coord, int sample);
+
+int __attribute__((overloadable)) get_image_width(image2d_msaa_t image);
+int __attribute__((overloadable)) get_image_width(image2d_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_width(image2d_array_msaa_t image);
+int __attribute__((overloadable)) get_image_width(image2d_array_msaa_depth_t image);
+
+int __attribute__((overloadable)) get_image_height(image2d_msaa_t image);
+int __attribute__((overloadable)) get_image_height(image2d_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_height(image2d_array_msaa_t image);
+int __attribute__((overloadable)) get_image_height(image2d_array_msaa_depth_t image);
+
+int __attribute__((overloadable)) get_image_channel_data_type(image2d_msaa_t image);
+int __attribute__((overloadable)) get_image_channel_data_type(image2d_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_channel_data_type(image2d_array_msaa_t image);
+int __attribute__((overloadable)) get_image_channel_data_type(image2d_array_msaa_depth_t image);
+
+int __attribute__((overloadable)) get_image_channel_order(image2d_msaa_t image);
+int __attribute__((overloadable)) get_image_channel_order(image2d_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_channel_order(image2d_array_msaa_t image);
+int __attribute__((overloadable)) get_image_channel_order(image2d_array_msaa_depth_t image);
+
+int2 __attribute__((overloadable)) get_image_dim(image2d_msaa_t image);
+int2 __attribute__((overloadable)) get_image_dim(image2d_msaa_depth_t image);
+int2 __attribute__((overloadable)) get_image_dim(image2d_array_msaa_t image);
+int2 __attribute__((overloadable)) get_image_dim(image2d_array_msaa_depth_t image);
+
+size_t __attribute__((overloadable)) get_image_array_size(image2d_array_msaa_t image);
+size_t __attribute__((overloadable)) get_image_array_size(image2d_array_msaa_depth_t image);
+
+int __attribute__((overloadable)) get_image_num_samples(image2d_msaa_t image);
+int __attribute__((overloadable)) get_image_num_samples(image2d_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_t image);
+int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_depth_t image);
+#endif
 
 #endif
