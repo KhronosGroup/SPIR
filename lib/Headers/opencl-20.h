@@ -241,7 +241,7 @@ uint __attribute__((overloadable)) get_work_dim(void);
 * dimension identified by dimindx. This value is given by
 * the global_work_size argument to
 * clEnqueueNDRangeKernel. Valid values of dimindx
-* are 0 to get_work_dim() – 1. For other values of
+* are 0 to get_work_dim() - 1. For other values of
 * dimindx, get_global_size() returns 1.
 * For clEnqueueTask, this always returns 1.
 */
@@ -252,7 +252,7 @@ size_t __attribute__((overloadable)) get_global_size(uint dimindx);
 * dimension identified by dimindx. The global work-item
 * ID specifies the work-item ID based on the number of
 * global work-items specified to execute the kernel. Valid
-* values of dimindx are 0 to get_work_dim() – 1. For
+* values of dimindx are 0 to get_work_dim() - 1. For
 * other values of dimindx, get_global_id() returns 0.
 * For clEnqueueTask, this returns 0.
 */
@@ -266,7 +266,7 @@ size_t __attribute__((overloadable)) get_global_id(uint dimindx);
 * NULL; otherwise the OpenCL implementation chooses
 * an appropriate local_work_size value which is returned
 * by this function. Valid values of dimindx are 0 to
-* get_work_dim() – 1. For other values of dimindx,
+* get_work_dim() - 1. For other values of dimindx,
 * get_local_size() returns 1.
 * For clEnqueueTask, this always returns 1.
 */
@@ -276,7 +276,7 @@ size_t __attribute__((overloadable)) get_local_size(uint dimindx);
 * Returns the unique local work-item ID i.e. a work-item
 * within a specific work-group for dimension identified by
 * dimindx. Valid values of dimindx are 0 to
-* get_work_dim() – 1. For other values of dimindx,
+* get_work_dim() - 1. For other values of dimindx,
 * get_local_id() returns 0.
 * For clEnqueueTask, this returns 0.
 */
@@ -285,7 +285,7 @@ size_t __attribute__((overloadable)) get_local_id(uint dimindx);
 /**
 * Returns the number of work-groups that will execute a
 * kernel for dimension identified by dimindx.
-* Valid values of dimindx are 0 to get_work_dim() – 1.
+* Valid values of dimindx are 0 to get_work_dim() - 1.
 * For other values of dimindx, get_num_groups () returns
 * 1.
 * For clEnqueueTask, this always returns 1.
@@ -294,8 +294,8 @@ size_t __attribute__((overloadable)) get_num_groups(uint dimindx);
 
 /**
 * get_group_id returns the work-group ID which is a
-* number from 0 .. get_num_groups(dimindx) – 1.
-* Valid values of dimindx are 0 to get_work_dim() – 1.
+* number from 0 .. get_num_groups(dimindx) - 1.
+* Valid values of dimindx are 0 to get_work_dim() - 1.
 * For other values, get_group_id() returns 0.
 * For clEnqueueTask, this returns 0.
 */
@@ -305,7 +305,7 @@ size_t __attribute__((overloadable)) get_group_id(uint dimindx);
 * get_global_offset returns the offset values specified in
 * global_work_offset argument to
 * clEnqueueNDRangeKernel.
-* Valid values of dimindx are 0 to get_work_dim() – 1.
+* Valid values of dimindx are 0 to get_work_dim() - 1.
 * For other values, get_global_offset() returns 0.
 * For clEnqueueTask, this returns 0.
 */
@@ -567,7 +567,7 @@ float8 __attribute__((overloadable)) fdim(float8 x, float8 y);
 float16 __attribute__((overloadable)) fdim(float16 x, float16 y);
 
 /**
- * Round to integral value using the round to –ve
+ * Round to integral value using the round to -ve
  * infinity rounding mode.
  */
 float __attribute__((overloadable)) floor(float);
@@ -628,7 +628,7 @@ float8 __attribute__((overloadable)) fmin(float8 x, float y);
 float16 __attribute__((overloadable)) fmin(float16 x, float y);
 
 /**
- * Modulus. Returns x – y * trunc (x/y).
+ * Modulus. Returns x - y * trunc (x/y).
  */
 float __attribute__((overloadable)) fmod(float x, float y);
 float2 __attribute__((overloadable)) fmod(float2 x, float2 y);
@@ -1088,7 +1088,7 @@ float8 __attribute__((overloadable)) half_rsqrt(float8 x);
 float16 __attribute__((overloadable)) half_rsqrt(float16 x);
 
 /**
- * Compute sine. x must be in the range -2^16 … +2^16.
+ * Compute sine. x must be in the range -2^16 ... +2^16.
  */
 float __attribute__((overloadable)) half_sin(float x);
 float2 __attribute__((overloadable)) half_sin(float2 x);
@@ -1108,7 +1108,7 @@ float8 __attribute__((overloadable)) half_sqrt(float8 x);
 float16 __attribute__((overloadable)) half_sqrt(float16 x);
 
 /**
- * Compute tangent. x must be in the range -216 … +216.
+ * Compute tangent. x must be in the range -216 ... +216.
  */
 float __attribute__((overloadable)) half_tan(float x);
 float2 __attribute__((overloadable)) half_tan(float2 x);
@@ -1332,7 +1332,7 @@ ulong16 __attribute__((overloadable)) abs(long16 x);
 ulong16 __attribute__((overloadable)) abs(ulong16 x);
 
 /**
- * Returns | x – y | without modulo overflow.
+ * Returns | x - y | without modulo overflow.
  */
 uchar __attribute__((overloadable)) abs_diff(char x, char y);
 uchar __attribute__((overloadable)) abs_diff(uchar x, uchar y);
@@ -2318,9 +2318,9 @@ float16 __attribute__((overloadable)) min(float16 x, float y);
 
 /**
  * Returns the linear blend of x & y implemented as:
- * x + (y – x) * a
- * a must be a value in the range 0.0 … 1.0. If a is not
- * in the range 0.0 … 1.0, the return values are
+ * x + (y - x) * a
+ * a must be a value in the range 0.0 ... 1.0. If a is not
+ * in the range 0.0 ... 1.0, the return values are
  * undefined.
  */
 float __attribute__((overloadable)) mix(float x, float y, float a);
@@ -2369,8 +2369,8 @@ float16 __attribute__((overloadable)) step(float edge, float16 x);
  * with a smooth transition.
  * This is equivalent to:
  * gentype t;
- * t = clamp ((x – edge0) / (edge1 – edge0), 0, 1);
- * return t * t * (3 – 2 * t);
+ * t = clamp ((x - edge0) / (edge1 - edge0), 0, 1);
+ * return t * t * (3 - 2 * t);
  * Results are undefined if edge0 >= edge1 or if x,
  * edge0 or edge1 is a NaN.
  */
@@ -2388,7 +2388,7 @@ float16 __attribute__((overloadable)) smoothstep(float edge0, float edge1, float
 
 /**
  * Returns 1.0 if x > 0, -0.0 if x = -0.0, +0.0 if x =
- * +0.0, or –1.0 if x < 0. Returns 0.0 if x is a NaN.
+ * +0.0, or -1.0 if x < 0. Returns 0.0 if x is a NaN.
  */
 float __attribute__((overloadable)) sign(float x);
 float2 __attribute__((overloadable)) sign(float2 x);
@@ -2416,7 +2416,7 @@ float __attribute__((overloadable)) dot(float4 p0, float4 p1);
 
 /**
  * Returns the distance between p0 and p1. This is
- * calculated as length(p0 – p1).
+ * calculated as length(p0 - p1).
  */
 float __attribute__((overloadable)) distance(float p0, float p1);
 float __attribute__((overloadable)) distance(float2 p0, float2 p1);
@@ -2442,7 +2442,7 @@ float3 __attribute__((overloadable)) normalize(float3 p);
 float4 __attribute__((overloadable)) normalize(float4 p);
 
 /**
- * Returns fast_length(p0 – p1).
+ * Returns fast_length(p0 - p1).
  */
 float __attribute__((overloadable)) fast_distance(float p0, float p1);
 float __attribute__((overloadable)) fast_distance(float2 p0, float2 p1);
@@ -2461,7 +2461,7 @@ float __attribute__((overloadable)) fast_length(float4 p);
 /**
  * Returns a vector in the same direction as p but with a
  * length of 1. fast_normalize is computed as:
- * p * half_rsqrt (p.x^2 + p.y^2 + … )
+ * p * half_rsqrt (p.x^2 + p.y^2 + ... )
  * The result shall be within 8192 ulps error from the
  * infinitely precise result of
  * if (all(p == 0.0f))
@@ -2569,7 +2569,7 @@ int8 __attribute__((overloadable)) isfinite(float8);
 int16 __attribute__((overloadable)) isfinite(float16);
 
 /**
- * Test for infinity value (+ve or –ve) .
+ * Test for infinity value (+ve or -ve) .
  */
 int __attribute__((overloadable)) isinf(float);
 int2 __attribute__((overloadable)) isinf(float2);
@@ -3217,7 +3217,7 @@ float16 __attribute__((overloadable)) select(float16 a, float16 b, ulong16 c);
  * will either flush any variables stored in local memory
  * or queue a memory fence to ensure correct ordering of
  * memory operations to local memory.
- * CLK_GLOBAL_MEM_FENCE – The barrier function
+ * CLK_GLOBAL_MEM_FENCE - The barrier function
  * will queue a memory fence to ensure correct ordering
  * of memory operations to global memory. This can be
  * useful when work-items, for example, write to buffer or
@@ -3728,12 +3728,12 @@ float16   __attribute__((overloadable)) shuffle2(float16 x, float16 y, uint16 ma
  * Use the coordinate (x, y) to do an element lookup in
  * the 2D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -3919,12 +3919,12 @@ uint4 __attribute__((overloadable)) read_imageui(read_only image3d_t image, samp
  * element lookup in the 2D multi-sample image specified
  * by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -3951,12 +3951,12 @@ uint4 __attribute__((overloadable)) read_imageui(read_only image2d_msaa_t image,
  * element lookup in the 2D multi-sample image specified
  * by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -3980,12 +3980,12 @@ float __attribute__((overloadable)) read_imagef(read_only image2d_msaa_depth_t i
  * Use the coordinate (cood.xy) to do an element
  * lookup in the 2D depth image specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12069,12 +12069,12 @@ void __attribute__((overloadable)) write_imageui(write_only image3d_t image, int
  * Use the coordinate (x) to do an element lookup in
  * the 1D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12102,12 +12102,12 @@ float4 __attribute__((overloadable)) read_imagef(read_only image1d_t image, samp
  * and (coord.x) to do an element lookup in
  * the 1D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12136,12 +12136,12 @@ float4 __attribute__((overloadable)) read_imagef(read_only image1d_array_t image
  * and (coord.x, coord.y) to do an element lookup in
  * the 2D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12469,12 +12469,12 @@ void __attribute__((overloadable)) write_imageui(write_only image2d_array_t imag
  * identified by index coord.z in the 2D multi-sample
  * image array specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12504,12 +12504,12 @@ uint4 __attribute__((overloadable)) read_imageui(read_only image2d_array_msaa_t 
  * identified by index coord.z in the 2D multi-sample
  * image array specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12534,12 +12534,12 @@ float __attribute__((overloadable)) read_imagef(read_only image2d_array_msaa_dep
  * 2D depth image identified by index coord.z in the 2D
  * image array specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12736,12 +12736,12 @@ uint4 __attribute__((overloadable)) read_imageui(read_only image3d_t image, int4
  * the mip-level specified by the Level-of-Detail (lod)
  * in the 1D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12812,12 +12812,12 @@ uint4 __attribute__((overloadable)) read_imageui(read_only image1d_t image, samp
  * to do an element lookup in the 1D image array
  * specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12890,12 +12890,12 @@ uint4 __attribute__((overloadable)) read_imageui(read_only image1d_array_t image
  * in the mip-level specified by lod in the
  * 2D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12964,12 +12964,12 @@ uint4 __attribute__((overloadable)) read_imageui(read_only image2d_t image, samp
  * lookup in the mip-level specified by lod in
  * the 2D depth image specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -12996,12 +12996,12 @@ float __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image,
  * and (coord.x, coord.y) to do an element lookup in
  * the 2D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -13076,12 +13076,12 @@ uint4 __attribute__((overloadable)) read_imageui(read_only image2d_array_t image
  * and (coord.x, coord.y) to do an element lookup in
  * the 2D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -13191,12 +13191,12 @@ uint4 __attribute__((overloadable)) read_imageui(read_only image3d_t image, samp
   * the mip-level specified by the lod
   * in the 1D image object specified by image.
   * read_imagef returns floating-point values in the
-  * range [0.0 … 1.0] for image objects created with
+  * range [0.0 ... 1.0] for image objects created with
   * image_channel_data_type set to one of the predefined
   * packed formats or CL_UNORM_INT8, or
   * CL_UNORM_INT16.
   * read_imagef returns floating-point values in the
-  * range [-1.0 … 1.0] for image objects created with
+  * range [-1.0 ... 1.0] for image objects created with
   * image_channel_data_type set to CL_SNORM_INT8,
   * or CL_SNORM_INT16.
   * read_imagef returns floating-point values for image
@@ -13275,12 +13275,12 @@ read_imageui(read_only image1d_t image, sampler_t sampler, float coord, float gr
  * to do an element lookup in the 1D image array
  * specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -13361,12 +13361,12 @@ read_imageui(read_only image1d_array_t image_array, sampler_t sampler, float2 co
  * in the mip-level specified by lod in the
  * 2D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -13443,12 +13443,12 @@ read_imageui(read_only image2d_t image, sampler_t sampler, float2 coord, float2 
  * lookup in the mip-level specified by lod in
  * the 2D depth image specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -13479,12 +13479,12 @@ read_imagef(read_only image2d_depth_t image, sampler_t sampler, float2 coord,
   * and (coord.x, coord.y) to do an element lookup in
   * the 2D image object specified by image.
   * read_imagef returns floating-point values in the
-  * range [0.0 … 1.0] for image objects created with
+  * range [0.0 ... 1.0] for image objects created with
   * image_channel_data_type set to one of the predefined
   * packed formats or CL_UNORM_INT8, or
   * CL_UNORM_INT16.
   * read_imagef returns floating-point values in the
-  * range [-1.0 … 1.0] for image objects created with
+  * range [-1.0 ... 1.0] for image objects created with
   * image_channel_data_type set to CL_SNORM_INT8,
   * or CL_SNORM_INT16.
   * read_imagef returns floating-point values for image
@@ -13567,12 +13567,12 @@ read_imageui(read_only image2d_array_t image_array, sampler_t sampler, float4 co
  * and (coord.x, coord.y) to do an element lookup in
  * the 2D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -13689,12 +13689,12 @@ read_imageui(read_only image3d_t image, sampler_t sampler, float4 coord, float4 
   * the mip-level specified by the lod
   * in the 1D image object specified by image.
   * read_imagef returns floating-point values in the
-  * range [0.0 … 1.0] for image objects created with
+  * range [0.0 ... 1.0] for image objects created with
   * image_channel_data_type set to one of the predefined
   * packed formats or CL_UNORM_INT8, or
   * CL_UNORM_INT16.
   * read_imagef returns floating-point values in the
-  * range [-1.0 … 1.0] for image objects created with
+  * range [-1.0 ... 1.0] for image objects created with
   * image_channel_data_type set to CL_SNORM_INT8,
   * or CL_SNORM_INT16.
   * read_imagef returns floating-point values for image
@@ -13768,12 +13768,12 @@ read_imageui(read_only image1d_t image, sampler_t sampler, float coord, float lo
  * to do an element lookup in the 1D image array
  * specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -13852,12 +13852,12 @@ read_imageui(read_only image1d_array_t image_array, sampler_t sampler, float2 co
  * in the mip-level specified by lod in the
  * 2D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -13929,12 +13929,12 @@ read_imageui(read_only image2d_t image, sampler_t sampler, float2 coord, float l
  * lookup in the mip-level specified by lod in
  * the 2D depth image specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -13963,12 +13963,12 @@ read_imagef(read_only image2d_depth_t image, sampler_t sampler, float2 coord, fl
   * and (coord.x, coord.y) to do an element lookup in
   * the 2D image object specified by image.
   * read_imagef returns floating-point values in the
-  * range [0.0 … 1.0] for image objects created with
+  * range [0.0 ... 1.0] for image objects created with
   * image_channel_data_type set to one of the predefined
   * packed formats or CL_UNORM_INT8, or
   * CL_UNORM_INT16.
   * read_imagef returns floating-point values in the
-  * range [-1.0 … 1.0] for image objects created with
+  * range [-1.0 ... 1.0] for image objects created with
   * image_channel_data_type set to CL_SNORM_INT8,
   * or CL_SNORM_INT16.
   * read_imagef returns floating-point values for image
@@ -14050,12 +14050,12 @@ read_imageui(read_only image2d_array_t image_array, sampler_t sampler, float4 co
  * and (coord.x, coord.y) to do an element lookup in
  * the 2D image object specified by image.
  * read_imagef returns floating-point values in the
- * range [0.0 … 1.0] for image objects created with
+ * range [0.0 ... 1.0] for image objects created with
  * image_channel_data_type set to one of the predefined
  * packed formats or CL_UNORM_INT8, or
  * CL_UNORM_INT16.
  * read_imagef returns floating-point values in the
- * range [-1.0 … 1.0] for image objects created with
+ * range [-1.0 ... 1.0] for image objects created with
  * image_channel_data_type set to CL_SNORM_INT8,
  * or CL_SNORM_INT16.
  * read_imagef returns floating-point values for image
@@ -14216,8 +14216,8 @@ write_imageui(write_only image1d_t image, int coord, int lod, uint4 color);
  * image format is done before writing the color value.
  * coord.x and coord.y are considered to be
  * unnormalized coordinates and must be in the range 0
- * ... image width of the mip-level specified by lod – 1
- * and 0 … image number of layers – 1   * write_imagef can only be used with
+ * ... image width of the mip-level specified by lod - 1
+ * and 0 ... image number of layers - 1   * write_imagef can only be used with
  * image objects
  * created with image_channel_data_type set to one of
  * the pre-defined packed formats or set to
