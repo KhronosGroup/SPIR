@@ -14231,21 +14231,25 @@ void __attribute__((overloadable)) prefetch(const __global half8 *p, size_t num_
 void __attribute__((overloadable)) prefetch(const __global half16 *p, size_t num_elements);
 
 // vload
+half __attribute__((overloadable)) vload(size_t offset, const __global half *p);
 half2 __attribute__((overloadable)) vload2(size_t offset, const __global half *p);
 half3 __attribute__((overloadable)) vload3(size_t offset, const __global half *p);
 half4 __attribute__((overloadable)) vload4(size_t offset, const __global half *p);
 half8 __attribute__((overloadable)) vload8(size_t offset, const __global half *p);
 half16 __attribute__((overloadable)) vload16(size_t offset, const __global half *p);
+half __attribute__((overloadable)) vload(size_t offset, const __local half *p);
 half2 __attribute__((overloadable)) vload2(size_t offset, const __local half *p);
 half3 __attribute__((overloadable)) vload3(size_t offset, const __local half *p);
 half4 __attribute__((overloadable)) vload4(size_t offset, const __local half *p);
 half8 __attribute__((overloadable)) vload8(size_t offset, const __local half *p);
 half16 __attribute__((overloadable)) vload16(size_t offset, const __local half *p);
+half __attribute__((overloadable)) vload(size_t offset, const __private half *p);
 half2 __attribute__((overloadable)) vload2(size_t offset, const __private half *p);
 half3 __attribute__((overloadable)) vload3(size_t offset, const __private half *p);
 half4 __attribute__((overloadable)) vload4(size_t offset, const __private half *p);
 half8 __attribute__((overloadable)) vload8(size_t offset, const __private half *p);
 half16 __attribute__((overloadable)) vload16(size_t offset, const __private half *p);
+half __attribute__((overloadable)) vload(size_t offset, const __constant half *p);
 half2 __attribute__((overloadable)) vload2(size_t offset, const __constant half *p);
 half3 __attribute__((overloadable)) vload3(size_t offset, const __constant half *p);
 half4 __attribute__((overloadable)) vload4(size_t offset, const __constant half *p);
@@ -14253,16 +14257,19 @@ half8 __attribute__((overloadable)) vload8(size_t offset, const __constant half 
 half16 __attribute__((overloadable)) vload16(size_t offset, const __constant half *p);
 
 // vstore
+void __attribute__((overloadable)) vstore(half data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore(half data, size_t offset, __local half *p);
 void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __local half *p);
 void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __local half *p);
 void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __local half *p);
 void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __local half *p);
 void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore(half data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __private half *p);
