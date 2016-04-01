@@ -63,13 +63,21 @@ typedef int ptrdiff_t;
 typedef long ptrdiff_t;
 #endif
 
+/**
+* A signed integer type with the property that any valid pointer to
+* void can be converted to this type, then converted back to pointer
+* to void, and the result will compare equal to the original pointer.
+*/
 typedef ptrdiff_t intptr_t;
 
+/**
+* An unsigned integer type with the property that any valid pointer to
+* void can be converted to this type, then converted back to pointer
+* to void, and the result will compare equal to the original pointer.
+*/
 typedef size_t uintptr_t;
 
-
 // built-in vector data types:
-
 typedef char char2 __attribute__((ext_vector_type(2)));
 typedef char char3 __attribute__((ext_vector_type(3)));
 typedef char char4 __attribute__((ext_vector_type(4)));
@@ -171,18 +179,6 @@ typedef double double16 __attribute__((ext_vector_type(16)));
 #define FLT_MIN 0x1.0p-126f
 #define FLT_EPSILON 0x1.0p-23f
 
-#define DBL_DIG 15
-#define DBL_MANT_DIG 53
-#define DBL_MAX_10_EXP +308
-#define DBL_MAX_EXP +1024
-#define DBL_MIN_10_EXP -307
-#define DBL_MIN_EXP -1021
-#define DBL_RADIX 2
-#define DBL_MAX 0x1.fffffffffffffp1023
-#define DBL_MIN 0x1.0p-1022
-#define DBL_EPSILON 0x1.0p-52
-
-
 #define M_E_F         2.71828182845904523536028747135266250f
 #define M_LOG2E_F     1.44269504088896340735992468100189214f
 #define M_LOG10E_F    0.434294481903251827651128918916605082f
@@ -196,6 +192,17 @@ typedef double double16 __attribute__((ext_vector_type(16)));
 #define M_2_SQRTPI_F  1.12837916709551257389615890312154517f
 #define M_SQRT2_F     1.41421356237309504880168872420969808f
 #define M_SQRT1_2_F   0.707106781186547524400844362104849039f
+
+#define DBL_DIG 15
+#define DBL_MANT_DIG 53
+#define DBL_MAX_10_EXP +308
+#define DBL_MAX_EXP +1024
+#define DBL_MIN_10_EXP -307
+#define DBL_MIN_EXP -1021
+#define DBL_RADIX 2
+#define DBL_MAX 0x1.fffffffffffffp1023
+#define DBL_MIN 0x1.0p-1022
+#define DBL_EPSILON 0x1.0p-52
 
 #define M_E				0x1.5bf0a8b145769p+1
 #define M_LOG2E			0x1.71547652b82fep+0
@@ -224,18 +231,8 @@ typedef double double16 __attribute__((ext_vector_type(16)));
 #define	INT_MAX		2147483647
 #define	INT_MIN		(-2147483647-1)
 #define	ULONG_MAX	0xffffffffffffffffUL
-#define	LONG_MAX	((long)0x7fffffffffffffffL)
-#define	LONG_MIN	((long)(-0x7fffffffffffffffL-1))
-
-#define DBL_DIG 15
-#define DBL_MANT_DIG 53
-#define DBL_MAX_10_EXP +308
-#define DBL_MAX_EXP +1024
-#define DBL_MIN_10_EXP -307
-#define DBL_MIN_EXP -1021
-#define DBL_MAX 0x1.fffffffffffffp1023
-#define DBL_MIN 0x1.0p-1022
-#define DBL_EPSILON 0x1.0p-52
+#define LONG_MAX  0x7fffffffffffffffL
+#define LONG_MIN  (-0x7fffffffffffffffL-1)
 
 // work-item functions
 
@@ -554,18 +551,18 @@ double16 const_func __attribute__((overloadable)) copysign(double16 x, double16 
 /**
  * Compute cosine.
  */
-double const_func __attribute__((overloadable)) cos(double);
-double2 const_func __attribute__((overloadable)) cos(double2);
-double3 const_func __attribute__((overloadable)) cos(double3);
-double4 const_func __attribute__((overloadable)) cos(double4);
-double8 const_func __attribute__((overloadable)) cos(double8);
-double16 const_func __attribute__((overloadable)) cos(double16);
 float const_func __attribute__((overloadable)) cos(float);
 float2 const_func __attribute__((overloadable)) cos(float2);
 float3 const_func __attribute__((overloadable)) cos(float3);
 float4 const_func __attribute__((overloadable)) cos(float4);
 float8 const_func __attribute__((overloadable)) cos(float8);
 float16 const_func __attribute__((overloadable)) cos(float16);
+double const_func __attribute__((overloadable)) cos(double);
+double2 const_func __attribute__((overloadable)) cos(double2);
+double3 const_func __attribute__((overloadable)) cos(double3);
+double4 const_func __attribute__((overloadable)) cos(double4);
+double8 const_func __attribute__((overloadable)) cos(double8);
+double16 const_func __attribute__((overloadable)) cos(double16);
 
 /**
  * Compute hyperbolic consine.
