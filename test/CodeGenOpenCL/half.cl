@@ -1,4 +1,4 @@
-// RUN: %clang_cc1 %s -emit-llvm -o - | FileCheck %s
+// RUN: %clang_cc1 %s -O2 -emit-llvm -o - | FileCheck %s
 
 #pragma OPENCL EXTENSION cl_khr_fp16 : enable
 
