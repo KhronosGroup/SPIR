@@ -8887,7 +8887,12 @@ __CLFN_DECL_F_FRACTN_VEC_AS(fract, half)
 #undef __CLFN_DECL_F_FRACTN_VEC
 #undef __CLFN_DECL_F_FRACTN_VEC_AS
 
-// frexp()
+/**
+ * Extract mantissa and exponent from x. For each
+ * component the mantissa returned is a float with
+ * magnitude in the interval [1/2, 1) or 0. Each
+ * component of x equals mantissa returned * 2^exp.
+ */
 #define __CLFN_DECL_F_FREXP_SCALAR(F, addressSpace, itype, rtype) \
     itype __attribute__((overloadable)) F(itype data, addressSpace rtype* p);
 #define __CLFN_DECL_F_FREXPN(F, vsize, addressSpace, itype, rtype) \
@@ -8949,7 +8954,18 @@ __CLFN_DECL_F_LGAMMARN_VEC_AS(lgamma_r, half, int)
 #undef __CLFN_DECL_F_LGAMMARN_VEC
 #undef __CLFN_DECL_F_LGAMMARN_VEC_AS
 
-// remquo()
+/**
+ * The remquo function computes the value r such
+ * that r = x - n*y, where n is the integer nearest the
+ * exact value of x/y. If there are two integers closest
+ * to x/y, n shall be the even one. If r is zero, it is
+ * given the same sign as x. This is the same value
+ * that is returned by the remainder function.
+ * remquo also calculates the lower seven bits of the
+ * integral quotient x/y, and gives that value the same
+ * sign as x/y. It stores this signed value in the object
+ * pointed to by quo.
+ */
 #define __CLFN_DECL_F_REMQUO_SCALAR(F, addressSpace, itype, rtype) \
     itype __attribute__((overloadable)) F(itype idata, itype rdata, addressSpace rtype* p);
 #define __CLFN_DECL_F_REMQUON(F, vsize, addressSpace, itype, rtype) \
@@ -8980,7 +8996,11 @@ __CLFN_DECL_F_REMQUON_VEC_AS(remquo, half, int)
 #undef __CLFN_DECL_F_REMQUON_VEC
 #undef __CLFN_DECL_F_REMQUON_VEC_AS
 
-// sincos()
+/**
+ * Compute sine and cosine of x. The computed sine
+ * is the return value and computed cosine is returned
+ * in cosval.
+ */
 #define __CLFN_DECL_F_SINCOS_SCALAR(F, addressSpace, type) \
     type __attribute__((overloadable)) F(type data, addressSpace type* p);
 #define __CLFN_DECL_F_SINCOSN(F, vsize, addressSpace, type) \
@@ -9011,6 +9031,13 @@ __CLFN_DECL_F_SINCOSN_VEC_AS(sincos, half)
 #undef __CLFN_DECL_F_SINCOSN_VEC
 #undef __CLFN_DECL_F_SINCOSN_VEC_AS
 
+/**
+ * Decompose a floating-point number. The modf
+ * function breaks the argument x into integral and
+ * fractional parts, each of which has the same sign as
+ * the argument. It stores the integral part in the object
+ * pointed to by iptr.
+ */
 #define __CLFN_DECL_F_MODF_SCALAR(F, addressSpace, type) \
     type __attribute__((overloadable)) F(type data, addressSpace type* p);
 #define __CLFN_DECL_F_MODFN(F, vsize, addressSpace, type) \
@@ -9822,7 +9849,6 @@ void __attribute__((overloadable)) write_imageh(write_only image3d_t image, int4
 void __attribute__((overloadable)) write_imageh(write_only image1d_array_t image, int2 coord, half4 color );
 void __attribute__((overloadable)) write_imageh(write_only image2d_array_t image, int4 coord, half4 color );
 void __attribute__((overloadable)) write_imageh(write_only image1d_buffer_t image, int coord, half4 color );
-
 
 // Miscellaneous Vector Instructions
 
@@ -10708,32 +10734,32 @@ event_t __attribute__((overloadable)) async_work_group_strided_copy(__global hal
 // Async copies from global to local memory, local to global memory, and prefetch
 
 /**
-* event_t async_work_group_copy (
-* __global gentype *dst,
-* const __local gentype *src,
-* size_t num_elements,
-* event_t event)
-* Perform an async copy of num_elements
-* gentype elements from src to dst. The async
-* copy is performed by all work-items in a workgroup
-* and this built-in function must therefore
-* be encountered by all work-items in a workgroup
-* executing the kernel with the same
-* argument values; otherwise the results are
-* undefined.
-* Returns an event object that can be used by
-* wait_group_events to wait for the async copy
-* to finish. The event argument can also be used
-* to associate the async_work_group_copy with
-* a previous async copy allowing an event to be
-* shared by multiple async copies; otherwise event
-* should be zero.
-* If event argument is non-zero, the event object
-* supplied in event argument will be returned.
-* This function does not perform any implicit
-* synchronization of source data such as using a
-* barrier before performing the copy.
-*/
+ * event_t async_work_group_copy (
+ * __global gentype *dst,
+ * const __local gentype *src,
+ * size_t num_elements,
+ * event_t event)
+ * Perform an async copy of num_elements
+ * gentype elements from src to dst. The async
+ * copy is performed by all work-items in a workgroup
+ * and this built-in function must therefore
+ * be encountered by all work-items in a workgroup
+ * executing the kernel with the same
+ * argument values; otherwise the results are
+ * undefined.
+ * Returns an event object that can be used by
+ * wait_group_events to wait for the async copy
+ * to finish. The event argument can also be used
+ * to associate the async_work_group_copy with
+ * a previous async copy allowing an event to be
+ * shared by multiple async copies; otherwise event
+ * should be zero.
+ * If event argument is non-zero, the event object
+ * supplied in event argument will be returned.
+ * This function does not perform any implicit
+ * synchronization of source data such as using a
+ * barrier before performing the copy.
+ */
 event_t __attribute__((overloadable)) async_work_group_copy(__local char *dst, const __global char *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__local uchar *dst, const __global uchar *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__local short *dst, const __global short *src, size_t num_elements, event_t event);
@@ -10845,31 +10871,31 @@ event_t __attribute__((overloadable)) async_work_group_copy(__global float16 *ds
 
 
 /**
-* Perform an async gather of num_elements
-* gentype elements from src to dst. The
-* src_stride is the stride in elements for each
-* gentype element read from src. The dst_stride
-* is the stride in elements for each gentype
-* element written to dst. The async gather is
-* performed by all work-items in a work-group.
-* This built-in function must therefore be
-* encountered by all work-items in a work-group
-* executing the kernel with the same argument
-* values; otherwise the results are undefined.
-* Returns an event object that can be used by
-* wait_group_events to wait for the async copy
-* to finish. The event argument can also be used
-* to associate the
-* async_work_group_strided_copy with a
-* previous async copy allowing an event to be
-* shared by multiple async copies; otherwise event
-* should be zero.
-* If event argument is non-zero, the event object
-* supplied in event argument will be returned.
-* This function does not perform any implicit
-* synchronization of source data such as using a
-* barrier before performing the copy.
-*/
+ * Perform an async gather of num_elements
+ * gentype elements from src to dst. The
+ * src_stride is the stride in elements for each
+ * gentype element read from src. The dst_stride
+ * is the stride in elements for each gentype
+ * element written to dst. The async gather is
+ * performed by all work-items in a work-group.
+ * This built-in function must therefore be
+ * encountered by all work-items in a work-group
+ * executing the kernel with the same argument
+ * values; otherwise the results are undefined.
+ * Returns an event object that can be used by
+ * wait_group_events to wait for the async copy
+ * to finish. The event argument can also be used
+ * to associate the
+ * async_work_group_strided_copy with a
+ * previous async copy allowing an event to be
+ * shared by multiple async copies; otherwise event
+ * should be zero.
+ * If event argument is non-zero, the event object
+ * supplied in event argument will be returned.
+ * This function does not perform any implicit
+ * synchronization of source data such as using a
+ * barrier before performing the copy.
+ */
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local char *dst, const __global char *src, size_t num_elements, size_t src_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local uchar *dst, const __global uchar *src, size_t num_elements, size_t src_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local short *dst, const __global short *src, size_t num_elements, size_t src_stride, event_t event);
@@ -10980,12 +11006,12 @@ event_t __attribute__((overloadable)) async_work_group_strided_copy(__global ulo
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global float16 *dst, const __local float16 *src, size_t num_elements, size_t dst_stride, event_t event);
 
 /**
-* Prefetch num_elements * sizeof(gentype)
-* bytes into the global cache. The prefetch
-* instruction is applied to a work-item in a workgroup
-* and does not affect the functional
-* behavior of the kernel.
-*/
+ * Prefetch num_elements * sizeof(gentype)
+ * bytes into the global cache. The prefetch
+ * instruction is applied to a work-item in a workgroup
+ * and does not affect the functional
+ * behavior of the kernel.
+ */
 void __attribute__((overloadable)) prefetch(const __global void *p, size_t num_elements);
 
 //
@@ -11101,7 +11127,6 @@ queue_t __attribute__((overloadable)) get_default_queue(void);
  * (old + val) and store result at location
  * pointed by p. The function returns old.
  */
-
 int __attribute__((overloadable)) atomic_add(volatile __global int *p, int val);
 unsigned int __attribute__((overloadable)) atomic_add(volatile __global unsigned int *p, unsigned int val);
 int __attribute__((overloadable)) atomic_add(volatile __local int *p, int val);
