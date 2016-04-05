@@ -2169,49 +2169,49 @@ ulong16 __attribute__((overloadable)) sub_sat(ulong16 x, ulong16 y);
  * result[i] = ((ushort)hi[i] << 8) | lo[i]
  */
 short __attribute__((overloadable)) upsample(char hi, uchar lo);
-ushort __attribute__((overloadable)) upsample (uchar hi, uchar lo);
-short2 __attribute__((overloadable)) upsample (char2 hi, uchar2 lo);
-short3 __attribute__((overloadable)) upsample (char3 hi, uchar3 lo);
-short4 __attribute__((overloadable)) upsample (char4 hi, uchar4 lo);
-short8 __attribute__((overloadable)) upsample (char8 hi, uchar8 lo);
-short16 __attribute__((overloadable)) upsample (char16 hi, uchar16 lo);
-ushort2 __attribute__((overloadable)) upsample (uchar2 hi, uchar2 lo);
-ushort3 __attribute__((overloadable)) upsample (uchar3 hi, uchar3 lo);
-ushort4 __attribute__((overloadable)) upsample (uchar4 hi, uchar4 lo);
-ushort8 __attribute__((overloadable)) upsample (uchar8 hi, uchar8 lo);
-ushort16 __attribute__((overloadable)) upsample (uchar16 hi, uchar16 lo);
+ushort __attribute__((overloadable)) upsample(uchar hi, uchar lo);
+short2 __attribute__((overloadable)) upsample(char2 hi, uchar2 lo);
+short3 __attribute__((overloadable)) upsample(char3 hi, uchar3 lo);
+short4 __attribute__((overloadable)) upsample(char4 hi, uchar4 lo);
+short8 __attribute__((overloadable)) upsample(char8 hi, uchar8 lo);
+short16 __attribute__((overloadable)) upsample(char16 hi, uchar16 lo);
+ushort2 __attribute__((overloadable)) upsample(uchar2 hi, uchar2 lo);
+ushort3 __attribute__((overloadable)) upsample(uchar3 hi, uchar3 lo);
+ushort4 __attribute__((overloadable)) upsample(uchar4 hi, uchar4 lo);
+ushort8 __attribute__((overloadable)) upsample(uchar8 hi, uchar8 lo);
+ushort16 __attribute__((overloadable)) upsample(uchar16 hi, uchar16 lo);
 /**
  * result[i] = ((int)hi[i] << 16) | lo[i]
  * result[i] = ((uint)hi[i] << 16) | lo[i]
  */
 int __attribute__((overloadable)) upsample(short hi, ushort lo);
-uint __attribute__((overloadable)) upsample (ushort hi, ushort lo);
-int2 __attribute__((overloadable)) upsample (short2 hi, ushort2 lo);
-int3 __attribute__((overloadable)) upsample (short3 hi, ushort3 lo);
-int4 __attribute__((overloadable)) upsample (short4 hi, ushort4 lo);
-int8 __attribute__((overloadable)) upsample (short8 hi, ushort8 lo);
-int16 __attribute__((overloadable)) upsample (short16 hi, ushort16 lo);
-uint2 __attribute__((overloadable)) upsample (ushort2 hi, ushort2 lo);
-uint3 __attribute__((overloadable)) upsample (ushort3 hi, ushort3 lo);
-uint4 __attribute__((overloadable)) upsample (ushort4 hi, ushort4 lo);
-uint8 __attribute__((overloadable)) upsample (ushort8 hi, ushort8 lo);
-uint16 __attribute__((overloadable)) upsample (ushort16 hi, ushort16 lo);
+uint __attribute__((overloadable)) upsample(ushort hi, ushort lo);
+int2 __attribute__((overloadable)) upsample(short2 hi, ushort2 lo);
+int3 __attribute__((overloadable)) upsample(short3 hi, ushort3 lo);
+int4 __attribute__((overloadable)) upsample(short4 hi, ushort4 lo);
+int8 __attribute__((overloadable)) upsample(short8 hi, ushort8 lo);
+int16 __attribute__((overloadable)) upsample(short16 hi, ushort16 lo);
+uint2 __attribute__((overloadable)) upsample(ushort2 hi, ushort2 lo);
+uint3 __attribute__((overloadable)) upsample(ushort3 hi, ushort3 lo);
+uint4 __attribute__((overloadable)) upsample(ushort4 hi, ushort4 lo);
+uint8 __attribute__((overloadable)) upsample(ushort8 hi, ushort8 lo);
+uint16 __attribute__((overloadable)) upsample(ushort16 hi, ushort16 lo);
 /**
  * result[i] = ((long)hi[i] << 32) | lo[i]
  * result[i] = ((ulong)hi[i] << 32) | lo[i]
  */
 long __attribute__((overloadable)) upsample(int hi, uint lo);
-ulong __attribute__((overloadable)) upsample (uint hi, uint lo);
-long2 __attribute__((overloadable)) upsample (int2 hi, uint2 lo);
-long3 __attribute__((overloadable)) upsample (int3 hi, uint3 lo);
-long4 __attribute__((overloadable)) upsample (int4 hi, uint4 lo);
-long8 __attribute__((overloadable)) upsample (int8 hi, uint8 lo);
-long16 __attribute__((overloadable)) upsample (int16 hi, uint16 lo);
-ulong2 __attribute__((overloadable)) upsample (uint2 hi, uint2 lo);
-ulong3 __attribute__((overloadable)) upsample (uint3 hi, uint3 lo);
-ulong4 __attribute__((overloadable)) upsample (uint4 hi, uint4 lo);
-ulong8 __attribute__((overloadable)) upsample (uint8 hi, uint8 lo);
-ulong16 __attribute__((overloadable)) upsample (uint16 hi, uint16 lo);
+ulong __attribute__((overloadable)) upsample(uint hi, uint lo);
+long2 __attribute__((overloadable)) upsample(int2 hi, uint2 lo);
+long3 __attribute__((overloadable)) upsample(int3 hi, uint3 lo);
+long4 __attribute__((overloadable)) upsample(int4 hi, uint4 lo);
+long8 __attribute__((overloadable)) upsample(int8 hi, uint8 lo);
+long16 __attribute__((overloadable)) upsample(int16 hi, uint16 lo);
+ulong2 __attribute__((overloadable)) upsample(uint2 hi, uint2 lo);
+ulong3 __attribute__((overloadable)) upsample(uint3 hi, uint3 lo);
+ulong4 __attribute__((overloadable)) upsample(uint4 hi, uint4 lo);
+ulong8 __attribute__((overloadable)) upsample(uint8 hi, uint8 lo);
+ulong16 __attribute__((overloadable)) upsample(uint16 hi, uint16 lo);
 
 /**
  * Multiply two 24-bit integer values x and y and add
@@ -2404,7 +2404,7 @@ float16 __attribute__((overloadable)) sign(float16 x);
  * w component of float4 result returned will be 0.0.
  */
 float4 __attribute__((overloadable)) cross(float4 p0, float4 p1);
-float3 __attribute__((overloadable)) cross (float3 p0, float3 p1);
+float3 __attribute__((overloadable)) cross(float3 p0, float3 p1);
 
 /**
  * Compute dot product.
@@ -11895,8 +11895,8 @@ size_t __attribute__((overloadable)) get_local_linear_id(void);
  */
 #define CLK_IMAGE_MEM_FENCE  0x04
 
-cl_mem_fence_flags __attribute__((overloadable)) get_fence (const void *ptr);
-cl_mem_fence_flags __attribute__((overloadable)) get_fence (void *ptr);
+cl_mem_fence_flags __attribute__((overloadable)) get_fence(const void *ptr);
+cl_mem_fence_flags __attribute__((overloadable)) get_fence(void *ptr);
 
 
 __global  void* __attribute__((overloadable)) to_global(void*);
