@@ -123,6 +123,14 @@ typedef float float3 __attribute__((ext_vector_type(3)));
 typedef float float4 __attribute__((ext_vector_type(4)));
 typedef float float8 __attribute__((ext_vector_type(8)));
 typedef float float16 __attribute__((ext_vector_type(16)));
+#ifdef cl_khr_fp16
+#pragma OPENCL EXTENSION cl_khr_fp16 : enable
+typedef half half2 __attribute__((ext_vector_type(2)));
+typedef half half3 __attribute__((ext_vector_type(3)));
+typedef half half4 __attribute__((ext_vector_type(4)));
+typedef half half8 __attribute__((ext_vector_type(8)));
+typedef half half16 __attribute__((ext_vector_type(16)));
+#endif
 typedef double double2 __attribute__((ext_vector_type(2)));
 typedef double double3 __attribute__((ext_vector_type(3)));
 typedef double double4 __attribute__((ext_vector_type(4)));
@@ -234,88 +242,89 @@ typedef double double16 __attribute__((ext_vector_type(16)));
 // work-item functions
 
 /**
-* Returns the number of dimensions in use. This is the
-* value given to the work_dim argument specified in
-* clEnqueueNDRangeKernel.
-* For clEnqueueTask, this returns 1.
-*/
+ * Returns the number of dimensions in use. This is the
+ * value given to the work_dim argument specified in
+ * clEnqueueNDRangeKernel.
+ * For clEnqueueTask, this returns 1.
+ */
 uint __const_func __attribute__((overloadable)) get_work_dim(void);
 
 /**
-* Returns the number of global work-items specified for
-* dimension identified by dimindx. This value is given by
-* the global_work_size argument to
-* clEnqueueNDRangeKernel. Valid values of dimindx
-* are 0 to get_work_dim() - 1. For other values of
-* dimindx, get_global_size() returns 1.
-* For clEnqueueTask, this always returns 1.
-*/
+ * Returns the number of global work-items specified for
+ * dimension identified by dimindx. This value is given by
+ * the global_work_size argument to
+ * clEnqueueNDRangeKernel. Valid values of dimindx
+ * are 0 to get_work_dim() - 1. For other values of
+ * dimindx, get_global_size() returns 1.
+ * For clEnqueueTask, this always returns 1.
+ */
 size_t __const_func __attribute__((overloadable)) get_global_size(uint dimindx);
 
 /**
-* Returns the unique global work-item ID value for
-* dimension identified by dimindx. The global work-item
-* ID specifies the work-item ID based on the number of
-* global work-items specified to execute the kernel. Valid
-* values of dimindx are 0 to get_work_dim() - 1. For
-* other values of dimindx, get_global_id() returns 0.
-* For clEnqueueTask, this returns 0.
-*/
+ * Returns the unique global work-item ID value for
+ * dimension identified by dimindx. The global work-item
+ * ID specifies the work-item ID based on the number of
+ * global work-items specified to execute the kernel. Valid
+ * values of dimindx are 0 to get_work_dim() - 1. For
+ * other values of dimindx, get_global_id() returns 0.
+ * For clEnqueueTask, this returns 0.
+ */
 size_t __const_func __attribute__((overloadable)) get_global_id(uint dimindx);
 
 /**
-* Returns the number of local work-items specified in
-* dimension identified by dimindx. This value is given by
-* the local_work_size argument to
-* clEnqueueNDRangeKernel if local_work_size is not
-* NULL; otherwise the OpenCL implementation chooses
-* an appropriate local_work_size value which is returned
-* by this function. Valid values of dimindx are 0 to
-* get_work_dim() - 1. For other values of dimindx,
-* get_local_size() returns 1.
-* For clEnqueueTask, this always returns 1.
-*/
+ * Returns the number of local work-items specified in
+ * dimension identified by dimindx. This value is given by
+ * the local_work_size argument to
+ * clEnqueueNDRangeKernel if local_work_size is not
+ * NULL; otherwise the OpenCL implementation chooses
+ * an appropriate local_work_size value which is returned
+ * by this function. Valid values of dimindx are 0 to
+ * get_work_dim() - 1. For other values of dimindx,
+ * get_local_size() returns 1.
+ * For clEnqueueTask, this always returns 1.
+ */
 size_t __const_func __attribute__((overloadable)) get_local_size(uint dimindx);
 
 /**
-* Returns the unique local work-item ID i.e. a work-item
-* within a specific work-group for dimension identified by
-* dimindx. Valid values of dimindx are 0 to
-* get_work_dim() - 1. For other values of dimindx,
-* get_local_id() returns 0.
-* For clEnqueueTask, this returns 0.
-*/
+ * Returns the unique local work-item ID i.e. a work-item
+ * within a specific work-group for dimension identified by
+ * dimindx. Valid values of dimindx are 0 to
+ * get_work_dim() - 1. For other values of dimindx,
+ * get_local_id() returns 0.
+ * For clEnqueueTask, this returns 0.
+ */
 size_t __const_func __attribute__((overloadable)) get_local_id(uint dimindx);
 
 /**
-* Returns the number of work-groups that will execute a
-* kernel for dimension identified by dimindx.
-* Valid values of dimindx are 0 to get_work_dim() - 1.
-* For other values of dimindx, get_num_groups () returns
-* 1.
-* For clEnqueueTask, this always returns 1.
-*/
+ * Returns the number of work-groups that will execute a
+ * kernel for dimension identified by dimindx.
+ * Valid values of dimindx are 0 to get_work_dim() - 1.
+ * For other values of dimindx, get_num_groups () returns
+ * 1.
+ * For clEnqueueTask, this always returns 1.
+ */
 size_t __const_func __attribute__((overloadable)) get_num_groups(uint dimindx);
 
 /**
-* get_group_id returns the work-group ID which is a
-* number from 0 .. get_num_groups(dimindx) - 1.
-* Valid values of dimindx are 0 to get_work_dim() - 1.
-* For other values, get_group_id() returns 0.
-* For clEnqueueTask, this returns 0.
-*/
+ * get_group_id returns the work-group ID which is a
+ * number from 0 .. get_num_groups(dimindx) - 1.
+ * Valid values of dimindx are 0 to get_work_dim() - 1.
+ * For other values, get_group_id() returns 0.
+ * For clEnqueueTask, this returns 0.
+ */
 size_t __const_func __attribute__((overloadable)) get_group_id(uint dimindx);
 
 /**
-* get_global_offset returns the offset values specified in
-* global_work_offset argument to
-* clEnqueueNDRangeKernel.
-* Valid values of dimindx are 0 to get_work_dim() - 1.
-* For other values, get_global_offset() returns 0.
-* For clEnqueueTask, this returns 0.
-*/
+ * get_global_offset returns the offset values specified in
+ * global_work_offset argument to
+ * clEnqueueNDRangeKernel.
+ * Valid values of dimindx are 0 to get_work_dim() - 1.
+ * For other values, get_global_offset() returns 0.
+ * For clEnqueueTask, this returns 0.
+ */
 size_t __const_func __attribute__((overloadable)) get_global_offset(uint dimindx);
 
+int printf(__constant const char* st, ...);
 // Math functions:
 
 /**
@@ -2185,6 +2194,7 @@ ushort3 __const_func __attribute__((overloadable)) upsample(uchar3 hi, uchar3 lo
 ushort4 __const_func __attribute__((overloadable)) upsample(uchar4 hi, uchar4 lo);
 ushort8 __const_func __attribute__((overloadable)) upsample(uchar8 hi, uchar8 lo);
 ushort16 __const_func __attribute__((overloadable)) upsample(uchar16 hi, uchar16 lo);
+
 /**
  * result[i] = ((int)hi[i] << 16) | lo[i]
  * result[i] = ((uint)hi[i] << 16) | lo[i]
@@ -2479,7 +2489,7 @@ float __const_func __attribute__((overloadable)) fast_length(float4 p);
  * result vector are undefined.
  * 2) If the sum of squares is less than FLT_MIN then
  * the implementation may return back p.
- * 3) If the device is in “denorms are flushed to zero”
+ * 3) If the device is in "denorms are flushed to zero"
  * mode, individual operand elements with magnitude
  * less than sqrt(FLT_MIN) may be flushed to zero
  * before proceeding with the calculation.
@@ -3289,16 +3299,16 @@ void __attribute__((overloadable)) write_mem_fence(cl_mem_fence_flags flags);
 #define CLK_GLOBAL_MEM_FENCE   0x02
 
 /**
-* Wait for events that identify the
-* async_work_group_copy operations to
-* complete. The event objects specified in
-* event_list will be released after the wait is
-* performed.
-* This function must be encountered by all workitems
-* in a work-group executing the kernel with
-* the same num_events and event objects specified
-* in event_list; otherwise the results are undefined.
-*/
+ * Wait for events that identify the
+ * async_work_group_copy operations to
+ * complete. The event objects specified in
+ * event_list will be released after the wait is
+ * performed.
+ * This function must be encountered by all workitems
+ * in a work-group executing the kernel with
+ * the same num_events and event objects specified
+ * in event_list; otherwise the results are undefined.
+ */
 void __attribute__((overloadable)) wait_group_events(int num_events, event_t *event_list);
 
 // Function qualifiers (section 6.7)
@@ -3717,14 +3727,22 @@ float16 __const_func __attribute__((overloadable)) shuffle2(float16 x, float16 y
 
 // Built-in image functions
 // These values need to match the runtime equivalent
+//
+// Addressing Mode.
+//
 #define CLK_ADDRESS_NONE              0x00
 #define CLK_ADDRESS_CLAMP             0x01
 #define CLK_ADDRESS_CLAMP_TO_EDGE     0x02
 #define CLK_ADDRESS_REPEAT            0x03
 #define CLK_ADDRESS_MIRRORED_REPEAT   0x04
-
+//
+// Coordination Normalization
+//
 #define CLK_NORMALIZED_COORDS_FALSE   0x00
 #define CLK_NORMALIZED_COORDS_TRUE    0x08
+//
+// Filtering Mode.
+//
 
 #define CLK_FILTER_NEAREST            0x00
 #define CLK_FILTER_LINEAR             0x10
@@ -4069,7 +4087,10 @@ int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_depth
  * CLK_FLOAT
  */
 
-// Channel order
+// Channel order, numbering must be aligned with cl_channel_order in cl.h
+//
+// Channel order.
+//
 #define CLK_R         0x10B0
 #define CLK_A         0x10B1
 #define CLK_RG        0x10B2
@@ -4090,7 +4111,9 @@ int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_depth
 #define CLK_sRGBx             0x10C0
 #define CLK_sBGRA             0x10C2
 
-// Channel Type
+//
+// Channel Datatype.
+//
 #define CLK_SNORM_INT8        0x10D0
 #define CLK_SNORM_INT16       0x10D1
 #define CLK_UNORM_INT8        0x10D2
@@ -4160,7 +4183,6 @@ int2 __const_func __attribute__((overloadable)) get_image_dim(image2d_msaa_depth
  * component and the w component is 0.
  */
 int4 __const_func __attribute__((overloadable)) get_image_dim(image3d_t image);
-
 
 /**
  * OpenCL as_type operators
@@ -8830,16 +8852,11 @@ float16 __const_func __attribute__((overloadable)) convert_float16_rtp(float16);
 float16 __const_func __attribute__((overloadable)) convert_float16_rtn(float16);
 float16 __const_func __attribute__((overloadable)) convert_float16(float16);
 
-#ifdef cl_khr_fp16
-#pragma OPENCL EXTENSION cl_khr_fp16 : enable
-typedef half half2 __attribute__((ext_vector_type(2)));
-typedef half half3 __attribute__((ext_vector_type(3)));
-typedef half half4 __attribute__((ext_vector_type(4)));
-typedef half half8 __attribute__((ext_vector_type(8)));
-typedef half half16 __attribute__((ext_vector_type(16)));
-#endif
 
-// fract()
+/**
+ * Returns fmin( x - floor (x), 0x1.fffffep-1f ).
+ * floor(x) is returned in iptr.
+ */
 #define __CLFN_DECL_F_FRACT_SCALAR(F, addressSpace, type) \
     type __attribute__((overloadable)) F(type data, addressSpace type* p);
 #define __CLFN_DECL_F_FRACTN(F, vsize, addressSpace, type) \
@@ -11819,7 +11836,6 @@ __CLFN_DECL_F_VSTOREN_HALF(vstorea_half, float, half)
 __CLFN_DECL_F_VSTOREN_HALF(vstore_half, double, half)
 __CLFN_DECL_F_VSTOREN_HALF(vstorea_half, double, half)
 
-int printf(__constant const char* st, ...);
 
 /**
  * Write color value to location specified by coordinate
