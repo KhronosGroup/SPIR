@@ -2828,50 +2828,50 @@ ulong16 __const_func __attribute__((overloadable)) sub_sat(ulong16 x, ulong16 y)
  * result[i] = ((ushort)hi[i] << 8) | lo[i]
  */
 short __const_func __attribute__((overloadable)) upsample(char hi, uchar lo);
-ushort __const_func __attribute__((overloadable)) upsample (uchar hi, uchar lo);
-short2 __const_func __attribute__((overloadable)) upsample (char2 hi, uchar2 lo);
-short3 __const_func __attribute__((overloadable)) upsample (char3 hi, uchar3 lo);
-short4 __const_func __attribute__((overloadable)) upsample (char4 hi, uchar4 lo);
-short8 __const_func __attribute__((overloadable)) upsample (char8 hi, uchar8 lo);
-short16 __const_func __attribute__((overloadable)) upsample (char16 hi, uchar16 lo);
-ushort2 __const_func __attribute__((overloadable)) upsample (uchar2 hi, uchar2 lo);
-ushort3 __const_func __attribute__((overloadable)) upsample (uchar3 hi, uchar3 lo);
-ushort4 __const_func __attribute__((overloadable)) upsample (uchar4 hi, uchar4 lo);
-ushort8 __const_func __attribute__((overloadable)) upsample (uchar8 hi, uchar8 lo);
-ushort16 __const_func __attribute__((overloadable)) upsample (uchar16 hi, uchar16 lo);
+ushort __const_func __attribute__((overloadable)) upsample(uchar hi, uchar lo);
+short2 __const_func __attribute__((overloadable)) upsample(char2 hi, uchar2 lo);
+short3 __const_func __attribute__((overloadable)) upsample(char3 hi, uchar3 lo);
+short4 __const_func __attribute__((overloadable)) upsample(char4 hi, uchar4 lo);
+short8 __const_func __attribute__((overloadable)) upsample(char8 hi, uchar8 lo);
+short16 __const_func __attribute__((overloadable)) upsample(char16 hi, uchar16 lo);
+ushort2 __const_func __attribute__((overloadable)) upsample(uchar2 hi, uchar2 lo);
+ushort3 __const_func __attribute__((overloadable)) upsample(uchar3 hi, uchar3 lo);
+ushort4 __const_func __attribute__((overloadable)) upsample(uchar4 hi, uchar4 lo);
+ushort8 __const_func __attribute__((overloadable)) upsample(uchar8 hi, uchar8 lo);
+ushort16 __const_func __attribute__((overloadable)) upsample(uchar16 hi, uchar16 lo);
 
 /**
  * result[i] = ((int)hi[i] << 16) | lo[i]
  * result[i] = ((uint)hi[i] << 16) | lo[i]
  */
 int __const_func __attribute__((overloadable)) upsample(short hi, ushort lo);
-uint __const_func __attribute__((overloadable)) upsample (ushort hi, ushort lo);
-int2 __const_func __attribute__((overloadable)) upsample (short2 hi, ushort2 lo);
-int3 __const_func __attribute__((overloadable)) upsample (short3 hi, ushort3 lo);
-int4 __const_func __attribute__((overloadable)) upsample (short4 hi, ushort4 lo);
-int8 __const_func __attribute__((overloadable)) upsample (short8 hi, ushort8 lo);
-int16 __const_func __attribute__((overloadable)) upsample (short16 hi, ushort16 lo);
-uint2 __const_func __attribute__((overloadable)) upsample (ushort2 hi, ushort2 lo);
-uint3 __const_func __attribute__((overloadable)) upsample (ushort3 hi, ushort3 lo);
-uint4 __const_func __attribute__((overloadable)) upsample (ushort4 hi, ushort4 lo);
-uint8 __const_func __attribute__((overloadable)) upsample (ushort8 hi, ushort8 lo);
-uint16 __const_func __attribute__((overloadable)) upsample (ushort16 hi, ushort16 lo);
+uint __const_func __attribute__((overloadable)) upsample(ushort hi, ushort lo);
+int2 __const_func __attribute__((overloadable)) upsample(short2 hi, ushort2 lo);
+int3 __const_func __attribute__((overloadable)) upsample(short3 hi, ushort3 lo);
+int4 __const_func __attribute__((overloadable)) upsample(short4 hi, ushort4 lo);
+int8 __const_func __attribute__((overloadable)) upsample(short8 hi, ushort8 lo);
+int16 __const_func __attribute__((overloadable)) upsample(short16 hi, ushort16 lo);
+uint2 __const_func __attribute__((overloadable)) upsample(ushort2 hi, ushort2 lo);
+uint3 __const_func __attribute__((overloadable)) upsample(ushort3 hi, ushort3 lo);
+uint4 __const_func __attribute__((overloadable)) upsample(ushort4 hi, ushort4 lo);
+uint8 __const_func __attribute__((overloadable)) upsample(ushort8 hi, ushort8 lo);
+uint16 __const_func __attribute__((overloadable)) upsample(ushort16 hi, ushort16 lo);
 /**
  * result[i] = ((long)hi[i] << 32) | lo[i]
  * result[i] = ((ulong)hi[i] << 32) | lo[i]
  */
 long __const_func __attribute__((overloadable)) upsample(int hi, uint lo);
-ulong __const_func __attribute__((overloadable)) upsample (uint hi, uint lo);
-long2 __const_func __attribute__((overloadable)) upsample (int2 hi, uint2 lo);
-long3 __const_func __attribute__((overloadable)) upsample (int3 hi, uint3 lo);
-long4 __const_func __attribute__((overloadable)) upsample (int4 hi, uint4 lo);
-long8 __const_func __attribute__((overloadable)) upsample (int8 hi, uint8 lo);
-long16 __const_func __attribute__((overloadable)) upsample (int16 hi, uint16 lo);
-ulong2 __const_func __attribute__((overloadable)) upsample (uint2 hi, uint2 lo);
-ulong3 __const_func __attribute__((overloadable)) upsample (uint3 hi, uint3 lo);
-ulong4 __const_func __attribute__((overloadable)) upsample (uint4 hi, uint4 lo);
-ulong8 __const_func __attribute__((overloadable)) upsample (uint8 hi, uint8 lo);
-ulong16 __const_func __attribute__((overloadable)) upsample (uint16 hi, uint16 lo);
+ulong __const_func __attribute__((overloadable)) upsample(uint hi, uint lo);
+long2 __const_func __attribute__((overloadable)) upsample(int2 hi, uint2 lo);
+long3 __const_func __attribute__((overloadable)) upsample(int3 hi, uint3 lo);
+long4 __const_func __attribute__((overloadable)) upsample(int4 hi, uint4 lo);
+long8 __const_func __attribute__((overloadable)) upsample(int8 hi, uint8 lo);
+long16 __const_func __attribute__((overloadable)) upsample(int16 hi, uint16 lo);
+ulong2 __const_func __attribute__((overloadable)) upsample(uint2 hi, uint2 lo);
+ulong3 __const_func __attribute__((overloadable)) upsample(uint3 hi, uint3 lo);
+ulong4 __const_func __attribute__((overloadable)) upsample(uint4 hi, uint4 lo);
+ulong8 __const_func __attribute__((overloadable)) upsample(uint8 hi, uint8 lo);
+ulong16 __const_func __attribute__((overloadable)) upsample(uint16 hi, uint16 lo);
 
 /*
  * popcount(x): returns the number of set bit in x
@@ -3202,7 +3202,7 @@ double16 __const_func __attribute__((overloadable)) sign(double16 x);
  * w component of float4 result returned will be 0.0.
  */
 float4 __const_func __attribute__((overloadable)) cross(float4 p0, float4 p1);
-float3 __const_func __attribute__((overloadable)) cross (float3 p0, float3 p1);
+float3 __const_func __attribute__((overloadable)) cross(float3 p0, float3 p1);
 double4 __const_func __attribute__((overloadable)) cross(double4 p0, double4 p1);
 double3 __const_func __attribute__((overloadable)) cross(double3 p0, double3 p1);
 
@@ -6484,7 +6484,7 @@ float __attribute__((overloadable)) __const_func read_imagef(__read_only image2d
 float __attribute__((overloadable)) __const_func read_imagef(__read_only image2d_array_depth_t image, int4 coord);
 
 void __attribute__((overloadable)) write_imagef(__write_only image2d_depth_t image, int2 coord, float depth);
-void __attribute__((overloadable)) write_imagef (__write_only image2d_array_depth_t image, int4 coord, float depth);
+void __attribute__((overloadable)) write_imagef(__write_only image2d_array_depth_t image, int4 coord, float depth);
 
 int __const_func __attribute__((overloadable)) get_image_width(image2d_depth_t image);
 int __const_func __attribute__((overloadable)) get_image_width(image2d_array_depth_t image);
@@ -6682,17 +6682,17 @@ int4 __attribute__((overloadable)) __const_func read_imagei(__read_only image1d_
 int4 __attribute__((overloadable)) __const_func read_imagei(__read_only image1d_array_t image, sampler_t sampler, float2 coord);
 uint4 __attribute__((overloadable)) __const_func read_imageui(__read_only image1d_array_t image, sampler_t sampler, int2 coord);
 uint4 __attribute__((overloadable)) __const_func read_imageui(__read_only image1d_array_t image, sampler_t sampler, float2 coord);
-float4 __attribute__((overloadable)) __const_func read_imagef (__read_only image2d_t image, int2 coord);
-int4 __attribute__((overloadable)) __const_func read_imagei (__read_only image2d_t image, int2 coord);
-uint4 __attribute__((overloadable)) __const_func read_imageui (__read_only image2d_t image, int2 coord);
-float4 __attribute__((overloadable)) __const_func read_imagef (__read_only image3d_t image, int4 coord);
-int4 __attribute__((overloadable)) __const_func read_imagei (__read_only image3d_t image, int4 coord);
-uint4 __attribute__((overloadable)) __const_func read_imageui (__read_only image3d_t image, int4 coord);
-float4 __attribute__((overloadable)) __const_func read_imagef (__read_only image2d_array_t image, int4 coord);
-int4 __attribute__((overloadable)) __const_func read_imagei (__read_only image2d_array_t image, int4 coord);
-uint4 __attribute__((overloadable)) __const_func read_imageui (__read_only image2d_array_t image, int4 coord);
-float4 __attribute__((overloadable)) __const_func read_imagef (__read_only image1d_t image, int coord);
-float4 __attribute__((overloadable)) __const_func read_imagef (__read_only image1d_buffer_t image, int coord);
+float4 __attribute__((overloadable)) __const_func read_imagef(__read_only image2d_t image, int2 coord);
+int4 __attribute__((overloadable)) __const_func read_imagei(__read_only image2d_t image, int2 coord);
+uint4 __attribute__((overloadable)) __const_func read_imageui(__read_only image2d_t image, int2 coord);
+float4 __attribute__((overloadable)) __const_func read_imagef(__read_only image3d_t image, int4 coord);
+int4 __attribute__((overloadable)) __const_func read_imagei(__read_only image3d_t image, int4 coord);
+uint4 __attribute__((overloadable)) __const_func read_imageui(__read_only image3d_t image, int4 coord);
+float4 __attribute__((overloadable)) __const_func read_imagef(__read_only image2d_array_t image, int4 coord);
+int4 __attribute__((overloadable)) __const_func read_imagei(__read_only image2d_array_t image, int4 coord);
+uint4 __attribute__((overloadable)) __const_func read_imageui(__read_only image2d_array_t image, int4 coord);
+float4 __attribute__((overloadable)) __const_func read_imagef(__read_only image1d_t image, int coord);
+float4 __attribute__((overloadable)) __const_func read_imagef(__read_only image1d_buffer_t image, int coord);
 int4 __attribute__((overloadable)) __const_func read_imagei(__read_only image1d_t image, int coord);
 uint4 __attribute__((overloadable)) __const_func read_imageui(__read_only image1d_t image, int coord);
 int4 __attribute__((overloadable)) __const_func read_imagei(__read_only image1d_buffer_t image, int coord);
@@ -6700,18 +6700,18 @@ uint4 __attribute__((overloadable)) __const_func read_imageui(__read_only image1
 float4 __attribute__((overloadable)) __const_func read_imagef(__read_only image1d_array_t image, int2 coord);
 int4 __attribute__((overloadable)) __const_func read_imagei(__read_only image1d_array_t image, int2 coord);
 uint4 __attribute__((overloadable)) __const_func read_imageui(__read_only image1d_array_t image, int2 coord);
-void __attribute__((overloadable)) write_imagef (__write_only image2d_array_t image, int4 coord, float4 color);
-void __attribute__((overloadable)) write_imagei (__write_only image2d_array_t image, int4 coord, int4 color);
-void __attribute__((overloadable)) write_imageui (__write_only image2d_array_t image, int4 coord, uint4 color);
-void __attribute__((overloadable)) write_imagef (__write_only image1d_t image, int coord, float4 color);
-void __attribute__((overloadable)) write_imagei (__write_only image1d_t image, int coord, int4 color);
-void __attribute__((overloadable)) write_imageui (__write_only image1d_t image, int coord, uint4 color);
-void __attribute__((overloadable)) write_imagef (__write_only image1d_buffer_t image, int coord, float4 color);
-void __attribute__((overloadable)) write_imagei (__write_only image1d_buffer_t image, int coord, int4 color);
-void __attribute__((overloadable)) write_imageui (__write_only image1d_buffer_t image, int coord, uint4 color);
-void __attribute__((overloadable)) write_imagef (__write_only image1d_array_t image, int2 coord, float4 color);
-void __attribute__((overloadable)) write_imagei (__write_only image1d_array_t image, int2 coord, int4 color);
-void __attribute__((overloadable)) write_imageui (__write_only image1d_array_t image, int2 coord, uint4 color);
+void __attribute__((overloadable)) write_imagef(__write_only image2d_array_t image, int4 coord, float4 color);
+void __attribute__((overloadable)) write_imagei(__write_only image2d_array_t image, int4 coord, int4 color);
+void __attribute__((overloadable)) write_imageui(__write_only image2d_array_t image, int4 coord, uint4 color);
+void __attribute__((overloadable)) write_imagef(__write_only image1d_t image, int coord, float4 color);
+void __attribute__((overloadable)) write_imagei(__write_only image1d_t image, int coord, int4 color);
+void __attribute__((overloadable)) write_imageui(__write_only image1d_t image, int coord, uint4 color);
+void __attribute__((overloadable)) write_imagef(__write_only image1d_buffer_t image, int coord, float4 color);
+void __attribute__((overloadable)) write_imagei(__write_only image1d_buffer_t image, int coord, int4 color);
+void __attribute__((overloadable)) write_imageui(__write_only image1d_buffer_t image, int coord, uint4 color);
+void __attribute__((overloadable)) write_imagef(__write_only image1d_array_t image, int2 coord, float4 color);
+void __attribute__((overloadable)) write_imagei(__write_only image1d_array_t image, int2 coord, int4 color);
+void __attribute__((overloadable)) write_imageui(__write_only image1d_array_t image, int2 coord, uint4 color);
 
 /**
  * Write color value to location specified by coordinate
