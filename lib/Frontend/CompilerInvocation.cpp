@@ -74,8 +74,6 @@ using namespace llvm::opt;
 static unsigned getOptimizationLevel(ArgList &Args, InputKind IK,
                                      DiagnosticsEngine &Diags) {
   unsigned DefaultOpt = 0;
-  if (IK == IK_OpenCL && (!Args.hasArg(OPT_cl_opt_disable) && !Args.hasArg(OPT_emit_spirv)))
-    DefaultOpt = 2;
 
   if (Arg *A = Args.getLastArg(options::OPT_O_Group)) {
     if (A->getOption().matches(options::OPT_O0))
@@ -349,6 +347,12 @@ static bool ParseCodeGenArgs(CodeGenOptions &Opts, ArgList &Args, InputKind IK,
   unsigned OptimizationLevel = getOptimizationLevel(Args, IK, Diags);
   // TODO: This could be done in Driver
   unsigned MaxOptLevel = 3;
+  if (IK == IK_OpenCL) {
+    if (Args.hasArg(OPT_emit_spirv) || Args.hasArg(OPT_cl_opt_disable)) {
+      MaxOptLevel = 0;
+    }
+  }
+
   if (OptimizationLevel > MaxOptLevel) {
     // If the optimization level is not supported, fall back on the default
     // optimization

@@ -1,4 +1,4 @@
-// RUN: %clang_cc1 %s -ffake-address-space-map -emit-llvm -o - | FileCheck %s
+// RUN: %clang_cc1 %s -O2 -ffake-address-space-map -emit-llvm -o - | FileCheck %s
 
 void f__p(__private int *arg) { }
 // CHECK: i32* nocapture %arg
