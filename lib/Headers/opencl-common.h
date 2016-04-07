@@ -225,6 +225,35 @@ typedef double double16 __attribute__((ext_vector_type(16)));
 #define M_SQRT2       0x1.6a09e667f3bcdp+0
 #define M_SQRT1_2     0x1.6a09e667f3bcdp-1
 
+#ifdef cl_khr_fp16
+
+#define HALF_DIG 3
+#define HALF_MANT_DIG 11
+#define HALF_MAX_10_EXP +4
+#define HALF_MAX_EXP +16
+#define HALF_MIN_10_EXP -4
+#define HALF_MIN_EXP -13
+#define HALF_RADIX 2
+#define HALF_MAX ((0x1.ffcp15h))
+#define HALF_MIN ((0x1.0p-14h))
+#define HALF_EPSILON ((0x1.0p-10h))
+
+#define M_E_H         2.71828182845904523536028747135266250h
+#define M_LOG2E_H     1.44269504088896340735992468100189214h
+#define M_LOG10E_H    0.434294481903251827651128918916605082h
+#define M_LN2_H       0.693147180559945309417232121458176568h
+#define M_LN10_H      2.30258509299404568401799145468436421h
+#define M_PI_H        3.14159265358979323846264338327950288h
+#define M_PI_2_H      1.57079632679489661923132169163975144h
+#define M_PI_4_H      0.785398163397448309615660845819875721h
+#define M_1_PI_H      0.318309886183790671537767526745028724h
+#define M_2_PI_H      0.636619772367581343075535053490057448h
+#define M_2_SQRTPI_H  1.12837916709551257389615890312154517h
+#define M_SQRT2_H     1.41421356237309504880168872420969808h
+#define M_SQRT1_2_H   0.707106781186547524400844362104849039h
+
+#endif // cl_khr_fp16
+
 #define CHAR_BIT    8
 #define SCHAR_MAX  127
 #define SCHAR_MIN  (-128)
@@ -338,6 +367,20 @@ float3 __const_func __attribute__((overloadable)) acos(float3);
 float4 __const_func __attribute__((overloadable)) acos(float4);
 float8 __const_func __attribute__((overloadable)) acos(float8);
 float16 __const_func __attribute__((overloadable)) acos(float16);
+double __const_func __attribute__((overloadable)) acos(double);
+double2 __const_func __attribute__((overloadable)) acos(double2);
+double3 __const_func __attribute__((overloadable)) acos(double3);
+double4 __const_func __attribute__((overloadable)) acos(double4);
+double8 __const_func __attribute__((overloadable)) acos(double8);
+double16 __const_func __attribute__((overloadable)) acos(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) acos(half);
+half2 __const_func __attribute__((overloadable)) acos( half2 );
+half3 __const_func __attribute__((overloadable)) acos( half3 );
+half4 __const_func __attribute__((overloadable)) acos( half4 );
+half8 __const_func __attribute__((overloadable)) acos( half8 );
+half16 __const_func __attribute__((overloadable)) acos( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Inverse hyperbolic cosine.
@@ -348,6 +391,20 @@ float3 __const_func __attribute__((overloadable)) acosh(float3);
 float4 __const_func __attribute__((overloadable)) acosh(float4);
 float8 __const_func __attribute__((overloadable)) acosh(float8);
 float16 __const_func __attribute__((overloadable)) acosh(float16);
+double __const_func __attribute__((overloadable)) acosh(double);
+double2 __const_func __attribute__((overloadable)) acosh(double2);
+double3 __const_func __attribute__((overloadable)) acosh(double3);
+double4 __const_func __attribute__((overloadable)) acosh(double4);
+double8 __const_func __attribute__((overloadable)) acosh(double8);
+double16 __const_func __attribute__((overloadable)) acosh(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) acosh( half );
+half2 __const_func __attribute__((overloadable)) acosh( half2 );
+half3 __const_func __attribute__((overloadable)) acosh( half3 );
+half4 __const_func __attribute__((overloadable)) acosh( half4 );
+half8 __const_func __attribute__((overloadable)) acosh( half8 );
+half16 __const_func __attribute__((overloadable)) acosh( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute acos (x) / PI.
@@ -358,6 +415,20 @@ float3 __const_func __attribute__((overloadable)) acospi(float3 x);
 float4 __const_func __attribute__((overloadable)) acospi(float4 x);
 float8 __const_func __attribute__((overloadable)) acospi(float8 x);
 float16 __const_func __attribute__((overloadable)) acospi(float16 x);
+double __const_func __attribute__((overloadable)) acospi(double x);
+double2 __const_func __attribute__((overloadable)) acospi(double2 x);
+double3 __const_func __attribute__((overloadable)) acospi(double3 x);
+double4 __const_func __attribute__((overloadable)) acospi(double4 x);
+double8 __const_func __attribute__((overloadable)) acospi(double8 x);
+double16 __const_func __attribute__((overloadable)) acospi(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) acospi( half x );
+half2 __const_func __attribute__((overloadable)) acospi( half2 x );
+half3 __const_func __attribute__((overloadable)) acospi( half3 x );
+half4 __const_func __attribute__((overloadable)) acospi( half4 x );
+half8 __const_func __attribute__((overloadable)) acospi( half8 x );
+half16 __const_func __attribute__((overloadable)) acospi( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Arc sine function.
@@ -368,6 +439,20 @@ float3 __const_func __attribute__((overloadable)) asin(float3);
 float4 __const_func __attribute__((overloadable)) asin(float4);
 float8 __const_func __attribute__((overloadable)) asin(float8);
 float16 __const_func __attribute__((overloadable)) asin(float16);
+double __const_func __attribute__((overloadable)) asin(double);
+double2 __const_func __attribute__((overloadable)) asin(double2);
+double3 __const_func __attribute__((overloadable)) asin(double3);
+double4 __const_func __attribute__((overloadable)) asin(double4);
+double8 __const_func __attribute__((overloadable)) asin(double8);
+double16 __const_func __attribute__((overloadable)) asin(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) asin( half );
+half2 __const_func __attribute__((overloadable)) asin( half2 );
+half3 __const_func __attribute__((overloadable)) asin( half3 );
+half4 __const_func __attribute__((overloadable)) asin( half4 );
+half8 __const_func __attribute__((overloadable)) asin( half8 );
+half16 __const_func __attribute__((overloadable)) asin( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Inverse hyperbolic sine.
@@ -378,6 +463,20 @@ float3 __const_func __attribute__((overloadable)) asinh(float3);
 float4 __const_func __attribute__((overloadable)) asinh(float4);
 float8 __const_func __attribute__((overloadable)) asinh(float8);
 float16 __const_func __attribute__((overloadable)) asinh(float16);
+double __const_func __attribute__((overloadable)) asinh(double);
+double2 __const_func __attribute__((overloadable)) asinh(double2);
+double3 __const_func __attribute__((overloadable)) asinh(double3);
+double4 __const_func __attribute__((overloadable)) asinh(double4);
+double8 __const_func __attribute__((overloadable)) asinh(double8);
+double16 __const_func __attribute__((overloadable)) asinh(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) asinh( half );
+half2 __const_func __attribute__((overloadable)) asinh( half2 );
+half3 __const_func __attribute__((overloadable)) asinh( half3 );
+half4 __const_func __attribute__((overloadable)) asinh( half4 );
+half8 __const_func __attribute__((overloadable)) asinh( half8 );
+half16 __const_func __attribute__((overloadable)) asinh( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute asin (x) / PI.
@@ -388,6 +487,20 @@ float3 __const_func __attribute__((overloadable)) asinpi(float3 x);
 float4 __const_func __attribute__((overloadable)) asinpi(float4 x);
 float8 __const_func __attribute__((overloadable)) asinpi(float8 x);
 float16 __const_func __attribute__((overloadable)) asinpi(float16 x);
+double __const_func __attribute__((overloadable)) asinpi(double x);
+double2 __const_func __attribute__((overloadable)) asinpi(double2 x);
+double3 __const_func __attribute__((overloadable)) asinpi(double3 x);
+double4 __const_func __attribute__((overloadable)) asinpi(double4 x);
+double8 __const_func __attribute__((overloadable)) asinpi(double8 x);
+double16 __const_func __attribute__((overloadable)) asinpi(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) asinpi( half x );
+half2 __const_func __attribute__((overloadable)) asinpi( half2 x );
+half3 __const_func __attribute__((overloadable)) asinpi( half3 x );
+half4 __const_func __attribute__((overloadable)) asinpi( half4 x );
+half8 __const_func __attribute__((overloadable)) asinpi( half8 x );
+half16 __const_func __attribute__((overloadable)) asinpi( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Arc tangent function.
@@ -398,6 +511,20 @@ float3 __const_func __attribute__((overloadable)) atan(float3 y_over_x);
 float4 __const_func __attribute__((overloadable)) atan(float4 y_over_x);
 float8 __const_func __attribute__((overloadable)) atan(float8 y_over_x);
 float16 __const_func __attribute__((overloadable)) atan(float16 y_over_x);
+double __const_func __attribute__((overloadable)) atan(double y_over_x);
+double2 __const_func __attribute__((overloadable)) atan(double2 y_over_x);
+double3 __const_func __attribute__((overloadable)) atan(double3 y_over_x);
+double4 __const_func __attribute__((overloadable)) atan(double4 y_over_x);
+double8 __const_func __attribute__((overloadable)) atan(double8 y_over_x);
+double16 __const_func __attribute__((overloadable)) atan(double16 y_over_x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) atan( half y_over_x );
+half2 __const_func __attribute__((overloadable)) atan( half2 y_over_x );
+half3 __const_func __attribute__((overloadable)) atan( half3 y_over_x );
+half4 __const_func __attribute__((overloadable)) atan( half4 y_over_x );
+half8 __const_func __attribute__((overloadable)) atan( half8 y_over_x );
+half16 __const_func __attribute__((overloadable)) atan( half16 y_over_x );
+#endif //cl_khr_fp16
 
 /**
  * Arc tangent of y / x.
@@ -408,6 +535,20 @@ float3 __const_func __attribute__((overloadable)) atan2(float3 y, float3 x);
 float4 __const_func __attribute__((overloadable)) atan2(float4 y, float4 x);
 float8 __const_func __attribute__((overloadable)) atan2(float8 y, float8 x);
 float16 __const_func __attribute__((overloadable)) atan2(float16 y, float16 x);
+double __const_func __attribute__((overloadable)) atan2(double y, double x);
+double2 __const_func __attribute__((overloadable)) atan2(double2 y, double2 x);
+double3 __const_func __attribute__((overloadable)) atan2(double3 y, double3 x);
+double4 __const_func __attribute__((overloadable)) atan2(double4 y, double4 x);
+double8 __const_func __attribute__((overloadable)) atan2(double8 y, double8 x);
+double16 __const_func __attribute__((overloadable)) atan2(double16 y, double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) atan2( half y, half x );
+half2 __const_func __attribute__((overloadable)) atan2( half2 y, half2 x );
+half3 __const_func __attribute__((overloadable)) atan2( half3 y, half3 x );
+half4 __const_func __attribute__((overloadable)) atan2( half4 y, half4 x );
+half8 __const_func __attribute__((overloadable)) atan2( half8 y, half8 x );
+half16 __const_func __attribute__((overloadable)) atan2( half16 y, half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Hyperbolic arc tangent.
@@ -418,6 +559,20 @@ float3 __const_func __attribute__((overloadable)) atanh(float3);
 float4 __const_func __attribute__((overloadable)) atanh(float4);
 float8 __const_func __attribute__((overloadable)) atanh(float8);
 float16 __const_func __attribute__((overloadable)) atanh(float16);
+double __const_func __attribute__((overloadable)) atanh(double);
+double2 __const_func __attribute__((overloadable)) atanh(double2);
+double3 __const_func __attribute__((overloadable)) atanh(double3);
+double4 __const_func __attribute__((overloadable)) atanh(double4);
+double8 __const_func __attribute__((overloadable)) atanh(double8);
+double16 __const_func __attribute__((overloadable)) atanh(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) atanh( half );
+half2 __const_func __attribute__((overloadable)) atanh( half2 );
+half3 __const_func __attribute__((overloadable)) atanh( half3 );
+half4 __const_func __attribute__((overloadable)) atanh( half4 );
+half8 __const_func __attribute__((overloadable)) atanh( half8 );
+half16 __const_func __attribute__((overloadable)) atanh( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute atan (x) / PI.
@@ -428,6 +583,20 @@ float3 __const_func __attribute__((overloadable)) atanpi(float3 x);
 float4 __const_func __attribute__((overloadable)) atanpi(float4 x);
 float8 __const_func __attribute__((overloadable)) atanpi(float8 x);
 float16 __const_func __attribute__((overloadable)) atanpi(float16 x);
+double __const_func __attribute__((overloadable)) atanpi(double x);
+double2 __const_func __attribute__((overloadable)) atanpi(double2 x);
+double3 __const_func __attribute__((overloadable)) atanpi(double3 x);
+double4 __const_func __attribute__((overloadable)) atanpi(double4 x);
+double8 __const_func __attribute__((overloadable)) atanpi(double8 x);
+double16 __const_func __attribute__((overloadable)) atanpi(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) atanpi( half x );
+half2 __const_func __attribute__((overloadable)) atanpi( half2 x );
+half3 __const_func __attribute__((overloadable)) atanpi( half3 x );
+half4 __const_func __attribute__((overloadable)) atanpi( half4 x );
+half8 __const_func __attribute__((overloadable)) atanpi( half8 x );
+half16 __const_func __attribute__((overloadable)) atanpi( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Compute atan2 (y, x) / PI.
@@ -438,6 +607,20 @@ float3 __const_func __attribute__((overloadable)) atan2pi(float3 y, float3 x);
 float4 __const_func __attribute__((overloadable)) atan2pi(float4 y, float4 x);
 float8 __const_func __attribute__((overloadable)) atan2pi(float8 y, float8 x);
 float16 __const_func __attribute__((overloadable)) atan2pi(float16 y, float16 x);
+double __const_func __attribute__((overloadable)) atan2pi(double y, double x);
+double2 __const_func __attribute__((overloadable)) atan2pi(double2 y, double2 x);
+double3 __const_func __attribute__((overloadable)) atan2pi(double3 y, double3 x);
+double4 __const_func __attribute__((overloadable)) atan2pi(double4 y, double4 x);
+double8 __const_func __attribute__((overloadable)) atan2pi(double8 y, double8 x);
+double16 __const_func __attribute__((overloadable)) atan2pi(double16 y, double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) atan2pi( half y, half x );
+half2 __const_func __attribute__((overloadable)) atan2pi( half2 y, half2 x );
+half3 __const_func __attribute__((overloadable)) atan2pi( half3 y, half3 x );
+half4 __const_func __attribute__((overloadable)) atan2pi( half4 y, half4 x );
+half8 __const_func __attribute__((overloadable)) atan2pi( half8 y, half8 x );
+half16 __const_func __attribute__((overloadable)) atan2pi( half16 y, half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Compute cube-root.
@@ -448,6 +631,20 @@ float3 __const_func __attribute__((overloadable)) cbrt(float3);
 float4 __const_func __attribute__((overloadable)) cbrt(float4);
 float8 __const_func __attribute__((overloadable)) cbrt(float8);
 float16 __const_func __attribute__((overloadable)) cbrt(float16);
+double __const_func __attribute__((overloadable)) cbrt(double);
+double2 __const_func __attribute__((overloadable)) cbrt(double2);
+double3 __const_func __attribute__((overloadable)) cbrt(double3);
+double4 __const_func __attribute__((overloadable)) cbrt(double4);
+double8 __const_func __attribute__((overloadable)) cbrt(double8);
+double16 __const_func __attribute__((overloadable)) cbrt(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) cbrt( half );
+half2 __const_func __attribute__((overloadable)) cbrt( half2 );
+half3 __const_func __attribute__((overloadable)) cbrt( half3 );
+half4 __const_func __attribute__((overloadable)) cbrt( half4 );
+half8 __const_func __attribute__((overloadable)) cbrt( half8 );
+half16 __const_func __attribute__((overloadable)) cbrt( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Round to integral value using the round to +ve
@@ -459,6 +656,20 @@ float3 __const_func __attribute__((overloadable)) ceil(float3);
 float4 __const_func __attribute__((overloadable)) ceil(float4);
 float8 __const_func __attribute__((overloadable)) ceil(float8);
 float16 __const_func __attribute__((overloadable)) ceil(float16);
+double __const_func __attribute__((overloadable)) ceil(double);
+double2 __const_func __attribute__((overloadable)) ceil(double2);
+double3 __const_func __attribute__((overloadable)) ceil(double3);
+double4 __const_func __attribute__((overloadable)) ceil(double4);
+double8 __const_func __attribute__((overloadable)) ceil(double8);
+double16 __const_func __attribute__((overloadable)) ceil(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) ceil( half );
+half2 __const_func __attribute__((overloadable)) ceil( half2 );
+half3 __const_func __attribute__((overloadable)) ceil( half3 );
+half4 __const_func __attribute__((overloadable)) ceil( half4 );
+half8 __const_func __attribute__((overloadable)) ceil( half8 );
+half16 __const_func __attribute__((overloadable)) ceil( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Returns x with its sign changed to match the sign of
@@ -470,6 +681,20 @@ float3 __const_func __attribute__((overloadable)) copysign(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) copysign(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) copysign(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) copysign(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) copysign(double x, double y);
+double2 __const_func __attribute__((overloadable)) copysign(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) copysign(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) copysign(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) copysign(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) copysign(double16 x, double16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) copysign( half x, half y );
+half2 __const_func __attribute__((overloadable)) copysign( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) copysign( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) copysign( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) copysign( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) copysign( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Compute cosine.
@@ -480,6 +705,20 @@ float3 __const_func __attribute__((overloadable)) cos(float3);
 float4 __const_func __attribute__((overloadable)) cos(float4);
 float8 __const_func __attribute__((overloadable)) cos(float8);
 float16 __const_func __attribute__((overloadable)) cos(float16);
+double __const_func __attribute__((overloadable)) cos(double);
+double2 __const_func __attribute__((overloadable)) cos(double2);
+double3 __const_func __attribute__((overloadable)) cos(double3);
+double4 __const_func __attribute__((overloadable)) cos(double4);
+double8 __const_func __attribute__((overloadable)) cos(double8);
+double16 __const_func __attribute__((overloadable)) cos(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) cos( half );
+half2 __const_func __attribute__((overloadable)) cos( half2 );
+half3 __const_func __attribute__((overloadable)) cos( half3 );
+half4 __const_func __attribute__((overloadable)) cos( half4 );
+half8 __const_func __attribute__((overloadable)) cos( half8 );
+half16 __const_func __attribute__((overloadable)) cos( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute hyperbolic cosine.
@@ -490,6 +729,20 @@ float3 __const_func __attribute__((overloadable)) cosh(float3);
 float4 __const_func __attribute__((overloadable)) cosh(float4);
 float8 __const_func __attribute__((overloadable)) cosh(float8);
 float16 __const_func __attribute__((overloadable)) cosh(float16);
+double __const_func __attribute__((overloadable)) cosh(double);
+double2 __const_func __attribute__((overloadable)) cosh(double2);
+double3 __const_func __attribute__((overloadable)) cosh(double3);
+double4 __const_func __attribute__((overloadable)) cosh(double4);
+double8 __const_func __attribute__((overloadable)) cosh(double8);
+double16 __const_func __attribute__((overloadable)) cosh(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) cosh( half );
+half2 __const_func __attribute__((overloadable)) cosh( half2 );
+half3 __const_func __attribute__((overloadable)) cosh( half3 );
+half4 __const_func __attribute__((overloadable)) cosh( half4 );
+half8 __const_func __attribute__((overloadable)) cosh( half8 );
+half16 __const_func __attribute__((overloadable)) cosh( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute cos (PI * x).
@@ -500,6 +753,20 @@ float3 __const_func __attribute__((overloadable)) cospi(float3 x);
 float4 __const_func __attribute__((overloadable)) cospi(float4 x);
 float8 __const_func __attribute__((overloadable)) cospi(float8 x);
 float16 __const_func __attribute__((overloadable)) cospi(float16 x);
+double __const_func __attribute__((overloadable)) cospi(double x);
+double2 __const_func __attribute__((overloadable)) cospi(double2 x);
+double3 __const_func __attribute__((overloadable)) cospi(double3 x);
+double4 __const_func __attribute__((overloadable)) cospi(double4 x);
+double8 __const_func __attribute__((overloadable)) cospi(double8 x);
+double16 __const_func __attribute__((overloadable)) cospi(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) cospi( half x );
+half2 __const_func __attribute__((overloadable)) cospi( half2 x );
+half3 __const_func __attribute__((overloadable)) cospi( half3 x );
+half4 __const_func __attribute__((overloadable)) cospi( half4 x );
+half8 __const_func __attribute__((overloadable)) cospi( half8 x );
+half16 __const_func __attribute__((overloadable)) cospi( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Complementary error function.
@@ -510,6 +777,20 @@ float3 __const_func __attribute__((overloadable)) erfc(float3);
 float4 __const_func __attribute__((overloadable)) erfc(float4);
 float8 __const_func __attribute__((overloadable)) erfc(float8);
 float16 __const_func __attribute__((overloadable)) erfc(float16);
+double __const_func __attribute__((overloadable)) erfc(double);
+double2 __const_func __attribute__((overloadable)) erfc(double2);
+double3 __const_func __attribute__((overloadable)) erfc(double3);
+double4 __const_func __attribute__((overloadable)) erfc(double4);
+double8 __const_func __attribute__((overloadable)) erfc(double8);
+double16 __const_func __attribute__((overloadable)) erfc(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) erfc( half );
+half2 __const_func __attribute__((overloadable)) erfc( half2 );
+half3 __const_func __attribute__((overloadable)) erfc( half3 );
+half4 __const_func __attribute__((overloadable)) erfc( half4 );
+half8 __const_func __attribute__((overloadable)) erfc( half8 );
+half16 __const_func __attribute__((overloadable)) erfc( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Error function encountered in integrating the
@@ -521,6 +802,20 @@ float3 __const_func __attribute__((overloadable)) erf(float3);
 float4 __const_func __attribute__((overloadable)) erf(float4);
 float8 __const_func __attribute__((overloadable)) erf(float8);
 float16 __const_func __attribute__((overloadable)) erf(float16);
+double __const_func __attribute__((overloadable)) erf(double);
+double2 __const_func __attribute__((overloadable)) erf(double2);
+double3 __const_func __attribute__((overloadable)) erf(double3);
+double4 __const_func __attribute__((overloadable)) erf(double4);
+double8 __const_func __attribute__((overloadable)) erf(double8);
+double16 __const_func __attribute__((overloadable)) erf(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) erf( half );
+half2 __const_func __attribute__((overloadable)) erf( half2 );
+half3 __const_func __attribute__((overloadable)) erf( half3 );
+half4 __const_func __attribute__((overloadable)) erf( half4 );
+half8 __const_func __attribute__((overloadable)) erf( half8 );
+half16 __const_func __attribute__((overloadable)) erf( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute the base- e exponential of x.
@@ -531,6 +826,20 @@ float3 __const_func __attribute__((overloadable)) exp(float3 x);
 float4 __const_func __attribute__((overloadable)) exp(float4 x);
 float8 __const_func __attribute__((overloadable)) exp(float8 x);
 float16 __const_func __attribute__((overloadable)) exp(float16 x);
+double __const_func __attribute__((overloadable)) exp(double x);
+double2 __const_func __attribute__((overloadable)) exp(double2 x);
+double3 __const_func __attribute__((overloadable)) exp(double3 x);
+double4 __const_func __attribute__((overloadable)) exp(double4 x);
+double8 __const_func __attribute__((overloadable)) exp(double8 x);
+double16 __const_func __attribute__((overloadable)) exp(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) exp( half x );
+half2 __const_func __attribute__((overloadable)) exp( half2 x );
+half3 __const_func __attribute__((overloadable)) exp( half3 x );
+half4 __const_func __attribute__((overloadable)) exp( half4 x );
+half8 __const_func __attribute__((overloadable)) exp( half8 x );
+half16 __const_func __attribute__((overloadable)) exp( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Exponential base 2 function.
@@ -541,6 +850,20 @@ float3 __const_func __attribute__((overloadable)) exp2(float3);
 float4 __const_func __attribute__((overloadable)) exp2(float4);
 float8 __const_func __attribute__((overloadable)) exp2(float8);
 float16 __const_func __attribute__((overloadable)) exp2(float16);
+double __const_func __attribute__((overloadable)) exp2(double);
+double2 __const_func __attribute__((overloadable)) exp2(double2);
+double3 __const_func __attribute__((overloadable)) exp2(double3);
+double4 __const_func __attribute__((overloadable)) exp2(double4);
+double8 __const_func __attribute__((overloadable)) exp2(double8);
+double16 __const_func __attribute__((overloadable)) exp2(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) exp2( half );
+half2 __const_func __attribute__((overloadable)) exp2( half2 );
+half3 __const_func __attribute__((overloadable)) exp2( half3 );
+half4 __const_func __attribute__((overloadable)) exp2( half4 );
+half8 __const_func __attribute__((overloadable)) exp2( half8 );
+half16 __const_func __attribute__((overloadable)) exp2( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Exponential base 10 function.
@@ -551,6 +874,20 @@ float3 __const_func __attribute__((overloadable)) exp10(float3);
 float4 __const_func __attribute__((overloadable)) exp10(float4);
 float8 __const_func __attribute__((overloadable)) exp10(float8);
 float16 __const_func __attribute__((overloadable)) exp10(float16);
+double __const_func __attribute__((overloadable)) exp10(double);
+double2 __const_func __attribute__((overloadable)) exp10(double2);
+double3 __const_func __attribute__((overloadable)) exp10(double3);
+double4 __const_func __attribute__((overloadable)) exp10(double4);
+double8 __const_func __attribute__((overloadable)) exp10(double8);
+double16 __const_func __attribute__((overloadable)) exp10(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) exp10( half );
+half2 __const_func __attribute__((overloadable)) exp10( half2 );
+half3 __const_func __attribute__((overloadable)) exp10( half3 );
+half4 __const_func __attribute__((overloadable)) exp10( half4 );
+half8 __const_func __attribute__((overloadable)) exp10( half8 );
+half16 __const_func __attribute__((overloadable)) exp10( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute e^x- 1.0.
@@ -561,6 +898,20 @@ float3 __const_func __attribute__((overloadable)) expm1(float3 x);
 float4 __const_func __attribute__((overloadable)) expm1(float4 x);
 float8 __const_func __attribute__((overloadable)) expm1(float8 x);
 float16 __const_func __attribute__((overloadable)) expm1(float16 x);
+double __const_func __attribute__((overloadable)) expm1(double x);
+double2 __const_func __attribute__((overloadable)) expm1(double2 x);
+double3 __const_func __attribute__((overloadable)) expm1(double3 x);
+double4 __const_func __attribute__((overloadable)) expm1(double4 x);
+double8 __const_func __attribute__((overloadable)) expm1(double8 x);
+double16 __const_func __attribute__((overloadable)) expm1(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) expm1( half x );
+half2 __const_func __attribute__((overloadable)) expm1( half2 x );
+half3 __const_func __attribute__((overloadable)) expm1( half3 x );
+half4 __const_func __attribute__((overloadable)) expm1( half4 x );
+half8 __const_func __attribute__((overloadable)) expm1( half8 x );
+half16 __const_func __attribute__((overloadable)) expm1( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Compute absolute value of a floating-point number.
@@ -571,6 +922,20 @@ float3 __const_func __attribute__((overloadable)) fabs(float3);
 float4 __const_func __attribute__((overloadable)) fabs(float4);
 float8 __const_func __attribute__((overloadable)) fabs(float8);
 float16 __const_func __attribute__((overloadable)) fabs(float16);
+double __const_func __attribute__((overloadable)) fabs(double);
+double2 __const_func __attribute__((overloadable)) fabs(double2);
+double3 __const_func __attribute__((overloadable)) fabs(double3);
+double4 __const_func __attribute__((overloadable)) fabs(double4);
+double8 __const_func __attribute__((overloadable)) fabs(double8);
+double16 __const_func __attribute__((overloadable)) fabs(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) fabs( half );
+half2 __const_func __attribute__((overloadable)) fabs( half2 );
+half3 __const_func __attribute__((overloadable)) fabs( half3 );
+half4 __const_func __attribute__((overloadable)) fabs( half4 );
+half8 __const_func __attribute__((overloadable)) fabs( half8 );
+half16 __const_func __attribute__((overloadable)) fabs( half16 );
+#endif //cl_khr_fp16
 
 /**
  * x - y if x > y, +0 if x is less than or equal to y.
@@ -581,6 +946,20 @@ float3 __const_func __attribute__((overloadable)) fdim(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) fdim(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) fdim(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) fdim(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) fdim(double x, double y);
+double2 __const_func __attribute__((overloadable)) fdim(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) fdim(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) fdim(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) fdim(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) fdim(double16 x, double16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) fdim( half x, half y );
+half2 __const_func __attribute__((overloadable)) fdim( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) fdim( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) fdim( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) fdim( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) fdim( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Round to integral value using the round to -ve
@@ -592,6 +971,20 @@ float3 __const_func __attribute__((overloadable)) floor(float3);
 float4 __const_func __attribute__((overloadable)) floor(float4);
 float8 __const_func __attribute__((overloadable)) floor(float8);
 float16 __const_func __attribute__((overloadable)) floor(float16);
+double __const_func __attribute__((overloadable)) floor(double);
+double2 __const_func __attribute__((overloadable)) floor(double2);
+double3 __const_func __attribute__((overloadable)) floor(double3);
+double4 __const_func __attribute__((overloadable)) floor(double4);
+double8 __const_func __attribute__((overloadable)) floor(double8);
+double16 __const_func __attribute__((overloadable)) floor(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) floor( half );
+half2 __const_func __attribute__((overloadable)) floor( half2 );
+half3 __const_func __attribute__((overloadable)) floor( half3 );
+half4 __const_func __attribute__((overloadable)) floor( half4 );
+half8 __const_func __attribute__((overloadable)) floor( half8 );
+half16 __const_func __attribute__((overloadable)) floor( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Returns the correctly rounded floating-point
@@ -606,6 +999,20 @@ float3 __const_func __attribute__((overloadable)) fma(float3 a, float3 b, float3
 float4 __const_func __attribute__((overloadable)) fma(float4 a, float4 b, float4 c);
 float8 __const_func __attribute__((overloadable)) fma(float8 a, float8 b, float8 c);
 float16 __const_func __attribute__((overloadable)) fma(float16 a, float16 b, float16 c);
+double __const_func __attribute__((overloadable)) fma(double a, double b, double c);
+double2 __const_func __attribute__((overloadable)) fma(double2 a, double2 b, double2 c);
+double3 __const_func __attribute__((overloadable)) fma(double3 a, double3 b, double3 c);
+double4 __const_func __attribute__((overloadable)) fma(double4 a, double4 b, double4 c);
+double8 __const_func __attribute__((overloadable)) fma(double8 a, double8 b, double8 c);
+double16 __const_func __attribute__((overloadable)) fma(double16 a, double16 b, double16 c);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) fma( half a, half b, half c );
+half2 __const_func __attribute__((overloadable)) fma( half2 a, half2 b, half2 c );
+half3 __const_func __attribute__((overloadable)) fma( half3 a, half3 b, half3 c );
+half4 __const_func __attribute__((overloadable)) fma( half4 a, half4 b, half4 c );
+half8 __const_func __attribute__((overloadable)) fma( half8 a, half8 b, half8 c );
+half16 __const_func __attribute__((overloadable)) fma( half16 a, half16 b, half16 c );
+#endif //cl_khr_fp16
 
 /**
  * Returns y if x < y, otherwise it returns x. If one
@@ -624,6 +1031,30 @@ float3 __const_func __attribute__((overloadable)) fmax(float3 x, float y);
 float4 __const_func __attribute__((overloadable)) fmax(float4 x, float y);
 float8 __const_func __attribute__((overloadable)) fmax(float8 x, float y);
 float16 __const_func __attribute__((overloadable)) fmax(float16 x, float y);
+double __const_func __attribute__((overloadable)) fmax(double x, double y);
+double2 __const_func __attribute__((overloadable)) fmax(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) fmax(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) fmax(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) fmax(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) fmax(double16 x, double16 y);
+double2 __const_func __attribute__((overloadable)) fmax(double2 x, double y);
+double3 __const_func __attribute__((overloadable)) fmax(double3 x, double y);
+double4 __const_func __attribute__((overloadable)) fmax(double4 x, double y);
+double8 __const_func __attribute__((overloadable)) fmax(double8 x, double y);
+double16 __const_func __attribute__((overloadable)) fmax(double16 x, double y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) fmax( half x, half y );
+half2 __const_func __attribute__((overloadable)) fmax( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) fmax( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) fmax( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) fmax( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) fmax( half16 x, half16 y );
+half2 __const_func __attribute__((overloadable)) fmax( half2 x, half y );
+half3 __const_func __attribute__((overloadable)) fmax( half3 x, half y );
+half4 __const_func __attribute__((overloadable)) fmax( half4 x, half y );
+half8 __const_func __attribute__((overloadable)) fmax( half8 x, half y );
+half16 __const_func __attribute__((overloadable)) fmax( half16 x, half y );
+#endif //cl_khr_fp16
 
 /**
  * Returns y if y < x, otherwise it returns x. If one
@@ -642,6 +1073,30 @@ float3 __const_func __attribute__((overloadable)) fmin(float3 x, float y);
 float4 __const_func __attribute__((overloadable)) fmin(float4 x, float y);
 float8 __const_func __attribute__((overloadable)) fmin(float8 x, float y);
 float16 __const_func __attribute__((overloadable)) fmin(float16 x, float y);
+double __const_func __attribute__((overloadable)) fmin(double x, double y);
+double2 __const_func __attribute__((overloadable)) fmin(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) fmin(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) fmin(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) fmin(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) fmin(double16 x, double16 y);
+double2 __const_func __attribute__((overloadable)) fmin(double2 x, double y);
+double3 __const_func __attribute__((overloadable)) fmin(double3 x, double y);
+double4 __const_func __attribute__((overloadable)) fmin(double4 x, double y);
+double8 __const_func __attribute__((overloadable)) fmin(double8 x, double y);
+double16 __const_func __attribute__((overloadable)) fmin(double16 x, double y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) fmin( half x, half y );
+half2 __const_func __attribute__((overloadable)) fmin( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) fmin( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) fmin( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) fmin( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) fmin( half16 x, half16 y );
+half2 __const_func __attribute__((overloadable)) fmin( half2 x, half y );
+half3 __const_func __attribute__((overloadable)) fmin( half3 x, half y );
+half4 __const_func __attribute__((overloadable)) fmin( half4 x, half y );
+half8 __const_func __attribute__((overloadable)) fmin( half8 x, half y );
+half16 __const_func __attribute__((overloadable)) fmin( half16 x, half y );
+#endif //cl_khr_fp16
 
 /**
  * Modulus. Returns x - y * trunc (x/y).
@@ -652,6 +1107,20 @@ float3 __const_func __attribute__((overloadable)) fmod(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) fmod(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) fmod(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) fmod(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) fmod(double x, double y);
+double2 __const_func __attribute__((overloadable)) fmod(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) fmod(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) fmod(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) fmod(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) fmod(double16 x, double16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) fmod( half x, half y );
+half2 __const_func __attribute__((overloadable)) fmod( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) fmod( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) fmod( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) fmod( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) fmod( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Compute the value of the square root of x^2+ y^2
@@ -663,6 +1132,20 @@ float3 __const_func __attribute__((overloadable)) hypot(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) hypot(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) hypot(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) hypot(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) hypot(double x, double y);
+double2 __const_func __attribute__((overloadable)) hypot(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) hypot(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) hypot(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) hypot(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) hypot(double16 x, double16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) hypot( half x, half y );
+half2 __const_func __attribute__((overloadable)) hypot( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) hypot( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) hypot( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) hypot( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) hypot( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Return the exponent as an integer value.
@@ -673,6 +1156,20 @@ int3 __const_func __attribute__((overloadable)) ilogb(float3 x);
 int4 __const_func __attribute__((overloadable)) ilogb(float4 x);
 int8 __const_func __attribute__((overloadable)) ilogb(float8 x);
 int16 __const_func __attribute__((overloadable)) ilogb(float16 x);
+int __const_func __attribute__((overloadable)) ilogb(double x);
+int2 __const_func __attribute__((overloadable)) ilogb(double2 x);
+int3 __const_func __attribute__((overloadable)) ilogb(double3 x);
+int4 __const_func __attribute__((overloadable)) ilogb(double4 x);
+int8 __const_func __attribute__((overloadable)) ilogb(double8 x);
+int16 __const_func __attribute__((overloadable)) ilogb(double16 x);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) ilogb( half x );
+int2 __const_func __attribute__((overloadable)) ilogb( half2 x );
+int3 __const_func __attribute__((overloadable)) ilogb( half3 x );
+int4 __const_func __attribute__((overloadable)) ilogb( half4 x );
+int8 __const_func __attribute__((overloadable)) ilogb( half8 x );
+int16 __const_func __attribute__((overloadable)) ilogb( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Multiply x by 2 to the power n.
@@ -688,6 +1185,30 @@ float3 __const_func __attribute__((overloadable)) ldexp(float3 x, int n);
 float4 __const_func __attribute__((overloadable)) ldexp(float4 x, int n);
 float8 __const_func __attribute__((overloadable)) ldexp(float8 x, int n);
 float16 __const_func __attribute__((overloadable)) ldexp(float16 x, int n);
+double __const_func __attribute__((overloadable)) ldexp(double x, int n);
+double2 __const_func __attribute__((overloadable)) ldexp(double2 x, int2 n);
+double3 __const_func __attribute__((overloadable)) ldexp(double3 x, int3 n);
+double4 __const_func __attribute__((overloadable)) ldexp(double4 x, int4 n);
+double8 __const_func __attribute__((overloadable)) ldexp(double8 x, int8 n);
+double16 __const_func __attribute__((overloadable)) ldexp(double16 x, int16 n);
+double2 __const_func __attribute__((overloadable)) ldexp(double2 x, int n);
+double3 __const_func __attribute__((overloadable)) ldexp(double3 x, int n);
+double4 __const_func __attribute__((overloadable)) ldexp(double4 x, int n);
+double8 __const_func __attribute__((overloadable)) ldexp(double8 x, int n);
+double16 __const_func __attribute__((overloadable)) ldexp(double16 x, int n);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) ldexp( half x, int n );
+half2 __const_func __attribute__((overloadable)) ldexp( half2 x, int2 n );
+half3 __const_func __attribute__((overloadable)) ldexp( half3 x, int3 n );
+half4 __const_func __attribute__((overloadable)) ldexp( half4 x, int4 n );
+half8 __const_func __attribute__((overloadable)) ldexp( half8 x, int8 n );
+half16 __const_func __attribute__((overloadable)) ldexp( half16 x, int16 n );
+half2 __const_func __attribute__((overloadable)) ldexp( half2 x, int n );
+half3 __const_func __attribute__((overloadable)) ldexp( half3 x, int n );
+half4 __const_func __attribute__((overloadable)) ldexp( half4 x, int n );
+half8 __const_func __attribute__((overloadable)) ldexp( half8 x, int n );
+half16 __const_func __attribute__((overloadable)) ldexp( half16 x, int n );
+#endif //cl_khr_fp16
 
 /**
  * Log gamma function. Returns the natural
@@ -701,6 +1222,20 @@ float3 __const_func __attribute__((overloadable)) lgamma(float3 x);
 float4 __const_func __attribute__((overloadable)) lgamma(float4 x);
 float8 __const_func __attribute__((overloadable)) lgamma(float8 x);
 float16 __const_func __attribute__((overloadable)) lgamma(float16 x);
+double __const_func __attribute__((overloadable)) lgamma(double x);
+double2 __const_func __attribute__((overloadable)) lgamma(double2 x);
+double3 __const_func __attribute__((overloadable)) lgamma(double3 x);
+double4 __const_func __attribute__((overloadable)) lgamma(double4 x);
+double8 __const_func __attribute__((overloadable)) lgamma(double8 x);
+double16 __const_func __attribute__((overloadable)) lgamma(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) lgamma( half x );
+half2 __const_func __attribute__((overloadable)) lgamma( half2 x );
+half3 __const_func __attribute__((overloadable)) lgamma( half3 x );
+half4 __const_func __attribute__((overloadable)) lgamma( half4 x );
+half8 __const_func __attribute__((overloadable)) lgamma( half8 x );
+half16 __const_func __attribute__((overloadable)) lgamma( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Compute natural logarithm.
@@ -711,6 +1246,20 @@ float3 __const_func __attribute__((overloadable)) log(float3);
 float4 __const_func __attribute__((overloadable)) log(float4);
 float8 __const_func __attribute__((overloadable)) log(float8);
 float16 __const_func __attribute__((overloadable)) log(float16);
+double __const_func __attribute__((overloadable)) log(double);
+double2 __const_func __attribute__((overloadable)) log(double2);
+double3 __const_func __attribute__((overloadable)) log(double3);
+double4 __const_func __attribute__((overloadable)) log(double4);
+double8 __const_func __attribute__((overloadable)) log(double8);
+double16 __const_func __attribute__((overloadable)) log(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) log( half );
+half2 __const_func __attribute__((overloadable)) log( half2 );
+half3 __const_func __attribute__((overloadable)) log( half3 );
+half4 __const_func __attribute__((overloadable)) log( half4 );
+half8 __const_func __attribute__((overloadable)) log( half8 );
+half16 __const_func __attribute__((overloadable)) log( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute a base 2 logarithm.
@@ -721,6 +1270,20 @@ float3 __const_func __attribute__((overloadable)) log2(float3);
 float4 __const_func __attribute__((overloadable)) log2(float4);
 float8 __const_func __attribute__((overloadable)) log2(float8);
 float16 __const_func __attribute__((overloadable)) log2(float16);
+double __const_func __attribute__((overloadable)) log2(double);
+double2 __const_func __attribute__((overloadable)) log2(double2);
+double3 __const_func __attribute__((overloadable)) log2(double3);
+double4 __const_func __attribute__((overloadable)) log2(double4);
+double8 __const_func __attribute__((overloadable)) log2(double8);
+double16 __const_func __attribute__((overloadable)) log2(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) log2( half );
+half2 __const_func __attribute__((overloadable)) log2( half2 );
+half3 __const_func __attribute__((overloadable)) log2( half3 );
+half4 __const_func __attribute__((overloadable)) log2( half4 );
+half8 __const_func __attribute__((overloadable)) log2( half8 );
+half16 __const_func __attribute__((overloadable)) log2( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute a base 10 logarithm.
@@ -731,6 +1294,20 @@ float3 __const_func __attribute__((overloadable)) log10(float3);
 float4 __const_func __attribute__((overloadable)) log10(float4);
 float8 __const_func __attribute__((overloadable)) log10(float8);
 float16 __const_func __attribute__((overloadable)) log10(float16);
+double __const_func __attribute__((overloadable)) log10(double);
+double2 __const_func __attribute__((overloadable)) log10(double2);
+double3 __const_func __attribute__((overloadable)) log10(double3);
+double4 __const_func __attribute__((overloadable)) log10(double4);
+double8 __const_func __attribute__((overloadable)) log10(double8);
+double16 __const_func __attribute__((overloadable)) log10(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) log10( half );
+half2 __const_func __attribute__((overloadable)) log10( half2 );
+half3 __const_func __attribute__((overloadable)) log10( half3 );
+half4 __const_func __attribute__((overloadable)) log10( half4 );
+half8 __const_func __attribute__((overloadable)) log10( half8 );
+half16 __const_func __attribute__((overloadable)) log10( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute a base e logarithm of (1.0 + x).
@@ -741,6 +1318,20 @@ float3 __const_func __attribute__((overloadable)) log1p(float3 x);
 float4 __const_func __attribute__((overloadable)) log1p(float4 x);
 float8 __const_func __attribute__((overloadable)) log1p(float8 x);
 float16 __const_func __attribute__((overloadable)) log1p(float16 x);
+double __const_func __attribute__((overloadable)) log1p(double x);
+double2 __const_func __attribute__((overloadable)) log1p(double2 x);
+double3 __const_func __attribute__((overloadable)) log1p(double3 x);
+double4 __const_func __attribute__((overloadable)) log1p(double4 x);
+double8 __const_func __attribute__((overloadable)) log1p(double8 x);
+double16 __const_func __attribute__((overloadable)) log1p(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) log1p( half x );
+half2 __const_func __attribute__((overloadable)) log1p( half2 x );
+half3 __const_func __attribute__((overloadable)) log1p( half3 x );
+half4 __const_func __attribute__((overloadable)) log1p( half4 x );
+half8 __const_func __attribute__((overloadable)) log1p( half8 x );
+half16 __const_func __attribute__((overloadable)) log1p( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Compute the exponent of x, which is the integral
@@ -752,6 +1343,20 @@ float3 __const_func __attribute__((overloadable)) logb(float3 x);
 float4 __const_func __attribute__((overloadable)) logb(float4 x);
 float8 __const_func __attribute__((overloadable)) logb(float8 x);
 float16 __const_func __attribute__((overloadable)) logb(float16 x);
+double __const_func __attribute__((overloadable)) logb(double x);
+double2 __const_func __attribute__((overloadable)) logb(double2 x);
+double3 __const_func __attribute__((overloadable)) logb(double3 x);
+double4 __const_func __attribute__((overloadable)) logb(double4 x);
+double8 __const_func __attribute__((overloadable)) logb(double8 x);
+double16 __const_func __attribute__((overloadable)) logb(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) logb( half x );
+half2 __const_func __attribute__((overloadable)) logb( half2 x );
+half3 __const_func __attribute__((overloadable)) logb( half3 x );
+half4 __const_func __attribute__((overloadable)) logb( half4 x );
+half8 __const_func __attribute__((overloadable)) logb( half8 x );
+half16 __const_func __attribute__((overloadable)) logb( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * mad approximates a * b + c. Whether or how the
@@ -766,6 +1371,20 @@ float3 __const_func __attribute__((overloadable)) mad(float3 a, float3 b, float3
 float4 __const_func __attribute__((overloadable)) mad(float4 a, float4 b, float4 c);
 float8 __const_func __attribute__((overloadable)) mad(float8 a, float8 b, float8 c);
 float16 __const_func __attribute__((overloadable)) mad(float16 a, float16 b, float16 c);
+double __const_func __attribute__((overloadable)) mad(double a, double b, double c);
+double2 __const_func __attribute__((overloadable)) mad(double2 a, double2 b, double2 c);
+double3 __const_func __attribute__((overloadable)) mad(double3 a, double3 b, double3 c);
+double4 __const_func __attribute__((overloadable)) mad(double4 a, double4 b, double4 c);
+double8 __const_func __attribute__((overloadable)) mad(double8 a, double8 b, double8 c);
+double16 __const_func __attribute__((overloadable)) mad(double16 a, double16 b, double16 c);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) mad( half a, half b, half c );
+half2 __const_func __attribute__((overloadable)) mad( half2 a, half2 b, half2 c );
+half3 __const_func __attribute__((overloadable)) mad( half3 a, half3 b, half3 c );
+half4 __const_func __attribute__((overloadable)) mad( half4 a, half4 b, half4 c );
+half8 __const_func __attribute__((overloadable)) mad( half8 a, half8 b, half8 c );
+half16 __const_func __attribute__((overloadable)) mad( half16 a, half16 b, half16 c );
+#endif //cl_khr_fp16
 
 /**
  * Returns x if | x | > | y |, y if | y | > | x |, otherwise
@@ -777,6 +1396,20 @@ float3 __const_func __attribute__((overloadable)) maxmag(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) maxmag(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) maxmag(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) maxmag(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) maxmag(double x, double y);
+double2 __const_func __attribute__((overloadable)) maxmag(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) maxmag(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) maxmag(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) maxmag(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) maxmag(double16 x, double16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) maxmag( half x, half y );
+half2 __const_func __attribute__((overloadable)) maxmag( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) maxmag( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) maxmag( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) maxmag( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) maxmag( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Returns x if | x | < | y |, y if | y | < | x |, otherwise
@@ -788,6 +1421,20 @@ float3 __const_func __attribute__((overloadable)) minmag(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) minmag(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) minmag(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) minmag(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) minmag(double x, double y);
+double2 __const_func __attribute__((overloadable)) minmag(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) minmag(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) minmag(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) minmag(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) minmag(double16 x, double16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) minmag( half x, half y );
+half2 __const_func __attribute__((overloadable)) minmag( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) minmag( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) minmag( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) minmag( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) minmag( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Returns a quiet NaN. The nancode may be placed
@@ -799,6 +1446,20 @@ float3 __const_func __attribute__((overloadable)) nan(uint3 nancode);
 float4 __const_func __attribute__((overloadable)) nan(uint4 nancode);
 float8 __const_func __attribute__((overloadable)) nan(uint8 nancode);
 float16 __const_func __attribute__((overloadable)) nan(uint16 nancode);
+double __const_func __attribute__((overloadable)) nan(ulong nancode);
+double2 __const_func __attribute__((overloadable)) nan(ulong2 nancode);
+double3 __const_func __attribute__((overloadable)) nan(ulong3 nancode);
+double4 __const_func __attribute__((overloadable)) nan(ulong4 nancode);
+double8 __const_func __attribute__((overloadable)) nan(ulong8 nancode);
+double16 __const_func __attribute__((overloadable)) nan(ulong16 nancode);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) nan( ushort nancode );
+half2 __const_func __attribute__((overloadable)) nan( ushort2 nancode );
+half3 __const_func __attribute__((overloadable)) nan( ushort3 nancode );
+half4 __const_func __attribute__((overloadable)) nan( ushort4 nancode );
+half8 __const_func __attribute__((overloadable)) nan( ushort8 nancode );
+half16 __const_func __attribute__((overloadable)) nan( ushort16 nancode );
+#endif //cl_khr_fp16
 
 /**
  * Computes the next representable single-precision
@@ -813,6 +1474,20 @@ float3 __const_func __attribute__((overloadable)) nextafter(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) nextafter(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) nextafter(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) nextafter(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) nextafter(double x, double y);
+double2 __const_func __attribute__((overloadable)) nextafter(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) nextafter(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) nextafter(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) nextafter(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) nextafter(double16 x, double16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) nextafter( half x, half y );
+half2 __const_func __attribute__((overloadable)) nextafter( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) nextafter( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) nextafter( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) nextafter( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) nextafter( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Compute x to the power y.
@@ -823,6 +1498,20 @@ float3 __const_func __attribute__((overloadable)) pow(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) pow(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) pow(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) pow(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) pow(double x, double y);
+double2 __const_func __attribute__((overloadable)) pow(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) pow(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) pow(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) pow(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) pow(double16 x, double16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) pow( half x, half y );
+half2 __const_func __attribute__((overloadable)) pow( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) pow( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) pow( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) pow( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) pow( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Compute x to the power y, where y is an integer.
@@ -833,6 +1522,20 @@ float3 __const_func __attribute__((overloadable)) pown(float3 x, int3 y);
 float4 __const_func __attribute__((overloadable)) pown(float4 x, int4 y);
 float8 __const_func __attribute__((overloadable)) pown(float8 x, int8 y);
 float16 __const_func __attribute__((overloadable)) pown(float16 x, int16 y);
+double __const_func __attribute__((overloadable)) pown(double x, int y);
+double2 __const_func __attribute__((overloadable)) pown(double2 x, int2 y);
+double3 __const_func __attribute__((overloadable)) pown(double3 x, int3 y);
+double4 __const_func __attribute__((overloadable)) pown(double4 x, int4 y);
+double8 __const_func __attribute__((overloadable)) pown(double8 x, int8 y);
+double16 __const_func __attribute__((overloadable)) pown(double16 x, int16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) pown( half x, int y );
+half2 __const_func __attribute__((overloadable)) pown( half2 x, int2 y );
+half3 __const_func __attribute__((overloadable)) pown( half3 x, int3 y );
+half4 __const_func __attribute__((overloadable)) pown( half4 x, int4 y );
+half8 __const_func __attribute__((overloadable)) pown( half8 x, int8 y );
+half16 __const_func __attribute__((overloadable)) pown( half16 x, int16 y );
+#endif //cl_khr_fp16
 
 /**
  * Compute x to the power y, where x is >= 0.
@@ -843,6 +1546,20 @@ float3 __const_func __attribute__((overloadable)) powr(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) powr(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) powr(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) powr(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) powr(double x, double y);
+double2 __const_func __attribute__((overloadable)) powr(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) powr(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) powr(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) powr(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) powr(double16 x, double16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) powr( half x, half y );
+half2 __const_func __attribute__((overloadable)) powr( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) powr( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) powr( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) powr( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) powr( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Compute the value r such that r = x - n*y, where n
@@ -856,6 +1573,20 @@ float3 __const_func __attribute__((overloadable)) remainder(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) remainder(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) remainder(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) remainder(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) remainder(double x, double y);
+double2 __const_func __attribute__((overloadable)) remainder(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) remainder(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) remainder(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) remainder(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) remainder(double16 x, double16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) remainder( half x, half y );
+half2 __const_func __attribute__((overloadable)) remainder( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) remainder( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) remainder( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) remainder( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) remainder( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Round to integral value (using round to nearest
@@ -869,6 +1600,20 @@ float3 __const_func __attribute__((overloadable)) rint(float3);
 float4 __const_func __attribute__((overloadable)) rint(float4);
 float8 __const_func __attribute__((overloadable)) rint(float8);
 float16 __const_func __attribute__((overloadable)) rint(float16);
+double __const_func __attribute__((overloadable)) rint(double);
+double2 __const_func __attribute__((overloadable)) rint(double2);
+double3 __const_func __attribute__((overloadable)) rint(double3);
+double4 __const_func __attribute__((overloadable)) rint(double4);
+double8 __const_func __attribute__((overloadable)) rint(double8);
+double16 __const_func __attribute__((overloadable)) rint(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) rint( half );
+half2 __const_func __attribute__((overloadable)) rint( half2 );
+half3 __const_func __attribute__((overloadable)) rint( half3 );
+half4 __const_func __attribute__((overloadable)) rint( half4 );
+half8 __const_func __attribute__((overloadable)) rint( half8 );
+half16 __const_func __attribute__((overloadable)) rint( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute x to the power 1/y.
@@ -879,6 +1624,20 @@ float3 __const_func __attribute__((overloadable)) rootn(float3 x, int3 y);
 float4 __const_func __attribute__((overloadable)) rootn(float4 x, int4 y);
 float8 __const_func __attribute__((overloadable)) rootn(float8 x, int8 y);
 float16 __const_func __attribute__((overloadable)) rootn(float16 x, int16 y);
+double __const_func __attribute__((overloadable)) rootn(double x, int y);
+double2 __const_func __attribute__((overloadable)) rootn(double2 x, int2 y);
+double3 __const_func __attribute__((overloadable)) rootn(double3 x, int3 y);
+double4 __const_func __attribute__((overloadable)) rootn(double4 x, int4 y);
+double8 __const_func __attribute__((overloadable)) rootn(double8 x, int8 y);
+double16 __const_func __attribute__((overloadable)) rootn(double16 x, int16 y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) rootn( half x, int y );
+half2 __const_func __attribute__((overloadable)) rootn( half2 x, int2 y );
+half3 __const_func __attribute__((overloadable)) rootn( half3 x, int3 y );
+half4 __const_func __attribute__((overloadable)) rootn( half4 x, int4 y );
+half8 __const_func __attribute__((overloadable)) rootn( half8 x, int8 y );
+half16 __const_func __attribute__((overloadable)) rootn( half16 x, int16 y );
+#endif //cl_khr_fp16
 
 /**
  * Return the integral value nearest to x rounding
@@ -891,6 +1650,20 @@ float3 __const_func __attribute__((overloadable)) round(float3 x);
 float4 __const_func __attribute__((overloadable)) round(float4 x);
 float8 __const_func __attribute__((overloadable)) round(float8 x);
 float16 __const_func __attribute__((overloadable)) round(float16 x);
+double __const_func __attribute__((overloadable)) round(double x);
+double2 __const_func __attribute__((overloadable)) round(double2 x);
+double3 __const_func __attribute__((overloadable)) round(double3 x);
+double4 __const_func __attribute__((overloadable)) round(double4 x);
+double8 __const_func __attribute__((overloadable)) round(double8 x);
+double16 __const_func __attribute__((overloadable)) round(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) round( half x );
+half2 __const_func __attribute__((overloadable)) round( half2 x );
+half3 __const_func __attribute__((overloadable)) round( half3 x );
+half4 __const_func __attribute__((overloadable)) round( half4 x );
+half8 __const_func __attribute__((overloadable)) round( half8 x );
+half16 __const_func __attribute__((overloadable)) round( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Compute inverse square root.
@@ -901,6 +1674,20 @@ float3 __const_func __attribute__((overloadable)) rsqrt(float3);
 float4 __const_func __attribute__((overloadable)) rsqrt(float4);
 float8 __const_func __attribute__((overloadable)) rsqrt(float8);
 float16 __const_func __attribute__((overloadable)) rsqrt(float16);
+double __const_func __attribute__((overloadable)) rsqrt(double);
+double2 __const_func __attribute__((overloadable)) rsqrt(double2);
+double3 __const_func __attribute__((overloadable)) rsqrt(double3);
+double4 __const_func __attribute__((overloadable)) rsqrt(double4);
+double8 __const_func __attribute__((overloadable)) rsqrt(double8);
+double16 __const_func __attribute__((overloadable)) rsqrt(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) rsqrt( half );
+half2 __const_func __attribute__((overloadable)) rsqrt( half2 );
+half3 __const_func __attribute__((overloadable)) rsqrt( half3 );
+half4 __const_func __attribute__((overloadable)) rsqrt( half4 );
+half8 __const_func __attribute__((overloadable)) rsqrt( half8 );
+half16 __const_func __attribute__((overloadable)) rsqrt( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute sine.
@@ -911,6 +1698,20 @@ float3 __const_func __attribute__((overloadable)) sin(float3);
 float4 __const_func __attribute__((overloadable)) sin(float4);
 float8 __const_func __attribute__((overloadable)) sin(float8);
 float16 __const_func __attribute__((overloadable)) sin(float16);
+double __const_func __attribute__((overloadable)) sin(double);
+double2 __const_func __attribute__((overloadable)) sin(double2);
+double3 __const_func __attribute__((overloadable)) sin(double3);
+double4 __const_func __attribute__((overloadable)) sin(double4);
+double8 __const_func __attribute__((overloadable)) sin(double8);
+double16 __const_func __attribute__((overloadable)) sin(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) sin( half );
+half2 __const_func __attribute__((overloadable)) sin( half2 );
+half3 __const_func __attribute__((overloadable)) sin( half3 );
+half4 __const_func __attribute__((overloadable)) sin( half4 );
+half8 __const_func __attribute__((overloadable)) sin( half8 );
+half16 __const_func __attribute__((overloadable)) sin( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute hyperbolic sine.
@@ -921,6 +1722,20 @@ float3 __const_func __attribute__((overloadable)) sinh(float3);
 float4 __const_func __attribute__((overloadable)) sinh(float4);
 float8 __const_func __attribute__((overloadable)) sinh(float8);
 float16 __const_func __attribute__((overloadable)) sinh(float16);
+double __const_func __attribute__((overloadable)) sinh(double);
+double2 __const_func __attribute__((overloadable)) sinh(double2);
+double3 __const_func __attribute__((overloadable)) sinh(double3);
+double4 __const_func __attribute__((overloadable)) sinh(double4);
+double8 __const_func __attribute__((overloadable)) sinh(double8);
+double16 __const_func __attribute__((overloadable)) sinh(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) sinh( half );
+half2 __const_func __attribute__((overloadable)) sinh( half2 );
+half3 __const_func __attribute__((overloadable)) sinh( half3 );
+half4 __const_func __attribute__((overloadable)) sinh( half4 );
+half8 __const_func __attribute__((overloadable)) sinh( half8 );
+half16 __const_func __attribute__((overloadable)) sinh( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute sin (PI * x).
@@ -931,6 +1746,20 @@ float3 __const_func __attribute__((overloadable)) sinpi(float3 x);
 float4 __const_func __attribute__((overloadable)) sinpi(float4 x);
 float8 __const_func __attribute__((overloadable)) sinpi(float8 x);
 float16 __const_func __attribute__((overloadable)) sinpi(float16 x);
+double __const_func __attribute__((overloadable)) sinpi(double x);
+double2 __const_func __attribute__((overloadable)) sinpi(double2 x);
+double3 __const_func __attribute__((overloadable)) sinpi(double3 x);
+double4 __const_func __attribute__((overloadable)) sinpi(double4 x);
+double8 __const_func __attribute__((overloadable)) sinpi(double8 x);
+double16 __const_func __attribute__((overloadable)) sinpi(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) sinpi( half x );
+half2 __const_func __attribute__((overloadable)) sinpi( half2 x );
+half3 __const_func __attribute__((overloadable)) sinpi( half3 x );
+half4 __const_func __attribute__((overloadable)) sinpi( half4 x );
+half8 __const_func __attribute__((overloadable)) sinpi( half8 x );
+half16 __const_func __attribute__((overloadable)) sinpi( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Compute square root.
@@ -941,6 +1770,20 @@ float3 __const_func __attribute__((overloadable)) sqrt(float3);
 float4 __const_func __attribute__((overloadable)) sqrt(float4);
 float8 __const_func __attribute__((overloadable)) sqrt(float8);
 float16 __const_func __attribute__((overloadable)) sqrt(float16);
+double __const_func __attribute__((overloadable)) sqrt(double);
+double2 __const_func __attribute__((overloadable)) sqrt(double2);
+double3 __const_func __attribute__((overloadable)) sqrt(double3);
+double4 __const_func __attribute__((overloadable)) sqrt(double4);
+double8 __const_func __attribute__((overloadable)) sqrt(double8);
+double16 __const_func __attribute__((overloadable)) sqrt(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) sqrt( half );
+half2 __const_func __attribute__((overloadable)) sqrt( half2 );
+half3 __const_func __attribute__((overloadable)) sqrt( half3 );
+half4 __const_func __attribute__((overloadable)) sqrt( half4 );
+half8 __const_func __attribute__((overloadable)) sqrt( half8 );
+half16 __const_func __attribute__((overloadable)) sqrt( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute tangent.
@@ -951,6 +1794,20 @@ float3 __const_func __attribute__((overloadable)) tan(float3);
 float4 __const_func __attribute__((overloadable)) tan(float4);
 float8 __const_func __attribute__((overloadable)) tan(float8);
 float16 __const_func __attribute__((overloadable)) tan(float16);
+double __const_func __attribute__((overloadable)) tan(double);
+double2 __const_func __attribute__((overloadable)) tan(double2);
+double3 __const_func __attribute__((overloadable)) tan(double3);
+double4 __const_func __attribute__((overloadable)) tan(double4);
+double8 __const_func __attribute__((overloadable)) tan(double8);
+double16 __const_func __attribute__((overloadable)) tan(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) tan( half );
+half2 __const_func __attribute__((overloadable)) tan( half2 );
+half3 __const_func __attribute__((overloadable)) tan( half3 );
+half4 __const_func __attribute__((overloadable)) tan( half4 );
+half8 __const_func __attribute__((overloadable)) tan( half8 );
+half16 __const_func __attribute__((overloadable)) tan( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute hyperbolic tangent.
@@ -961,6 +1818,20 @@ float3 __const_func __attribute__((overloadable)) tanh(float3);
 float4 __const_func __attribute__((overloadable)) tanh(float4);
 float8 __const_func __attribute__((overloadable)) tanh(float8);
 float16 __const_func __attribute__((overloadable)) tanh(float16);
+double __const_func __attribute__((overloadable)) tanh(double);
+double2 __const_func __attribute__((overloadable)) tanh(double2);
+double3 __const_func __attribute__((overloadable)) tanh(double3);
+double4 __const_func __attribute__((overloadable)) tanh(double4);
+double8 __const_func __attribute__((overloadable)) tanh(double8);
+double16 __const_func __attribute__((overloadable)) tanh(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) tanh( half );
+half2 __const_func __attribute__((overloadable)) tanh( half2 );
+half3 __const_func __attribute__((overloadable)) tanh( half3 );
+half4 __const_func __attribute__((overloadable)) tanh( half4 );
+half8 __const_func __attribute__((overloadable)) tanh( half8 );
+half16 __const_func __attribute__((overloadable)) tanh( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute tan (PI * x).
@@ -971,6 +1842,20 @@ float3 __const_func __attribute__((overloadable)) tanpi(float3 x);
 float4 __const_func __attribute__((overloadable)) tanpi(float4 x);
 float8 __const_func __attribute__((overloadable)) tanpi(float8 x);
 float16 __const_func __attribute__((overloadable)) tanpi(float16 x);
+double __const_func __attribute__((overloadable)) tanpi(double x);
+double2 __const_func __attribute__((overloadable)) tanpi(double2 x);
+double3 __const_func __attribute__((overloadable)) tanpi(double3 x);
+double4 __const_func __attribute__((overloadable)) tanpi(double4 x);
+double8 __const_func __attribute__((overloadable)) tanpi(double8 x);
+double16 __const_func __attribute__((overloadable)) tanpi(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) tanpi( half x );
+half2 __const_func __attribute__((overloadable)) tanpi( half2 x );
+half3 __const_func __attribute__((overloadable)) tanpi( half3 x );
+half4 __const_func __attribute__((overloadable)) tanpi( half4 x );
+half8 __const_func __attribute__((overloadable)) tanpi( half8 x );
+half16 __const_func __attribute__((overloadable)) tanpi( half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Compute the gamma function.
@@ -981,6 +1866,20 @@ float3 __const_func __attribute__((overloadable)) tgamma(float3);
 float4 __const_func __attribute__((overloadable)) tgamma(float4);
 float8 __const_func __attribute__((overloadable)) tgamma(float8);
 float16 __const_func __attribute__((overloadable)) tgamma(float16);
+double __const_func __attribute__((overloadable)) tgamma(double);
+double2 __const_func __attribute__((overloadable)) tgamma(double2);
+double3 __const_func __attribute__((overloadable)) tgamma(double3);
+double4 __const_func __attribute__((overloadable)) tgamma(double4);
+double8 __const_func __attribute__((overloadable)) tgamma(double8);
+double16 __const_func __attribute__((overloadable)) tgamma(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) tgamma( half );
+half2 __const_func __attribute__((overloadable)) tgamma( half2 );
+half3 __const_func __attribute__((overloadable)) tgamma( half3 );
+half4 __const_func __attribute__((overloadable)) tgamma( half4 );
+half8 __const_func __attribute__((overloadable)) tgamma( half8 );
+half16 __const_func __attribute__((overloadable)) tgamma( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Round to integral value using the round to zero
@@ -992,6 +1891,20 @@ float3 __const_func __attribute__((overloadable)) trunc(float3);
 float4 __const_func __attribute__((overloadable)) trunc(float4);
 float8 __const_func __attribute__((overloadable)) trunc(float8);
 float16 __const_func __attribute__((overloadable)) trunc(float16);
+double __const_func __attribute__((overloadable)) trunc(double);
+double2 __const_func __attribute__((overloadable)) trunc(double2);
+double3 __const_func __attribute__((overloadable)) trunc(double3);
+double4 __const_func __attribute__((overloadable)) trunc(double4);
+double8 __const_func __attribute__((overloadable)) trunc(double8);
+double16 __const_func __attribute__((overloadable)) trunc(double16);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) trunc( half );
+half2 __const_func __attribute__((overloadable)) trunc( half2 );
+half3 __const_func __attribute__((overloadable)) trunc( half3 );
+half4 __const_func __attribute__((overloadable)) trunc( half4 );
+half8 __const_func __attribute__((overloadable)) trunc( half8 );
+half16 __const_func __attribute__((overloadable)) trunc( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Compute cosine. x must be in the range -2^16 ... +2^16.
@@ -1143,6 +2056,12 @@ float3 __const_func __attribute__((overloadable)) native_cos(float3 x);
 float4 __const_func __attribute__((overloadable)) native_cos(float4 x);
 float8 __const_func __attribute__((overloadable)) native_cos(float8 x);
 float16 __const_func __attribute__((overloadable)) native_cos(float16 x);
+double __const_func __attribute__((overloadable)) native_cos(double x);
+double2 __const_func __attribute__((overloadable)) native_cos(double2 x);
+double3 __const_func __attribute__((overloadable)) native_cos(double3 x);
+double4 __const_func __attribute__((overloadable)) native_cos(double4 x);
+double8 __const_func __attribute__((overloadable)) native_cos(double8 x);
+double16 __const_func __attribute__((overloadable)) native_cos(double16 x);
 
 /**
  * Compute x / y over an implementation-defined range.
@@ -1154,6 +2073,12 @@ float3 __const_func __attribute__((overloadable)) native_divide(float3 x, float3
 float4 __const_func __attribute__((overloadable)) native_divide(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) native_divide(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) native_divide(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) native_divide(double x, double y);
+double2 __const_func __attribute__((overloadable)) native_divide(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) native_divide(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) native_divide(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) native_divide(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) native_divide(double16 x, double16 y);
 
 /**
  * Compute the base- e exponential of x over an
@@ -1166,6 +2091,12 @@ float3 __const_func __attribute__((overloadable)) native_exp(float3 x);
 float4 __const_func __attribute__((overloadable)) native_exp(float4 x);
 float8 __const_func __attribute__((overloadable)) native_exp(float8 x);
 float16 __const_func __attribute__((overloadable)) native_exp(float16 x);
+double __const_func __attribute__((overloadable)) native_exp(double x);
+double2 __const_func __attribute__((overloadable)) native_exp(double2 x);
+double3 __const_func __attribute__((overloadable)) native_exp(double3 x);
+double4 __const_func __attribute__((overloadable)) native_exp(double4 x);
+double8 __const_func __attribute__((overloadable)) native_exp(double8 x);
+double16 __const_func __attribute__((overloadable)) native_exp(double16 x);
 
 /**
  * Compute the base- 2 exponential of x over an
@@ -1178,6 +2109,12 @@ float3 __const_func __attribute__((overloadable)) native_exp2(float3 x);
 float4 __const_func __attribute__((overloadable)) native_exp2(float4 x);
 float8 __const_func __attribute__((overloadable)) native_exp2(float8 x);
 float16 __const_func __attribute__((overloadable)) native_exp2(float16 x);
+double __const_func __attribute__((overloadable)) native_exp2(double x);
+double2 __const_func __attribute__((overloadable)) native_exp2(double2 x);
+double3 __const_func __attribute__((overloadable)) native_exp2(double3 x);
+double4 __const_func __attribute__((overloadable)) native_exp2(double4 x);
+double8 __const_func __attribute__((overloadable)) native_exp2(double8 x);
+double16 __const_func __attribute__((overloadable)) native_exp2(double16 x);
 
 /**
  * Compute the base- 10 exponential of x over an
@@ -1190,6 +2127,12 @@ float3 __const_func __attribute__((overloadable)) native_exp10(float3 x);
 float4 __const_func __attribute__((overloadable)) native_exp10(float4 x);
 float8 __const_func __attribute__((overloadable)) native_exp10(float8 x);
 float16 __const_func __attribute__((overloadable)) native_exp10(float16 x);
+double __const_func __attribute__((overloadable)) native_exp10(double x);
+double2 __const_func __attribute__((overloadable)) native_exp10(double2 x);
+double3 __const_func __attribute__((overloadable)) native_exp10(double3 x);
+double4 __const_func __attribute__((overloadable)) native_exp10(double4 x);
+double8 __const_func __attribute__((overloadable)) native_exp10(double8 x);
+double16 __const_func __attribute__((overloadable)) native_exp10(double16 x);
 
 /**
  * Compute natural logarithm over an implementationdefined
@@ -1202,6 +2145,12 @@ float3 __const_func __attribute__((overloadable)) native_log(float3 x);
 float4 __const_func __attribute__((overloadable)) native_log(float4 x);
 float8 __const_func __attribute__((overloadable)) native_log(float8 x);
 float16 __const_func __attribute__((overloadable)) native_log(float16 x);
+double __const_func __attribute__((overloadable)) native_log(double x);
+double2 __const_func __attribute__((overloadable)) native_log(double2 x);
+double3 __const_func __attribute__((overloadable)) native_log(double3 x);
+double4 __const_func __attribute__((overloadable)) native_log(double4 x);
+double8 __const_func __attribute__((overloadable)) native_log(double8 x);
+double16 __const_func __attribute__((overloadable)) native_log(double16 x);
 
 /**
  * Compute a base 2 logarithm over an implementationdefined
@@ -1213,6 +2162,12 @@ float3 __const_func __attribute__((overloadable)) native_log2(float3 x);
 float4 __const_func __attribute__((overloadable)) native_log2(float4 x);
 float8 __const_func __attribute__((overloadable)) native_log2(float8 x);
 float16 __const_func __attribute__((overloadable)) native_log2(float16 x);
+double __const_func __attribute__((overloadable)) native_log2(double x);
+double2 __const_func __attribute__((overloadable)) native_log2(double2 x);
+double3 __const_func __attribute__((overloadable)) native_log2(double3 x);
+double4 __const_func __attribute__((overloadable)) native_log2(double4 x);
+double8 __const_func __attribute__((overloadable)) native_log2(double8 x);
+double16 __const_func __attribute__((overloadable)) native_log2(double16 x);
 
 /**
  * Compute a base 10 logarithm over an implementationdefined
@@ -1224,6 +2179,12 @@ float3 __const_func __attribute__((overloadable)) native_log10(float3 x);
 float4 __const_func __attribute__((overloadable)) native_log10(float4 x);
 float8 __const_func __attribute__((overloadable)) native_log10(float8 x);
 float16 __const_func __attribute__((overloadable)) native_log10(float16 x);
+double __const_func __attribute__((overloadable)) native_log10(double x);
+double2 __const_func __attribute__((overloadable)) native_log10(double2 x);
+double3 __const_func __attribute__((overloadable)) native_log10(double3 x);
+double4 __const_func __attribute__((overloadable)) native_log10(double4 x);
+double8 __const_func __attribute__((overloadable)) native_log10(double8 x);
+double16 __const_func __attribute__((overloadable)) native_log10(double16 x);
 
 /**
  * Compute x to the power y, where x is >= 0. The range of
@@ -1236,6 +2197,12 @@ float3 __const_func __attribute__((overloadable)) native_powr(float3 x, float3 y
 float4 __const_func __attribute__((overloadable)) native_powr(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) native_powr(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) native_powr(float16 x, float16 y);
+double __const_func __attribute__((overloadable)) native_powr(double x, double y);
+double2 __const_func __attribute__((overloadable)) native_powr(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) native_powr(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) native_powr(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) native_powr(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) native_powr(double16 x, double16 y);
 
 /**
  * Compute reciprocal over an implementation-defined
@@ -1247,6 +2214,12 @@ float3 __const_func __attribute__((overloadable)) native_recip(float3 x);
 float4 __const_func __attribute__((overloadable)) native_recip(float4 x);
 float8 __const_func __attribute__((overloadable)) native_recip(float8 x);
 float16 __const_func __attribute__((overloadable)) native_recip(float16 x);
+double __const_func __attribute__((overloadable)) native_recip(double x);
+double2 __const_func __attribute__((overloadable)) native_recip(double2 x);
+double3 __const_func __attribute__((overloadable)) native_recip(double3 x);
+double4 __const_func __attribute__((overloadable)) native_recip(double4 x);
+double8 __const_func __attribute__((overloadable)) native_recip(double8 x);
+double16 __const_func __attribute__((overloadable)) native_recip(double16 x);
 
 /**
  * Compute inverse square root over an implementationdefined
@@ -1258,6 +2231,12 @@ float3 __const_func __attribute__((overloadable)) native_rsqrt(float3 x);
 float4 __const_func __attribute__((overloadable)) native_rsqrt(float4 x);
 float8 __const_func __attribute__((overloadable)) native_rsqrt(float8 x);
 float16 __const_func __attribute__((overloadable)) native_rsqrt(float16 x);
+double __const_func __attribute__((overloadable)) native_rsqrt(double x);
+double2 __const_func __attribute__((overloadable)) native_rsqrt(double2 x);
+double3 __const_func __attribute__((overloadable)) native_rsqrt(double3 x);
+double4 __const_func __attribute__((overloadable)) native_rsqrt(double4 x);
+double8 __const_func __attribute__((overloadable)) native_rsqrt(double8 x);
+double16 __const_func __attribute__((overloadable)) native_rsqrt(double16 x);
 
 /**
  * Compute sine over an implementation-defined range.
@@ -1269,6 +2248,12 @@ float3 __const_func __attribute__((overloadable)) native_sin(float3 x);
 float4 __const_func __attribute__((overloadable)) native_sin(float4 x);
 float8 __const_func __attribute__((overloadable)) native_sin(float8 x);
 float16 __const_func __attribute__((overloadable)) native_sin(float16 x);
+double __const_func __attribute__((overloadable)) native_sin(double x);
+double2 __const_func __attribute__((overloadable)) native_sin(double2 x);
+double3 __const_func __attribute__((overloadable)) native_sin(double3 x);
+double4 __const_func __attribute__((overloadable)) native_sin(double4 x);
+double8 __const_func __attribute__((overloadable)) native_sin(double8 x);
+double16 __const_func __attribute__((overloadable)) native_sin(double16 x);
 
 /**
  * Compute square root over an implementation-defined
@@ -1280,6 +2265,12 @@ float3 __const_func __attribute__((overloadable)) native_sqrt(float3 x);
 float4 __const_func __attribute__((overloadable)) native_sqrt(float4 x);
 float8 __const_func __attribute__((overloadable)) native_sqrt(float8 x);
 float16 __const_func __attribute__((overloadable)) native_sqrt(float16 x);
+double __const_func __attribute__((overloadable)) native_sqrt(double x);
+double2 __const_func __attribute__((overloadable)) native_sqrt(double2 x);
+double3 __const_func __attribute__((overloadable)) native_sqrt(double3 x);
+double4 __const_func __attribute__((overloadable)) native_sqrt(double4 x);
+double8 __const_func __attribute__((overloadable)) native_sqrt(double8 x);
+double16 __const_func __attribute__((overloadable)) native_sqrt(double16 x);
 
 /**
  * Compute tangent over an implementation-defined range.
@@ -1291,6 +2282,12 @@ float3 __const_func __attribute__((overloadable)) native_tan(float3 x);
 float4 __const_func __attribute__((overloadable)) native_tan(float4 x);
 float8 __const_func __attribute__((overloadable)) native_tan(float8 x);
 float16 __const_func __attribute__((overloadable)) native_tan(float16 x);
+double __const_func __attribute__((overloadable)) native_tan(double x);
+double2 __const_func __attribute__((overloadable)) native_tan(double2 x);
+double3 __const_func __attribute__((overloadable)) native_tan(double3 x);
+double4 __const_func __attribute__((overloadable)) native_tan(double4 x);
+double8 __const_func __attribute__((overloadable)) native_tan(double8 x);
+double16 __const_func __attribute__((overloadable)) native_tan(double16 x);
 
 // Integer functions:
 
@@ -2337,6 +3334,30 @@ float3 __const_func __attribute__((overloadable)) clamp(float3 x, float minval, 
 float4 __const_func __attribute__((overloadable)) clamp(float4 x, float minval, float maxval);
 float8 __const_func __attribute__((overloadable)) clamp(float8 x, float minval, float maxval);
 float16 __const_func __attribute__((overloadable)) clamp(float16 x, float minval, float maxval);
+double __const_func __attribute__((overloadable)) clamp(double x, double minval, double maxval);
+double2 __const_func __attribute__((overloadable)) clamp(double2 x, double2 minval, double2 maxval);
+double3 __const_func __attribute__((overloadable)) clamp(double3 x, double3 minval, double3 maxval);
+double4 __const_func __attribute__((overloadable)) clamp(double4 x, double4 minval, double4 maxval);
+double8 __const_func __attribute__((overloadable)) clamp(double8 x, double8 minval, double8 maxval);
+double16 __const_func __attribute__((overloadable)) clamp(double16 x, double16 minval, double16 maxval);
+double2 __const_func __attribute__((overloadable)) clamp(double2 x, double minval, double maxval);
+double3 __const_func __attribute__((overloadable)) clamp(double3 x, double minval, double maxval);
+double4 __const_func __attribute__((overloadable)) clamp(double4 x, double minval, double maxval);
+double8 __const_func __attribute__((overloadable)) clamp(double8 x, double minval, double maxval);
+double16 __const_func __attribute__((overloadable)) clamp(double16 x, double minval, double maxval);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) clamp( half x, half minval, half maxval );
+half2 __const_func __attribute__((overloadable)) clamp( half2 x, half2 minval, half2 maxval );
+half3 __const_func __attribute__((overloadable)) clamp( half3 x, half3 minval, half3 maxval );
+half4 __const_func __attribute__((overloadable)) clamp( half4 x, half4 minval, half4 maxval );
+half8 __const_func __attribute__((overloadable)) clamp( half8 x, half8 minval, half8 maxval );
+half16 __const_func __attribute__((overloadable)) clamp( half16 x, half16 minval, half16 maxval );
+half2 __const_func __attribute__((overloadable)) clamp( half2 x, half minval, half maxval );
+half3 __const_func __attribute__((overloadable)) clamp( half3 x, half minval, half maxval );
+half4 __const_func __attribute__((overloadable)) clamp( half4 x, half minval, half maxval );
+half8 __const_func __attribute__((overloadable)) clamp( half8 x, half minval, half maxval );
+half16 __const_func __attribute__((overloadable)) clamp( half16 x, half minval, half maxval );
+#endif //cl_khr_fp16
 
 /**
  * Converts radians to degrees, i.e. (180 / PI) *
@@ -2348,6 +3369,20 @@ float3 __const_func __attribute__((overloadable)) degrees(float3 radians);
 float4 __const_func __attribute__((overloadable)) degrees(float4 radians);
 float8 __const_func __attribute__((overloadable)) degrees(float8 radians);
 float16 __const_func __attribute__((overloadable)) degrees(float16 radians);
+double __const_func __attribute__((overloadable)) degrees(double radians);
+double2 __const_func __attribute__((overloadable)) degrees(double2 radians);
+double3 __const_func __attribute__((overloadable)) degrees(double3 radians);
+double4 __const_func __attribute__((overloadable)) degrees(double4 radians);
+double8 __const_func __attribute__((overloadable)) degrees(double8 radians);
+double16 __const_func __attribute__((overloadable)) degrees(double16 radians);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) degrees( half radians );
+half2 __const_func __attribute__((overloadable)) degrees( half2 radians );
+half3 __const_func __attribute__((overloadable)) degrees( half3 radians );
+half4 __const_func __attribute__((overloadable)) degrees( half4 radians );
+half8 __const_func __attribute__((overloadable)) degrees( half8 radians );
+half16 __const_func __attribute__((overloadable)) degrees( half16 radians );
+#endif //cl_khr_fp16
 
 /**
  * Returns y if x < y, otherwise it returns x. If x and y
@@ -2364,6 +3399,30 @@ float3 __const_func __attribute__((overloadable)) max(float3 x, float y);
 float4 __const_func __attribute__((overloadable)) max(float4 x, float y);
 float8 __const_func __attribute__((overloadable)) max(float8 x, float y);
 float16 __const_func __attribute__((overloadable)) max(float16 x, float y);
+double __const_func __attribute__((overloadable)) max(double x, double y);
+double2 __const_func __attribute__((overloadable)) max(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) max(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) max(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) max(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) max(double16 x, double16 y);
+double2 __const_func __attribute__((overloadable)) max(double2 x, double y);
+double3 __const_func __attribute__((overloadable)) max(double3 x, double y);
+double4 __const_func __attribute__((overloadable)) max(double4 x, double y);
+double8 __const_func __attribute__((overloadable)) max(double8 x, double y);
+double16 __const_func __attribute__((overloadable)) max(double16 x, double y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) max( half x, half y );
+half2 __const_func __attribute__((overloadable)) max( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) max( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) max( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) max( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) max( half16 x, half16 y );
+half2 __const_func __attribute__((overloadable)) max( half2 x, half y );
+half3 __const_func __attribute__((overloadable)) max( half3 x, half y );
+half4 __const_func __attribute__((overloadable)) max( half4 x, half y );
+half8 __const_func __attribute__((overloadable)) max( half8 x, half y );
+half16 __const_func __attribute__((overloadable)) max( half16 x, half y );
+#endif //cl_khr_fp16
 
 /**
  * Returns y if y < x, otherwise it returns x. If x and y
@@ -2380,6 +3439,30 @@ float3 __const_func __attribute__((overloadable)) min(float3 x, float y);
 float4 __const_func __attribute__((overloadable)) min(float4 x, float y);
 float8 __const_func __attribute__((overloadable)) min(float8 x, float y);
 float16 __const_func __attribute__((overloadable)) min(float16 x, float y);
+double __const_func __attribute__((overloadable)) min(double x, double y);
+double2 __const_func __attribute__((overloadable)) min(double2 x, double2 y);
+double3 __const_func __attribute__((overloadable)) min(double3 x, double3 y);
+double4 __const_func __attribute__((overloadable)) min(double4 x, double4 y);
+double8 __const_func __attribute__((overloadable)) min(double8 x, double8 y);
+double16 __const_func __attribute__((overloadable)) min(double16 x, double16 y);
+double2 __const_func __attribute__((overloadable)) min(double2 x, double y);
+double3 __const_func __attribute__((overloadable)) min(double3 x, double y);
+double4 __const_func __attribute__((overloadable)) min(double4 x, double y);
+double8 __const_func __attribute__((overloadable)) min(double8 x, double y);
+double16 __const_func __attribute__((overloadable)) min(double16 x, double y);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) min( half x, half y );
+half2 __const_func __attribute__((overloadable)) min( half2 x, half2 y );
+half3 __const_func __attribute__((overloadable)) min( half3 x, half3 y );
+half4 __const_func __attribute__((overloadable)) min( half4 x, half4 y );
+half8 __const_func __attribute__((overloadable)) min( half8 x, half8 y );
+half16 __const_func __attribute__((overloadable)) min( half16 x, half16 y );
+half2 __const_func __attribute__((overloadable)) min( half2 x, half y );
+half3 __const_func __attribute__((overloadable)) min( half3 x, half y );
+half4 __const_func __attribute__((overloadable)) min( half4 x, half y );
+half8 __const_func __attribute__((overloadable)) min( half8 x, half y );
+half16 __const_func __attribute__((overloadable)) min( half16 x, half y );
+#endif //cl_khr_fp16
 
 /**
  * Returns the linear blend of x & y implemented as:
@@ -2399,6 +3482,30 @@ float3 __const_func __attribute__((overloadable)) mix(float3 x, float3 y, float 
 float4 __const_func __attribute__((overloadable)) mix(float4 x, float4 y, float a);
 float8 __const_func __attribute__((overloadable)) mix(float8 x, float8 y, float a);
 float16 __const_func __attribute__((overloadable)) mix(float16 x, float16 y, float a);
+double __const_func __attribute__((overloadable)) mix(double x, double y, double a);
+double2 __const_func __attribute__((overloadable)) mix(double2 x, double2 y, double2 a);
+double3 __const_func __attribute__((overloadable)) mix(double3 x, double3 y, double3 a);
+double4 __const_func __attribute__((overloadable)) mix(double4 x, double4 y, double4 a);
+double8 __const_func __attribute__((overloadable)) mix(double8 x, double8 y, double8 a);
+double16 __const_func __attribute__((overloadable)) mix(double16 x, double16 y, double16 a);
+double2 __const_func __attribute__((overloadable)) mix(double2 x, double2 y, double a);
+double3 __const_func __attribute__((overloadable)) mix(double3 x, double3 y, double a);
+double4 __const_func __attribute__((overloadable)) mix(double4 x, double4 y, double a);
+double8 __const_func __attribute__((overloadable)) mix(double8 x, double8 y, double a);
+double16 __const_func __attribute__((overloadable)) mix(double16 x, double16 y, double a);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) mix( half x, half y, half a );
+half2 __const_func __attribute__((overloadable)) mix( half2 x, half2 y, half2 a );
+half3 __const_func __attribute__((overloadable)) mix( half3 x, half3 y, half3 a );
+half4 __const_func __attribute__((overloadable)) mix( half4 x, half4 y, half4 a );
+half8 __const_func __attribute__((overloadable)) mix( half8 x, half8 y, half8 a );
+half16 __const_func __attribute__((overloadable)) mix( half16 x, half16 y, half16 a );
+half2 __const_func __attribute__((overloadable)) mix( half2 x, half2 y, half a );
+half3 __const_func __attribute__((overloadable)) mix( half3 x, half3 y, half a );
+half4 __const_func __attribute__((overloadable)) mix( half4 x, half4 y, half a );
+half8 __const_func __attribute__((overloadable)) mix( half8 x, half8 y, half a );
+half16 __const_func __attribute__((overloadable)) mix( half16 x, half16 y, half a );
+#endif //cl_khr_fp16
 
 /**
  * Converts degrees to radians, i.e. (PI / 180) *
@@ -2410,6 +3517,20 @@ float3 __const_func __attribute__((overloadable)) radians(float3 degrees);
 float4 __const_func __attribute__((overloadable)) radians(float4 degrees);
 float8 __const_func __attribute__((overloadable)) radians(float8 degrees);
 float16 __const_func __attribute__((overloadable)) radians(float16 degrees);
+double __const_func __attribute__((overloadable)) radians(double degrees);
+double2 __const_func __attribute__((overloadable)) radians(double2 degrees);
+double3 __const_func __attribute__((overloadable)) radians(double3 degrees);
+double4 __const_func __attribute__((overloadable)) radians(double4 degrees);
+double8 __const_func __attribute__((overloadable)) radians(double8 degrees);
+double16 __const_func __attribute__((overloadable)) radians(double16 degrees);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) radians( half degrees );
+half2 __const_func __attribute__((overloadable)) radians( half2 degrees );
+half3 __const_func __attribute__((overloadable)) radians( half3 degrees );
+half4 __const_func __attribute__((overloadable)) radians( half4 degrees );
+half8 __const_func __attribute__((overloadable)) radians( half8 degrees );
+half16 __const_func __attribute__((overloadable)) radians( half16 degrees );
+#endif //cl_khr_fp16
 
 /**
  * Returns 0.0 if x < edge, otherwise it returns 1.0.
@@ -2425,6 +3546,31 @@ float3 __const_func __attribute__((overloadable)) step(float edge, float3 x);
 float4 __const_func __attribute__((overloadable)) step(float edge, float4 x);
 float8 __const_func __attribute__((overloadable)) step(float edge, float8 x);
 float16 __const_func __attribute__((overloadable)) step(float edge, float16 x);
+double __const_func __attribute__((overloadable)) step(double edge, double x);
+double2 __const_func __attribute__((overloadable)) step(double2 edge, double2 x);
+double3 __const_func __attribute__((overloadable)) step(double3 edge, double3 x);
+double4 __const_func __attribute__((overloadable)) step(double4 edge, double4 x);
+double8 __const_func __attribute__((overloadable)) step(double8 edge, double8 x);
+double16 __const_func __attribute__((overloadable)) step(double16 edge, double16 x);
+double2 __const_func __attribute__((overloadable)) step(double edge, double2 x);
+double3 __const_func __attribute__((overloadable)) step(double edge, double3 x);
+double4 __const_func __attribute__((overloadable)) step(double edge, double4 x);
+double8 __const_func __attribute__((overloadable)) step(double edge, double8 x);
+double16 __const_func __attribute__((overloadable)) step(double edge, double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) step( half edge, half x );
+half2 __const_func __attribute__((overloadable)) step( half2 edge, half2 x );
+half3 __const_func __attribute__((overloadable)) step( half3 edge, half3 x );
+half4 __const_func __attribute__((overloadable)) step( half4 edge, half4 x );
+half8 __const_func __attribute__((overloadable)) step( half8 edge, half8 x );
+half16 __const_func __attribute__((overloadable)) step( half16 edge, half16 x );
+half __const_func __attribute__((overloadable)) step( half edge, half x );
+half2 __const_func __attribute__((overloadable)) step( half edge, half2 x );
+half3 __const_func __attribute__((overloadable)) step( half edge, half3 x );
+half4 __const_func __attribute__((overloadable)) step( half edge, half4 x );
+half8 __const_func __attribute__((overloadable)) step( half edge, half8 x );
+half16 __const_func __attribute__((overloadable)) step( half edge, half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Returns 0.0 if x <= edge0 and 1.0 if x >= edge1 and
@@ -2450,6 +3596,31 @@ float3 __const_func __attribute__((overloadable)) smoothstep(float edge0, float 
 float4 __const_func __attribute__((overloadable)) smoothstep(float edge0, float edge1, float4 x);
 float8 __const_func __attribute__((overloadable)) smoothstep(float edge0, float edge1, float8 x);
 float16 __const_func __attribute__((overloadable)) smoothstep(float edge0, float edge1, float16 x);
+double __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double x);
+double2 __const_func __attribute__((overloadable)) smoothstep(double2 edge0, double2 edge1, double2 x);
+double3 __const_func __attribute__((overloadable)) smoothstep(double3 edge0, double3 edge1, double3 x);
+double4 __const_func __attribute__((overloadable)) smoothstep(double4 edge0, double4 edge1, double4 x);
+double8 __const_func __attribute__((overloadable)) smoothstep(double8 edge0, double8 edge1, double8 x);
+double16 __const_func __attribute__((overloadable)) smoothstep(double16 edge0, double16 edge1, double16 x);
+double2 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double2 x);
+double3 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double3 x);
+double4 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double4 x);
+double8 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double8 x);
+double16 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half x );
+half2 __const_func __attribute__((overloadable)) smoothstep( half2 edge0, half2 edge1, half2 x );
+half3 __const_func __attribute__((overloadable)) smoothstep( half3 edge0, half3 edge1, half3 x );
+half4 __const_func __attribute__((overloadable)) smoothstep( half4 edge0, half4 edge1, half4 x );
+half8 __const_func __attribute__((overloadable)) smoothstep( half8 edge0, half8 edge1, half8 x );
+half16 __const_func __attribute__((overloadable)) smoothstep( half16 edge0, half16 edge1, half16 x );
+half __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half x );
+half2 __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half2 x );
+half3 __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half3 x );
+half4 __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half4 x );
+half8 __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half8 x );
+half16 __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half16 x );
+#endif //cl_khr_fp16
 
 /**
  * Returns 1.0 if x > 0, -0.0 if x = -0.0, +0.0 if x =
@@ -2461,6 +3632,20 @@ float3 __const_func __attribute__((overloadable)) sign(float3 x);
 float4 __const_func __attribute__((overloadable)) sign(float4 x);
 float8 __const_func __attribute__((overloadable)) sign(float8 x);
 float16 __const_func __attribute__((overloadable)) sign(float16 x);
+double __const_func __attribute__((overloadable)) sign(double x);
+double2 __const_func __attribute__((overloadable)) sign(double2 x);
+double3 __const_func __attribute__((overloadable)) sign(double3 x);
+double4 __const_func __attribute__((overloadable)) sign(double4 x);
+double8 __const_func __attribute__((overloadable)) sign(double8 x);
+double16 __const_func __attribute__((overloadable)) sign(double16 x);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) sign( half x );
+half2 __const_func __attribute__((overloadable)) sign( half2 x );
+half3 __const_func __attribute__((overloadable)) sign( half3 x );
+half4 __const_func __attribute__((overloadable)) sign( half4 x );
+half8 __const_func __attribute__((overloadable)) sign( half8 x );
+half16 __const_func __attribute__((overloadable)) sign( half16 x );
+#endif //cl_khr_fp16
 
 // Geometric functions:
 
@@ -2470,6 +3655,12 @@ float16 __const_func __attribute__((overloadable)) sign(float16 x);
  */
 float4 __const_func __attribute__((overloadable)) cross(float4 p0, float4 p1);
 float3 __const_func __attribute__((overloadable)) cross(float3 p0, float3 p1);
+double4 __const_func __attribute__((overloadable)) cross(double4 p0, double4 p1);
+double3 __const_func __attribute__((overloadable)) cross(double3 p0, double3 p1);
+#ifdef cl_khr_fp16
+half4 __const_func __attribute__((overloadable)) cross( half4 p0, half4 p1 );
+half3 __const_func __attribute__((overloadable)) cross( half3 p0, half3 p1 );
+#endif //cl_khr_fp16
 
 /**
  * Compute dot product.
@@ -2478,6 +3669,16 @@ float __const_func __attribute__((overloadable)) dot(float p0, float p1);
 float __const_func __attribute__((overloadable)) dot(float2 p0, float2 p1);
 float __const_func __attribute__((overloadable)) dot(float3 p0, float3 p1);
 float __const_func __attribute__((overloadable)) dot(float4 p0, float4 p1);
+double __const_func __attribute__((overloadable)) dot(double p0, double p1);
+double __const_func __attribute__((overloadable)) dot(double2 p0, double2 p1);
+double __const_func __attribute__((overloadable)) dot(double3 p0, double3 p1);
+double __const_func __attribute__((overloadable)) dot(double4 p0, double4 p1);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) dot( half p0, half p1 );
+half __const_func __attribute__((overloadable)) dot( half2 p0, half2 p1 );
+half __const_func __attribute__((overloadable)) dot( half3 p0, half3 p1 );
+half __const_func __attribute__((overloadable)) dot( half4 p0, half4 p1 );
+#endif //cl_khr_fp16
 
 /**
  * Returns the distance between p0 and p1. This is
@@ -2487,6 +3688,16 @@ float __const_func __attribute__((overloadable)) distance(float p0, float p1);
 float __const_func __attribute__((overloadable)) distance(float2 p0, float2 p1);
 float __const_func __attribute__((overloadable)) distance(float3 p0, float3 p1);
 float __const_func __attribute__((overloadable)) distance(float4 p0, float4 p1);
+double __const_func __attribute__((overloadable)) distance(double p0, double p1);
+double __const_func __attribute__((overloadable)) distance(double2 p0, double2 p1);
+double __const_func __attribute__((overloadable)) distance(double3 p0, double3 p1);
+double __const_func __attribute__((overloadable)) distance(double4 p0, double4 p1);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) distance( half p0, half p1 );
+half __const_func __attribute__((overloadable)) distance( half2 p0, half2 p1 );
+half __const_func __attribute__((overloadable)) distance( half3 p0, half3 p1 );
+half __const_func __attribute__((overloadable)) distance( half4 p0, half4 p1 );
+#endif //cl_khr_fp16
 
 /**
  * Return the length of vector p, i.e.,
@@ -2496,6 +3707,16 @@ float __const_func __attribute__((overloadable)) length(float p);
 float __const_func __attribute__((overloadable)) length(float2 p);
 float __const_func __attribute__((overloadable)) length(float3 p);
 float __const_func __attribute__((overloadable)) length(float4 p);
+double __const_func __attribute__((overloadable)) length(double p);
+double __const_func __attribute__((overloadable)) length(double2 p);
+double __const_func __attribute__((overloadable)) length(double3 p);
+double __const_func __attribute__((overloadable)) length(double4 p);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) length( half p );
+half __const_func __attribute__((overloadable)) length( half2 p );
+half __const_func __attribute__((overloadable)) length( half3 p );
+half __const_func __attribute__((overloadable)) length( half4 p );
+#endif //cl_khr_fp16
 
 /**
  * Returns a vector in the same direction as p but with a
@@ -2505,6 +3726,16 @@ float __const_func __attribute__((overloadable)) normalize(float p);
 float2 __const_func __attribute__((overloadable)) normalize(float2 p);
 float3 __const_func __attribute__((overloadable)) normalize(float3 p);
 float4 __const_func __attribute__((overloadable)) normalize(float4 p);
+double __const_func __attribute__((overloadable)) normalize(double p);
+double2 __const_func __attribute__((overloadable)) normalize(double2 p);
+double3 __const_func __attribute__((overloadable)) normalize(double3 p);
+double4 __const_func __attribute__((overloadable)) normalize(double4 p);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) normalize( half p );
+half2 __const_func __attribute__((overloadable)) normalize( half2 p );
+half3 __const_func __attribute__((overloadable)) normalize( half3 p );
+half4 __const_func __attribute__((overloadable)) normalize( half4 p );
+#endif //cl_khr_fp16
 
 /**
  * Returns fast_length(p0 - p1).
@@ -2513,6 +3744,12 @@ float __const_func __attribute__((overloadable)) fast_distance(float p0, float p
 float __const_func __attribute__((overloadable)) fast_distance(float2 p0, float2 p1);
 float __const_func __attribute__((overloadable)) fast_distance(float3 p0, float3 p1);
 float __const_func __attribute__((overloadable)) fast_distance(float4 p0, float4 p1);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) fast_distance( half p0, half p1 );
+half __const_func __attribute__((overloadable)) fast_distance( half2 p0, half2 p1 );
+half __const_func __attribute__((overloadable)) fast_distance( half3 p0, half3 p1 );
+half __const_func __attribute__((overloadable)) fast_distance( half4 p0, half4 p1 );
+#endif //cl_khr_fp16
 
 /**
  * Returns the length of vector p computed as:
@@ -2522,6 +3759,12 @@ float __const_func __attribute__((overloadable)) fast_length(float p);
 float __const_func __attribute__((overloadable)) fast_length(float2 p);
 float __const_func __attribute__((overloadable)) fast_length(float3 p);
 float __const_func __attribute__((overloadable)) fast_length(float4 p);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) fast_length( half p );
+half __const_func __attribute__((overloadable)) fast_length( half2 p );
+half __const_func __attribute__((overloadable)) fast_length( half3 p );
+half __const_func __attribute__((overloadable)) fast_length( half4 p );
+#endif //cl_khr_fp16
 
 /**
  * Returns a vector in the same direction as p but with a
@@ -2561,6 +3804,20 @@ int3 __const_func __attribute__((overloadable)) isequal(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isequal(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isequal(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isequal(float16 x, float16 y);
+int __const_func __attribute__((overloadable)) isequal(double x, double y);
+long2 __const_func __attribute__((overloadable)) isequal(double2 x, double2 y);
+long3 __const_func __attribute__((overloadable)) isequal(double3 x, double3 y);
+long4 __const_func __attribute__((overloadable)) isequal(double4 x, double4 y);
+long8 __const_func __attribute__((overloadable)) isequal(double8 x, double8 y);
+long16 __const_func __attribute__((overloadable)) isequal(double16 x, double16 y);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isequal( half x, half y );
+short2 __const_func __attribute__((overloadable)) isequal( half2 x, half2 y );
+short3 __const_func __attribute__((overloadable)) isequal( half3 x, half3 y );
+short4 __const_func __attribute__((overloadable)) isequal( half4 x, half4 y );
+short8 __const_func __attribute__((overloadable)) isequal( half8 x, half8 y );
+short16 __const_func __attribute__((overloadable)) isequal( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Returns the component-wise compare of x != y.
@@ -2571,6 +3828,20 @@ int3 __const_func __attribute__((overloadable)) isnotequal(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isnotequal(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isnotequal(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isnotequal(float16 x, float16 y);
+int __const_func __attribute__((overloadable)) isnotequal(double x, double y);
+long2 __const_func __attribute__((overloadable)) isnotequal(double2 x, double2 y);
+long3 __const_func __attribute__((overloadable)) isnotequal(double3 x, double3 y);
+long4 __const_func __attribute__((overloadable)) isnotequal(double4 x, double4 y);
+long8 __const_func __attribute__((overloadable)) isnotequal(double8 x, double8 y);
+long16 __const_func __attribute__((overloadable)) isnotequal(double16 x, double16 y);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isnotequal( half x, half y );
+short2 __const_func __attribute__((overloadable)) isnotequal( half2 x, half2 y );
+short3 __const_func __attribute__((overloadable)) isnotequal( half3 x, half3 y );
+short4 __const_func __attribute__((overloadable)) isnotequal( half4 x, half4 y );
+short8 __const_func __attribute__((overloadable)) isnotequal( half8 x, half8 y );
+short16 __const_func __attribute__((overloadable)) isnotequal( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Returns the component-wise compare of x > y.
@@ -2581,6 +3852,20 @@ int3 __const_func __attribute__((overloadable)) isgreater(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isgreater(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isgreater(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isgreater(float16 x, float16 y);
+int __const_func __attribute__((overloadable)) isgreater(double x, double y);
+long2 __const_func __attribute__((overloadable)) isgreater(double2 x, double2 y);
+long3 __const_func __attribute__((overloadable)) isgreater(double3 x, double3 y);
+long4 __const_func __attribute__((overloadable)) isgreater(double4 x, double4 y);
+long8 __const_func __attribute__((overloadable)) isgreater(double8 x, double8 y);
+long16 __const_func __attribute__((overloadable)) isgreater(double16 x, double16 y);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isgreater( half x, half y );
+short2 __const_func __attribute__((overloadable)) isgreater( half2 x, half2 y );
+short3 __const_func __attribute__((overloadable)) isgreater( half3 x, half3 y );
+short4 __const_func __attribute__((overloadable)) isgreater( half4 x, half4 y );
+short8 __const_func __attribute__((overloadable)) isgreater( half8 x, half8 y );
+short16 __const_func __attribute__((overloadable)) isgreater( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Returns the component-wise compare of x >= y.
@@ -2591,6 +3876,20 @@ int3 __const_func __attribute__((overloadable)) isgreaterequal(float3 x, float3 
 int4 __const_func __attribute__((overloadable)) isgreaterequal(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isgreaterequal(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isgreaterequal(float16 x, float16 y);
+int __const_func __attribute__((overloadable)) isgreaterequal(double x, double y);
+long2 __const_func __attribute__((overloadable)) isgreaterequal(double2 x, double2 y);
+long3 __const_func __attribute__((overloadable)) isgreaterequal(double3 x, double3 y);
+long4 __const_func __attribute__((overloadable)) isgreaterequal(double4 x, double4 y);
+long8 __const_func __attribute__((overloadable)) isgreaterequal(double8 x, double8 y);
+long16 __const_func __attribute__((overloadable)) isgreaterequal(double16 x, double16 y);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isgreaterequal( half x, half y );
+short2 __const_func __attribute__((overloadable)) isgreaterequal( half2 x, half2 y );
+short3 __const_func __attribute__((overloadable)) isgreaterequal( half3 x, half3 y );
+short4 __const_func __attribute__((overloadable)) isgreaterequal( half4 x, half4 y );
+short8 __const_func __attribute__((overloadable)) isgreaterequal( half8 x, half8 y );
+short16 __const_func __attribute__((overloadable)) isgreaterequal( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Returns the component-wise compare of x < y.
@@ -2601,6 +3900,20 @@ int3 __const_func __attribute__((overloadable)) isless(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isless(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isless(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isless(float16 x, float16 y);
+int __const_func __attribute__((overloadable)) isless(double x, double y);
+long2 __const_func __attribute__((overloadable)) isless(double2 x, double2 y);
+long3 __const_func __attribute__((overloadable)) isless(double3 x, double3 y);
+long4 __const_func __attribute__((overloadable)) isless(double4 x, double4 y);
+long8 __const_func __attribute__((overloadable)) isless(double8 x, double8 y);
+long16 __const_func __attribute__((overloadable)) isless(double16 x, double16 y);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isless( half x, half y );
+short2 __const_func __attribute__((overloadable)) isless( half2 x, half2 y );
+short3 __const_func __attribute__((overloadable)) isless( half3 x, half3 y );
+short4 __const_func __attribute__((overloadable)) isless( half4 x, half4 y );
+short8 __const_func __attribute__((overloadable)) isless( half8 x, half8 y );
+short16 __const_func __attribute__((overloadable)) isless( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Returns the component-wise compare of x <= y.
@@ -2611,6 +3924,20 @@ int3 __const_func __attribute__((overloadable)) islessequal(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) islessequal(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) islessequal(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) islessequal(float16 x, float16 y);
+int __const_func __attribute__((overloadable)) islessequal(double x, double y);
+long2 __const_func __attribute__((overloadable)) islessequal(double2 x, double2 y);
+long3 __const_func __attribute__((overloadable)) islessequal(double3 x, double3 y);
+long4 __const_func __attribute__((overloadable)) islessequal(double4 x, double4 y);
+long8 __const_func __attribute__((overloadable)) islessequal(double8 x, double8 y);
+long16 __const_func __attribute__((overloadable)) islessequal(double16 x, double16 y);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) islessequal( half x, half y );
+short2 __const_func __attribute__((overloadable)) islessequal( half2 x, half2 y );
+short3 __const_func __attribute__((overloadable)) islessequal( half3 x, half3 y );
+short4 __const_func __attribute__((overloadable)) islessequal( half4 x, half4 y );
+short8 __const_func __attribute__((overloadable)) islessequal( half8 x, half8 y );
+short16 __const_func __attribute__((overloadable)) islessequal( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Returns the component-wise compare of
@@ -2622,6 +3949,20 @@ int3 __const_func __attribute__((overloadable)) islessgreater(float3 x, float3 y
 int4 __const_func __attribute__((overloadable)) islessgreater(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) islessgreater(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) islessgreater(float16 x, float16 y);
+int __const_func __attribute__((overloadable)) islessgreater(double x, double y);
+long2 __const_func __attribute__((overloadable)) islessgreater(double2 x, double2 y);
+long3 __const_func __attribute__((overloadable)) islessgreater(double3 x, double3 y);
+long4 __const_func __attribute__((overloadable)) islessgreater(double4 x, double4 y);
+long8 __const_func __attribute__((overloadable)) islessgreater(double8 x, double8 y);
+long16 __const_func __attribute__((overloadable)) islessgreater(double16 x, double16 y);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) islessgreater( half x, half y );
+short2 __const_func __attribute__((overloadable)) islessgreater( half2 x, half2 y );
+short3 __const_func __attribute__((overloadable)) islessgreater( half3 x, half3 y );
+short4 __const_func __attribute__((overloadable)) islessgreater( half4 x, half4 y );
+short8 __const_func __attribute__((overloadable)) islessgreater( half8 x, half8 y );
+short16 __const_func __attribute__((overloadable)) islessgreater( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Test for finite value.
@@ -2632,6 +3973,20 @@ int3 __const_func __attribute__((overloadable)) isfinite(float3);
 int4 __const_func __attribute__((overloadable)) isfinite(float4);
 int8 __const_func __attribute__((overloadable)) isfinite(float8);
 int16 __const_func __attribute__((overloadable)) isfinite(float16);
+int __const_func __attribute__((overloadable)) isfinite(double);
+long2 __const_func __attribute__((overloadable)) isfinite(double2);
+long3 __const_func __attribute__((overloadable)) isfinite(double3);
+long4 __const_func __attribute__((overloadable)) isfinite(double4);
+long8 __const_func __attribute__((overloadable)) isfinite(double8);
+long16 __const_func __attribute__((overloadable)) isfinite(double16);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isfinite( half );
+short2 __const_func __attribute__((overloadable)) isfinite( half2 );
+short3 __const_func __attribute__((overloadable)) isfinite( half3 );
+short4 __const_func __attribute__((overloadable)) isfinite( half4 );
+short8 __const_func __attribute__((overloadable)) isfinite( half8 );
+short16 __const_func __attribute__((overloadable)) isfinite( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Test for infinity value (+ve or -ve) .
@@ -2642,6 +3997,20 @@ int3 __const_func __attribute__((overloadable)) isinf(float3);
 int4 __const_func __attribute__((overloadable)) isinf(float4);
 int8 __const_func __attribute__((overloadable)) isinf(float8);
 int16 __const_func __attribute__((overloadable)) isinf(float16);
+int __const_func __attribute__((overloadable)) isinf(double);
+long2 __const_func __attribute__((overloadable)) isinf(double2);
+long3 __const_func __attribute__((overloadable)) isinf(double3);
+long4 __const_func __attribute__((overloadable)) isinf(double4);
+long8 __const_func __attribute__((overloadable)) isinf(double8);
+long16 __const_func __attribute__((overloadable)) isinf(double16);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isinf( half );
+short2 __const_func __attribute__((overloadable)) isinf( half2 );
+short3 __const_func __attribute__((overloadable)) isinf( half3 );
+short4 __const_func __attribute__((overloadable)) isinf( half4 );
+short8 __const_func __attribute__((overloadable)) isinf( half8 );
+short16 __const_func __attribute__((overloadable)) isinf( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Test for a NaN.
@@ -2652,6 +4021,20 @@ int3 __const_func __attribute__((overloadable)) isnan(float3);
 int4 __const_func __attribute__((overloadable)) isnan(float4);
 int8 __const_func __attribute__((overloadable)) isnan(float8);
 int16 __const_func __attribute__((overloadable)) isnan(float16);
+int __const_func __attribute__((overloadable)) isnan(double);
+long2 __const_func __attribute__((overloadable)) isnan(double2);
+long3 __const_func __attribute__((overloadable)) isnan(double3);
+long4 __const_func __attribute__((overloadable)) isnan(double4);
+long8 __const_func __attribute__((overloadable)) isnan(double8);
+long16 __const_func __attribute__((overloadable)) isnan(double16);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isnan( half );
+short2 __const_func __attribute__((overloadable)) isnan( half2 );
+short3 __const_func __attribute__((overloadable)) isnan( half3 );
+short4 __const_func __attribute__((overloadable)) isnan( half4 );
+short8 __const_func __attribute__((overloadable)) isnan( half8 );
+short16 __const_func __attribute__((overloadable)) isnan( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Test for a normal value.
@@ -2662,6 +4045,20 @@ int3 __const_func __attribute__((overloadable)) isnormal(float3);
 int4 __const_func __attribute__((overloadable)) isnormal(float4);
 int8 __const_func __attribute__((overloadable)) isnormal(float8);
 int16 __const_func __attribute__((overloadable)) isnormal(float16);
+int __const_func __attribute__((overloadable)) isnormal(double);
+long2 __const_func __attribute__((overloadable)) isnormal(double2);
+long3 __const_func __attribute__((overloadable)) isnormal(double3);
+long4 __const_func __attribute__((overloadable)) isnormal(double4);
+long8 __const_func __attribute__((overloadable)) isnormal(double8);
+long16 __const_func __attribute__((overloadable)) isnormal(double16);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isnormal( half );
+short2 __const_func __attribute__((overloadable)) isnormal( half2 );
+short3 __const_func __attribute__((overloadable)) isnormal( half3 );
+short4 __const_func __attribute__((overloadable)) isnormal( half4 );
+short8 __const_func __attribute__((overloadable)) isnormal( half8 );
+short16 __const_func __attribute__((overloadable)) isnormal( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Test if arguments are ordered. isordered() takes
@@ -2674,6 +4071,20 @@ int3 __const_func __attribute__((overloadable)) isordered(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isordered(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isordered(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isordered(float16 x, float16 y);
+int __const_func __attribute__((overloadable)) isordered(double x, double y);
+long2 __const_func __attribute__((overloadable)) isordered(double2 x, double2 y);
+long3 __const_func __attribute__((overloadable)) isordered(double3 x, double3 y);
+long4 __const_func __attribute__((overloadable)) isordered(double4 x, double4 y);
+long8 __const_func __attribute__((overloadable)) isordered(double8 x, double8 y);
+long16 __const_func __attribute__((overloadable)) isordered(double16 x, double16 y);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isordered( half x, half y );
+short2 __const_func __attribute__((overloadable)) isordered( half2 x, half2 y );
+short3 __const_func __attribute__((overloadable)) isordered( half3 x, half3 y );
+short4 __const_func __attribute__((overloadable)) isordered( half4 x, half4 y );
+short8 __const_func __attribute__((overloadable)) isordered( half8 x, half8 y );
+short16 __const_func __attribute__((overloadable)) isordered( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Test if arguments are unordered. isunordered()
@@ -2686,6 +4097,20 @@ int3 __const_func __attribute__((overloadable)) isunordered(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isunordered(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isunordered(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isunordered(float16 x, float16 y);
+int __const_func __attribute__((overloadable)) isunordered(double x, double y);
+long2 __const_func __attribute__((overloadable)) isunordered(double2 x, double2 y);
+long3 __const_func __attribute__((overloadable)) isunordered(double3 x, double3 y);
+long4 __const_func __attribute__((overloadable)) isunordered(double4 x, double4 y);
+long8 __const_func __attribute__((overloadable)) isunordered(double8 x, double8 y);
+long16 __const_func __attribute__((overloadable)) isunordered(double16 x, double16 y);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) isunordered( half x, half y );
+short2 __const_func __attribute__((overloadable)) isunordered( half2 x, half2 y );
+short3 __const_func __attribute__((overloadable)) isunordered( half3 x, half3 y );
+short4 __const_func __attribute__((overloadable)) isunordered( half4 x, half4 y );
+short8 __const_func __attribute__((overloadable)) isunordered( half8 x, half8 y );
+short16 __const_func __attribute__((overloadable)) isunordered( half16 x, half16 y );
+#endif //cl_khr_fp16
 
 /**
  * Test for sign bit. The scalar version of the function
@@ -2700,6 +4125,20 @@ int3 __const_func __attribute__((overloadable)) signbit(float3);
 int4 __const_func __attribute__((overloadable)) signbit(float4);
 int8 __const_func __attribute__((overloadable)) signbit(float8);
 int16 __const_func __attribute__((overloadable)) signbit(float16);
+int __const_func __attribute__((overloadable)) signbit(double);
+long2 __const_func __attribute__((overloadable)) signbit(double2);
+long3 __const_func __attribute__((overloadable)) signbit(double3);
+long4 __const_func __attribute__((overloadable)) signbit(double4);
+long8 __const_func __attribute__((overloadable)) signbit(double8);
+long16 __const_func __attribute__((overloadable)) signbit(double16);
+#ifdef cl_khr_fp16
+int __const_func __attribute__((overloadable)) signbit( half );
+short2 __const_func __attribute__((overloadable)) signbit( half2 );
+short3 __const_func __attribute__((overloadable)) signbit( half3 );
+short4 __const_func __attribute__((overloadable)) signbit( half4 );
+short8 __const_func __attribute__((overloadable)) signbit( half8 );
+short16 __const_func __attribute__((overloadable)) signbit( half16 );
+#endif //cl_khr_fp16
 
 /**
  * Returns 1 if the most significant bit in any component
@@ -2818,6 +4257,20 @@ float3 __const_func __attribute__((overloadable)) bitselect(float3 a, float3 b, 
 float4 __const_func __attribute__((overloadable)) bitselect(float4 a, float4 b, float4 c);
 float8 __const_func __attribute__((overloadable)) bitselect(float8 a, float8 b, float8 c);
 float16 __const_func __attribute__((overloadable)) bitselect(float16 a, float16 b, float16 c);
+double __const_func __attribute__((overloadable)) bitselect(double a, double b, double c);
+double2 __const_func __attribute__((overloadable)) bitselect(double2 a, double2 b, double2 c);
+double3 __const_func __attribute__((overloadable)) bitselect(double3 a, double3 b, double3 c);
+double4 __const_func __attribute__((overloadable)) bitselect(double4 a, double4 b, double4 c);
+double8 __const_func __attribute__((overloadable)) bitselect(double8 a, double8 b, double8 c);
+double16 __const_func __attribute__((overloadable)) bitselect(double16 a, double16 b, double16 c);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) bitselect( half a, half b, half c );
+half2 __const_func __attribute__((overloadable)) bitselect( half2 a, half2 b, half2 c );
+half3 __const_func __attribute__((overloadable)) bitselect( half3 a, half3 b, half3 c );
+half4 __const_func __attribute__((overloadable)) bitselect( half4 a, half4 b, half4 c );
+half8 __const_func __attribute__((overloadable)) bitselect( half8 a, half8 b, half8 c );
+half16 __const_func __attribute__((overloadable)) bitselect( half16 a, half16 b, half16 c );
+#endif //cl_khr_fp16
 
 /**
  * For each component of a vector type,
@@ -3256,6 +4709,32 @@ float3 __const_func __attribute__((overloadable)) select(float3 a, float3 b, ulo
 float4 __const_func __attribute__((overloadable)) select(float4 a, float4 b, ulong4 c);
 float8 __const_func __attribute__((overloadable)) select(float8 a, float8 b, ulong8 c);
 float16 __const_func __attribute__((overloadable)) select(float16 a, float16 b, ulong16 c);
+double __const_func __attribute__((overloadable)) select(double a, double b, long c);
+double2 __const_func __attribute__((overloadable)) select(double2 a, double2 b, long2 c);
+double3 __const_func __attribute__((overloadable)) select(double3 a, double3 b, long3 c);
+double4 __const_func __attribute__((overloadable)) select(double4 a, double4 b, long4 c);
+double8 __const_func __attribute__((overloadable)) select(double8 a, double8 b, long8 c);
+double16 __const_func __attribute__((overloadable)) select(double16 a, double16 b, long16 c);
+double __const_func __attribute__((overloadable)) select(double a, double b, ulong c);
+double2 __const_func __attribute__((overloadable)) select(double2 a, double2 b, ulong2 c);
+double3 __const_func __attribute__((overloadable)) select(double3 a, double3 b, ulong3 c);
+double4 __const_func __attribute__((overloadable)) select(double4 a, double4 b, ulong4 c);
+double8 __const_func __attribute__((overloadable)) select(double8 a, double8 b, ulong8 c);
+double16 __const_func __attribute__((overloadable)) select(double16 a, double16 b, ulong16 c);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) select( half a, half b, short c );
+half2 __const_func __attribute__((overloadable)) select( half2 a, half2 b, short2 c );
+half3 __const_func __attribute__((overloadable)) select( half3 a, half3 b, short3 c );
+half4 __const_func __attribute__((overloadable)) select( half4 a, half4 b, short4 c );
+half8 __const_func __attribute__((overloadable)) select( half8 a, half8 b, short8 c );
+half16 __const_func __attribute__((overloadable)) select( half16 a, half16 b, short16 c );
+half __const_func __attribute__((overloadable)) select( half a, half b, ushort c );
+half2 __const_func __attribute__((overloadable)) select( half2 a, half2 b, ushort2 c );
+half3 __const_func __attribute__((overloadable)) select( half3 a, half3 b, ushort3 c );
+half4 __const_func __attribute__((overloadable)) select( half4 a, half4 b, ushort4 c );
+half8 __const_func __attribute__((overloadable)) select( half8 a, half8 b, ushort8 c );
+half16 __const_func __attribute__((overloadable)) select( half16 a, half16 b, ushort16 c );
+#endif //cl_khr_fp16
 
 // Synchronization functions
 
@@ -3595,6 +5074,48 @@ float16 __const_func __attribute__((overloadable)) shuffle(float4 x, uint16 mask
 float16 __const_func __attribute__((overloadable)) shuffle(float8 x, uint16 mask);
 float16 __const_func __attribute__((overloadable)) shuffle(float16 x, uint16 mask);
 
+double2 __const_func __attribute__((overloadable)) shuffle(double2 x, ulong2 mask);
+double2 __const_func __attribute__((overloadable)) shuffle(double4 x, ulong2 mask);
+double2 __const_func __attribute__((overloadable)) shuffle(double8 x, ulong2 mask);
+double2 __const_func __attribute__((overloadable)) shuffle(double16 x, ulong2 mask);
+
+double4 __const_func __attribute__((overloadable)) shuffle(double2 x, ulong4 mask);
+double4 __const_func __attribute__((overloadable)) shuffle(double4 x, ulong4 mask);
+double4 __const_func __attribute__((overloadable)) shuffle(double8 x, ulong4 mask);
+double4 __const_func __attribute__((overloadable)) shuffle(double16 x, ulong4 mask);
+
+double8 __const_func __attribute__((overloadable)) shuffle(double2 x, ulong8 mask);
+double8 __const_func __attribute__((overloadable)) shuffle(double4 x, ulong8 mask);
+double8 __const_func __attribute__((overloadable)) shuffle(double8 x, ulong8 mask);
+double8 __const_func __attribute__((overloadable)) shuffle(double16 x, ulong8 mask);
+
+double16 __const_func __attribute__((overloadable)) shuffle(double2 x, ulong16 mask);
+double16 __const_func __attribute__((overloadable)) shuffle(double4 x, ulong16 mask);
+double16 __const_func __attribute__((overloadable)) shuffle(double8 x, ulong16 mask);
+double16 __const_func __attribute__((overloadable)) shuffle(double16 x, ulong16 mask);
+
+#ifdef cl_khr_fp16
+half2 __const_func __attribute__((overloadable)) shuffle( half2 x, ushort2 mask );
+half2 __const_func __attribute__((overloadable)) shuffle( half4 x, ushort2 mask );
+half2 __const_func __attribute__((overloadable)) shuffle( half8 x, ushort2 mask );
+half2 __const_func __attribute__((overloadable)) shuffle( half16 x, ushort2 mask );
+
+half4 __const_func __attribute__((overloadable)) shuffle( half2 x, ushort4 mask );
+half4 __const_func __attribute__((overloadable)) shuffle( half4 x, ushort4 mask );
+half4 __const_func __attribute__((overloadable)) shuffle( half8 x, ushort4 mask );
+half4 __const_func __attribute__((overloadable)) shuffle( half16 x, ushort4 mask );
+
+half8 __const_func __attribute__((overloadable)) shuffle( half2 x, ushort8 mask );
+half8 __const_func __attribute__((overloadable)) shuffle( half4 x, ushort8 mask );
+half8 __const_func __attribute__((overloadable)) shuffle( half8 x, ushort8 mask );
+half8 __const_func __attribute__((overloadable)) shuffle( half16 x, ushort8 mask );
+
+half16 __const_func __attribute__((overloadable)) shuffle( half2 x, ushort16 mask );
+half16 __const_func __attribute__((overloadable)) shuffle( half4 x, ushort16 mask );
+half16 __const_func __attribute__((overloadable)) shuffle( half8 x, ushort16 mask );
+half16 __const_func __attribute__((overloadable)) shuffle( half16 x, ushort16 mask );
+#endif //cl_khr_fp16
+
 char2 __const_func __attribute__((overloadable)) shuffle2(char2 x, char2 y, uchar2 mask);
 char2 __const_func __attribute__((overloadable)) shuffle2(char4 x, char4 y, uchar2 mask);
 char2 __const_func __attribute__((overloadable)) shuffle2(char8 x, char8 y, uchar2 mask);
@@ -3775,6 +5296,48 @@ float16 __const_func __attribute__((overloadable)) shuffle2(float4 x, float4 y, 
 float16 __const_func __attribute__((overloadable)) shuffle2(float8 x, float8 y, uint16 mask);
 float16 __const_func __attribute__((overloadable)) shuffle2(float16 x, float16 y, uint16 mask);
 
+double2 __const_func __attribute__((overloadable)) shuffle2(double2 x, double2 y, ulong2 mask);
+double2 __const_func __attribute__((overloadable)) shuffle2(double4 x, double4 y, ulong2 mask);
+double2 __const_func __attribute__((overloadable)) shuffle2(double8 x, double8 y, ulong2 mask);
+double2 __const_func __attribute__((overloadable)) shuffle2(double16 x, double16 y, ulong2 mask);
+
+double4 __const_func __attribute__((overloadable)) shuffle2(double2 x, double2 y, ulong4 mask);
+double4 __const_func __attribute__((overloadable)) shuffle2(double4 x, double4 y, ulong4 mask);
+double4 __const_func __attribute__((overloadable)) shuffle2(double8 x, double8 y, ulong4 mask);
+double4 __const_func __attribute__((overloadable)) shuffle2(double16 x, double16 y, ulong4 mask);
+
+double8 __const_func __attribute__((overloadable)) shuffle2(double2 x, double2 y, ulong8 mask);
+double8 __const_func __attribute__((overloadable)) shuffle2(double4 x, double4 y, ulong8 mask);
+double8 __const_func __attribute__((overloadable)) shuffle2(double8 x, double8 y, ulong8 mask);
+double8 __const_func __attribute__((overloadable)) shuffle2(double16 x, double16 y, ulong8 mask);
+
+double16 __const_func __attribute__((overloadable)) shuffle2(double2 x, double2 y, ulong16 mask);
+double16 __const_func __attribute__((overloadable)) shuffle2(double4 x, double4 y, ulong16 mask);
+double16 __const_func __attribute__((overloadable)) shuffle2(double8 x, double8 y, ulong16 mask);
+double16 __const_func __attribute__((overloadable)) shuffle2(double16 x, double16 y, ulong16 mask);
+
+#ifdef cl_khr_fp16
+half2 __const_func __attribute__((overloadable)) shuffle2( half2 x, half2 y, ushort2 mask );
+half2 __const_func __attribute__((overloadable)) shuffle2( half4 x, half4 y, ushort2 mask );
+half2 __const_func __attribute__((overloadable)) shuffle2( half8 x, half8 y, ushort2 mask );
+half2 __const_func __attribute__((overloadable)) shuffle2( half16 x, half16 y, ushort2 mask );
+
+half4 __const_func __attribute__((overloadable)) shuffle2( half2 x, half2 y, ushort4 mask );
+half4 __const_func __attribute__((overloadable)) shuffle2( half4 x, half4 y, ushort4 mask );
+half4 __const_func __attribute__((overloadable)) shuffle2( half8 x, half8 y, ushort4 mask );
+half4 __const_func __attribute__((overloadable)) shuffle2( half16 x, half16 y, ushort4 mask );
+
+half8 __const_func __attribute__((overloadable)) shuffle2( half2 x, half2 y, ushort8 mask );
+half8 __const_func __attribute__((overloadable)) shuffle2( half4 x, half4 y, ushort8 mask );
+half8 __const_func __attribute__((overloadable)) shuffle2( half8 x, half8 y, ushort8 mask );
+half8 __const_func __attribute__((overloadable)) shuffle2( half16 x, half16 y, ushort8 mask );
+
+half16 __const_func __attribute__((overloadable)) shuffle2( half2 x, half2 y, ushort16 mask );
+half16 __const_func __attribute__((overloadable)) shuffle2( half4 x, half4 y, ushort16 mask );
+half16 __const_func __attribute__((overloadable)) shuffle2( half8 x, half8 y, ushort16 mask );
+half16 __const_func __attribute__((overloadable)) shuffle2( half16 x, half16 y, ushort16 mask );
+#endif //cl_khr_fp16
+
 /**
  * OpenCL as_type operators
  * Reinterprets a data type as another data type of the same size
@@ -3848,6 +5411,15 @@ float16 __const_func __attribute__((overloadable)) shuffle2(float16 x, float16 y
 #define as_double4(x) __builtin_astype((x), double4)
 #define as_double8(x) __builtin_astype((x), double8)
 #define as_double16(x) __builtin_astype((x), double16)
+
+#ifdef cl_khr_fp16
+#define as_half(x) __builtin_astype((x), half)
+#define as_half2(x) __builtin_astype((x), half2)
+#define as_half3(x) __builtin_astype((x), half3)
+#define as_half4(x) __builtin_astype((x), half4)
+#define as_half8(x) __builtin_astype((x), half8)
+#define as_half16(x) __builtin_astype((x), half16)
+#endif // cl_khr_fp16
 
 // Explicit conversions
 
@@ -8442,9 +10014,9 @@ float16 __const_func __attribute__((overloadable)) convert_float16_rtz(float16);
 float16 __const_func __attribute__((overloadable)) convert_float16_rtp(float16);
 float16 __const_func __attribute__((overloadable)) convert_float16_rtn(float16);
 float16 __const_func __attribute__((overloadable)) convert_float16(float16);
-// Built-in functions with double data type parameters.
 
-// Conversions
+// Conversions with double data type parameters or return value.
+
 char __const_func __attribute__((overloadable)) convert_char(double);
 char __const_func __attribute__((overloadable)) convert_char_rte(double);
 char __const_func __attribute__((overloadable)) convert_char_rtn(double);
@@ -9265,2032 +10837,8 @@ double16 __const_func __attribute__((overloadable)) convert_double16_rtz(uint16)
 double16 __const_func __attribute__((overloadable)) convert_double16_rtz(ulong16);
 double16 __const_func __attribute__((overloadable)) convert_double16_rtz(ushort16);
 
-double __const_func __attribute__((overloadable)) acos(double);
-double2 __const_func __attribute__((overloadable)) acos(double2);
-double3 __const_func __attribute__((overloadable)) acos(double3);
-double4 __const_func __attribute__((overloadable)) acos(double4);
-double8 __const_func __attribute__((overloadable)) acos(double8);
-double16 __const_func __attribute__((overloadable)) acos(double16);
-
-double __const_func __attribute__((overloadable)) acosh(double);
-double2 __const_func __attribute__((overloadable)) acosh(double2);
-double3 __const_func __attribute__((overloadable)) acosh(double3);
-double4 __const_func __attribute__((overloadable)) acosh(double4);
-double8 __const_func __attribute__((overloadable)) acosh(double8);
-double16 __const_func __attribute__((overloadable)) acosh(double16);
-
-double __const_func __attribute__((overloadable)) acospi(double x);
-double2 __const_func __attribute__((overloadable)) acospi(double2 x);
-double3 __const_func __attribute__((overloadable)) acospi(double3 x);
-double4 __const_func __attribute__((overloadable)) acospi(double4 x);
-double8 __const_func __attribute__((overloadable)) acospi(double8 x);
-double16 __const_func __attribute__((overloadable)) acospi(double16 x);
-
-double __const_func __attribute__((overloadable)) asin(double);
-double2 __const_func __attribute__((overloadable)) asin(double2);
-double3 __const_func __attribute__((overloadable)) asin(double3);
-double4 __const_func __attribute__((overloadable)) asin(double4);
-double8 __const_func __attribute__((overloadable)) asin(double8);
-double16 __const_func __attribute__((overloadable)) asin(double16);
-
-double __const_func __attribute__((overloadable)) asinh(double);
-double2 __const_func __attribute__((overloadable)) asinh(double2);
-double3 __const_func __attribute__((overloadable)) asinh(double3);
-double4 __const_func __attribute__((overloadable)) asinh(double4);
-double8 __const_func __attribute__((overloadable)) asinh(double8);
-double16 __const_func __attribute__((overloadable)) asinh(double16);
-
-double __const_func __attribute__((overloadable)) asinpi(double x);
-double2 __const_func __attribute__((overloadable)) asinpi(double2 x);
-double3 __const_func __attribute__((overloadable)) asinpi(double3 x);
-double4 __const_func __attribute__((overloadable)) asinpi(double4 x);
-double8 __const_func __attribute__((overloadable)) asinpi(double8 x);
-double16 __const_func __attribute__((overloadable)) asinpi(double16 x);
-
-double __const_func __attribute__((overloadable)) atan(double y_over_x);
-double2 __const_func __attribute__((overloadable)) atan(double2 y_over_x);
-double3 __const_func __attribute__((overloadable)) atan(double3 y_over_x);
-double4 __const_func __attribute__((overloadable)) atan(double4 y_over_x);
-double8 __const_func __attribute__((overloadable)) atan(double8 y_over_x);
-double16 __const_func __attribute__((overloadable)) atan(double16 y_over_x);
-
-double __const_func __attribute__((overloadable)) atan2(double y, double x);
-double2 __const_func __attribute__((overloadable)) atan2(double2 y, double2 x);
-double3 __const_func __attribute__((overloadable)) atan2(double3 y, double3 x);
-double4 __const_func __attribute__((overloadable)) atan2(double4 y, double4 x);
-double8 __const_func __attribute__((overloadable)) atan2(double8 y, double8 x);
-double16 __const_func __attribute__((overloadable)) atan2(double16 y, double16 x);
-
-double __const_func __attribute__((overloadable)) atanh(double);
-double2 __const_func __attribute__((overloadable)) atanh(double2);
-double3 __const_func __attribute__((overloadable)) atanh(double3);
-double4 __const_func __attribute__((overloadable)) atanh(double4);
-double8 __const_func __attribute__((overloadable)) atanh(double8);
-double16 __const_func __attribute__((overloadable)) atanh(double16);
-
-double __const_func __attribute__((overloadable)) atanpi(double x);
-double2 __const_func __attribute__((overloadable)) atanpi(double2 x);
-double3 __const_func __attribute__((overloadable)) atanpi(double3 x);
-double4 __const_func __attribute__((overloadable)) atanpi(double4 x);
-double8 __const_func __attribute__((overloadable)) atanpi(double8 x);
-double16 __const_func __attribute__((overloadable)) atanpi(double16 x);
-
-double __const_func __attribute__((overloadable)) atan2pi(double y, double x);
-double2 __const_func __attribute__((overloadable)) atan2pi(double2 y, double2 x);
-double3 __const_func __attribute__((overloadable)) atan2pi(double3 y, double3 x);
-double4 __const_func __attribute__((overloadable)) atan2pi(double4 y, double4 x);
-double8 __const_func __attribute__((overloadable)) atan2pi(double8 y, double8 x);
-double16 __const_func __attribute__((overloadable)) atan2pi(double16 y, double16 x);
-
-double __const_func __attribute__((overloadable)) cbrt(double);
-double2 __const_func __attribute__((overloadable)) cbrt(double2);
-double3 __const_func __attribute__((overloadable)) cbrt(double3);
-double4 __const_func __attribute__((overloadable)) cbrt(double4);
-double8 __const_func __attribute__((overloadable)) cbrt(double8);
-double16 __const_func __attribute__((overloadable)) cbrt(double16);
-
-double __const_func __attribute__((overloadable)) ceil(double);
-double2 __const_func __attribute__((overloadable)) ceil(double2);
-double3 __const_func __attribute__((overloadable)) ceil(double3);
-double4 __const_func __attribute__((overloadable)) ceil(double4);
-double8 __const_func __attribute__((overloadable)) ceil(double8);
-double16 __const_func __attribute__((overloadable)) ceil(double16);
-
-double __const_func __attribute__((overloadable)) copysign(double x, double y);
-double2 __const_func __attribute__((overloadable)) copysign(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) copysign(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) copysign(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) copysign(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) copysign(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) cos(double);
-double2 __const_func __attribute__((overloadable)) cos(double2);
-double3 __const_func __attribute__((overloadable)) cos(double3);
-double4 __const_func __attribute__((overloadable)) cos(double4);
-double8 __const_func __attribute__((overloadable)) cos(double8);
-double16 __const_func __attribute__((overloadable)) cos(double16);
-
-double __const_func __attribute__((overloadable)) cosh(double);
-double2 __const_func __attribute__((overloadable)) cosh(double2);
-double3 __const_func __attribute__((overloadable)) cosh(double3);
-double4 __const_func __attribute__((overloadable)) cosh(double4);
-double8 __const_func __attribute__((overloadable)) cosh(double8);
-double16 __const_func __attribute__((overloadable)) cosh(double16);
-
-double __const_func __attribute__((overloadable)) cospi(double x);
-double2 __const_func __attribute__((overloadable)) cospi(double2 x);
-double3 __const_func __attribute__((overloadable)) cospi(double3 x);
-double4 __const_func __attribute__((overloadable)) cospi(double4 x);
-double8 __const_func __attribute__((overloadable)) cospi(double8 x);
-double16 __const_func __attribute__((overloadable)) cospi(double16 x);
-
-double __const_func __attribute__((overloadable)) erfc(double);
-double2 __const_func __attribute__((overloadable)) erfc(double2);
-double3 __const_func __attribute__((overloadable)) erfc(double3);
-double4 __const_func __attribute__((overloadable)) erfc(double4);
-double8 __const_func __attribute__((overloadable)) erfc(double8);
-double16 __const_func __attribute__((overloadable)) erfc(double16);
-
-double __const_func __attribute__((overloadable)) erf(double);
-double2 __const_func __attribute__((overloadable)) erf(double2);
-double3 __const_func __attribute__((overloadable)) erf(double3);
-double4 __const_func __attribute__((overloadable)) erf(double4);
-double8 __const_func __attribute__((overloadable)) erf(double8);
-double16 __const_func __attribute__((overloadable)) erf(double16);
-
-double __const_func __attribute__((overloadable)) exp(double x);
-double2 __const_func __attribute__((overloadable)) exp(double2 x);
-double3 __const_func __attribute__((overloadable)) exp(double3 x);
-double4 __const_func __attribute__((overloadable)) exp(double4 x);
-double8 __const_func __attribute__((overloadable)) exp(double8 x);
-double16 __const_func __attribute__((overloadable)) exp(double16 x);
-
-double __const_func __attribute__((overloadable)) exp2(double);
-double2 __const_func __attribute__((overloadable)) exp2(double2);
-double3 __const_func __attribute__((overloadable)) exp2(double3);
-double4 __const_func __attribute__((overloadable)) exp2(double4);
-double8 __const_func __attribute__((overloadable)) exp2(double8);
-double16 __const_func __attribute__((overloadable)) exp2(double16);
-
-double __const_func __attribute__((overloadable)) exp10(double);
-double2 __const_func __attribute__((overloadable)) exp10(double2);
-double3 __const_func __attribute__((overloadable)) exp10(double3);
-double4 __const_func __attribute__((overloadable)) exp10(double4);
-double8 __const_func __attribute__((overloadable)) exp10(double8);
-double16 __const_func __attribute__((overloadable)) exp10(double16);
-
-double __const_func __attribute__((overloadable)) expm1(double x);
-double2 __const_func __attribute__((overloadable)) expm1(double2 x);
-double3 __const_func __attribute__((overloadable)) expm1(double3 x);
-double4 __const_func __attribute__((overloadable)) expm1(double4 x);
-double8 __const_func __attribute__((overloadable)) expm1(double8 x);
-double16 __const_func __attribute__((overloadable)) expm1(double16 x);
-
-double __const_func __attribute__((overloadable)) fabs(double);
-double2 __const_func __attribute__((overloadable)) fabs(double2);
-double3 __const_func __attribute__((overloadable)) fabs(double3);
-double4 __const_func __attribute__((overloadable)) fabs(double4);
-double8 __const_func __attribute__((overloadable)) fabs(double8);
-double16 __const_func __attribute__((overloadable)) fabs(double16);
-
-double __const_func __attribute__((overloadable)) fdim(double x, double y);
-double2 __const_func __attribute__((overloadable)) fdim(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) fdim(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) fdim(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) fdim(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) fdim(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) floor(double);
-double2 __const_func __attribute__((overloadable)) floor(double2);
-double3 __const_func __attribute__((overloadable)) floor(double3);
-double4 __const_func __attribute__((overloadable)) floor(double4);
-double8 __const_func __attribute__((overloadable)) floor(double8);
-double16 __const_func __attribute__((overloadable)) floor(double16);
-
-double __const_func __attribute__((overloadable)) fma(double a, double b, double c);
-double2 __const_func __attribute__((overloadable)) fma(double2 a, double2 b, double2 c);
-double3 __const_func __attribute__((overloadable)) fma(double3 a, double3 b, double3 c);
-double4 __const_func __attribute__((overloadable)) fma(double4 a, double4 b, double4 c);
-double8 __const_func __attribute__((overloadable)) fma(double8 a, double8 b, double8 c);
-double16 __const_func __attribute__((overloadable)) fma(double16 a, double16 b, double16 c);
-
-double __const_func __attribute__((overloadable)) fmax(double x, double y);
-double2 __const_func __attribute__((overloadable)) fmax(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) fmax(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) fmax(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) fmax(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) fmax(double16 x, double16 y);
-double2 __const_func __attribute__((overloadable)) fmax(double2 x, double y);
-double3 __const_func __attribute__((overloadable)) fmax(double3 x, double y);
-double4 __const_func __attribute__((overloadable)) fmax(double4 x, double y);
-double8 __const_func __attribute__((overloadable)) fmax(double8 x, double y);
-double16 __const_func __attribute__((overloadable)) fmax(double16 x, double y);
-
-double __const_func __attribute__((overloadable)) fmin(double x, double y);
-double2 __const_func __attribute__((overloadable)) fmin(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) fmin(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) fmin(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) fmin(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) fmin(double16 x, double16 y);
-double2 __const_func __attribute__((overloadable)) fmin(double2 x, double y);
-double3 __const_func __attribute__((overloadable)) fmin(double3 x, double y);
-double4 __const_func __attribute__((overloadable)) fmin(double4 x, double y);
-double8 __const_func __attribute__((overloadable)) fmin(double8 x, double y);
-double16 __const_func __attribute__((overloadable)) fmin(double16 x, double y);
-
-double __const_func __attribute__((overloadable)) fmod(double x, double y);
-double2 __const_func __attribute__((overloadable)) fmod(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) fmod(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) fmod(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) fmod(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) fmod(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) hypot(double x, double y);
-double2 __const_func __attribute__((overloadable)) hypot(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) hypot(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) hypot(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) hypot(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) hypot(double16 x, double16 y);
-
-int __const_func __attribute__((overloadable)) ilogb(double x);
-int2 __const_func __attribute__((overloadable)) ilogb(double2 x);
-int3 __const_func __attribute__((overloadable)) ilogb(double3 x);
-int4 __const_func __attribute__((overloadable)) ilogb(double4 x);
-int8 __const_func __attribute__((overloadable)) ilogb(double8 x);
-int16 __const_func __attribute__((overloadable)) ilogb(double16 x);
-
-double __const_func __attribute__((overloadable)) ldexp(double x, int n);
-double2 __const_func __attribute__((overloadable)) ldexp(double2 x, int2 n);
-double3 __const_func __attribute__((overloadable)) ldexp(double3 x, int3 n);
-double4 __const_func __attribute__((overloadable)) ldexp(double4 x, int4 n);
-double8 __const_func __attribute__((overloadable)) ldexp(double8 x, int8 n);
-double16 __const_func __attribute__((overloadable)) ldexp(double16 x, int16 n);
-double2 __const_func __attribute__((overloadable)) ldexp(double2 x, int n);
-double3 __const_func __attribute__((overloadable)) ldexp(double3 x, int n);
-double4 __const_func __attribute__((overloadable)) ldexp(double4 x, int n);
-double8 __const_func __attribute__((overloadable)) ldexp(double8 x, int n);
-double16 __const_func __attribute__((overloadable)) ldexp(double16 x, int n);
-
-double __const_func __attribute__((overloadable)) lgamma(double x);
-double2 __const_func __attribute__((overloadable)) lgamma(double2 x);
-double3 __const_func __attribute__((overloadable)) lgamma(double3 x);
-double4 __const_func __attribute__((overloadable)) lgamma(double4 x);
-double8 __const_func __attribute__((overloadable)) lgamma(double8 x);
-double16 __const_func __attribute__((overloadable)) lgamma(double16 x);
-
-double __const_func __attribute__((overloadable)) log(double);
-double2 __const_func __attribute__((overloadable)) log(double2);
-double3 __const_func __attribute__((overloadable)) log(double3);
-double4 __const_func __attribute__((overloadable)) log(double4);
-double8 __const_func __attribute__((overloadable)) log(double8);
-double16 __const_func __attribute__((overloadable)) log(double16);
-
-double __const_func __attribute__((overloadable)) log2(double);
-double2 __const_func __attribute__((overloadable)) log2(double2);
-double3 __const_func __attribute__((overloadable)) log2(double3);
-double4 __const_func __attribute__((overloadable)) log2(double4);
-double8 __const_func __attribute__((overloadable)) log2(double8);
-double16 __const_func __attribute__((overloadable)) log2(double16);
-
-double __const_func __attribute__((overloadable)) log10(double);
-double2 __const_func __attribute__((overloadable)) log10(double2);
-double3 __const_func __attribute__((overloadable)) log10(double3);
-double4 __const_func __attribute__((overloadable)) log10(double4);
-double8 __const_func __attribute__((overloadable)) log10(double8);
-double16 __const_func __attribute__((overloadable)) log10(double16);
-
-double __const_func __attribute__((overloadable)) log1p(double x);
-double2 __const_func __attribute__((overloadable)) log1p(double2 x);
-double3 __const_func __attribute__((overloadable)) log1p(double3 x);
-double4 __const_func __attribute__((overloadable)) log1p(double4 x);
-double8 __const_func __attribute__((overloadable)) log1p(double8 x);
-double16 __const_func __attribute__((overloadable)) log1p(double16 x);
-
-double __const_func __attribute__((overloadable)) logb(double x);
-double2 __const_func __attribute__((overloadable)) logb(double2 x);
-double3 __const_func __attribute__((overloadable)) logb(double3 x);
-double4 __const_func __attribute__((overloadable)) logb(double4 x);
-double8 __const_func __attribute__((overloadable)) logb(double8 x);
-double16 __const_func __attribute__((overloadable)) logb(double16 x);
-
-double __const_func __attribute__((overloadable)) mad(double a, double b, double c);
-double2 __const_func __attribute__((overloadable)) mad(double2 a, double2 b, double2 c);
-double3 __const_func __attribute__((overloadable)) mad(double3 a, double3 b, double3 c);
-double4 __const_func __attribute__((overloadable)) mad(double4 a, double4 b, double4 c);
-double8 __const_func __attribute__((overloadable)) mad(double8 a, double8 b, double8 c);
-double16 __const_func __attribute__((overloadable)) mad(double16 a, double16 b, double16 c);
-
-double __const_func __attribute__((overloadable)) maxmag(double x, double y);
-double2 __const_func __attribute__((overloadable)) maxmag(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) maxmag(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) maxmag(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) maxmag(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) maxmag(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) minmag(double x, double y);
-double2 __const_func __attribute__((overloadable)) minmag(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) minmag(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) minmag(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) minmag(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) minmag(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) nan(ulong nancode);
-double2 __const_func __attribute__((overloadable)) nan(ulong2 nancode);
-double3 __const_func __attribute__((overloadable)) nan(ulong3 nancode);
-double4 __const_func __attribute__((overloadable)) nan(ulong4 nancode);
-double8 __const_func __attribute__((overloadable)) nan(ulong8 nancode);
-double16 __const_func __attribute__((overloadable)) nan(ulong16 nancode);
-
-double __const_func __attribute__((overloadable)) nextafter(double x, double y);
-double2 __const_func __attribute__((overloadable)) nextafter(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) nextafter(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) nextafter(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) nextafter(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) nextafter(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) pow(double x, double y);
-double2 __const_func __attribute__((overloadable)) pow(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) pow(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) pow(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) pow(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) pow(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) pown(double x, int y);
-double2 __const_func __attribute__((overloadable)) pown(double2 x, int2 y);
-double3 __const_func __attribute__((overloadable)) pown(double3 x, int3 y);
-double4 __const_func __attribute__((overloadable)) pown(double4 x, int4 y);
-double8 __const_func __attribute__((overloadable)) pown(double8 x, int8 y);
-double16 __const_func __attribute__((overloadable)) pown(double16 x, int16 y);
-
-double __const_func __attribute__((overloadable)) powr(double x, double y);
-double2 __const_func __attribute__((overloadable)) powr(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) powr(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) powr(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) powr(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) powr(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) remainder(double x, double y);
-double2 __const_func __attribute__((overloadable)) remainder(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) remainder(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) remainder(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) remainder(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) remainder(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) rint(double);
-double2 __const_func __attribute__((overloadable)) rint(double2);
-double3 __const_func __attribute__((overloadable)) rint(double3);
-double4 __const_func __attribute__((overloadable)) rint(double4);
-double8 __const_func __attribute__((overloadable)) rint(double8);
-double16 __const_func __attribute__((overloadable)) rint(double16);
-
-double __const_func __attribute__((overloadable)) rootn(double x, int y);
-double2 __const_func __attribute__((overloadable)) rootn(double2 x, int2 y);
-double3 __const_func __attribute__((overloadable)) rootn(double3 x, int3 y);
-double4 __const_func __attribute__((overloadable)) rootn(double4 x, int4 y);
-double8 __const_func __attribute__((overloadable)) rootn(double8 x, int8 y);
-double16 __const_func __attribute__((overloadable)) rootn(double16 x, int16 y);
-
-double __const_func __attribute__((overloadable)) round(double x);
-double2 __const_func __attribute__((overloadable)) round(double2 x);
-double3 __const_func __attribute__((overloadable)) round(double3 x);
-double4 __const_func __attribute__((overloadable)) round(double4 x);
-double8 __const_func __attribute__((overloadable)) round(double8 x);
-double16 __const_func __attribute__((overloadable)) round(double16 x);
-
-double __const_func __attribute__((overloadable)) rsqrt(double);
-double2 __const_func __attribute__((overloadable)) rsqrt(double2);
-double3 __const_func __attribute__((overloadable)) rsqrt(double3);
-double4 __const_func __attribute__((overloadable)) rsqrt(double4);
-double8 __const_func __attribute__((overloadable)) rsqrt(double8);
-double16 __const_func __attribute__((overloadable)) rsqrt(double16);
-
-double __const_func __attribute__((overloadable)) sin(double);
-double2 __const_func __attribute__((overloadable)) sin(double2);
-double3 __const_func __attribute__((overloadable)) sin(double3);
-double4 __const_func __attribute__((overloadable)) sin(double4);
-double8 __const_func __attribute__((overloadable)) sin(double8);
-double16 __const_func __attribute__((overloadable)) sin(double16);
-
-double __const_func __attribute__((overloadable)) sinh(double);
-double2 __const_func __attribute__((overloadable)) sinh(double2);
-double3 __const_func __attribute__((overloadable)) sinh(double3);
-double4 __const_func __attribute__((overloadable)) sinh(double4);
-double8 __const_func __attribute__((overloadable)) sinh(double8);
-double16 __const_func __attribute__((overloadable)) sinh(double16);
-
-double __const_func __attribute__((overloadable)) sinpi(double x);
-double2 __const_func __attribute__((overloadable)) sinpi(double2 x);
-double3 __const_func __attribute__((overloadable)) sinpi(double3 x);
-double4 __const_func __attribute__((overloadable)) sinpi(double4 x);
-double8 __const_func __attribute__((overloadable)) sinpi(double8 x);
-double16 __const_func __attribute__((overloadable)) sinpi(double16 x);
-
-double __const_func __attribute__((overloadable)) sqrt(double);
-double2 __const_func __attribute__((overloadable)) sqrt(double2);
-double3 __const_func __attribute__((overloadable)) sqrt(double3);
-double4 __const_func __attribute__((overloadable)) sqrt(double4);
-double8 __const_func __attribute__((overloadable)) sqrt(double8);
-double16 __const_func __attribute__((overloadable)) sqrt(double16);
-
-double __const_func __attribute__((overloadable)) tan(double);
-double2 __const_func __attribute__((overloadable)) tan(double2);
-double3 __const_func __attribute__((overloadable)) tan(double3);
-double4 __const_func __attribute__((overloadable)) tan(double4);
-double8 __const_func __attribute__((overloadable)) tan(double8);
-double16 __const_func __attribute__((overloadable)) tan(double16);
-
-double __const_func __attribute__((overloadable)) tanh(double);
-double2 __const_func __attribute__((overloadable)) tanh(double2);
-double3 __const_func __attribute__((overloadable)) tanh(double3);
-double4 __const_func __attribute__((overloadable)) tanh(double4);
-double8 __const_func __attribute__((overloadable)) tanh(double8);
-double16 __const_func __attribute__((overloadable)) tanh(double16);
-
-double __const_func __attribute__((overloadable)) tanpi(double x);
-double2 __const_func __attribute__((overloadable)) tanpi(double2 x);
-double3 __const_func __attribute__((overloadable)) tanpi(double3 x);
-double4 __const_func __attribute__((overloadable)) tanpi(double4 x);
-double8 __const_func __attribute__((overloadable)) tanpi(double8 x);
-double16 __const_func __attribute__((overloadable)) tanpi(double16 x);
-
-double __const_func __attribute__((overloadable)) tgamma(double);
-double2 __const_func __attribute__((overloadable)) tgamma(double2);
-double3 __const_func __attribute__((overloadable)) tgamma(double3);
-double4 __const_func __attribute__((overloadable)) tgamma(double4);
-double8 __const_func __attribute__((overloadable)) tgamma(double8);
-double16 __const_func __attribute__((overloadable)) tgamma(double16);
-
-double __const_func __attribute__((overloadable)) trunc(double);
-double2 __const_func __attribute__((overloadable)) trunc(double2);
-double3 __const_func __attribute__((overloadable)) trunc(double3);
-double4 __const_func __attribute__((overloadable)) trunc(double4);
-double8 __const_func __attribute__((overloadable)) trunc(double8);
-double16 __const_func __attribute__((overloadable)) trunc(double16);
-
-double __const_func __attribute__((overloadable)) native_cos(double x);
-double2 __const_func __attribute__((overloadable)) native_cos(double2 x);
-double3 __const_func __attribute__((overloadable)) native_cos(double3 x);
-double4 __const_func __attribute__((overloadable)) native_cos(double4 x);
-double8 __const_func __attribute__((overloadable)) native_cos(double8 x);
-double16 __const_func __attribute__((overloadable)) native_cos(double16 x);
-
-double __const_func __attribute__((overloadable)) native_divide(double x, double y);
-double2 __const_func __attribute__((overloadable)) native_divide(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) native_divide(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) native_divide(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) native_divide(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) native_divide(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) native_exp(double x);
-double2 __const_func __attribute__((overloadable)) native_exp(double2 x);
-double3 __const_func __attribute__((overloadable)) native_exp(double3 x);
-double4 __const_func __attribute__((overloadable)) native_exp(double4 x);
-double8 __const_func __attribute__((overloadable)) native_exp(double8 x);
-double16 __const_func __attribute__((overloadable)) native_exp(double16 x);
-
-double __const_func __attribute__((overloadable)) native_exp10(double x);
-double2 __const_func __attribute__((overloadable)) native_exp10(double2 x);
-double3 __const_func __attribute__((overloadable)) native_exp10(double3 x);
-double4 __const_func __attribute__((overloadable)) native_exp10(double4 x);
-double8 __const_func __attribute__((overloadable)) native_exp10(double8 x);
-double16 __const_func __attribute__((overloadable)) native_exp10(double16 x);
-
-double __const_func __attribute__((overloadable)) native_exp2(double x);
-double2 __const_func __attribute__((overloadable)) native_exp2(double2 x);
-double3 __const_func __attribute__((overloadable)) native_exp2(double3 x);
-double4 __const_func __attribute__((overloadable)) native_exp2(double4 x);
-double8 __const_func __attribute__((overloadable)) native_exp2(double8 x);
-double16 __const_func __attribute__((overloadable)) native_exp2(double16 x);
-
-double __const_func __attribute__((overloadable)) native_log(double x);
-double2 __const_func __attribute__((overloadable)) native_log(double2 x);
-double3 __const_func __attribute__((overloadable)) native_log(double3 x);
-double4 __const_func __attribute__((overloadable)) native_log(double4 x);
-double8 __const_func __attribute__((overloadable)) native_log(double8 x);
-double16 __const_func __attribute__((overloadable)) native_log(double16 x);
-
-double __const_func __attribute__((overloadable)) native_log10(double x);
-double2 __const_func __attribute__((overloadable)) native_log10(double2 x);
-double3 __const_func __attribute__((overloadable)) native_log10(double3 x);
-double4 __const_func __attribute__((overloadable)) native_log10(double4 x);
-double8 __const_func __attribute__((overloadable)) native_log10(double8 x);
-double16 __const_func __attribute__((overloadable)) native_log10(double16 x);
-
-double __const_func __attribute__((overloadable)) native_log2(double x);
-double2 __const_func __attribute__((overloadable)) native_log2(double2 x);
-double3 __const_func __attribute__((overloadable)) native_log2(double3 x);
-double4 __const_func __attribute__((overloadable)) native_log2(double4 x);
-double8 __const_func __attribute__((overloadable)) native_log2(double8 x);
-double16 __const_func __attribute__((overloadable)) native_log2(double16 x);
-
-double __const_func __attribute__((overloadable)) native_powr(double x, double y);
-double2 __const_func __attribute__((overloadable)) native_powr(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) native_powr(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) native_powr(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) native_powr(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) native_powr(double16 x, double16 y);
-
-double __const_func __attribute__((overloadable)) native_recip(double x);
-double2 __const_func __attribute__((overloadable)) native_recip(double2 x);
-double3 __const_func __attribute__((overloadable)) native_recip(double3 x);
-double4 __const_func __attribute__((overloadable)) native_recip(double4 x);
-double8 __const_func __attribute__((overloadable)) native_recip(double8 x);
-double16 __const_func __attribute__((overloadable)) native_recip(double16 x);
-
-double __const_func __attribute__((overloadable)) native_rsqrt(double x);
-double2 __const_func __attribute__((overloadable)) native_rsqrt(double2 x);
-double3 __const_func __attribute__((overloadable)) native_rsqrt(double3 x);
-double4 __const_func __attribute__((overloadable)) native_rsqrt(double4 x);
-double8 __const_func __attribute__((overloadable)) native_rsqrt(double8 x);
-double16 __const_func __attribute__((overloadable)) native_rsqrt(double16 x);
-
-double __const_func __attribute__((overloadable)) native_sin(double x);
-double2 __const_func __attribute__((overloadable)) native_sin(double2 x);
-double3 __const_func __attribute__((overloadable)) native_sin(double3 x);
-double4 __const_func __attribute__((overloadable)) native_sin(double4 x);
-double8 __const_func __attribute__((overloadable)) native_sin(double8 x);
-double16 __const_func __attribute__((overloadable)) native_sin(double16 x);
-
-double __const_func __attribute__((overloadable)) native_sqrt(double x);
-double2 __const_func __attribute__((overloadable)) native_sqrt(double2 x);
-double3 __const_func __attribute__((overloadable)) native_sqrt(double3 x);
-double4 __const_func __attribute__((overloadable)) native_sqrt(double4 x);
-double8 __const_func __attribute__((overloadable)) native_sqrt(double8 x);
-double16 __const_func __attribute__((overloadable)) native_sqrt(double16 x);
-
-double __const_func __attribute__((overloadable)) native_tan(double x);
-double2 __const_func __attribute__((overloadable)) native_tan(double2 x);
-double3 __const_func __attribute__((overloadable)) native_tan(double3 x);
-double4 __const_func __attribute__((overloadable)) native_tan(double4 x);
-double8 __const_func __attribute__((overloadable)) native_tan(double8 x);
-double16 __const_func __attribute__((overloadable)) native_tan(double16 x);
-
-// Common Functions
-
-double __const_func __attribute__((overloadable)) clamp(double x, double minval, double maxval);
-double2 __const_func __attribute__((overloadable)) clamp(double2 x, double2 minval, double2 maxval);
-double3 __const_func __attribute__((overloadable)) clamp(double3 x, double3 minval, double3 maxval);
-double4 __const_func __attribute__((overloadable)) clamp(double4 x, double4 minval, double4 maxval);
-double8 __const_func __attribute__((overloadable)) clamp(double8 x, double8 minval, double8 maxval);
-double16 __const_func __attribute__((overloadable)) clamp(double16 x, double16 minval, double16 maxval);
-double2 __const_func __attribute__((overloadable)) clamp(double2 x, double minval, double maxval);
-double3 __const_func __attribute__((overloadable)) clamp(double3 x, double minval, double maxval);
-double4 __const_func __attribute__((overloadable)) clamp(double4 x, double minval, double maxval);
-double8 __const_func __attribute__((overloadable)) clamp(double8 x, double minval, double maxval);
-double16 __const_func __attribute__((overloadable)) clamp(double16 x, double minval, double maxval);
-
-double __const_func __attribute__((overloadable)) degrees(double radians);
-double2 __const_func __attribute__((overloadable)) degrees(double2 radians);
-double3 __const_func __attribute__((overloadable)) degrees(double3 radians);
-double4 __const_func __attribute__((overloadable)) degrees(double4 radians);
-double8 __const_func __attribute__((overloadable)) degrees(double8 radians);
-double16 __const_func __attribute__((overloadable)) degrees(double16 radians);
-
-double __const_func __attribute__((overloadable)) max(double x, double y);
-double2 __const_func __attribute__((overloadable)) max(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) max(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) max(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) max(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) max(double16 x, double16 y);
-double2 __const_func __attribute__((overloadable)) max(double2 x, double y);
-double3 __const_func __attribute__((overloadable)) max(double3 x, double y);
-double4 __const_func __attribute__((overloadable)) max(double4 x, double y);
-double8 __const_func __attribute__((overloadable)) max(double8 x, double y);
-double16 __const_func __attribute__((overloadable)) max(double16 x, double y);
-
-double __const_func __attribute__((overloadable)) min(double x, double y);
-double2 __const_func __attribute__((overloadable)) min(double2 x, double2 y);
-double3 __const_func __attribute__((overloadable)) min(double3 x, double3 y);
-double4 __const_func __attribute__((overloadable)) min(double4 x, double4 y);
-double8 __const_func __attribute__((overloadable)) min(double8 x, double8 y);
-double16 __const_func __attribute__((overloadable)) min(double16 x, double16 y);
-double2 __const_func __attribute__((overloadable)) min(double2 x, double y);
-double3 __const_func __attribute__((overloadable)) min(double3 x, double y);
-double4 __const_func __attribute__((overloadable)) min(double4 x, double y);
-double8 __const_func __attribute__((overloadable)) min(double8 x, double y);
-double16 __const_func __attribute__((overloadable)) min(double16 x, double y);
-
-double __const_func __attribute__((overloadable)) mix(double x, double y, double a);
-double2 __const_func __attribute__((overloadable)) mix(double2 x, double2 y, double2 a);
-double3 __const_func __attribute__((overloadable)) mix(double3 x, double3 y, double3 a);
-double4 __const_func __attribute__((overloadable)) mix(double4 x, double4 y, double4 a);
-double8 __const_func __attribute__((overloadable)) mix(double8 x, double8 y, double8 a);
-double16 __const_func __attribute__((overloadable)) mix(double16 x, double16 y, double16 a);
-double2 __const_func __attribute__((overloadable)) mix(double2 x, double2 y, double a);
-double3 __const_func __attribute__((overloadable)) mix(double3 x, double3 y, double a);
-double4 __const_func __attribute__((overloadable)) mix(double4 x, double4 y, double a);
-double8 __const_func __attribute__((overloadable)) mix(double8 x, double8 y, double a);
-double16 __const_func __attribute__((overloadable)) mix(double16 x, double16 y, double a);
-
-double __const_func __attribute__((overloadable)) radians(double degrees);
-double2 __const_func __attribute__((overloadable)) radians(double2 degrees);
-double3 __const_func __attribute__((overloadable)) radians(double3 degrees);
-double4 __const_func __attribute__((overloadable)) radians(double4 degrees);
-double8 __const_func __attribute__((overloadable)) radians(double8 degrees);
-double16 __const_func __attribute__((overloadable)) radians(double16 degrees);
-
-double __const_func __attribute__((overloadable)) step(double edge, double x);
-double2 __const_func __attribute__((overloadable)) step(double2 edge, double2 x);
-double3 __const_func __attribute__((overloadable)) step(double3 edge, double3 x);
-double4 __const_func __attribute__((overloadable)) step(double4 edge, double4 x);
-double8 __const_func __attribute__((overloadable)) step(double8 edge, double8 x);
-double16 __const_func __attribute__((overloadable)) step(double16 edge, double16 x);
-double2 __const_func __attribute__((overloadable)) step(double edge, double2 x);
-double3 __const_func __attribute__((overloadable)) step(double edge, double3 x);
-double4 __const_func __attribute__((overloadable)) step(double edge, double4 x);
-double8 __const_func __attribute__((overloadable)) step(double edge, double8 x);
-double16 __const_func __attribute__((overloadable)) step(double edge, double16 x);
-
-double __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double x);
-double2 __const_func __attribute__((overloadable)) smoothstep(double2 edge0, double2 edge1, double2 x);
-double3 __const_func __attribute__((overloadable)) smoothstep(double3 edge0, double3 edge1, double3 x);
-double4 __const_func __attribute__((overloadable)) smoothstep(double4 edge0, double4 edge1, double4 x);
-double8 __const_func __attribute__((overloadable)) smoothstep(double8 edge0, double8 edge1, double8 x);
-double16 __const_func __attribute__((overloadable)) smoothstep(double16 edge0, double16 edge1, double16 x);
-double2 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double2 x);
-double3 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double3 x);
-double4 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double4 x);
-double8 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double8 x);
-double16 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double16 x);
-
-double __const_func __attribute__((overloadable)) sign(double x);
-double2 __const_func __attribute__((overloadable)) sign(double2 x);
-double3 __const_func __attribute__((overloadable)) sign(double3 x);
-double4 __const_func __attribute__((overloadable)) sign(double4 x);
-double8 __const_func __attribute__((overloadable)) sign(double8 x);
-double16 __const_func __attribute__((overloadable)) sign(double16 x);
-
-// Geometric Functions
-
-double4 __const_func __attribute__((overloadable)) cross(double4 p0, double4 p1);
-double3 __const_func __attribute__((overloadable)) cross(double3 p0, double3 p1);
-
-double __const_func __attribute__((overloadable)) dot(double p0, double p1);
-double __const_func __attribute__((overloadable)) dot(double2 p0, double2 p1);
-double __const_func __attribute__((overloadable)) dot(double3 p0, double3 p1);
-double __const_func __attribute__((overloadable)) dot(double4 p0, double4 p1);
-
-double __const_func __attribute__((overloadable)) distance(double p0, double p1);
-double __const_func __attribute__((overloadable)) distance(double2 p0, double2 p1);
-double __const_func __attribute__((overloadable)) distance(double3 p0, double3 p1);
-double __const_func __attribute__((overloadable)) distance(double4 p0, double4 p1);
-
-double __const_func __attribute__((overloadable)) length(double p);
-double __const_func __attribute__((overloadable)) length(double2 p);
-double __const_func __attribute__((overloadable)) length(double3 p);
-double __const_func __attribute__((overloadable)) length(double4 p);
-
-double __const_func __attribute__((overloadable)) normalize(double p);
-double2 __const_func __attribute__((overloadable)) normalize(double2 p);
-double3 __const_func __attribute__((overloadable)) normalize(double3 p);
-double4 __const_func __attribute__((overloadable)) normalize(double4 p);
-
-// TODO: fast_distance, fast_length, fast_normalize?
-
-// Relational Functions
-
-int __const_func __attribute__((overloadable)) isequal(double x, double y);
-long2 __const_func __attribute__((overloadable)) isequal(double2 x, double2 y);
-long3 __const_func __attribute__((overloadable)) isequal(double3 x, double3 y);
-long4 __const_func __attribute__((overloadable)) isequal(double4 x, double4 y);
-long8 __const_func __attribute__((overloadable)) isequal(double8 x, double8 y);
-long16 __const_func __attribute__((overloadable)) isequal(double16 x, double16 y);
-
-int __const_func __attribute__((overloadable)) isnotequal(double x, double y);
-long2 __const_func __attribute__((overloadable)) isnotequal(double2 x, double2 y);
-long3 __const_func __attribute__((overloadable)) isnotequal(double3 x, double3 y);
-long4 __const_func __attribute__((overloadable)) isnotequal(double4 x, double4 y);
-long8 __const_func __attribute__((overloadable)) isnotequal(double8 x, double8 y);
-long16 __const_func __attribute__((overloadable)) isnotequal(double16 x, double16 y);
-
-int __const_func __attribute__((overloadable)) isgreater(double x, double y);
-long2 __const_func __attribute__((overloadable)) isgreater(double2 x, double2 y);
-long3 __const_func __attribute__((overloadable)) isgreater(double3 x, double3 y);
-long4 __const_func __attribute__((overloadable)) isgreater(double4 x, double4 y);
-long8 __const_func __attribute__((overloadable)) isgreater(double8 x, double8 y);
-long16 __const_func __attribute__((overloadable)) isgreater(double16 x, double16 y);
-
-int __const_func __attribute__((overloadable)) isgreaterequal(double x, double y);
-long2 __const_func __attribute__((overloadable)) isgreaterequal(double2 x, double2 y);
-long3 __const_func __attribute__((overloadable)) isgreaterequal(double3 x, double3 y);
-long4 __const_func __attribute__((overloadable)) isgreaterequal(double4 x, double4 y);
-long8 __const_func __attribute__((overloadable)) isgreaterequal(double8 x, double8 y);
-long16 __const_func __attribute__((overloadable)) isgreaterequal(double16 x, double16 y);
-
-int __const_func __attribute__((overloadable)) isless(double x, double y);
-long2 __const_func __attribute__((overloadable)) isless(double2 x, double2 y);
-long3 __const_func __attribute__((overloadable)) isless(double3 x, double3 y);
-long4 __const_func __attribute__((overloadable)) isless(double4 x, double4 y);
-long8 __const_func __attribute__((overloadable)) isless(double8 x, double8 y);
-long16 __const_func __attribute__((overloadable)) isless(double16 x, double16 y);
-
-int __const_func __attribute__((overloadable)) islessequal(double x, double y);
-long2 __const_func __attribute__((overloadable)) islessequal(double2 x, double2 y);
-long3 __const_func __attribute__((overloadable)) islessequal(double3 x, double3 y);
-long4 __const_func __attribute__((overloadable)) islessequal(double4 x, double4 y);
-long8 __const_func __attribute__((overloadable)) islessequal(double8 x, double8 y);
-long16 __const_func __attribute__((overloadable)) islessequal(double16 x, double16 y);
-
-int __const_func __attribute__((overloadable)) islessgreater(double x, double y);
-long2 __const_func __attribute__((overloadable)) islessgreater(double2 x, double2 y);
-long3 __const_func __attribute__((overloadable)) islessgreater(double3 x, double3 y);
-long4 __const_func __attribute__((overloadable)) islessgreater(double4 x, double4 y);
-long8 __const_func __attribute__((overloadable)) islessgreater(double8 x, double8 y);
-long16 __const_func __attribute__((overloadable)) islessgreater(double16 x, double16 y);
-
-int __const_func __attribute__((overloadable)) isfinite(double);
-long2 __const_func __attribute__((overloadable)) isfinite(double2);
-long3 __const_func __attribute__((overloadable)) isfinite(double3);
-long4 __const_func __attribute__((overloadable)) isfinite(double4);
-long8 __const_func __attribute__((overloadable)) isfinite(double8);
-long16 __const_func __attribute__((overloadable)) isfinite(double16);
-
-int __const_func __attribute__((overloadable)) isinf(double);
-long2 __const_func __attribute__((overloadable)) isinf(double2);
-long3 __const_func __attribute__((overloadable)) isinf(double3);
-long4 __const_func __attribute__((overloadable)) isinf(double4);
-long8 __const_func __attribute__((overloadable)) isinf(double8);
-long16 __const_func __attribute__((overloadable)) isinf(double16);
-
-int __const_func __attribute__((overloadable)) isnan(double);
-long2 __const_func __attribute__((overloadable)) isnan(double2);
-long3 __const_func __attribute__((overloadable)) isnan(double3);
-long4 __const_func __attribute__((overloadable)) isnan(double4);
-long8 __const_func __attribute__((overloadable)) isnan(double8);
-long16 __const_func __attribute__((overloadable)) isnan(double16);
-
-int __const_func __attribute__((overloadable)) isnormal(double);
-long2 __const_func __attribute__((overloadable)) isnormal(double2);
-long3 __const_func __attribute__((overloadable)) isnormal(double3);
-long4 __const_func __attribute__((overloadable)) isnormal(double4);
-long8 __const_func __attribute__((overloadable)) isnormal(double8);
-long16 __const_func __attribute__((overloadable)) isnormal(double16);
-
-int __const_func __attribute__((overloadable)) isordered(double x, double y);
-long2 __const_func __attribute__((overloadable)) isordered(double2 x, double2 y);
-long3 __const_func __attribute__((overloadable)) isordered(double3 x, double3 y);
-long4 __const_func __attribute__((overloadable)) isordered(double4 x, double4 y);
-long8 __const_func __attribute__((overloadable)) isordered(double8 x, double8 y);
-long16 __const_func __attribute__((overloadable)) isordered(double16 x, double16 y);
-
-int __const_func __attribute__((overloadable)) isunordered(double x, double y);
-long2 __const_func __attribute__((overloadable)) isunordered(double2 x, double2 y);
-long3 __const_func __attribute__((overloadable)) isunordered(double3 x, double3 y);
-long4 __const_func __attribute__((overloadable)) isunordered(double4 x, double4 y);
-long8 __const_func __attribute__((overloadable)) isunordered(double8 x, double8 y);
-long16 __const_func __attribute__((overloadable)) isunordered(double16 x, double16 y);
-
-int __const_func __attribute__((overloadable)) signbit(double);
-long2 __const_func __attribute__((overloadable)) signbit(double2);
-long3 __const_func __attribute__((overloadable)) signbit(double3);
-long4 __const_func __attribute__((overloadable)) signbit(double4);
-long8 __const_func __attribute__((overloadable)) signbit(double8);
-long16 __const_func __attribute__((overloadable)) signbit(double16);
-
-double __const_func __attribute__((overloadable)) bitselect(double a, double b, double c);
-double2 __const_func __attribute__((overloadable)) bitselect(double2 a, double2 b, double2 c);
-double3 __const_func __attribute__((overloadable)) bitselect(double3 a, double3 b, double3 c);
-double4 __const_func __attribute__((overloadable)) bitselect(double4 a, double4 b, double4 c);
-double8 __const_func __attribute__((overloadable)) bitselect(double8 a, double8 b, double8 c);
-double16 __const_func __attribute__((overloadable)) bitselect(double16 a, double16 b, double16 c);
-
-double __const_func __attribute__((overloadable)) select(double a, double b, long c);
-double2 __const_func __attribute__((overloadable)) select(double2 a, double2 b, long2 c);
-double3 __const_func __attribute__((overloadable)) select(double3 a, double3 b, long3 c);
-double4 __const_func __attribute__((overloadable)) select(double4 a, double4 b, long4 c);
-double8 __const_func __attribute__((overloadable)) select(double8 a, double8 b, long8 c);
-double16 __const_func __attribute__((overloadable)) select(double16 a, double16 b, long16 c);
-double __const_func __attribute__((overloadable)) select(double a, double b, ulong c);
-double2 __const_func __attribute__((overloadable)) select(double2 a, double2 b, ulong2 c);
-double3 __const_func __attribute__((overloadable)) select(double3 a, double3 b, ulong3 c);
-double4 __const_func __attribute__((overloadable)) select(double4 a, double4 b, ulong4 c);
-double8 __const_func __attribute__((overloadable)) select(double8 a, double8 b, ulong8 c);
-double16 __const_func __attribute__((overloadable)) select(double16 a, double16 b, ulong16 c);
-
-// Async Copies
-
-event_t __attribute__((overloadable)) async_work_group_copy(__local double *dst, const __global double *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__local double2 *dst, const __global double2 *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__local double3 *dst, const __global double3 *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__local double4 *dst, const __global double4 *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__local double8 *dst, const __global double8 *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__local double16 *dst, const __global double16 *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__global double *dst, const __local double *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__global double2 *dst, const __local double2 *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__global double3 *dst, const __local double3 *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__global double4 *dst, const __local double4 *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__global double8 *dst, const __local double8 *src, size_t num_elements, event_t event);
-event_t __attribute__((overloadable)) async_work_group_copy(__global double16 *dst, const __local double16 *src, size_t num_elements, event_t event);
-
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double *dst, const __global double *src, size_t num_elements, size_t src_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double2 *dst, const __global double2 *src, size_t num_elements, size_t src_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double3 *dst, const __global double3 *src, size_t num_elements, size_t src_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double4 *dst, const __global double4 *src, size_t num_elements, size_t src_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double8 *dst, const __global double8 *src, size_t num_elements, size_t src_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double16 *dst, const __global double16 *src, size_t num_elements, size_t src_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double *dst, const __local double *src, size_t num_elements, size_t dst_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double2 *dst, const __local double2 *src, size_t num_elements, size_t dst_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double3 *dst, const __local double3 *src, size_t num_elements, size_t dst_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double4 *dst, const __local double4 *src, size_t num_elements, size_t dst_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double8 *dst, const __local double8 *src, size_t num_elements, size_t dst_stride, event_t event);
-event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double16 *dst, const __local double16 *src, size_t num_elements, size_t dst_stride, event_t event);
-
-// Miscellaneous Vector Instructions
-
-double2 __const_func __attribute__((overloadable)) shuffle(double2 x, ulong2 mask);
-double2 __const_func __attribute__((overloadable)) shuffle(double4 x, ulong2 mask);
-double2 __const_func __attribute__((overloadable)) shuffle(double8 x, ulong2 mask);
-double2 __const_func __attribute__((overloadable)) shuffle(double16 x, ulong2 mask);
-
-double4 __const_func __attribute__((overloadable)) shuffle(double2 x, ulong4 mask);
-double4 __const_func __attribute__((overloadable)) shuffle(double4 x, ulong4 mask);
-double4 __const_func __attribute__((overloadable)) shuffle(double8 x, ulong4 mask);
-double4 __const_func __attribute__((overloadable)) shuffle(double16 x, ulong4 mask);
-
-double8 __const_func __attribute__((overloadable)) shuffle(double2 x, ulong8 mask);
-double8 __const_func __attribute__((overloadable)) shuffle(double4 x, ulong8 mask);
-double8 __const_func __attribute__((overloadable)) shuffle(double8 x, ulong8 mask);
-double8 __const_func __attribute__((overloadable)) shuffle(double16 x, ulong8 mask);
-
-double16 __const_func __attribute__((overloadable)) shuffle(double2 x, ulong16 mask);
-double16 __const_func __attribute__((overloadable)) shuffle(double4 x, ulong16 mask);
-double16 __const_func __attribute__((overloadable)) shuffle(double8 x, ulong16 mask);
-double16 __const_func __attribute__((overloadable)) shuffle(double16 x, ulong16 mask);
-
-double2 __const_func __attribute__((overloadable)) shuffle2(double2 x, double2 y, ulong2 mask);
-double2 __const_func __attribute__((overloadable)) shuffle2(double4 x, double4 y, ulong2 mask);
-double2 __const_func __attribute__((overloadable)) shuffle2(double8 x, double8 y, ulong2 mask);
-double2 __const_func __attribute__((overloadable)) shuffle2(double16 x, double16 y, ulong2 mask);
-
-double4 __const_func __attribute__((overloadable)) shuffle2(double2 x, double2 y, ulong4 mask);
-double4 __const_func __attribute__((overloadable)) shuffle2(double4 x, double4 y, ulong4 mask);
-double4 __const_func __attribute__((overloadable)) shuffle2(double8 x, double8 y, ulong4 mask);
-double4 __const_func __attribute__((overloadable)) shuffle2(double16 x, double16 y, ulong4 mask);
-
-double8 __const_func __attribute__((overloadable)) shuffle2(double2 x, double2 y, ulong8 mask);
-double8 __const_func __attribute__((overloadable)) shuffle2(double4 x, double4 y, ulong8 mask);
-double8 __const_func __attribute__((overloadable)) shuffle2(double8 x, double8 y, ulong8 mask);
-double8 __const_func __attribute__((overloadable)) shuffle2(double16 x, double16 y, ulong8 mask);
-
-double16 __const_func __attribute__((overloadable)) shuffle2(double2 x, double2 y, ulong16 mask);
-double16 __const_func __attribute__((overloadable)) shuffle2(double4 x, double4 y, ulong16 mask);
-double16 __const_func __attribute__((overloadable)) shuffle2(double8 x, double8 y, ulong16 mask);
-double16 __const_func __attribute__((overloadable)) shuffle2(double16 x, double16 y, ulong16 mask);
-
-/**
- * Returns fmin( x - floor (x), 0x1.fffffep-1f ).
- * floor(x) is returned in iptr.
- */
-float __attribute__((overloadable)) fract(float x, __global float *iptr);
-float2 __attribute__((overloadable)) fract(float2 x, __global float2 *iptr);
-float3 __attribute__((overloadable)) fract(float3 x, __global float3 *iptr);
-float4 __attribute__((overloadable)) fract(float4 x, __global float4 *iptr);
-float8 __attribute__((overloadable)) fract(float8 x, __global float8 *iptr);
-float16 __attribute__((overloadable)) fract(float16 x, __global float16 *iptr);
-float __attribute__((overloadable)) fract(float x, __local float *iptr);
-float2 __attribute__((overloadable)) fract(float2 x, __local float2 *iptr);
-float3 __attribute__((overloadable)) fract(float3 x, __local float3 *iptr);
-float4 __attribute__((overloadable)) fract(float4 x, __local float4 *iptr);
-float8 __attribute__((overloadable)) fract(float8 x, __local float8 *iptr);
-float16 __attribute__((overloadable)) fract(float16 x, __local float16 *iptr);
-float __attribute__((overloadable)) fract(float x, __private float *iptr);
-float2 __attribute__((overloadable)) fract(float2 x, __private float2 *iptr);
-float3 __attribute__((overloadable)) fract(float3 x, __private float3 *iptr);
-float4 __attribute__((overloadable)) fract(float4 x, __private float4 *iptr);
-float8 __attribute__((overloadable)) fract(float8 x, __private float8 *iptr);
-float16 __attribute__((overloadable)) fract(float16 x, __private float16 *iptr);
-double __attribute__((overloadable)) fract(double x, __global double *iptr);
-double2 __attribute__((overloadable)) fract(double2 x, __global double2 *iptr);
-double3 __attribute__((overloadable)) fract(double3 x, __global double3 *iptr);
-double4 __attribute__((overloadable)) fract(double4 x, __global double4 *iptr);
-double8 __attribute__((overloadable)) fract(double8 x, __global double8 *iptr);
-double16 __attribute__((overloadable)) fract(double16 x, __global double16 *iptr);
-double __attribute__((overloadable)) fract(double x, __local double *iptr);
-double2 __attribute__((overloadable)) fract(double2 x, __local double2 *iptr);
-double3 __attribute__((overloadable)) fract(double3 x, __local double3 *iptr);
-double4 __attribute__((overloadable)) fract(double4 x, __local double4 *iptr);
-double8 __attribute__((overloadable)) fract(double8 x, __local double8 *iptr);
-double16 __attribute__((overloadable)) fract(double16 x, __local double16 *iptr);
-double __attribute__((overloadable)) fract(double x, __private double *iptr);
-double2 __attribute__((overloadable)) fract(double2 x, __private double2 *iptr);
-double3 __attribute__((overloadable)) fract(double3 x, __private double3 *iptr);
-double4 __attribute__((overloadable)) fract(double4 x, __private double4 *iptr);
-double8 __attribute__((overloadable)) fract(double8 x, __private double8 *iptr);
-double16 __attribute__((overloadable)) fract(double16 x, __private double16 *iptr);
-
-/**
- * Extract mantissa and exponent from x. For each
- * component the mantissa returned is a float with
- * magnitude in the interval [1/2, 1) or 0. Each
- * component of x equals mantissa returned * 2^exp.
- */
-float __attribute__((overloadable)) frexp(float x, __global int *exp);
-float2 __attribute__((overloadable)) frexp(float2 x, __global int2 *exp);
-float3 __attribute__((overloadable)) frexp(float3 x, __global int3 *exp);
-float4 __attribute__((overloadable)) frexp(float4 x, __global int4 *exp);
-float8 __attribute__((overloadable)) frexp(float8 x, __global int8 *exp);
-float16 __attribute__((overloadable)) frexp(float16 x, __global int16 *exp);
-float __attribute__((overloadable)) frexp(float x, __local int *exp);
-float2 __attribute__((overloadable)) frexp(float2 x, __local int2 *exp);
-float3 __attribute__((overloadable)) frexp(float3 x, __local int3 *exp);
-float4 __attribute__((overloadable)) frexp(float4 x, __local int4 *exp);
-float8 __attribute__((overloadable)) frexp(float8 x, __local int8 *exp);
-float16 __attribute__((overloadable)) frexp(float16 x, __local int16 *exp);
-float __attribute__((overloadable)) frexp(float x, __private int *exp);
-float2 __attribute__((overloadable)) frexp(float2 x, __private int2 *exp);
-float3 __attribute__((overloadable)) frexp(float3 x, __private int3 *exp);
-float4 __attribute__((overloadable)) frexp(float4 x, __private int4 *exp);
-float8 __attribute__((overloadable)) frexp(float8 x, __private int8 *exp);
-float16 __attribute__((overloadable)) frexp(float16 x, __private int16 *exp);
-double __attribute__((overloadable)) frexp(double x, __global int *exp);
-double2 __attribute__((overloadable)) frexp(double2 x, __global int2 *exp);
-double3 __attribute__((overloadable)) frexp(double3 x, __global int3 *exp);
-double4 __attribute__((overloadable)) frexp(double4 x, __global int4 *exp);
-double8 __attribute__((overloadable)) frexp(double8 x, __global int8 *exp);
-double16 __attribute__((overloadable)) frexp(double16 x, __global int16 *exp);
-double __attribute__((overloadable)) frexp(double x, __local int *exp);
-double2 __attribute__((overloadable)) frexp(double2 x, __local int2 *exp);
-double3 __attribute__((overloadable)) frexp(double3 x, __local int3 *exp);
-double4 __attribute__((overloadable)) frexp(double4 x, __local int4 *exp);
-double8 __attribute__((overloadable)) frexp(double8 x, __local int8 *exp);
-double16 __attribute__((overloadable)) frexp(double16 x, __local int16 *exp);
-double __attribute__((overloadable)) frexp(double x, __private int *exp);
-double2 __attribute__((overloadable)) frexp(double2 x, __private int2 *exp);
-double3 __attribute__((overloadable)) frexp(double3 x, __private int3 *exp);
-double4 __attribute__((overloadable)) frexp(double4 x, __private int4 *exp);
-double8 __attribute__((overloadable)) frexp(double8 x, __private int8 *exp);
-double16 __attribute__((overloadable)) frexp(double16 x, __private int16 *exp);
-float __attribute__((overloadable)) lgamma_r(float x, __global int *signp);
-float2 __attribute__((overloadable)) lgamma_r(float2 x, __global int2 *signp);
-float3 __attribute__((overloadable)) lgamma_r(float3 x, __global int3 *signp);
-float4 __attribute__((overloadable)) lgamma_r(float4 x, __global int4 *signp);
-float8 __attribute__((overloadable)) lgamma_r(float8 x, __global int8 *signp);
-float16 __attribute__((overloadable)) lgamma_r(float16 x, __global int16 *signp);
-float __attribute__((overloadable)) lgamma_r(float x, __local int *signp);
-float2 __attribute__((overloadable)) lgamma_r(float2 x, __local int2 *signp);
-float3 __attribute__((overloadable)) lgamma_r(float3 x, __local int3 *signp);
-float4 __attribute__((overloadable)) lgamma_r(float4 x, __local int4 *signp);
-float8 __attribute__((overloadable)) lgamma_r(float8 x, __local int8 *signp);
-float16 __attribute__((overloadable)) lgamma_r(float16 x, __local int16 *signp);
-float __attribute__((overloadable)) lgamma_r(float x, __private int *signp);
-float2 __attribute__((overloadable)) lgamma_r(float2 x, __private int2 *signp);
-float3 __attribute__((overloadable)) lgamma_r(float3 x, __private int3 *signp);
-float4 __attribute__((overloadable)) lgamma_r(float4 x, __private int4 *signp);
-float8 __attribute__((overloadable)) lgamma_r(float8 x, __private int8 *signp);
-float16 __attribute__((overloadable)) lgamma_r(float16 x, __private int16 *signp);
-double __attribute__((overloadable)) lgamma_r(double x, __global int *signp);
-double2 __attribute__((overloadable)) lgamma_r(double2 x, __global int2 *signp);
-double3 __attribute__((overloadable)) lgamma_r(double3 x, __global int3 *signp);
-double4 __attribute__((overloadable)) lgamma_r(double4 x, __global int4 *signp);
-double8 __attribute__((overloadable)) lgamma_r(double8 x, __global int8 *signp);
-double16 __attribute__((overloadable)) lgamma_r(double16 x, __global int16 *signp);
-double __attribute__((overloadable)) lgamma_r(double x, __local int *signp);
-double2 __attribute__((overloadable)) lgamma_r(double2 x, __local int2 *signp);
-double3 __attribute__((overloadable)) lgamma_r(double3 x, __local int3 *signp);
-double4 __attribute__((overloadable)) lgamma_r(double4 x, __local int4 *signp);
-double8 __attribute__((overloadable)) lgamma_r(double8 x, __local int8 *signp);
-double16 __attribute__((overloadable)) lgamma_r(double16 x, __local int16 *signp);
-double __attribute__((overloadable)) lgamma_r(double x, __private int *signp);
-double2 __attribute__((overloadable)) lgamma_r(double2 x, __private int2 *signp);
-double3 __attribute__((overloadable)) lgamma_r(double3 x, __private int3 *signp);
-double4 __attribute__((overloadable)) lgamma_r(double4 x, __private int4 *signp);
-double8 __attribute__((overloadable)) lgamma_r(double8 x, __private int8 *signp);
-double16 __attribute__((overloadable)) lgamma_r(double16 x, __private int16 *signp);
-
-/**
- * The remquo function computes the value r such
- * that r = x - n*y, where n is the integer nearest the
- * exact value of x/y. If there are two integers closest
- * to x/y, n shall be the even one. If r is zero, it is
- * given the same sign as x. This is the same value
- * that is returned by the remainder function.
- * remquo also calculates the lower seven bits of the
- * integral quotient x/y, and gives that value the same
- * sign as x/y. It stores this signed value in the object
- * pointed to by quo.
- */
-float __attribute__((overloadable)) remquo(float x, float y, __global int *quo);
-float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __global int2 *quo);
-float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __global int3 *quo);
-float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __global int4 *quo);
-float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __global int8 *quo);
-float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __global int16 *quo);
-float __attribute__((overloadable)) remquo(float x, float y, __local int *quo);
-float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __local int2 *quo);
-float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __local int3 *quo);
-float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __local int4 *quo);
-float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __local int8 *quo);
-float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __local int16 *quo);
-float __attribute__((overloadable)) remquo(float x, float y, __private int *quo);
-float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __private int2 *quo);
-float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __private int3 *quo);
-float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __private int4 *quo);
-float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __private int8 *quo);
-float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __private int16 *quo);
-double __attribute__((overloadable)) remquo(double x, double y, __global int *quo);
-double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __global int2 *quo);
-double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __global int3 *quo);
-double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __global int4 *quo);
-double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __global int8 *quo);
-double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __global int16 *quo);
-double __attribute__((overloadable)) remquo(double x, double y, __local int *quo);
-double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __local int2 *quo);
-double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __local int3 *quo);
-double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __local int4 *quo);
-double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __local int8 *quo);
-double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __local int16 *quo);
-double __attribute__((overloadable)) remquo(double x, double y, __private int *quo);
-double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __private int2 *quo);
-double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __private int3 *quo);
-double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __private int4 *quo);
-double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __private int8 *quo);
-double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __private int16 *quo);
-
-/**
- * Compute sine and cosine of x. The computed sine
- * is the return value and computed cosine is returned
- * in cosval.
- */
-float __attribute__((overloadable)) sincos(float x, __global float *cosval);
-float2 __attribute__((overloadable)) sincos(float2 x, __global float2 *cosval);
-float3 __attribute__((overloadable)) sincos(float3 x, __global float3 *cosval);
-float4 __attribute__((overloadable)) sincos(float4 x, __global float4 *cosval);
-float8 __attribute__((overloadable)) sincos(float8 x, __global float8 *cosval);
-float16 __attribute__((overloadable)) sincos(float16 x, __global float16 *cosval);
-float __attribute__((overloadable)) sincos(float x, __local float *cosval);
-float2 __attribute__((overloadable)) sincos(float2 x, __local float2 *cosval);
-float3 __attribute__((overloadable)) sincos(float3 x, __local float3 *cosval);
-float4 __attribute__((overloadable)) sincos(float4 x, __local float4 *cosval);
-float8 __attribute__((overloadable)) sincos(float8 x, __local float8 *cosval);
-float16 __attribute__((overloadable)) sincos(float16 x, __local float16 *cosval);
-float __attribute__((overloadable)) sincos(float x, __private float *cosval);
-float2 __attribute__((overloadable)) sincos(float2 x, __private float2 *cosval);
-float3 __attribute__((overloadable)) sincos(float3 x, __private float3 *cosval);
-float4 __attribute__((overloadable)) sincos(float4 x, __private float4 *cosval);
-float8 __attribute__((overloadable)) sincos(float8 x, __private float8 *cosval);
-float16 __attribute__((overloadable)) sincos(float16 x, __private float16 *cosval);
-double __attribute__((overloadable)) sincos(double x, __global double *cosval);
-double2 __attribute__((overloadable)) sincos(double2 x, __global double2 *cosval);
-double3 __attribute__((overloadable)) sincos(double3 x, __global double3 *cosval);
-double4 __attribute__((overloadable)) sincos(double4 x, __global double4 *cosval);
-double8 __attribute__((overloadable)) sincos(double8 x, __global double8 *cosval);
-double16 __attribute__((overloadable)) sincos(double16 x, __global double16 *cosval);
-double __attribute__((overloadable)) sincos(double x, __local double *cosval);
-double2 __attribute__((overloadable)) sincos(double2 x, __local double2 *cosval);
-double3 __attribute__((overloadable)) sincos(double3 x, __local double3 *cosval);
-double4 __attribute__((overloadable)) sincos(double4 x, __local double4 *cosval);
-double8 __attribute__((overloadable)) sincos(double8 x, __local double8 *cosval);
-double16 __attribute__((overloadable)) sincos(double16 x, __local double16 *cosval);
-double __attribute__((overloadable)) sincos(double x, __private double *cosval);
-double2 __attribute__((overloadable)) sincos(double2 x, __private double2 *cosval);
-double3 __attribute__((overloadable)) sincos(double3 x, __private double3 *cosval);
-double4 __attribute__((overloadable)) sincos(double4 x, __private double4 *cosval);
-double8 __attribute__((overloadable)) sincos(double8 x, __private double8 *cosval);
-double16 __attribute__((overloadable)) sincos(double16 x, __private double16 *cosval);
-
-/**
- * Decompose a floating-point number. The modf
- * function breaks the argument x into integral and
- * fractional parts, each of which has the same sign as
- * the argument. It stores the integral part in the object
- * pointed to by iptr.
- */
-float __attribute__((overloadable)) modf(float x, __global float *iptr);
-float2 __attribute__((overloadable)) modf(float2 x, __global float2 *iptr);
-float3 __attribute__((overloadable)) modf(float3 x, __global float3 *iptr);
-float4 __attribute__((overloadable)) modf(float4 x, __global float4 *iptr);
-float8 __attribute__((overloadable)) modf(float8 x, __global float8 *iptr);
-float16 __attribute__((overloadable)) modf(float16 x, __global float16 *iptr);
-float __attribute__((overloadable)) modf(float x, __local float *iptr);
-float2 __attribute__((overloadable)) modf(float2 x, __local float2 *iptr);
-float3 __attribute__((overloadable)) modf(float3 x, __local float3 *iptr);
-float4 __attribute__((overloadable)) modf(float4 x, __local float4 *iptr);
-float8 __attribute__((overloadable)) modf(float8 x, __local float8 *iptr);
-float16 __attribute__((overloadable)) modf(float16 x, __local float16 *iptr);
-float __attribute__((overloadable)) modf(float x, __private float *iptr);
-float2 __attribute__((overloadable)) modf(float2 x, __private float2 *iptr);
-float3 __attribute__((overloadable)) modf(float3 x, __private float3 *iptr);
-float4 __attribute__((overloadable)) modf(float4 x, __private float4 *iptr);
-float8 __attribute__((overloadable)) modf(float8 x, __private float8 *iptr);
-float16 __attribute__((overloadable)) modf(float16 x, __private float16 *iptr);
-double __attribute__((overloadable)) modf(double x, __global double *iptr);
-double2 __attribute__((overloadable)) modf(double2 x, __global double2 *iptr);
-double3 __attribute__((overloadable)) modf(double3 x, __global double3 *iptr);
-double4 __attribute__((overloadable)) modf(double4 x, __global double4 *iptr);
-double8 __attribute__((overloadable)) modf(double8 x, __global double8 *iptr);
-double16 __attribute__((overloadable)) modf(double16 x, __global double16 *iptr);
-double __attribute__((overloadable)) modf(double x, __local double *iptr);
-double2 __attribute__((overloadable)) modf(double2 x, __local double2 *iptr);
-double3 __attribute__((overloadable)) modf(double3 x, __local double3 *iptr);
-double4 __attribute__((overloadable)) modf(double4 x, __local double4 *iptr);
-double8 __attribute__((overloadable)) modf(double8 x, __local double8 *iptr);
-double16 __attribute__((overloadable)) modf(double16 x, __local double16 *iptr);
-double __attribute__((overloadable)) modf(double x, __private double *iptr);
-double2 __attribute__((overloadable)) modf(double2 x, __private double2 *iptr);
-double3 __attribute__((overloadable)) modf(double3 x, __private double3 *iptr);
-double4 __attribute__((overloadable)) modf(double4 x, __private double4 *iptr);
-double8 __attribute__((overloadable)) modf(double8 x, __private double8 *iptr);
-double16 __attribute__((overloadable)) modf(double16 x, __private double16 *iptr);
-////////////////////////////////////////////////////////////////////////////////////
-////              cl_khr_fp16 - extension support
-////////////////////////////////////////////////////////////////////////////////////
+// Conversions with half data type parameters or return value.
 #ifdef cl_khr_fp16
-
-#define HALF_DIG 3
-#define HALF_MANT_DIG 11
-#define HALF_MAX_10_EXP +4
-#define HALF_MAX_EXP +16
-#define HALF_MIN_10_EXP -4
-#define HALF_MIN_EXP -13
-#define HALF_RADIX 2
-#define HALF_MAX ((0x1.ffcp15h))
-#define HALF_MIN ((0x1.0p-14h))
-#define HALF_EPSILON ((0x1.0p-10h))
-
-#define M_E_H         2.71828182845904523536028747135266250h
-#define M_LOG2E_H     1.44269504088896340735992468100189214h
-#define M_LOG10E_H    0.434294481903251827651128918916605082h
-#define M_LN2_H       0.693147180559945309417232121458176568h
-#define M_LN10_H      2.30258509299404568401799145468436421h
-#define M_PI_H        3.14159265358979323846264338327950288h
-#define M_PI_2_H      1.57079632679489661923132169163975144h
-#define M_PI_4_H      0.785398163397448309615660845819875721h
-#define M_1_PI_H      0.318309886183790671537767526745028724h
-#define M_2_PI_H      0.636619772367581343075535053490057448h
-#define M_2_SQRTPI_H  1.12837916709551257389615890312154517h
-#define M_SQRT2_H     1.41421356237309504880168872420969808h
-#define M_SQRT1_2_H   0.707106781186547524400844362104849039h
-
-#define as_half(x) __builtin_astype((x), half)
-#define as_half2(x) __builtin_astype((x), half2)
-#define as_half3(x) __builtin_astype((x), half3)
-#define as_half4(x) __builtin_astype((x), half4)
-#define as_half8(x) __builtin_astype((x), half8)
-#define as_half16(x) __builtin_astype((x), half16)
-
-// Math Functions
-half __const_func __attribute__((overloadable)) acos(half);
-half2 __const_func __attribute__((overloadable)) acos( half2 );
-half3 __const_func __attribute__((overloadable)) acos( half3 );
-half4 __const_func __attribute__((overloadable)) acos( half4 );
-half8 __const_func __attribute__((overloadable)) acos( half8 );
-half16 __const_func __attribute__((overloadable)) acos( half16 );
-
-
-half __const_func __attribute__((overloadable)) acosh( half );
-half2 __const_func __attribute__((overloadable)) acosh( half2 );
-half3 __const_func __attribute__((overloadable)) acosh( half3 );
-half4 __const_func __attribute__((overloadable)) acosh( half4 );
-half8 __const_func __attribute__((overloadable)) acosh( half8 );
-half16 __const_func __attribute__((overloadable)) acosh( half16 );
-
-half __const_func __attribute__((overloadable)) acospi( half x );
-half2 __const_func __attribute__((overloadable)) acospi( half2 x );
-half3 __const_func __attribute__((overloadable)) acospi( half3 x );
-half4 __const_func __attribute__((overloadable)) acospi( half4 x );
-half8 __const_func __attribute__((overloadable)) acospi( half8 x );
-half16 __const_func __attribute__((overloadable)) acospi( half16 x );
-
-half __const_func __attribute__((overloadable)) asin( half );
-half2 __const_func __attribute__((overloadable)) asin( half2 );
-half3 __const_func __attribute__((overloadable)) asin( half3 );
-half4 __const_func __attribute__((overloadable)) asin( half4 );
-half8 __const_func __attribute__((overloadable)) asin( half8 );
-half16 __const_func __attribute__((overloadable)) asin( half16 );
-
-half __const_func __attribute__((overloadable)) asinh( half );
-half2 __const_func __attribute__((overloadable)) asinh( half2 );
-half3 __const_func __attribute__((overloadable)) asinh( half3 );
-half4 __const_func __attribute__((overloadable)) asinh( half4 );
-half8 __const_func __attribute__((overloadable)) asinh( half8 );
-half16 __const_func __attribute__((overloadable)) asinh( half16 );
-
-half __const_func __attribute__((overloadable)) asinpi( half x );
-half2 __const_func __attribute__((overloadable)) asinpi( half2 x );
-half3 __const_func __attribute__((overloadable)) asinpi( half3 x );
-half4 __const_func __attribute__((overloadable)) asinpi( half4 x );
-half8 __const_func __attribute__((overloadable)) asinpi( half8 x );
-half16 __const_func __attribute__((overloadable)) asinpi( half16 x );
-
-half __const_func __attribute__((overloadable)) atan( half y_over_x );
-half2 __const_func __attribute__((overloadable)) atan( half2 y_over_x );
-half3 __const_func __attribute__((overloadable)) atan( half3 y_over_x );
-half4 __const_func __attribute__((overloadable)) atan( half4 y_over_x );
-half8 __const_func __attribute__((overloadable)) atan( half8 y_over_x );
-half16 __const_func __attribute__((overloadable)) atan( half16 y_over_x );
-
-half __const_func __attribute__((overloadable)) atan2( half y, half x );
-half2 __const_func __attribute__((overloadable)) atan2( half2 y, half2 x );
-half3 __const_func __attribute__((overloadable)) atan2( half3 y, half3 x );
-half4 __const_func __attribute__((overloadable)) atan2( half4 y, half4 x );
-half8 __const_func __attribute__((overloadable)) atan2( half8 y, half8 x );
-half16 __const_func __attribute__((overloadable)) atan2( half16 y, half16 x );
-
-half __const_func __attribute__((overloadable)) atanh( half );
-half2 __const_func __attribute__((overloadable)) atanh( half2 );
-half3 __const_func __attribute__((overloadable)) atanh( half3 );
-half4 __const_func __attribute__((overloadable)) atanh( half4 );
-half8 __const_func __attribute__((overloadable)) atanh( half8 );
-half16 __const_func __attribute__((overloadable)) atanh( half16 );
-
-half __const_func __attribute__((overloadable)) atanpi( half x );
-half2 __const_func __attribute__((overloadable)) atanpi( half2 x );
-half3 __const_func __attribute__((overloadable)) atanpi( half3 x );
-half4 __const_func __attribute__((overloadable)) atanpi( half4 x );
-half8 __const_func __attribute__((overloadable)) atanpi( half8 x );
-half16 __const_func __attribute__((overloadable)) atanpi( half16 x );
-
-half __const_func __attribute__((overloadable)) atan2pi( half y, half x );
-half2 __const_func __attribute__((overloadable)) atan2pi( half2 y, half2 x );
-half3 __const_func __attribute__((overloadable)) atan2pi( half3 y, half3 x );
-half4 __const_func __attribute__((overloadable)) atan2pi( half4 y, half4 x );
-half8 __const_func __attribute__((overloadable)) atan2pi( half8 y, half8 x );
-half16 __const_func __attribute__((overloadable)) atan2pi( half16 y, half16 x );
-
-half __const_func __attribute__((overloadable)) cbrt( half );
-half2 __const_func __attribute__((overloadable)) cbrt( half2 );
-half3 __const_func __attribute__((overloadable)) cbrt( half3 );
-half4 __const_func __attribute__((overloadable)) cbrt( half4 );
-half8 __const_func __attribute__((overloadable)) cbrt( half8 );
-half16 __const_func __attribute__((overloadable)) cbrt( half16 );
-
-half __const_func __attribute__((overloadable)) ceil( half );
-half2 __const_func __attribute__((overloadable)) ceil( half2 );
-half3 __const_func __attribute__((overloadable)) ceil( half3 );
-half4 __const_func __attribute__((overloadable)) ceil( half4 );
-half8 __const_func __attribute__((overloadable)) ceil( half8 );
-half16 __const_func __attribute__((overloadable)) ceil( half16 );
-
-half __const_func __attribute__((overloadable)) copysign( half x, half y );
-half2 __const_func __attribute__((overloadable)) copysign( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) copysign( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) copysign( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) copysign( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) copysign( half16 x, half16 y );
-
-half __const_func __attribute__((overloadable)) cos( half );
-half2 __const_func __attribute__((overloadable)) cos( half2 );
-half3 __const_func __attribute__((overloadable)) cos( half3 );
-half4 __const_func __attribute__((overloadable)) cos( half4 );
-half8 __const_func __attribute__((overloadable)) cos( half8 );
-half16 __const_func __attribute__((overloadable)) cos( half16 );
-
-half __const_func __attribute__((overloadable)) cosh( half );
-half2 __const_func __attribute__((overloadable)) cosh( half2 );
-half3 __const_func __attribute__((overloadable)) cosh( half3 );
-half4 __const_func __attribute__((overloadable)) cosh( half4 );
-half8 __const_func __attribute__((overloadable)) cosh( half8 );
-half16 __const_func __attribute__((overloadable)) cosh( half16 );
-
-half __const_func __attribute__((overloadable)) cospi( half x );
-half2 __const_func __attribute__((overloadable)) cospi( half2 x );
-half3 __const_func __attribute__((overloadable)) cospi( half3 x );
-half4 __const_func __attribute__((overloadable)) cospi( half4 x );
-half8 __const_func __attribute__((overloadable)) cospi( half8 x );
-half16 __const_func __attribute__((overloadable)) cospi( half16 x );
-
-half __const_func __attribute__((overloadable)) erfc( half );
-half2 __const_func __attribute__((overloadable)) erfc( half2 );
-half3 __const_func __attribute__((overloadable)) erfc( half3 );
-half4 __const_func __attribute__((overloadable)) erfc( half4 );
-half8 __const_func __attribute__((overloadable)) erfc( half8 );
-half16 __const_func __attribute__((overloadable)) erfc( half16 );
-
-half __const_func __attribute__((overloadable)) erf( half );
-half2 __const_func __attribute__((overloadable)) erf( half2 );
-half3 __const_func __attribute__((overloadable)) erf( half3 );
-half4 __const_func __attribute__((overloadable)) erf( half4 );
-half8 __const_func __attribute__((overloadable)) erf( half8 );
-half16 __const_func __attribute__((overloadable)) erf( half16 );
-
-half __const_func __attribute__((overloadable)) exp( half x );
-half2 __const_func __attribute__((overloadable)) exp( half2 x );
-half3 __const_func __attribute__((overloadable)) exp( half3 x );
-half4 __const_func __attribute__((overloadable)) exp( half4 x );
-half8 __const_func __attribute__((overloadable)) exp( half8 x );
-half16 __const_func __attribute__((overloadable)) exp( half16 x );
-
-half __const_func __attribute__((overloadable)) exp2( half );
-half2 __const_func __attribute__((overloadable)) exp2( half2 );
-half3 __const_func __attribute__((overloadable)) exp2( half3 );
-half4 __const_func __attribute__((overloadable)) exp2( half4 );
-half8 __const_func __attribute__((overloadable)) exp2( half8 );
-half16 __const_func __attribute__((overloadable)) exp2( half16 );
-
-half __const_func __attribute__((overloadable)) exp10( half );
-half2 __const_func __attribute__((overloadable)) exp10( half2 );
-half3 __const_func __attribute__((overloadable)) exp10( half3 );
-half4 __const_func __attribute__((overloadable)) exp10( half4 );
-half8 __const_func __attribute__((overloadable)) exp10( half8 );
-half16 __const_func __attribute__((overloadable)) exp10( half16 );
-
-half __const_func __attribute__((overloadable)) expm1( half x );
-half2 __const_func __attribute__((overloadable)) expm1( half2 x );
-half3 __const_func __attribute__((overloadable)) expm1( half3 x );
-half4 __const_func __attribute__((overloadable)) expm1( half4 x );
-half8 __const_func __attribute__((overloadable)) expm1( half8 x );
-half16 __const_func __attribute__((overloadable)) expm1( half16 x );
-
-half __const_func __attribute__((overloadable)) fabs( half );
-half2 __const_func __attribute__((overloadable)) fabs( half2 );
-half3 __const_func __attribute__((overloadable)) fabs( half3 );
-half4 __const_func __attribute__((overloadable)) fabs( half4 );
-half8 __const_func __attribute__((overloadable)) fabs( half8 );
-half16 __const_func __attribute__((overloadable)) fabs( half16 );
-
-half __const_func __attribute__((overloadable)) fdim( half x, half y );
-half2 __const_func __attribute__((overloadable)) fdim( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) fdim( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) fdim( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) fdim( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) fdim( half16 x, half16 y );
-
-half __const_func __attribute__((overloadable)) floor( half );
-half2 __const_func __attribute__((overloadable)) floor( half2 );
-half3 __const_func __attribute__((overloadable)) floor( half3 );
-half4 __const_func __attribute__((overloadable)) floor( half4 );
-half8 __const_func __attribute__((overloadable)) floor( half8 );
-half16 __const_func __attribute__((overloadable)) floor( half16 );
-
-half __const_func __attribute__((overloadable)) fma( half a, half b, half c );
-half2 __const_func __attribute__((overloadable)) fma( half2 a, half2 b, half2 c );
-half3 __const_func __attribute__((overloadable)) fma( half3 a, half3 b, half3 c );
-half4 __const_func __attribute__((overloadable)) fma( half4 a, half4 b, half4 c );
-half8 __const_func __attribute__((overloadable)) fma( half8 a, half8 b, half8 c );
-half16 __const_func __attribute__((overloadable)) fma( half16 a, half16 b, half16 c );
-
-half __const_func __attribute__((overloadable)) fmax( half x, half y );
-half2 __const_func __attribute__((overloadable)) fmax( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) fmax( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) fmax( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) fmax( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) fmax( half16 x, half16 y );
-half2 __const_func __attribute__((overloadable)) fmax( half2 x, half y );
-half3 __const_func __attribute__((overloadable)) fmax( half3 x, half y );
-half4 __const_func __attribute__((overloadable)) fmax( half4 x, half y );
-half8 __const_func __attribute__((overloadable)) fmax( half8 x, half y );
-half16 __const_func __attribute__((overloadable)) fmax( half16 x, half y );
-
-half __const_func __attribute__((overloadable)) fmin( half x, half y );
-half2 __const_func __attribute__((overloadable)) fmin( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) fmin( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) fmin( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) fmin( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) fmin( half16 x, half16 y );
-half2 __const_func __attribute__((overloadable)) fmin( half2 x, half y );
-half3 __const_func __attribute__((overloadable)) fmin( half3 x, half y );
-half4 __const_func __attribute__((overloadable)) fmin( half4 x, half y );
-half8 __const_func __attribute__((overloadable)) fmin( half8 x, half y );
-half16 __const_func __attribute__((overloadable)) fmin( half16 x, half y );
-
-half __const_func __attribute__((overloadable)) fmod( half x, half y );
-half2 __const_func __attribute__((overloadable)) fmod( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) fmod( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) fmod( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) fmod( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) fmod( half16 x, half16 y );
-
-half __const_func __attribute__((overloadable)) hypot( half x, half y );
-half2 __const_func __attribute__((overloadable)) hypot( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) hypot( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) hypot( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) hypot( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) hypot( half16 x, half16 y );
-
-int __const_func __attribute__((overloadable)) ilogb( half x );
-int2 __const_func __attribute__((overloadable)) ilogb( half2 x );
-int3 __const_func __attribute__((overloadable)) ilogb( half3 x );
-int4 __const_func __attribute__((overloadable)) ilogb( half4 x );
-int8 __const_func __attribute__((overloadable)) ilogb( half8 x );
-int16 __const_func __attribute__((overloadable)) ilogb( half16 x );
-
-half __const_func __attribute__((overloadable)) ldexp( half x, int n );
-half2 __const_func __attribute__((overloadable)) ldexp( half2 x, int2 n );
-half3 __const_func __attribute__((overloadable)) ldexp( half3 x, int3 n );
-half4 __const_func __attribute__((overloadable)) ldexp( half4 x, int4 n );
-half8 __const_func __attribute__((overloadable)) ldexp( half8 x, int8 n );
-half16 __const_func __attribute__((overloadable)) ldexp( half16 x, int16 n );
-half2 __const_func __attribute__((overloadable)) ldexp( half2 x, int n );
-half3 __const_func __attribute__((overloadable)) ldexp( half3 x, int n );
-half4 __const_func __attribute__((overloadable)) ldexp( half4 x, int n );
-half8 __const_func __attribute__((overloadable)) ldexp( half8 x, int n );
-half16 __const_func __attribute__((overloadable)) ldexp( half16 x, int n );
-
-half __const_func __attribute__((overloadable)) lgamma( half x );
-half2 __const_func __attribute__((overloadable)) lgamma( half2 x );
-half3 __const_func __attribute__((overloadable)) lgamma( half3 x );
-half4 __const_func __attribute__((overloadable)) lgamma( half4 x );
-half8 __const_func __attribute__((overloadable)) lgamma( half8 x );
-half16 __const_func __attribute__((overloadable)) lgamma( half16 x );
-
-half __const_func __attribute__((overloadable)) log( half );
-half2 __const_func __attribute__((overloadable)) log( half2 );
-half3 __const_func __attribute__((overloadable)) log( half3 );
-half4 __const_func __attribute__((overloadable)) log( half4 );
-half8 __const_func __attribute__((overloadable)) log( half8 );
-half16 __const_func __attribute__((overloadable)) log( half16 );
-
-half __const_func __attribute__((overloadable)) log2( half );
-half2 __const_func __attribute__((overloadable)) log2( half2 );
-half3 __const_func __attribute__((overloadable)) log2( half3 );
-half4 __const_func __attribute__((overloadable)) log2( half4 );
-half8 __const_func __attribute__((overloadable)) log2( half8 );
-half16 __const_func __attribute__((overloadable)) log2( half16 );
-
-half __const_func __attribute__((overloadable)) log10( half );
-half2 __const_func __attribute__((overloadable)) log10( half2 );
-half3 __const_func __attribute__((overloadable)) log10( half3 );
-half4 __const_func __attribute__((overloadable)) log10( half4 );
-half8 __const_func __attribute__((overloadable)) log10( half8 );
-half16 __const_func __attribute__((overloadable)) log10( half16 );
-
-half __const_func __attribute__((overloadable)) log1p( half x );
-half2 __const_func __attribute__((overloadable)) log1p( half2 x );
-half3 __const_func __attribute__((overloadable)) log1p( half3 x );
-half4 __const_func __attribute__((overloadable)) log1p( half4 x );
-half8 __const_func __attribute__((overloadable)) log1p( half8 x );
-half16 __const_func __attribute__((overloadable)) log1p( half16 x );
-
-half __const_func __attribute__((overloadable)) logb( half x );
-half2 __const_func __attribute__((overloadable)) logb( half2 x );
-half3 __const_func __attribute__((overloadable)) logb( half3 x );
-half4 __const_func __attribute__((overloadable)) logb( half4 x );
-half8 __const_func __attribute__((overloadable)) logb( half8 x );
-half16 __const_func __attribute__((overloadable)) logb( half16 x );
-
-half __const_func __attribute__((overloadable)) mad( half a, half b, half c );
-half2 __const_func __attribute__((overloadable)) mad( half2 a, half2 b, half2 c );
-half3 __const_func __attribute__((overloadable)) mad( half3 a, half3 b, half3 c );
-half4 __const_func __attribute__((overloadable)) mad( half4 a, half4 b, half4 c );
-half8 __const_func __attribute__((overloadable)) mad( half8 a, half8 b, half8 c );
-half16 __const_func __attribute__((overloadable)) mad( half16 a, half16 b, half16 c );
-
-half __const_func __attribute__((overloadable)) maxmag( half x, half y );
-half2 __const_func __attribute__((overloadable)) maxmag( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) maxmag( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) maxmag( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) maxmag( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) maxmag( half16 x, half16 y );
-
-half __const_func __attribute__((overloadable)) minmag( half x, half y );
-half2 __const_func __attribute__((overloadable)) minmag( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) minmag( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) minmag( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) minmag( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) minmag( half16 x, half16 y );
-
-half __attribute__((overloadable)) modf( half x, __global half *iptr );
-half2 __attribute__((overloadable)) modf( half2 x, __global half2 *iptr );
-half3 __attribute__((overloadable)) modf( half3 x, __global half3 *iptr );
-half4 __attribute__((overloadable)) modf( half4 x, __global half4 *iptr );
-half8 __attribute__((overloadable)) modf( half8 x, __global half8 *iptr );
-half16 __attribute__((overloadable)) modf( half16 x, __global half16 *iptr );
-half __attribute__((overloadable)) modf( half x, __local half *iptr );
-half2 __attribute__((overloadable)) modf( half2 x, __local half2 *iptr );
-half3 __attribute__((overloadable)) modf( half3 x, __local half3 *iptr );
-half4 __attribute__((overloadable)) modf( half4 x, __local half4 *iptr );
-half8 __attribute__((overloadable)) modf( half8 x, __local half8 *iptr );
-half16 __attribute__((overloadable)) modf( half16 x, __local half16 *iptr );
-half __attribute__((overloadable)) modf( half x, __private half *iptr );
-half2 __attribute__((overloadable)) modf( half2 x, __private half2 *iptr );
-half3 __attribute__((overloadable)) modf( half3 x, __private half3 *iptr );
-half4 __attribute__((overloadable)) modf( half4 x, __private half4 *iptr );
-half8 __attribute__((overloadable)) modf( half8 x, __private half8 *iptr );
-half16 __attribute__((overloadable)) modf( half16 x, __private half16 *iptr );
-
-half __const_func __attribute__((overloadable)) nan( ushort nancode );
-half2 __const_func __attribute__((overloadable)) nan( ushort2 nancode );
-half3 __const_func __attribute__((overloadable)) nan( ushort3 nancode );
-half4 __const_func __attribute__((overloadable)) nan( ushort4 nancode );
-half8 __const_func __attribute__((overloadable)) nan( ushort8 nancode );
-half16 __const_func __attribute__((overloadable)) nan( ushort16 nancode );
-
-half __const_func __attribute__((overloadable)) nextafter( half x, half y );
-half2 __const_func __attribute__((overloadable)) nextafter( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) nextafter( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) nextafter( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) nextafter( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) nextafter( half16 x, half16 y );
-
-half __const_func __attribute__((overloadable)) pow( half x, half y );
-half2 __const_func __attribute__((overloadable)) pow( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) pow( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) pow( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) pow( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) pow( half16 x, half16 y );
-
-half __const_func __attribute__((overloadable)) pown( half x, int y );
-half2 __const_func __attribute__((overloadable)) pown( half2 x, int2 y );
-half3 __const_func __attribute__((overloadable)) pown( half3 x, int3 y );
-half4 __const_func __attribute__((overloadable)) pown( half4 x, int4 y );
-half8 __const_func __attribute__((overloadable)) pown( half8 x, int8 y );
-half16 __const_func __attribute__((overloadable)) pown( half16 x, int16 y );
-
-half __const_func __attribute__((overloadable)) powr( half x, half y );
-half2 __const_func __attribute__((overloadable)) powr( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) powr( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) powr( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) powr( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) powr( half16 x, half16 y );
-
-half __const_func __attribute__((overloadable)) remainder( half x, half y );
-half2 __const_func __attribute__((overloadable)) remainder( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) remainder( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) remainder( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) remainder( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) remainder( half16 x, half16 y );
-
-half __const_func __attribute__((overloadable)) rint( half );
-half2 __const_func __attribute__((overloadable)) rint( half2 );
-half3 __const_func __attribute__((overloadable)) rint( half3 );
-half4 __const_func __attribute__((overloadable)) rint( half4 );
-half8 __const_func __attribute__((overloadable)) rint( half8 );
-half16 __const_func __attribute__((overloadable)) rint( half16 );
-
-half __const_func __attribute__((overloadable)) rootn( half x, int y );
-half2 __const_func __attribute__((overloadable)) rootn( half2 x, int2 y );
-half3 __const_func __attribute__((overloadable)) rootn( half3 x, int3 y );
-half4 __const_func __attribute__((overloadable)) rootn( half4 x, int4 y );
-half8 __const_func __attribute__((overloadable)) rootn( half8 x, int8 y );
-half16 __const_func __attribute__((overloadable)) rootn( half16 x, int16 y );
-
-half __const_func __attribute__((overloadable)) round( half x );
-half2 __const_func __attribute__((overloadable)) round( half2 x );
-half3 __const_func __attribute__((overloadable)) round( half3 x );
-half4 __const_func __attribute__((overloadable)) round( half4 x );
-half8 __const_func __attribute__((overloadable)) round( half8 x );
-half16 __const_func __attribute__((overloadable)) round( half16 x );
-
-half __const_func __attribute__((overloadable)) rsqrt( half );
-half2 __const_func __attribute__((overloadable)) rsqrt( half2 );
-half3 __const_func __attribute__((overloadable)) rsqrt( half3 );
-half4 __const_func __attribute__((overloadable)) rsqrt( half4 );
-half8 __const_func __attribute__((overloadable)) rsqrt( half8 );
-half16 __const_func __attribute__((overloadable)) rsqrt( half16 );
-
-half __const_func __attribute__((overloadable)) sin( half );
-half2 __const_func __attribute__((overloadable)) sin( half2 );
-half3 __const_func __attribute__((overloadable)) sin( half3 );
-half4 __const_func __attribute__((overloadable)) sin( half4 );
-half8 __const_func __attribute__((overloadable)) sin( half8 );
-half16 __const_func __attribute__((overloadable)) sin( half16 );
-
-half __const_func __attribute__((overloadable)) sinh( half );
-half2 __const_func __attribute__((overloadable)) sinh( half2 );
-half3 __const_func __attribute__((overloadable)) sinh( half3 );
-half4 __const_func __attribute__((overloadable)) sinh( half4 );
-half8 __const_func __attribute__((overloadable)) sinh( half8 );
-half16 __const_func __attribute__((overloadable)) sinh( half16 );
-
-half __const_func __attribute__((overloadable)) sinpi( half x );
-half2 __const_func __attribute__((overloadable)) sinpi( half2 x );
-half3 __const_func __attribute__((overloadable)) sinpi( half3 x );
-half4 __const_func __attribute__((overloadable)) sinpi( half4 x );
-half8 __const_func __attribute__((overloadable)) sinpi( half8 x );
-half16 __const_func __attribute__((overloadable)) sinpi( half16 x );
-
-half __const_func __attribute__((overloadable)) sqrt( half );
-half2 __const_func __attribute__((overloadable)) sqrt( half2 );
-half3 __const_func __attribute__((overloadable)) sqrt( half3 );
-half4 __const_func __attribute__((overloadable)) sqrt( half4 );
-half8 __const_func __attribute__((overloadable)) sqrt( half8 );
-half16 __const_func __attribute__((overloadable)) sqrt( half16 );
-
-half __const_func __attribute__((overloadable)) tan( half );
-half2 __const_func __attribute__((overloadable)) tan( half2 );
-half3 __const_func __attribute__((overloadable)) tan( half3 );
-half4 __const_func __attribute__((overloadable)) tan( half4 );
-half8 __const_func __attribute__((overloadable)) tan( half8 );
-half16 __const_func __attribute__((overloadable)) tan( half16 );
-
-half __const_func __attribute__((overloadable)) tanh( half );
-half2 __const_func __attribute__((overloadable)) tanh( half2 );
-half3 __const_func __attribute__((overloadable)) tanh( half3 );
-half4 __const_func __attribute__((overloadable)) tanh( half4 );
-half8 __const_func __attribute__((overloadable)) tanh( half8 );
-half16 __const_func __attribute__((overloadable)) tanh( half16 );
-
-half __const_func __attribute__((overloadable)) tanpi( half x );
-half2 __const_func __attribute__((overloadable)) tanpi( half2 x );
-half3 __const_func __attribute__((overloadable)) tanpi( half3 x );
-half4 __const_func __attribute__((overloadable)) tanpi( half4 x );
-half8 __const_func __attribute__((overloadable)) tanpi( half8 x );
-half16 __const_func __attribute__((overloadable)) tanpi( half16 x );
-
-half __const_func __attribute__((overloadable)) tgamma( half );
-half2 __const_func __attribute__((overloadable)) tgamma( half2 );
-half3 __const_func __attribute__((overloadable)) tgamma( half3 );
-half4 __const_func __attribute__((overloadable)) tgamma( half4 );
-half8 __const_func __attribute__((overloadable)) tgamma( half8 );
-half16 __const_func __attribute__((overloadable)) tgamma( half16 );
-
-half __const_func __attribute__((overloadable)) trunc( half );
-half2 __const_func __attribute__((overloadable)) trunc( half2 );
-half3 __const_func __attribute__((overloadable)) trunc( half3 );
-half4 __const_func __attribute__((overloadable)) trunc( half4 );
-half8 __const_func __attribute__((overloadable)) trunc( half8 );
-half16 __const_func __attribute__((overloadable)) trunc( half16 );
-
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ == 120
-half __attribute__((overloadable)) fract(half x, __global half *iptr);
-half2 __attribute__((overloadable)) fract(half2 x, __global half2 *iptr);
-half3 __attribute__((overloadable)) fract(half3 x, __global half3 *iptr);
-half4 __attribute__((overloadable)) fract(half4 x, __global half4 *iptr);
-half8 __attribute__((overloadable)) fract(half8 x, __global half8 *iptr);
-half16 __attribute__((overloadable)) fract(half16 x, __global half16 *iptr);
-half __attribute__((overloadable)) fract(half x, __local half *iptr);
-half2 __attribute__((overloadable)) fract(half2 x, __local half2 *iptr);
-half3 __attribute__((overloadable)) fract(half3 x, __local half3 *iptr);
-half4 __attribute__((overloadable)) fract(half4 x, __local half4 *iptr);
-half8 __attribute__((overloadable)) fract(half8 x, __local half8 *iptr);
-half16 __attribute__((overloadable)) fract(half16 x, __local half16 *iptr);
-half __attribute__((overloadable)) fract(half x, __private half *iptr);
-half2 __attribute__((overloadable)) fract(half2 x, __private half2 *iptr);
-half3 __attribute__((overloadable)) fract(half3 x, __private half3 *iptr);
-half4 __attribute__((overloadable)) fract(half4 x, __private half4 *iptr);
-half8 __attribute__((overloadable)) fract(half8 x, __private half8 *iptr);
-half16 __attribute__((overloadable)) fract(half16 x, __private half16 *iptr);
-
-half __attribute__((overloadable)) frexp(half x, __global int *exp);
-half2 __attribute__((overloadable)) frexp(half2 x, __global int2 *exp);
-half3 __attribute__((overloadable)) frexp(half3 x, __global int3 *exp);
-half4 __attribute__((overloadable)) frexp(half4 x, __global int4 *exp);
-half8 __attribute__((overloadable)) frexp(half8 x, __global int8 *exp);
-half16 __attribute__((overloadable)) frexp(half16 x, __global int16 *exp);
-half __attribute__((overloadable)) frexp(half x, __local int *exp);
-half2 __attribute__((overloadable)) frexp(half2 x, __local int2 *exp);
-half3 __attribute__((overloadable)) frexp(half3 x, __local int3 *exp);
-half4 __attribute__((overloadable)) frexp(half4 x, __local int4 *exp);
-half8 __attribute__((overloadable)) frexp(half8 x, __local int8 *exp);
-half16 __attribute__((overloadable)) frexp(half16 x, __local int16 *exp);
-half __attribute__((overloadable)) frexp(half x, __private int *exp);
-half2 __attribute__((overloadable)) frexp(half2 x, __private int2 *exp);
-half3 __attribute__((overloadable)) frexp(half3 x, __private int3 *exp);
-half4 __attribute__((overloadable)) frexp(half4 x, __private int4 *exp);
-half8 __attribute__((overloadable)) frexp(half8 x, __private int8 *exp);
-half16 __attribute__((overloadable)) frexp(half16 x, __private int16 *exp);
-
-half __attribute__((overloadable)) lgamma_r(half x, __global int *signp);
-half2 __attribute__((overloadable)) lgamma_r(half2 x, __global int2 *signp);
-half3 __attribute__((overloadable)) lgamma_r(half3 x, __global int3 *signp);
-half4 __attribute__((overloadable)) lgamma_r(half4 x, __global int4 *signp);
-half8 __attribute__((overloadable)) lgamma_r(half8 x, __global int8 *signp);
-half16 __attribute__((overloadable)) lgamma_r(half16 x, __global int16 *signp);
-half __attribute__((overloadable)) lgamma_r(half x, __local int *signp);
-half2 __attribute__((overloadable)) lgamma_r(half2 x, __local int2 *signp);
-half3 __attribute__((overloadable)) lgamma_r(half3 x, __local int3 *signp);
-half4 __attribute__((overloadable)) lgamma_r(half4 x, __local int4 *signp);
-half8 __attribute__((overloadable)) lgamma_r(half8 x, __local int8 *signp);
-half16 __attribute__((overloadable)) lgamma_r(half16 x, __local int16 *signp);
-half __attribute__((overloadable)) lgamma_r(half x, __private int *signp);
-half2 __attribute__((overloadable)) lgamma_r(half2 x, __private int2 *signp);
-half3 __attribute__((overloadable)) lgamma_r(half3 x, __private int3 *signp);
-half4 __attribute__((overloadable)) lgamma_r(half4 x, __private int4 *signp);
-half8 __attribute__((overloadable)) lgamma_r(half8 x, __private int8 *signp);
-half16 __attribute__((overloadable)) lgamma_r(half16 x, __private int16 *signp);
-
-half __attribute__((overloadable)) remquo(half x, half y, __global int *quo);
-half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __global int2 *quo);
-half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __global int3 *quo);
-half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __global int4 *quo);
-half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __global int8 *quo);
-half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __global int16 *quo);
-half __attribute__((overloadable)) remquo(half x, half y, __local int *quo);
-half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __local int2 *quo);
-half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __local int3 *quo);
-half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __local int4 *quo);
-half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __local int8 *quo);
-half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __local int16 *quo);
-half __attribute__((overloadable)) remquo(half x, half y, __private int *quo);
-half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __private int2 *quo);
-half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __private int3 *quo);
-half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __private int4 *quo);
-half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __private int8 *quo);
-half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __private int16 *quo);
-
-half __attribute__((overloadable)) sincos(half x, __global half *cosval);
-half2 __attribute__((overloadable)) sincos(half2 x, __global half2 *cosval);
-half3 __attribute__((overloadable)) sincos(half3 x, __global half3 *cosval);
-half4 __attribute__((overloadable)) sincos(half4 x, __global half4 *cosval);
-half8 __attribute__((overloadable)) sincos(half8 x, __global half8 *cosval);
-half16 __attribute__((overloadable)) sincos(half16 x, __global half16 *cosval);
-half __attribute__((overloadable)) sincos(half x, __local half *cosval);
-half2 __attribute__((overloadable)) sincos(half2 x, __local half2 *cosval);
-half3 __attribute__((overloadable)) sincos(half3 x, __local half3 *cosval);
-half4 __attribute__((overloadable)) sincos(half4 x, __local half4 *cosval);
-half8 __attribute__((overloadable)) sincos(half8 x, __local half8 *cosval);
-half16 __attribute__((overloadable)) sincos(half16 x, __local half16 *cosval);
-half __attribute__((overloadable)) sincos(half x, __private half *cosval);
-half2 __attribute__((overloadable)) sincos(half2 x, __private half2 *cosval);
-half3 __attribute__((overloadable)) sincos(half3 x, __private half3 *cosval);
-half4 __attribute__((overloadable)) sincos(half4 x, __private half4 *cosval);
-half8 __attribute__((overloadable)) sincos(half8 x, __private half8 *cosval);
-half16 __attribute__((overloadable)) sincos(half16 x, __private half16 *cosval);
-#endif // defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ == 120
-
-// Common Functions
-
-half __const_func __attribute__((overloadable)) clamp( half x, half minval, half maxval );
-half2 __const_func __attribute__((overloadable)) clamp( half2 x, half2 minval, half2 maxval );
-half3 __const_func __attribute__((overloadable)) clamp( half3 x, half3 minval, half3 maxval );
-half4 __const_func __attribute__((overloadable)) clamp( half4 x, half4 minval, half4 maxval );
-half8 __const_func __attribute__((overloadable)) clamp( half8 x, half8 minval, half8 maxval );
-half16 __const_func __attribute__((overloadable)) clamp( half16 x, half16 minval, half16 maxval );
-half2 __const_func __attribute__((overloadable)) clamp( half2 x, half minval, half maxval );
-half3 __const_func __attribute__((overloadable)) clamp( half3 x, half minval, half maxval );
-half4 __const_func __attribute__((overloadable)) clamp( half4 x, half minval, half maxval );
-half8 __const_func __attribute__((overloadable)) clamp( half8 x, half minval, half maxval );
-half16 __const_func __attribute__((overloadable)) clamp( half16 x, half minval, half maxval );
-
-half __const_func __attribute__((overloadable)) degrees( half radians );
-half2 __const_func __attribute__((overloadable)) degrees( half2 radians );
-half3 __const_func __attribute__((overloadable)) degrees( half3 radians );
-half4 __const_func __attribute__((overloadable)) degrees( half4 radians );
-half8 __const_func __attribute__((overloadable)) degrees( half8 radians );
-half16 __const_func __attribute__((overloadable)) degrees( half16 radians );
-
-half __const_func __attribute__((overloadable)) max( half x, half y );
-half2 __const_func __attribute__((overloadable)) max( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) max( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) max( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) max( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) max( half16 x, half16 y );
-half2 __const_func __attribute__((overloadable)) max( half2 x, half y );
-half3 __const_func __attribute__((overloadable)) max( half3 x, half y );
-half4 __const_func __attribute__((overloadable)) max( half4 x, half y );
-half8 __const_func __attribute__((overloadable)) max( half8 x, half y );
-half16 __const_func __attribute__((overloadable)) max( half16 x, half y );
-
-half __const_func __attribute__((overloadable)) min( half x, half y );
-half2 __const_func __attribute__((overloadable)) min( half2 x, half2 y );
-half3 __const_func __attribute__((overloadable)) min( half3 x, half3 y );
-half4 __const_func __attribute__((overloadable)) min( half4 x, half4 y );
-half8 __const_func __attribute__((overloadable)) min( half8 x, half8 y );
-half16 __const_func __attribute__((overloadable)) min( half16 x, half16 y );
-half2 __const_func __attribute__((overloadable)) min( half2 x, half y );
-half3 __const_func __attribute__((overloadable)) min( half3 x, half y );
-half4 __const_func __attribute__((overloadable)) min( half4 x, half y );
-half8 __const_func __attribute__((overloadable)) min( half8 x, half y );
-half16 __const_func __attribute__((overloadable)) min( half16 x, half y );
-
-half __const_func __attribute__((overloadable)) mix( half x, half y, half a );
-half2 __const_func __attribute__((overloadable)) mix( half2 x, half2 y, half2 a );
-half3 __const_func __attribute__((overloadable)) mix( half3 x, half3 y, half3 a );
-half4 __const_func __attribute__((overloadable)) mix( half4 x, half4 y, half4 a );
-half8 __const_func __attribute__((overloadable)) mix( half8 x, half8 y, half8 a );
-half16 __const_func __attribute__((overloadable)) mix( half16 x, half16 y, half16 a );
-half2 __const_func __attribute__((overloadable)) mix( half2 x, half2 y, half a );
-half3 __const_func __attribute__((overloadable)) mix( half3 x, half3 y, half a );
-half4 __const_func __attribute__((overloadable)) mix( half4 x, half4 y, half a );
-half8 __const_func __attribute__((overloadable)) mix( half8 x, half8 y, half a );
-half16 __const_func __attribute__((overloadable)) mix( half16 x, half16 y, half a );
-
-half __const_func __attribute__((overloadable)) radians( half degrees );
-half2 __const_func __attribute__((overloadable)) radians( half2 degrees );
-half3 __const_func __attribute__((overloadable)) radians( half3 degrees );
-half4 __const_func __attribute__((overloadable)) radians( half4 degrees );
-half8 __const_func __attribute__((overloadable)) radians( half8 degrees );
-half16 __const_func __attribute__((overloadable)) radians( half16 degrees );
-
-half __const_func __attribute__((overloadable)) step( half edge, half x );
-half2 __const_func __attribute__((overloadable)) step( half2 edge, half2 x );
-half3 __const_func __attribute__((overloadable)) step( half3 edge, half3 x );
-half4 __const_func __attribute__((overloadable)) step( half4 edge, half4 x );
-half8 __const_func __attribute__((overloadable)) step( half8 edge, half8 x );
-half16 __const_func __attribute__((overloadable)) step( half16 edge, half16 x );
-half __const_func __attribute__((overloadable)) step( half edge, half x );
-half2 __const_func __attribute__((overloadable)) step( half edge, half2 x );
-half3 __const_func __attribute__((overloadable)) step( half edge, half3 x );
-half4 __const_func __attribute__((overloadable)) step( half edge, half4 x );
-half8 __const_func __attribute__((overloadable)) step( half edge, half8 x );
-half16 __const_func __attribute__((overloadable)) step( half edge, half16 x );
-
-half __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half x );
-half2 __const_func __attribute__((overloadable)) smoothstep( half2 edge0, half2 edge1, half2 x );
-half3 __const_func __attribute__((overloadable)) smoothstep( half3 edge0, half3 edge1, half3 x );
-half4 __const_func __attribute__((overloadable)) smoothstep( half4 edge0, half4 edge1, half4 x );
-half8 __const_func __attribute__((overloadable)) smoothstep( half8 edge0, half8 edge1, half8 x );
-half16 __const_func __attribute__((overloadable)) smoothstep( half16 edge0, half16 edge1, half16 x );
-half __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half x );
-half2 __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half2 x );
-half3 __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half3 x );
-half4 __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half4 x );
-half8 __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half8 x );
-half16 __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half16 x );
-
-half __const_func __attribute__((overloadable)) sign( half x );
-half2 __const_func __attribute__((overloadable)) sign( half2 x );
-half3 __const_func __attribute__((overloadable)) sign( half3 x );
-half4 __const_func __attribute__((overloadable)) sign( half4 x );
-half8 __const_func __attribute__((overloadable)) sign( half8 x );
-half16 __const_func __attribute__((overloadable)) sign( half16 x );
-
-// Geometric Functions
-
-half4 __const_func __attribute__((overloadable)) cross( half4 p0, half4 p1 );
-half3 __const_func __attribute__((overloadable)) cross( half3 p0, half3 p1 );
-
-half __const_func __attribute__((overloadable)) dot( half p0, half p1 );
-half __const_func __attribute__((overloadable)) dot( half2 p0, half2 p1 );
-half __const_func __attribute__((overloadable)) dot( half3 p0, half3 p1 );
-half __const_func __attribute__((overloadable)) dot( half4 p0, half4 p1 );
-
-half __const_func __attribute__((overloadable)) distance( half p0, half p1 );
-half __const_func __attribute__((overloadable)) distance( half2 p0, half2 p1 );
-half __const_func __attribute__((overloadable)) distance( half3 p0, half3 p1 );
-half __const_func __attribute__((overloadable)) distance( half4 p0, half4 p1 );
-
-half __const_func __attribute__((overloadable)) length( half p );
-half __const_func __attribute__((overloadable)) length( half2 p );
-half __const_func __attribute__((overloadable)) length( half3 p );
-half __const_func __attribute__((overloadable)) length( half4 p );
-
-half __const_func __attribute__((overloadable)) normalize( half p );
-half2 __const_func __attribute__((overloadable)) normalize( half2 p );
-half3 __const_func __attribute__((overloadable)) normalize( half3 p );
-half4 __const_func __attribute__((overloadable)) normalize( half4 p );
-
-half __const_func __attribute__((overloadable)) fast_distance( half p0, half p1 );
-half __const_func __attribute__((overloadable)) fast_distance( half2 p0, half2 p1 );
-half __const_func __attribute__((overloadable)) fast_distance( half3 p0, half3 p1 );
-half __const_func __attribute__((overloadable)) fast_distance( half4 p0, half4 p1 );
-
-half __const_func __attribute__((overloadable)) fast_length( half p );
-half __const_func __attribute__((overloadable)) fast_length( half2 p );
-half __const_func __attribute__((overloadable)) fast_length( half3 p );
-half __const_func __attribute__((overloadable)) fast_length( half4 p );
-
-
-// TODO: fast_normalize(half)?
-
-// Relational Functions
-
-int __const_func __attribute__((overloadable)) isequal( half x, half y );
-short2 __const_func __attribute__((overloadable)) isequal( half2 x, half2 y );
-short3 __const_func __attribute__((overloadable)) isequal( half3 x, half3 y );
-short4 __const_func __attribute__((overloadable)) isequal( half4 x, half4 y );
-short8 __const_func __attribute__((overloadable)) isequal( half8 x, half8 y );
-short16 __const_func __attribute__((overloadable)) isequal( half16 x, half16 y );
-
-int __const_func __attribute__((overloadable)) isnotequal( half x, half y );
-short2 __const_func __attribute__((overloadable)) isnotequal( half2 x, half2 y );
-short3 __const_func __attribute__((overloadable)) isnotequal( half3 x, half3 y );
-short4 __const_func __attribute__((overloadable)) isnotequal( half4 x, half4 y );
-short8 __const_func __attribute__((overloadable)) isnotequal( half8 x, half8 y );
-short16 __const_func __attribute__((overloadable)) isnotequal( half16 x, half16 y );
-
-int __const_func __attribute__((overloadable)) isgreater( half x, half y );
-short2 __const_func __attribute__((overloadable)) isgreater( half2 x, half2 y );
-short3 __const_func __attribute__((overloadable)) isgreater( half3 x, half3 y );
-short4 __const_func __attribute__((overloadable)) isgreater( half4 x, half4 y );
-short8 __const_func __attribute__((overloadable)) isgreater( half8 x, half8 y );
-short16 __const_func __attribute__((overloadable)) isgreater( half16 x, half16 y );
-
-int __const_func __attribute__((overloadable)) isgreaterequal( half x, half y );
-short2 __const_func __attribute__((overloadable)) isgreaterequal( half2 x, half2 y );
-short3 __const_func __attribute__((overloadable)) isgreaterequal( half3 x, half3 y );
-short4 __const_func __attribute__((overloadable)) isgreaterequal( half4 x, half4 y );
-short8 __const_func __attribute__((overloadable)) isgreaterequal( half8 x, half8 y );
-short16 __const_func __attribute__((overloadable)) isgreaterequal( half16 x, half16 y );
-
-int __const_func __attribute__((overloadable)) isless( half x, half y );
-short2 __const_func __attribute__((overloadable)) isless( half2 x, half2 y );
-short3 __const_func __attribute__((overloadable)) isless( half3 x, half3 y );
-short4 __const_func __attribute__((overloadable)) isless( half4 x, half4 y );
-short8 __const_func __attribute__((overloadable)) isless( half8 x, half8 y );
-short16 __const_func __attribute__((overloadable)) isless( half16 x, half16 y );
-
-int __const_func __attribute__((overloadable)) islessequal( half x, half y );
-short2 __const_func __attribute__((overloadable)) islessequal( half2 x, half2 y );
-short3 __const_func __attribute__((overloadable)) islessequal( half3 x, half3 y );
-short4 __const_func __attribute__((overloadable)) islessequal( half4 x, half4 y );
-short8 __const_func __attribute__((overloadable)) islessequal( half8 x, half8 y );
-short16 __const_func __attribute__((overloadable)) islessequal( half16 x, half16 y );
-
-int __const_func __attribute__((overloadable)) islessgreater( half x, half y );
-short2 __const_func __attribute__((overloadable)) islessgreater( half2 x, half2 y );
-short3 __const_func __attribute__((overloadable)) islessgreater( half3 x, half3 y );
-short4 __const_func __attribute__((overloadable)) islessgreater( half4 x, half4 y );
-short8 __const_func __attribute__((overloadable)) islessgreater( half8 x, half8 y );
-short16 __const_func __attribute__((overloadable)) islessgreater( half16 x, half16 y );
-
-int __const_func __attribute__((overloadable)) isfinite( half );
-short2 __const_func __attribute__((overloadable)) isfinite( half2 );
-short3 __const_func __attribute__((overloadable)) isfinite( half3 );
-short4 __const_func __attribute__((overloadable)) isfinite( half4 );
-short8 __const_func __attribute__((overloadable)) isfinite( half8 );
-short16 __const_func __attribute__((overloadable)) isfinite( half16 );
-
-int __const_func __attribute__((overloadable)) isinf( half );
-short2 __const_func __attribute__((overloadable)) isinf( half2 );
-short3 __const_func __attribute__((overloadable)) isinf( half3 );
-short4 __const_func __attribute__((overloadable)) isinf( half4 );
-short8 __const_func __attribute__((overloadable)) isinf( half8 );
-short16 __const_func __attribute__((overloadable)) isinf( half16 );
-
-int __const_func __attribute__((overloadable)) isnan( half );
-short2 __const_func __attribute__((overloadable)) isnan( half2 );
-short3 __const_func __attribute__((overloadable)) isnan( half3 );
-short4 __const_func __attribute__((overloadable)) isnan( half4 );
-short8 __const_func __attribute__((overloadable)) isnan( half8 );
-short16 __const_func __attribute__((overloadable)) isnan( half16 );
-
-int __const_func __attribute__((overloadable)) isnormal( half );
-short2 __const_func __attribute__((overloadable)) isnormal( half2 );
-short3 __const_func __attribute__((overloadable)) isnormal( half3 );
-short4 __const_func __attribute__((overloadable)) isnormal( half4 );
-short8 __const_func __attribute__((overloadable)) isnormal( half8 );
-short16 __const_func __attribute__((overloadable)) isnormal( half16 );
-
-int __const_func __attribute__((overloadable)) isordered( half x, half y );
-short2 __const_func __attribute__((overloadable)) isordered( half2 x, half2 y );
-short3 __const_func __attribute__((overloadable)) isordered( half3 x, half3 y );
-short4 __const_func __attribute__((overloadable)) isordered( half4 x, half4 y );
-short8 __const_func __attribute__((overloadable)) isordered( half8 x, half8 y );
-short16 __const_func __attribute__((overloadable)) isordered( half16 x, half16 y );
-
-int __const_func __attribute__((overloadable)) isunordered( half x, half y );
-short2 __const_func __attribute__((overloadable)) isunordered( half2 x, half2 y );
-short3 __const_func __attribute__((overloadable)) isunordered( half3 x, half3 y );
-short4 __const_func __attribute__((overloadable)) isunordered( half4 x, half4 y );
-short8 __const_func __attribute__((overloadable)) isunordered( half8 x, half8 y );
-short16 __const_func __attribute__((overloadable)) isunordered( half16 x, half16 y );
-
-int __const_func __attribute__((overloadable)) signbit( half );
-short2 __const_func __attribute__((overloadable)) signbit( half2 );
-short3 __const_func __attribute__((overloadable)) signbit( half3 );
-short4 __const_func __attribute__((overloadable)) signbit( half4 );
-short8 __const_func __attribute__((overloadable)) signbit( half8 );
-short16 __const_func __attribute__((overloadable)) signbit( half16 );
-
-half __const_func __attribute__((overloadable)) bitselect( half a, half b, half c );
-half2 __const_func __attribute__((overloadable)) bitselect( half2 a, half2 b, half2 c );
-half3 __const_func __attribute__((overloadable)) bitselect( half3 a, half3 b, half3 c );
-half4 __const_func __attribute__((overloadable)) bitselect( half4 a, half4 b, half4 c );
-half8 __const_func __attribute__((overloadable)) bitselect( half8 a, half8 b, half8 c );
-half16 __const_func __attribute__((overloadable)) bitselect( half16 a, half16 b, half16 c );
-
-half __const_func __attribute__((overloadable)) select( half a, half b, short c );
-half2 __const_func __attribute__((overloadable)) select( half2 a, half2 b, short2 c );
-half3 __const_func __attribute__((overloadable)) select( half3 a, half3 b, short3 c );
-half4 __const_func __attribute__((overloadable)) select( half4 a, half4 b, short4 c );
-half8 __const_func __attribute__((overloadable)) select( half8 a, half8 b, short8 c );
-half16 __const_func __attribute__((overloadable)) select( half16 a, half16 b, short16 c );
-half __const_func __attribute__((overloadable)) select( half a, half b, ushort c );
-half2 __const_func __attribute__((overloadable)) select( half2 a, half2 b, ushort2 c );
-half3 __const_func __attribute__((overloadable)) select( half3 a, half3 b, ushort3 c );
-half4 __const_func __attribute__((overloadable)) select( half4 a, half4 b, ushort4 c );
-half8 __const_func __attribute__((overloadable)) select( half8 a, half8 b, ushort8 c );
-half16 __const_func __attribute__((overloadable)) select( half16 a, half16 b, ushort16 c );
-
-
-// Image Read and Write Functions
-
-half4 __attribute__((overloadable)) read_imageh(read_only image1d_t image, sampler_t sampler, int coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image1d_t image, sampler_t sampler, float coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image1d_array_t image, sampler_t sampler, int2 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image1d_array_t image, sampler_t sampler, float2 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image2d_t image, sampler_t sampler, int2 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image2d_t image, sampler_t sampler, float2 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image3d_t image, sampler_t sampler, int4 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image3d_t image, sampler_t sampler, float4 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image2d_array_t image, sampler_t sampler, int4 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image2d_array_t image, sampler_t sampler, float4 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image1d_t image, int coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image2d_t image, int2 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image3d_t image, int4 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image1d_array_t image, int2 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image2d_array_t image, int4 coord );
-half4 __attribute__((overloadable)) read_imageh(read_only image1d_buffer_t image, int coord );
-
-void __attribute__((overloadable)) write_imageh(write_only image1d_t image, int coord, half4 color );
-void __attribute__((overloadable)) write_imageh(write_only image2d_t image, int2 coord, half4 color );
-void __attribute__((overloadable)) write_imageh(write_only image3d_t image, int4 coord, half4 color );
-void __attribute__((overloadable)) write_imageh(write_only image1d_array_t image, int2 coord, half4 color );
-void __attribute__((overloadable)) write_imageh(write_only image2d_array_t image, int4 coord, half4 color );
-void __attribute__((overloadable)) write_imageh(write_only image1d_buffer_t image, int coord, half4 color );
-
-// Miscellaneous Vector Instructions
-
-half2 __const_func __attribute__((overloadable)) shuffle( half2 x, ushort2 mask );
-half2 __const_func __attribute__((overloadable)) shuffle( half4 x, ushort2 mask );
-half2 __const_func __attribute__((overloadable)) shuffle( half8 x, ushort2 mask );
-half2 __const_func __attribute__((overloadable)) shuffle( half16 x, ushort2 mask );
-
-half4 __const_func __attribute__((overloadable)) shuffle( half2 x, ushort4 mask );
-half4 __const_func __attribute__((overloadable)) shuffle( half4 x, ushort4 mask );
-half4 __const_func __attribute__((overloadable)) shuffle( half8 x, ushort4 mask );
-half4 __const_func __attribute__((overloadable)) shuffle( half16 x, ushort4 mask );
-
-half8 __const_func __attribute__((overloadable)) shuffle( half2 x, ushort8 mask );
-half8 __const_func __attribute__((overloadable)) shuffle( half4 x, ushort8 mask );
-half8 __const_func __attribute__((overloadable)) shuffle( half8 x, ushort8 mask );
-half8 __const_func __attribute__((overloadable)) shuffle( half16 x, ushort8 mask );
-
-half16 __const_func __attribute__((overloadable)) shuffle( half2 x, ushort16 mask );
-half16 __const_func __attribute__((overloadable)) shuffle( half4 x, ushort16 mask );
-half16 __const_func __attribute__((overloadable)) shuffle( half8 x, ushort16 mask );
-half16 __const_func __attribute__((overloadable)) shuffle( half16 x, ushort16 mask );
-
-half2 __const_func __attribute__((overloadable)) shuffle2( half2 x, half2 y, ushort2 mask );
-half2 __const_func __attribute__((overloadable)) shuffle2( half4 x, half4 y, ushort2 mask );
-half2 __const_func __attribute__((overloadable)) shuffle2( half8 x, half8 y, ushort2 mask );
-half2 __const_func __attribute__((overloadable)) shuffle2( half16 x, half16 y, ushort2 mask );
-
-half4 __const_func __attribute__((overloadable)) shuffle2( half2 x, half2 y, ushort4 mask );
-half4 __const_func __attribute__((overloadable)) shuffle2( half4 x, half4 y, ushort4 mask );
-half4 __const_func __attribute__((overloadable)) shuffle2( half8 x, half8 y, ushort4 mask );
-half4 __const_func __attribute__((overloadable)) shuffle2( half16 x, half16 y, ushort4 mask );
-
-half8 __const_func __attribute__((overloadable)) shuffle2( half2 x, half2 y, ushort8 mask );
-half8 __const_func __attribute__((overloadable)) shuffle2( half4 x, half4 y, ushort8 mask );
-half8 __const_func __attribute__((overloadable)) shuffle2( half8 x, half8 y, ushort8 mask );
-half8 __const_func __attribute__((overloadable)) shuffle2( half16 x, half16 y, ushort8 mask );
-
-half16 __const_func __attribute__((overloadable)) shuffle2( half2 x, half2 y, ushort16 mask );
-half16 __const_func __attribute__((overloadable)) shuffle2( half4 x, half4 y, ushort16 mask );
-half16 __const_func __attribute__((overloadable)) shuffle2( half8 x, half8 y, ushort16 mask );
-half16 __const_func __attribute__((overloadable)) shuffle2( half16 x, half16 y, ushort16 mask );
 
 uchar __const_func __attribute__((overloadable)) convert_uchar( half );
 uchar __const_func __attribute__((overloadable)) convert_uchar_rte( half );
@@ -12103,7 +11651,53 @@ half16 __attribute__((overloadable)) convert_half16_rtz( ulong16 );
 half16 __attribute__((overloadable)) convert_half16_rtz( float16 );
 half16 __attribute__((overloadable)) convert_half16_rtz( half16 );
 
-// Async copies from global to local memory, local to global memory, and prefetch
+#endif // cl_khr_fp16
+
+
+// ToDo: reorganize
+// Image Read and Write Functions
+#ifdef cl_khr_fp16
+half4 __attribute__((overloadable)) read_imageh(read_only image1d_t image, sampler_t sampler, int coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image1d_t image, sampler_t sampler, float coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image1d_array_t image, sampler_t sampler, int2 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image1d_array_t image, sampler_t sampler, float2 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image2d_t image, sampler_t sampler, int2 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image2d_t image, sampler_t sampler, float2 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image3d_t image, sampler_t sampler, int4 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image3d_t image, sampler_t sampler, float4 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image2d_array_t image, sampler_t sampler, int4 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image2d_array_t image, sampler_t sampler, float4 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image1d_t image, int coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image2d_t image, int2 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image3d_t image, int4 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image1d_array_t image, int2 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image2d_array_t image, int4 coord );
+half4 __attribute__((overloadable)) read_imageh(read_only image1d_buffer_t image, int coord );
+
+void __attribute__((overloadable)) write_imageh(write_only image1d_t image, int coord, half4 color );
+void __attribute__((overloadable)) write_imageh(write_only image2d_t image, int2 coord, half4 color );
+void __attribute__((overloadable)) write_imageh(write_only image3d_t image, int4 coord, half4 color );
+void __attribute__((overloadable)) write_imageh(write_only image1d_array_t image, int2 coord, half4 color );
+void __attribute__((overloadable)) write_imageh(write_only image2d_array_t image, int4 coord, half4 color );
+void __attribute__((overloadable)) write_imageh(write_only image1d_buffer_t image, int coord, half4 color );
+#endif // cl_khr_fp16
+
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ == 120
+// Async Copies
+
+event_t __attribute__((overloadable)) async_work_group_copy(__local double *dst, const __global double *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__local double2 *dst, const __global double2 *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__local double3 *dst, const __global double3 *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__local double4 *dst, const __global double4 *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__local double8 *dst, const __global double8 *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__local double16 *dst, const __global double16 *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__global double *dst, const __local double *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__global double2 *dst, const __local double2 *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__global double3 *dst, const __local double3 *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__global double4 *dst, const __local double4 *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__global double8 *dst, const __local double8 *src, size_t num_elements, event_t event);
+event_t __attribute__((overloadable)) async_work_group_copy(__global double16 *dst, const __local double16 *src, size_t num_elements, event_t event);
+#ifdef cl_khr_fp16
 event_t __attribute__((overloadable)) async_work_group_copy(__local half *dst, const __global half *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__local half2 *dst, const __global half2 *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__local half3 *dst, const __global half3 *src, size_t num_elements, event_t event);
@@ -12116,7 +11710,21 @@ event_t __attribute__((overloadable)) async_work_group_copy(__global half3 *dst,
 event_t __attribute__((overloadable)) async_work_group_copy(__global half4 *dst, const __local half4 *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__global half8 *dst, const __local half8 *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__global half16 *dst, const __local half16 *src, size_t num_elements, event_t event);
+#endif //cl_khr_fp16
 
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double *dst, const __global double *src, size_t num_elements, size_t src_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double2 *dst, const __global double2 *src, size_t num_elements, size_t src_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double3 *dst, const __global double3 *src, size_t num_elements, size_t src_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double4 *dst, const __global double4 *src, size_t num_elements, size_t src_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double8 *dst, const __global double8 *src, size_t num_elements, size_t src_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double16 *dst, const __global double16 *src, size_t num_elements, size_t src_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double *dst, const __local double *src, size_t num_elements, size_t dst_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double2 *dst, const __local double2 *src, size_t num_elements, size_t dst_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double3 *dst, const __local double3 *src, size_t num_elements, size_t dst_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double4 *dst, const __local double4 *src, size_t num_elements, size_t dst_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double8 *dst, const __local double8 *src, size_t num_elements, size_t dst_stride, event_t event);
+event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double16 *dst, const __local double16 *src, size_t num_elements, size_t dst_stride, event_t event);
+#ifdef cl_khr_fp16
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local half *dst, const __global half *src, size_t num_elements, size_t src_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local half2 *dst, const __global half2 *src, size_t num_elements, size_t src_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local half3 *dst, const __global half3 *src, size_t num_elements, size_t src_stride, event_t event);
@@ -12129,8 +11737,386 @@ event_t __attribute__((overloadable)) async_work_group_strided_copy(__global hal
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global half4 *dst, const __local half4 *src, size_t num_elements, size_t dst_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global half8 *dst, const __local half8 *src, size_t num_elements, size_t dst_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global half16 *dst, const __local half16 *src, size_t num_elements, size_t dst_stride, event_t event);
+#endif //cl_khr_fp16
 
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ == 120
+
+/**
+ * Returns fmin( x - floor (x), 0x1.fffffep-1f ).
+ * floor(x) is returned in iptr.
+ */
+float __attribute__((overloadable)) fract(float x, __global float *iptr);
+float2 __attribute__((overloadable)) fract(float2 x, __global float2 *iptr);
+float3 __attribute__((overloadable)) fract(float3 x, __global float3 *iptr);
+float4 __attribute__((overloadable)) fract(float4 x, __global float4 *iptr);
+float8 __attribute__((overloadable)) fract(float8 x, __global float8 *iptr);
+float16 __attribute__((overloadable)) fract(float16 x, __global float16 *iptr);
+float __attribute__((overloadable)) fract(float x, __local float *iptr);
+float2 __attribute__((overloadable)) fract(float2 x, __local float2 *iptr);
+float3 __attribute__((overloadable)) fract(float3 x, __local float3 *iptr);
+float4 __attribute__((overloadable)) fract(float4 x, __local float4 *iptr);
+float8 __attribute__((overloadable)) fract(float8 x, __local float8 *iptr);
+float16 __attribute__((overloadable)) fract(float16 x, __local float16 *iptr);
+float __attribute__((overloadable)) fract(float x, __private float *iptr);
+float2 __attribute__((overloadable)) fract(float2 x, __private float2 *iptr);
+float3 __attribute__((overloadable)) fract(float3 x, __private float3 *iptr);
+float4 __attribute__((overloadable)) fract(float4 x, __private float4 *iptr);
+float8 __attribute__((overloadable)) fract(float8 x, __private float8 *iptr);
+float16 __attribute__((overloadable)) fract(float16 x, __private float16 *iptr);
+double __attribute__((overloadable)) fract(double x, __global double *iptr);
+double2 __attribute__((overloadable)) fract(double2 x, __global double2 *iptr);
+double3 __attribute__((overloadable)) fract(double3 x, __global double3 *iptr);
+double4 __attribute__((overloadable)) fract(double4 x, __global double4 *iptr);
+double8 __attribute__((overloadable)) fract(double8 x, __global double8 *iptr);
+double16 __attribute__((overloadable)) fract(double16 x, __global double16 *iptr);
+double __attribute__((overloadable)) fract(double x, __local double *iptr);
+double2 __attribute__((overloadable)) fract(double2 x, __local double2 *iptr);
+double3 __attribute__((overloadable)) fract(double3 x, __local double3 *iptr);
+double4 __attribute__((overloadable)) fract(double4 x, __local double4 *iptr);
+double8 __attribute__((overloadable)) fract(double8 x, __local double8 *iptr);
+double16 __attribute__((overloadable)) fract(double16 x, __local double16 *iptr);
+double __attribute__((overloadable)) fract(double x, __private double *iptr);
+double2 __attribute__((overloadable)) fract(double2 x, __private double2 *iptr);
+double3 __attribute__((overloadable)) fract(double3 x, __private double3 *iptr);
+double4 __attribute__((overloadable)) fract(double4 x, __private double4 *iptr);
+double8 __attribute__((overloadable)) fract(double8 x, __private double8 *iptr);
+double16 __attribute__((overloadable)) fract(double16 x, __private double16 *iptr);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) fract(half x, __global half *iptr);
+half2 __attribute__((overloadable)) fract(half2 x, __global half2 *iptr);
+half3 __attribute__((overloadable)) fract(half3 x, __global half3 *iptr);
+half4 __attribute__((overloadable)) fract(half4 x, __global half4 *iptr);
+half8 __attribute__((overloadable)) fract(half8 x, __global half8 *iptr);
+half16 __attribute__((overloadable)) fract(half16 x, __global half16 *iptr);
+half __attribute__((overloadable)) fract(half x, __local half *iptr);
+half2 __attribute__((overloadable)) fract(half2 x, __local half2 *iptr);
+half3 __attribute__((overloadable)) fract(half3 x, __local half3 *iptr);
+half4 __attribute__((overloadable)) fract(half4 x, __local half4 *iptr);
+half8 __attribute__((overloadable)) fract(half8 x, __local half8 *iptr);
+half16 __attribute__((overloadable)) fract(half16 x, __local half16 *iptr);
+half __attribute__((overloadable)) fract(half x, __private half *iptr);
+half2 __attribute__((overloadable)) fract(half2 x, __private half2 *iptr);
+half3 __attribute__((overloadable)) fract(half3 x, __private half3 *iptr);
+half4 __attribute__((overloadable)) fract(half4 x, __private half4 *iptr);
+half8 __attribute__((overloadable)) fract(half8 x, __private half8 *iptr);
+half16 __attribute__((overloadable)) fract(half16 x, __private half16 *iptr);
+#endif //cl_khr_fp16
+
+/**
+ * Extract mantissa and exponent from x. For each
+ * component the mantissa returned is a float with
+ * magnitude in the interval [1/2, 1) or 0. Each
+ * component of x equals mantissa returned * 2^exp.
+ */
+float __attribute__((overloadable)) frexp(float x, __global int *exp);
+float2 __attribute__((overloadable)) frexp(float2 x, __global int2 *exp);
+float3 __attribute__((overloadable)) frexp(float3 x, __global int3 *exp);
+float4 __attribute__((overloadable)) frexp(float4 x, __global int4 *exp);
+float8 __attribute__((overloadable)) frexp(float8 x, __global int8 *exp);
+float16 __attribute__((overloadable)) frexp(float16 x, __global int16 *exp);
+float __attribute__((overloadable)) frexp(float x, __local int *exp);
+float2 __attribute__((overloadable)) frexp(float2 x, __local int2 *exp);
+float3 __attribute__((overloadable)) frexp(float3 x, __local int3 *exp);
+float4 __attribute__((overloadable)) frexp(float4 x, __local int4 *exp);
+float8 __attribute__((overloadable)) frexp(float8 x, __local int8 *exp);
+float16 __attribute__((overloadable)) frexp(float16 x, __local int16 *exp);
+float __attribute__((overloadable)) frexp(float x, __private int *exp);
+float2 __attribute__((overloadable)) frexp(float2 x, __private int2 *exp);
+float3 __attribute__((overloadable)) frexp(float3 x, __private int3 *exp);
+float4 __attribute__((overloadable)) frexp(float4 x, __private int4 *exp);
+float8 __attribute__((overloadable)) frexp(float8 x, __private int8 *exp);
+float16 __attribute__((overloadable)) frexp(float16 x, __private int16 *exp);
+double __attribute__((overloadable)) frexp(double x, __global int *exp);
+double2 __attribute__((overloadable)) frexp(double2 x, __global int2 *exp);
+double3 __attribute__((overloadable)) frexp(double3 x, __global int3 *exp);
+double4 __attribute__((overloadable)) frexp(double4 x, __global int4 *exp);
+double8 __attribute__((overloadable)) frexp(double8 x, __global int8 *exp);
+double16 __attribute__((overloadable)) frexp(double16 x, __global int16 *exp);
+double __attribute__((overloadable)) frexp(double x, __local int *exp);
+double2 __attribute__((overloadable)) frexp(double2 x, __local int2 *exp);
+double3 __attribute__((overloadable)) frexp(double3 x, __local int3 *exp);
+double4 __attribute__((overloadable)) frexp(double4 x, __local int4 *exp);
+double8 __attribute__((overloadable)) frexp(double8 x, __local int8 *exp);
+double16 __attribute__((overloadable)) frexp(double16 x, __local int16 *exp);
+double __attribute__((overloadable)) frexp(double x, __private int *exp);
+double2 __attribute__((overloadable)) frexp(double2 x, __private int2 *exp);
+double3 __attribute__((overloadable)) frexp(double3 x, __private int3 *exp);
+double4 __attribute__((overloadable)) frexp(double4 x, __private int4 *exp);
+double8 __attribute__((overloadable)) frexp(double8 x, __private int8 *exp);
+double16 __attribute__((overloadable)) frexp(double16 x, __private int16 *exp);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) frexp(half x, __global int *exp);
+half2 __attribute__((overloadable)) frexp(half2 x, __global int2 *exp);
+half3 __attribute__((overloadable)) frexp(half3 x, __global int3 *exp);
+half4 __attribute__((overloadable)) frexp(half4 x, __global int4 *exp);
+half8 __attribute__((overloadable)) frexp(half8 x, __global int8 *exp);
+half16 __attribute__((overloadable)) frexp(half16 x, __global int16 *exp);
+half __attribute__((overloadable)) frexp(half x, __local int *exp);
+half2 __attribute__((overloadable)) frexp(half2 x, __local int2 *exp);
+half3 __attribute__((overloadable)) frexp(half3 x, __local int3 *exp);
+half4 __attribute__((overloadable)) frexp(half4 x, __local int4 *exp);
+half8 __attribute__((overloadable)) frexp(half8 x, __local int8 *exp);
+half16 __attribute__((overloadable)) frexp(half16 x, __local int16 *exp);
+half __attribute__((overloadable)) frexp(half x, __private int *exp);
+half2 __attribute__((overloadable)) frexp(half2 x, __private int2 *exp);
+half3 __attribute__((overloadable)) frexp(half3 x, __private int3 *exp);
+half4 __attribute__((overloadable)) frexp(half4 x, __private int4 *exp);
+half8 __attribute__((overloadable)) frexp(half8 x, __private int8 *exp);
+half16 __attribute__((overloadable)) frexp(half16 x, __private int16 *exp);
+#endif //cl_khr_fp16
+float __attribute__((overloadable)) lgamma_r(float x, __global int *signp);
+float2 __attribute__((overloadable)) lgamma_r(float2 x, __global int2 *signp);
+float3 __attribute__((overloadable)) lgamma_r(float3 x, __global int3 *signp);
+float4 __attribute__((overloadable)) lgamma_r(float4 x, __global int4 *signp);
+float8 __attribute__((overloadable)) lgamma_r(float8 x, __global int8 *signp);
+float16 __attribute__((overloadable)) lgamma_r(float16 x, __global int16 *signp);
+float __attribute__((overloadable)) lgamma_r(float x, __local int *signp);
+float2 __attribute__((overloadable)) lgamma_r(float2 x, __local int2 *signp);
+float3 __attribute__((overloadable)) lgamma_r(float3 x, __local int3 *signp);
+float4 __attribute__((overloadable)) lgamma_r(float4 x, __local int4 *signp);
+float8 __attribute__((overloadable)) lgamma_r(float8 x, __local int8 *signp);
+float16 __attribute__((overloadable)) lgamma_r(float16 x, __local int16 *signp);
+float __attribute__((overloadable)) lgamma_r(float x, __private int *signp);
+float2 __attribute__((overloadable)) lgamma_r(float2 x, __private int2 *signp);
+float3 __attribute__((overloadable)) lgamma_r(float3 x, __private int3 *signp);
+float4 __attribute__((overloadable)) lgamma_r(float4 x, __private int4 *signp);
+float8 __attribute__((overloadable)) lgamma_r(float8 x, __private int8 *signp);
+float16 __attribute__((overloadable)) lgamma_r(float16 x, __private int16 *signp);
+double __attribute__((overloadable)) lgamma_r(double x, __global int *signp);
+double2 __attribute__((overloadable)) lgamma_r(double2 x, __global int2 *signp);
+double3 __attribute__((overloadable)) lgamma_r(double3 x, __global int3 *signp);
+double4 __attribute__((overloadable)) lgamma_r(double4 x, __global int4 *signp);
+double8 __attribute__((overloadable)) lgamma_r(double8 x, __global int8 *signp);
+double16 __attribute__((overloadable)) lgamma_r(double16 x, __global int16 *signp);
+double __attribute__((overloadable)) lgamma_r(double x, __local int *signp);
+double2 __attribute__((overloadable)) lgamma_r(double2 x, __local int2 *signp);
+double3 __attribute__((overloadable)) lgamma_r(double3 x, __local int3 *signp);
+double4 __attribute__((overloadable)) lgamma_r(double4 x, __local int4 *signp);
+double8 __attribute__((overloadable)) lgamma_r(double8 x, __local int8 *signp);
+double16 __attribute__((overloadable)) lgamma_r(double16 x, __local int16 *signp);
+double __attribute__((overloadable)) lgamma_r(double x, __private int *signp);
+double2 __attribute__((overloadable)) lgamma_r(double2 x, __private int2 *signp);
+double3 __attribute__((overloadable)) lgamma_r(double3 x, __private int3 *signp);
+double4 __attribute__((overloadable)) lgamma_r(double4 x, __private int4 *signp);
+double8 __attribute__((overloadable)) lgamma_r(double8 x, __private int8 *signp);
+double16 __attribute__((overloadable)) lgamma_r(double16 x, __private int16 *signp);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) lgamma_r(half x, __global int *signp);
+half2 __attribute__((overloadable)) lgamma_r(half2 x, __global int2 *signp);
+half3 __attribute__((overloadable)) lgamma_r(half3 x, __global int3 *signp);
+half4 __attribute__((overloadable)) lgamma_r(half4 x, __global int4 *signp);
+half8 __attribute__((overloadable)) lgamma_r(half8 x, __global int8 *signp);
+half16 __attribute__((overloadable)) lgamma_r(half16 x, __global int16 *signp);
+half __attribute__((overloadable)) lgamma_r(half x, __local int *signp);
+half2 __attribute__((overloadable)) lgamma_r(half2 x, __local int2 *signp);
+half3 __attribute__((overloadable)) lgamma_r(half3 x, __local int3 *signp);
+half4 __attribute__((overloadable)) lgamma_r(half4 x, __local int4 *signp);
+half8 __attribute__((overloadable)) lgamma_r(half8 x, __local int8 *signp);
+half16 __attribute__((overloadable)) lgamma_r(half16 x, __local int16 *signp);
+half __attribute__((overloadable)) lgamma_r(half x, __private int *signp);
+half2 __attribute__((overloadable)) lgamma_r(half2 x, __private int2 *signp);
+half3 __attribute__((overloadable)) lgamma_r(half3 x, __private int3 *signp);
+half4 __attribute__((overloadable)) lgamma_r(half4 x, __private int4 *signp);
+half8 __attribute__((overloadable)) lgamma_r(half8 x, __private int8 *signp);
+half16 __attribute__((overloadable)) lgamma_r(half16 x, __private int16 *signp);
+#endif //cl_khr_fp16
+
+/**
+ * The remquo function computes the value r such
+ * that r = x - n*y, where n is the integer nearest the
+ * exact value of x/y. If there are two integers closest
+ * to x/y, n shall be the even one. If r is zero, it is
+ * given the same sign as x. This is the same value
+ * that is returned by the remainder function.
+ * remquo also calculates the lower seven bits of the
+ * integral quotient x/y, and gives that value the same
+ * sign as x/y. It stores this signed value in the object
+ * pointed to by quo.
+ */
+float __attribute__((overloadable)) remquo(float x, float y, __global int *quo);
+float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __global int2 *quo);
+float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __global int3 *quo);
+float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __global int4 *quo);
+float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __global int8 *quo);
+float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __global int16 *quo);
+float __attribute__((overloadable)) remquo(float x, float y, __local int *quo);
+float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __local int2 *quo);
+float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __local int3 *quo);
+float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __local int4 *quo);
+float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __local int8 *quo);
+float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __local int16 *quo);
+float __attribute__((overloadable)) remquo(float x, float y, __private int *quo);
+float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __private int2 *quo);
+float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __private int3 *quo);
+float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __private int4 *quo);
+float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __private int8 *quo);
+float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __private int16 *quo);
+double __attribute__((overloadable)) remquo(double x, double y, __global int *quo);
+double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __global int2 *quo);
+double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __global int3 *quo);
+double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __global int4 *quo);
+double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __global int8 *quo);
+double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __global int16 *quo);
+double __attribute__((overloadable)) remquo(double x, double y, __local int *quo);
+double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __local int2 *quo);
+double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __local int3 *quo);
+double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __local int4 *quo);
+double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __local int8 *quo);
+double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __local int16 *quo);
+double __attribute__((overloadable)) remquo(double x, double y, __private int *quo);
+double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __private int2 *quo);
+double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __private int3 *quo);
+double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __private int4 *quo);
+double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __private int8 *quo);
+double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __private int16 *quo);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) remquo(half x, half y, __global int *quo);
+half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __global int2 *quo);
+half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __global int3 *quo);
+half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __global int4 *quo);
+half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __global int8 *quo);
+half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __global int16 *quo);
+half __attribute__((overloadable)) remquo(half x, half y, __local int *quo);
+half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __local int2 *quo);
+half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __local int3 *quo);
+half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __local int4 *quo);
+half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __local int8 *quo);
+half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __local int16 *quo);
+half __attribute__((overloadable)) remquo(half x, half y, __private int *quo);
+half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __private int2 *quo);
+half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __private int3 *quo);
+half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __private int4 *quo);
+half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __private int8 *quo);
+half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __private int16 *quo);
+#endif //cl_khr_fp16
+
+/**
+ * Compute sine and cosine of x. The computed sine
+ * is the return value and computed cosine is returned
+ * in cosval.
+ */
+float __attribute__((overloadable)) sincos(float x, __global float *cosval);
+float2 __attribute__((overloadable)) sincos(float2 x, __global float2 *cosval);
+float3 __attribute__((overloadable)) sincos(float3 x, __global float3 *cosval);
+float4 __attribute__((overloadable)) sincos(float4 x, __global float4 *cosval);
+float8 __attribute__((overloadable)) sincos(float8 x, __global float8 *cosval);
+float16 __attribute__((overloadable)) sincos(float16 x, __global float16 *cosval);
+float __attribute__((overloadable)) sincos(float x, __local float *cosval);
+float2 __attribute__((overloadable)) sincos(float2 x, __local float2 *cosval);
+float3 __attribute__((overloadable)) sincos(float3 x, __local float3 *cosval);
+float4 __attribute__((overloadable)) sincos(float4 x, __local float4 *cosval);
+float8 __attribute__((overloadable)) sincos(float8 x, __local float8 *cosval);
+float16 __attribute__((overloadable)) sincos(float16 x, __local float16 *cosval);
+float __attribute__((overloadable)) sincos(float x, __private float *cosval);
+float2 __attribute__((overloadable)) sincos(float2 x, __private float2 *cosval);
+float3 __attribute__((overloadable)) sincos(float3 x, __private float3 *cosval);
+float4 __attribute__((overloadable)) sincos(float4 x, __private float4 *cosval);
+float8 __attribute__((overloadable)) sincos(float8 x, __private float8 *cosval);
+float16 __attribute__((overloadable)) sincos(float16 x, __private float16 *cosval);
+double __attribute__((overloadable)) sincos(double x, __global double *cosval);
+double2 __attribute__((overloadable)) sincos(double2 x, __global double2 *cosval);
+double3 __attribute__((overloadable)) sincos(double3 x, __global double3 *cosval);
+double4 __attribute__((overloadable)) sincos(double4 x, __global double4 *cosval);
+double8 __attribute__((overloadable)) sincos(double8 x, __global double8 *cosval);
+double16 __attribute__((overloadable)) sincos(double16 x, __global double16 *cosval);
+double __attribute__((overloadable)) sincos(double x, __local double *cosval);
+double2 __attribute__((overloadable)) sincos(double2 x, __local double2 *cosval);
+double3 __attribute__((overloadable)) sincos(double3 x, __local double3 *cosval);
+double4 __attribute__((overloadable)) sincos(double4 x, __local double4 *cosval);
+double8 __attribute__((overloadable)) sincos(double8 x, __local double8 *cosval);
+double16 __attribute__((overloadable)) sincos(double16 x, __local double16 *cosval);
+double __attribute__((overloadable)) sincos(double x, __private double *cosval);
+double2 __attribute__((overloadable)) sincos(double2 x, __private double2 *cosval);
+double3 __attribute__((overloadable)) sincos(double3 x, __private double3 *cosval);
+double4 __attribute__((overloadable)) sincos(double4 x, __private double4 *cosval);
+double8 __attribute__((overloadable)) sincos(double8 x, __private double8 *cosval);
+double16 __attribute__((overloadable)) sincos(double16 x, __private double16 *cosval);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) sincos(half x, __global half *cosval);
+half2 __attribute__((overloadable)) sincos(half2 x, __global half2 *cosval);
+half3 __attribute__((overloadable)) sincos(half3 x, __global half3 *cosval);
+half4 __attribute__((overloadable)) sincos(half4 x, __global half4 *cosval);
+half8 __attribute__((overloadable)) sincos(half8 x, __global half8 *cosval);
+half16 __attribute__((overloadable)) sincos(half16 x, __global half16 *cosval);
+half __attribute__((overloadable)) sincos(half x, __local half *cosval);
+half2 __attribute__((overloadable)) sincos(half2 x, __local half2 *cosval);
+half3 __attribute__((overloadable)) sincos(half3 x, __local half3 *cosval);
+half4 __attribute__((overloadable)) sincos(half4 x, __local half4 *cosval);
+half8 __attribute__((overloadable)) sincos(half8 x, __local half8 *cosval);
+half16 __attribute__((overloadable)) sincos(half16 x, __local half16 *cosval);
+half __attribute__((overloadable)) sincos(half x, __private half *cosval);
+half2 __attribute__((overloadable)) sincos(half2 x, __private half2 *cosval);
+half3 __attribute__((overloadable)) sincos(half3 x, __private half3 *cosval);
+half4 __attribute__((overloadable)) sincos(half4 x, __private half4 *cosval);
+half8 __attribute__((overloadable)) sincos(half8 x, __private half8 *cosval);
+half16 __attribute__((overloadable)) sincos(half16 x, __private half16 *cosval);
+#endif //cl_khr_fp16
+
+/**
+ * Decompose a floating-point number. The modf
+ * function breaks the argument x into integral and
+ * fractional parts, each of which has the same sign as
+ * the argument. It stores the integral part in the object
+ * pointed to by iptr.
+ */
+float __attribute__((overloadable)) modf(float x, __global float *iptr);
+float2 __attribute__((overloadable)) modf(float2 x, __global float2 *iptr);
+float3 __attribute__((overloadable)) modf(float3 x, __global float3 *iptr);
+float4 __attribute__((overloadable)) modf(float4 x, __global float4 *iptr);
+float8 __attribute__((overloadable)) modf(float8 x, __global float8 *iptr);
+float16 __attribute__((overloadable)) modf(float16 x, __global float16 *iptr);
+float __attribute__((overloadable)) modf(float x, __local float *iptr);
+float2 __attribute__((overloadable)) modf(float2 x, __local float2 *iptr);
+float3 __attribute__((overloadable)) modf(float3 x, __local float3 *iptr);
+float4 __attribute__((overloadable)) modf(float4 x, __local float4 *iptr);
+float8 __attribute__((overloadable)) modf(float8 x, __local float8 *iptr);
+float16 __attribute__((overloadable)) modf(float16 x, __local float16 *iptr);
+float __attribute__((overloadable)) modf(float x, __private float *iptr);
+float2 __attribute__((overloadable)) modf(float2 x, __private float2 *iptr);
+float3 __attribute__((overloadable)) modf(float3 x, __private float3 *iptr);
+float4 __attribute__((overloadable)) modf(float4 x, __private float4 *iptr);
+float8 __attribute__((overloadable)) modf(float8 x, __private float8 *iptr);
+float16 __attribute__((overloadable)) modf(float16 x, __private float16 *iptr);
+double __attribute__((overloadable)) modf(double x, __global double *iptr);
+double2 __attribute__((overloadable)) modf(double2 x, __global double2 *iptr);
+double3 __attribute__((overloadable)) modf(double3 x, __global double3 *iptr);
+double4 __attribute__((overloadable)) modf(double4 x, __global double4 *iptr);
+double8 __attribute__((overloadable)) modf(double8 x, __global double8 *iptr);
+double16 __attribute__((overloadable)) modf(double16 x, __global double16 *iptr);
+double __attribute__((overloadable)) modf(double x, __local double *iptr);
+double2 __attribute__((overloadable)) modf(double2 x, __local double2 *iptr);
+double3 __attribute__((overloadable)) modf(double3 x, __local double3 *iptr);
+double4 __attribute__((overloadable)) modf(double4 x, __local double4 *iptr);
+double8 __attribute__((overloadable)) modf(double8 x, __local double8 *iptr);
+double16 __attribute__((overloadable)) modf(double16 x, __local double16 *iptr);
+double __attribute__((overloadable)) modf(double x, __private double *iptr);
+double2 __attribute__((overloadable)) modf(double2 x, __private double2 *iptr);
+double3 __attribute__((overloadable)) modf(double3 x, __private double3 *iptr);
+double4 __attribute__((overloadable)) modf(double4 x, __private double4 *iptr);
+double8 __attribute__((overloadable)) modf(double8 x, __private double8 *iptr);
+double16 __attribute__((overloadable)) modf(double16 x, __private double16 *iptr);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) modf( half x, __global half *iptr );
+half2 __attribute__((overloadable)) modf( half2 x, __global half2 *iptr );
+half3 __attribute__((overloadable)) modf( half3 x, __global half3 *iptr );
+half4 __attribute__((overloadable)) modf( half4 x, __global half4 *iptr );
+half8 __attribute__((overloadable)) modf( half8 x, __global half8 *iptr );
+half16 __attribute__((overloadable)) modf( half16 x, __global half16 *iptr );
+half __attribute__((overloadable)) modf( half x, __local half *iptr );
+half2 __attribute__((overloadable)) modf( half2 x, __local half2 *iptr );
+half3 __attribute__((overloadable)) modf( half3 x, __local half3 *iptr );
+half4 __attribute__((overloadable)) modf( half4 x, __local half4 *iptr );
+half8 __attribute__((overloadable)) modf( half8 x, __local half8 *iptr );
+half16 __attribute__((overloadable)) modf( half16 x, __local half16 *iptr );
+half __attribute__((overloadable)) modf( half x, __private half *iptr );
+half2 __attribute__((overloadable)) modf( half2 x, __private half2 *iptr );
+half3 __attribute__((overloadable)) modf( half3 x, __private half3 *iptr );
+half4 __attribute__((overloadable)) modf( half4 x, __private half4 *iptr );
+half8 __attribute__((overloadable)) modf( half8 x, __private half8 *iptr );
+half16 __attribute__((overloadable)) modf( half16 x, __private half16 *iptr );
+#endif //cl_khr_fp16
+
+// ToDo: reorganize
+#ifdef cl_khr_fp16
 void __attribute__((overloadable)) prefetch(const __global half *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global half2 *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global half3 *p, size_t num_elements);
@@ -12183,9 +12169,9 @@ void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __private 
 void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __private half *p);
-#endif
-// defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ == 120
-
 #endif // cl_khr_fp16
+
+#endif // defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ == 120
+
 
 #endif
