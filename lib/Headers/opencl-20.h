@@ -3715,19 +3715,26 @@ float16 __const_func __attribute__((overloadable)) shuffle2(float4 x, float4 y, 
 float16 __const_func __attribute__((overloadable)) shuffle2(float8 x, float8 y, uint16 mask);
 float16 __const_func __attribute__((overloadable)) shuffle2(float16 x, float16 y, uint16 mask);
 
-// Built-in image functions
-// These values need to match the runtime equivalent
-#define CLK_ADDRESS_NONE              0x00
-#define CLK_ADDRESS_CLAMP             0x01
-#define CLK_ADDRESS_CLAMP_TO_EDGE     0x02
-#define CLK_ADDRESS_REPEAT            0x03
-#define CLK_ADDRESS_MIRRORED_REPEAT   0x04
+//
+// Addressing Mode.
+//
+#define CLK_ADDRESS_NONE                0
+#define CLK_ADDRESS_CLAMP_TO_EDGE       2
+#define CLK_ADDRESS_CLAMP               4
+#define CLK_ADDRESS_REPEAT              6
+#define CLK_ADDRESS_MIRRORED_REPEAT     8
 
-#define CLK_NORMALIZED_COORDS_FALSE   0x00
-#define CLK_NORMALIZED_COORDS_TRUE    0x08
+//
+// Coordination Normalization
+//
+#define CLK_NORMALIZED_COORDS_FALSE     0
+#define CLK_NORMALIZED_COORDS_TRUE      1
 
-#define CLK_FILTER_NEAREST            0x00
-#define CLK_FILTER_LINEAR             0x10
+//
+// Filtering Mode.
+//
+#define CLK_FILTER_NEAREST              0x10
+#define CLK_FILTER_LINEAR               0x20
 
 /**
  * Use the coordinate (x, y) to do an element lookup in
