@@ -58,12 +58,9 @@ class CGDebugInfo {
   llvm::DIType ClassTy;
   llvm::DICompositeType ObjTy;
   llvm::DIType SelTy;
-  llvm::DIType OCLImage1dDITy, OCLImage1dArrayDITy, OCLImage1dBufferDITy;
-  llvm::DIType OCLImage2dDITy, OCLImage2dArrayDITy;
-  llvm::DIType OCLImage3dDITy;
-  llvm::DIType OCLImage2dDepthDITy, OCLImage2dMSAADITy, OCLImage2dMSAADepthDITy;
-  llvm::DIType OCLImage2dArrayMSAADepthDITy, OCLImage2dArrayMSAADITy;
-  llvm::DIType OCLImage2dArrayDepthDITy;
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) \
+  llvm::DIType SingletonId;
+#include "clang/Basic/OpenCLImageTypes.def"
 
   llvm::DIType OCLEventDITy;
   llvm::DIType OCLQueueDITy;

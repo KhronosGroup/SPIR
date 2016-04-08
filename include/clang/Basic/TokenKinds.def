@@ -488,23 +488,12 @@ ALIAS("write_only", __write_only    , KEYOPENCL)
 ALIAS("read_write", __read_write    , KEYOPENCL)
 // OpenCL builtins
 KEYWORD(__builtin_astype            , KEYOPENCL)
-KEYWORD(image1d_t                   , KEYOPENCL)
-KEYWORD(image1d_array_t             , KEYOPENCL)
-KEYWORD(image1d_buffer_t            , KEYOPENCL)
-KEYWORD(image2d_t                   , KEYOPENCL)
-KEYWORD(image2d_array_t             , KEYOPENCL)
-KEYWORD(image3d_t                   , KEYOPENCL)
-
-KEYWORD(image2d_depth_t             , KEYOPENCL)
-KEYWORD(image2d_msaa_t              , KEYOPENCL)
-KEYWORD(image2d_msaa_depth_t        , KEYOPENCL)
-KEYWORD(image2d_array_msaa_depth_t  , KEYOPENCL)
-KEYWORD(image2d_array_msaa_t        , KEYOPENCL)
-KEYWORD(image2d_array_depth_t       , KEYOPENCL)
+KEYWORD(vec_step                    , KEYOPENCL|KEYALTIVEC)
+#define GENERIC_IMAGE_TYPE(ImgType, Id) KEYWORD(ImgType##_t, KEYOPENCL)
+#include "clang/Basic/OpenCLImageTypes.def"
 
 KEYWORD(sampler_t                   , KEYOPENCL)
 KEYWORD(event_t                     , KEYOPENCL)
-KEYWORD(vec_step                    , KEYOPENCL|KEYALTIVEC)
 
 // OpenCL 2.0
 KEYWORD(queue_t                     , KEYOPENCL)

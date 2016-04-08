@@ -3206,55 +3206,6 @@ void Parser::ParseDeclarationSpecifiers(DeclSpec &DS,
     case tok::kw___bool:
       isInvalid = DS.SetTypeAltiVecBool(true, Loc, PrevSpec, DiagID, Policy);
       break;
-    case tok::kw_image1d_t:
-       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image1d_t, Loc,
-                                      PrevSpec, DiagID, Policy);
-      break;
-    case tok::kw_image1d_array_t:
-       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image1d_array_t, Loc,
-                                      PrevSpec, DiagID, Policy);
-      break;
-    case tok::kw_image1d_buffer_t:
-       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image1d_buffer_t, Loc,
-                                      PrevSpec, DiagID, Policy);
-      break;
-    case tok::kw_image2d_t:
-       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_t, Loc,
-                                      PrevSpec, DiagID, Policy);
-      break;
-    case tok::kw_image2d_array_t:
-       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_t, Loc,
-                                      PrevSpec, DiagID, Policy);
-      break;
-    case tok::kw_image3d_t:
-      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image3d_t, Loc,
-                                     PrevSpec, DiagID, Policy);
-      break;
-
-    case tok::kw_image2d_depth_t:
-      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_depth_t, Loc,
-                                     PrevSpec, DiagID, Policy);
-      break;
-    case tok::kw_image2d_msaa_t:
-      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_msaa_t, Loc,
-                                     PrevSpec, DiagID, Policy);
-      break;
-    case tok::kw_image2d_msaa_depth_t:
-      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_msaa_depth_t, Loc,
-                                     PrevSpec, DiagID, Policy);
-      break;
-    case tok::kw_image2d_array_msaa_depth_t:
-      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_msaa_depth_t, Loc,
-                                     PrevSpec, DiagID, Policy);
-      break;
-    case tok::kw_image2d_array_msaa_t:
-      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_msaa_t, Loc,
-                                     PrevSpec, DiagID, Policy);
-      break;
-    case tok::kw_image2d_array_depth_t:
-      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_image2d_array_depth_t, Loc,
-                                     PrevSpec, DiagID, Policy);
-      break;
     case tok::kw_sampler_t:
       isInvalid = DS.SetTypeSpecType(DeclSpec::TST_sampler_t, Loc,
                                      PrevSpec, DiagID, Policy);
@@ -3285,6 +3236,12 @@ void Parser::ParseDeclarationSpecifiers(DeclSpec &DS,
       }
       isInvalid = DS.SetTypePipe(true, Loc, PrevSpec, DiagID, Policy);
       break;
+#define GENERIC_IMAGE_TYPE(ImgType, Id) \
+    case tok::kw_##ImgType##_t: \
+      isInvalid = DS.SetTypeSpecType(DeclSpec::TST_##ImgType##_t, Loc, PrevSpec, \
+                                     DiagID, Policy); \
+      break;
+#include "clang/Basic/OpenCLImageTypes.def"
     case tok::kw___unknown_anytype:
       isInvalid = DS.SetTypeSpecType(TST_unknown_anytype, Loc,
                                      PrevSpec, DiagID, Policy);
@@ -4170,20 +4127,10 @@ bool Parser::isKnownToBeTypeSpecifier(const Token &Tok) const {
   case tok::kw__Decimal64:
   case tok::kw__Decimal128:
   case tok::kw___vector:
+#define GENERIC_IMAGE_TYPE(ImgType, Id) case tok::kw_##ImgType##_t:
+#include "clang/Basic/OpenCLImageTypes.def"
 
     // OpenCL specific types:
-  case tok::kw_image1d_t:
-  case tok::kw_image1d_array_t:
-  case tok::kw_image1d_buffer_t:
-  case tok::kw_image2d_t:
-  case tok::kw_image2d_array_t:
-  case tok::kw_image3d_t:
-  case tok::kw_image2d_depth_t:
-  case tok::kw_image2d_msaa_t:
-  case tok::kw_image2d_msaa_depth_t:
-  case tok::kw_image2d_array_msaa_depth_t:
-  case tok::kw_image2d_array_msaa_t:
-  case tok::kw_image2d_array_depth_t:
   case tok::kw_sampler_t:
   case tok::kw_event_t:
   case tok::kw_queue_t:
@@ -4261,19 +4208,9 @@ bool Parser::isTypeSpecifierQualifier() {
   case tok::kw__Decimal128:
   case tok::kw___vector:
 
-    // OpenCL specific types:
-  case tok::kw_image1d_t:
-  case tok::kw_image1d_array_t:
-  case tok::kw_image1d_buffer_t:
-  case tok::kw_image2d_t:
-  case tok::kw_image2d_array_t:
-  case tok::kw_image3d_t:
-  case tok::kw_image2d_depth_t:
-  case tok::kw_image2d_msaa_t:
-  case tok::kw_image2d_msaa_depth_t:
-  case tok::kw_image2d_array_msaa_depth_t:
-  case tok::kw_image2d_array_msaa_t:
-  case tok::kw_image2d_array_depth_t:
+  // OpenCL specific types:
+#define GENERIC_IMAGE_TYPE(ImgType, Id) case tok::kw_##ImgType##_t:
+#include "clang/Basic/OpenCLImageTypes.def"
   case tok::kw_sampler_t:
   case tok::kw_event_t:
   case tok::kw_queue_t:
@@ -4430,24 +4367,22 @@ bool Parser::isDeclarationSpecifier(bool DisambiguatingWithExpression) {
   case tok::kw__Decimal128:
   case tok::kw___vector:
 
-    // OpenCL specific types:
-  case tok::kw_image1d_t:
-  case tok::kw_image1d_array_t:
-  case tok::kw_image1d_buffer_t:
-  case tok::kw_image2d_t:
-  case tok::kw_image2d_array_t:
-  case tok::kw_image3d_t:
-  case tok::kw_image2d_depth_t:
-  case tok::kw_image2d_msaa_t:
-  case tok::kw_image2d_msaa_depth_t:
-  case tok::kw_image2d_array_msaa_depth_t:
-  case tok::kw_image2d_array_msaa_t:
-  case tok::kw_image2d_array_depth_t:
+  // OpenCL specific types:
+#define GENERIC_IMAGE_TYPE(ImgType, Id) case tok::kw_##ImgType##_t:
+#include "clang/Basic/OpenCLImageTypes.def"
   case tok::kw_sampler_t:
   case tok::kw_event_t:
   case tok::kw_queue_t:
   case tok::kw_clk_event_t:
   case tok::kw_reserve_id_t:
+  case tok::kw___private:
+  case tok::kw___local:
+  case tok::kw___global:
+  case tok::kw___constant:
+  case tok::kw___generic:
+  case tok::kw___read_only:
+  case tok::kw___read_write:
+  case tok::kw___write_only:
 
     // struct-or-union-specifier (C99) or class-specifier (C++)
   case tok::kw_class:
@@ -4514,15 +4449,6 @@ bool Parser::isDeclarationSpecifier(bool DisambiguatingWithExpression) {
   case tok::kw___forceinline:
   case tok::kw___pascal:
   case tok::kw___unaligned:
-
-  case tok::kw___private:
-  case tok::kw___local:
-  case tok::kw___global:
-  case tok::kw___constant:
-  case tok::kw___generic:
-  case tok::kw___read_only:
-  case tok::kw___read_write:
-  case tok::kw___write_only:
 
     return true;
   }
