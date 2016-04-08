@@ -10,6 +10,500 @@
 
 #include "opencl-common.h"
 
+// Atomic functions
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old + val) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_add(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_add(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_add(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_add(volatile __local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_add(__global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_add(__global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_add(__local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_add(__local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_add(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_add(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_add(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_add(volatile __local unsigned int *p, unsigned int val);
+
+/**
+ * unsigned int atomic_sub (
+ * volatile __global unsigned int *p,
+ * unsigned int val)
+ * int atomic_sub (volatile __local int *p, int val)
+ * unsigned int atomic_sub (
+ * volatile __local unsigned int *p,
+ * unsigned int val)
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old - val) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_sub(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_sub(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_sub(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_sub(volatile __local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_sub(__global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_sub(__global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_sub(__local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_sub(__local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_sub(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_sub(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_sub(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_sub(volatile __local unsigned int *p, unsigned int val);
+
+/**
+ * Swaps the old value stored at location p
+ * with new value given by val. Returns old
+ * value.
+ */
+int __attribute__((overloadable)) atomic_xchg(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_xchg(volatile __global unsigned int *p, unsigned int val);
+float __attribute__((overloadable)) atomic_xchg(volatile __global float *p, float val);
+int __attribute__((overloadable)) atomic_xchg(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_xchg(volatile __local unsigned int *p, unsigned int val);
+float __attribute__((overloadable)) atomic_xchg(volatile __local float *p, float val);
+
+int __attribute__((overloadable)) atom_xchg(__global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xchg(__global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_xchg(__local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xchg(__local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_xchg(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xchg(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_xchg(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xchg(volatile __local unsigned int *p, unsigned int val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old + 1) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_inc(volatile __global int *p);
+unsigned int __attribute__((overloadable)) atomic_inc(volatile __global unsigned int *p);
+int __attribute__((overloadable)) atomic_inc(volatile __local int *p);
+unsigned int __attribute__((overloadable)) atomic_inc(volatile __local unsigned int *p);
+
+int __attribute__((overloadable)) atom_inc(__global int *p);
+unsigned int __attribute__((overloadable)) atom_inc(__global unsigned int *p);
+int __attribute__((overloadable)) atom_inc(__local int *p);
+unsigned int __attribute__((overloadable)) atom_inc(__local unsigned int *p);
+
+int __attribute__((overloadable)) atom_inc(volatile __global int *p);
+unsigned int __attribute__((overloadable)) atom_inc(volatile __global unsigned int *p);
+int __attribute__((overloadable)) atom_inc(volatile __local int *p);
+unsigned int __attribute__((overloadable)) atom_inc(volatile __local unsigned int *p);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old - 1) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_dec(volatile __global int *p);
+unsigned int __attribute__((overloadable)) atomic_dec(volatile __global unsigned int *p);
+int __attribute__((overloadable)) atomic_dec(volatile __local int *p);
+unsigned int __attribute__((overloadable)) atomic_dec(volatile __local unsigned int *p);
+
+int __attribute__((overloadable)) atom_dec(__global int *p);
+unsigned int __attribute__((overloadable)) atom_dec(__global unsigned int *p);
+int __attribute__((overloadable)) atom_dec(__local int *p);
+unsigned int __attribute__((overloadable)) atom_dec(__local unsigned int *p);
+
+int __attribute__((overloadable)) atom_dec(volatile __global int *p);
+unsigned int __attribute__((overloadable)) atom_dec(volatile __global unsigned int *p);
+int __attribute__((overloadable)) atom_dec(volatile __local int *p);
+unsigned int __attribute__((overloadable)) atom_dec(volatile __local unsigned int *p);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old == cmp) ? val : old and store result at
+ * location pointed by p. The function
+ * returns old.
+ */
+int __attribute__((overloadable)) atomic_cmpxchg(volatile __global int *p, int cmp, int val);
+unsigned int __attribute__((overloadable)) atomic_cmpxchg(volatile __global unsigned int *p, unsigned int cmp, unsigned int val);
+int __attribute__((overloadable)) atomic_cmpxchg(volatile __local int *p, int cmp, int val);
+unsigned int __attribute__((overloadable)) atomic_cmpxchg(volatile __local unsigned int *p, unsigned int cmp, unsigned int val);
+
+int __attribute__((overloadable)) atom_cmpxchg(__global int *p, int cmp, int val);
+unsigned int __attribute__((overloadable)) atom_cmpxchg(__global unsigned int *p, unsigned int cmp, unsigned int val);
+int __attribute__((overloadable)) atom_cmpxchg(__local int *p, int cmp, int val);
+unsigned int __attribute__((overloadable)) atom_cmpxchg(__local unsigned int *p, unsigned int cmp, unsigned int val);
+
+int __attribute__((overloadable)) atom_cmpxchg(volatile __global int *p, int cmp, int val);
+unsigned int __attribute__((overloadable)) atom_cmpxchg(volatile __global unsigned int *p, unsigned int cmp, unsigned int val);
+int __attribute__((overloadable)) atom_cmpxchg(volatile __local int *p, int cmp, int val);
+unsigned int __attribute__((overloadable)) atom_cmpxchg(volatile __local unsigned int *p, unsigned int cmp, unsigned int val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * min(old, val) and store minimum value at
+ * location pointed by p. The function
+ * returns old.
+ */
+int __attribute__((overloadable)) atomic_min(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_min(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_min(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_min(volatile __local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_min(__global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_min(__global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_min(__local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_min(__local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_min(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_min(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_min(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_min(volatile __local unsigned int *p, unsigned int val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * max(old, val) and store maximum value at
+ * location pointed by p. The function
+ * returns old.
+ */
+int __attribute__((overloadable)) atomic_max(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_max(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_max(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_max(volatile __local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_max(__global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_max(__global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_max(__local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_max(__local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_max(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_max(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_max(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_max(volatile __local unsigned int *p, unsigned int val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old & val) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_and(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_and(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_and(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_and(volatile __local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_and(__global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_and(__global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_and(__local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_and(__local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_and(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_and(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_and(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_and(volatile __local unsigned int *p, unsigned int val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old | val) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_or(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_or(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_or(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_or(volatile __local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_or(__global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_or(__global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_or(__local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_or(__local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_or(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_or(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_or(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_or(volatile __local unsigned int *p, unsigned int val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old ^ val) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_xor(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_xor(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_xor(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_xor(volatile __local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_xor(__global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xor(__global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_xor(__local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xor(__local unsigned int *p, unsigned int val);
+
+int __attribute__((overloadable)) atom_xor(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xor(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_xor(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xor(volatile __local unsigned int *p, unsigned int val);
+
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#pragma OPENCL EXTENSION cl_khr_int64_base_atomics : enable
+#pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : enable
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location polonged by p. Compute
+ * (old + val) and store result at location
+ * polonged by p. The function returns old.
+ */
+long __attribute__((overloadable)) atomic_add(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_add(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atomic_add(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_add(volatile __local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_add(__global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_add(__global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_add(__local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_add(__local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_add(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_add(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_add(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_add(volatile __local unsigned long *p, unsigned long val);
+
+/**
+ * unsigned long atomic_sub (
+ * volatile __global unsigned long *p,
+ * unsigned long val)
+ * long atomic_sub (volatile __local long *p, long val)
+ * unsigned long atomic_sub (
+ * volatile __local unsigned long *p,
+ * unsigned long val)
+ * Read the 32-bit value (referred to as old)
+ * stored at location polonged by p. Compute
+ * (old - val) and store result at location
+ * polonged by p. The function returns old.
+ */
+long __attribute__((overloadable)) atomic_sub(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_sub(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atomic_sub(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_sub(volatile __local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_sub(__global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_sub(__global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_sub(__local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_sub(__local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_sub(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_sub(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_sub(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_sub(volatile __local unsigned long *p, unsigned long val);
+
+/**
+ * Swaps the old value stored at location p
+ * with new value given by val. Returns old
+ * value.
+ */
+long __attribute__((overloadable)) atomic_xchg(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_xchg(volatile __global unsigned long *p, unsigned long val);
+float __attribute__((overloadable)) atomic_xchg(volatile __global float *p, float val);
+long __attribute__((overloadable)) atomic_xchg(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_xchg(volatile __local unsigned long *p, unsigned long val);
+float __attribute__((overloadable)) atomic_xchg(volatile __local float *p, float val);
+
+long __attribute__((overloadable)) atom_xchg(__global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xchg(__global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_xchg(__local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xchg(__local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_xchg(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xchg(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_xchg(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xchg(volatile __local unsigned long *p, unsigned long val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location polonged by p. Compute
+ * (old + 1) and store result at location
+ * polonged by p. The function returns old.
+ */
+long __attribute__((overloadable)) atomic_inc(volatile __global long *p);
+unsigned long __attribute__((overloadable)) atomic_inc(volatile __global unsigned long *p);
+long __attribute__((overloadable)) atomic_inc(volatile __local long *p);
+unsigned long __attribute__((overloadable)) atomic_inc(volatile __local unsigned long *p);
+
+long __attribute__((overloadable)) atom_inc(__global long *p);
+unsigned long __attribute__((overloadable)) atom_inc(__global unsigned long *p);
+long __attribute__((overloadable)) atom_inc(__local long *p);
+unsigned long __attribute__((overloadable)) atom_inc(__local unsigned long *p);
+
+long __attribute__((overloadable)) atom_inc(volatile __global long *p);
+unsigned long __attribute__((overloadable)) atom_inc(volatile __global unsigned long *p);
+long __attribute__((overloadable)) atom_inc(volatile __local long *p);
+unsigned long __attribute__((overloadable)) atom_inc(volatile __local unsigned long *p);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location polonged by p. Compute
+ * (old - 1) and store result at location
+ * polonged by p. The function returns old.
+ */
+long __attribute__((overloadable)) atomic_dec(volatile __global long *p);
+unsigned long __attribute__((overloadable)) atomic_dec(volatile __global unsigned long *p);
+long __attribute__((overloadable)) atomic_dec(volatile __local long *p);
+unsigned long __attribute__((overloadable)) atomic_dec(volatile __local unsigned long *p);
+
+long __attribute__((overloadable)) atom_dec(__global long *p);
+unsigned long __attribute__((overloadable)) atom_dec(__global unsigned long *p);
+long __attribute__((overloadable)) atom_dec(__local long *p);
+unsigned long __attribute__((overloadable)) atom_dec(__local unsigned long *p);
+
+long __attribute__((overloadable)) atom_dec(volatile __global long *p);
+unsigned long __attribute__((overloadable)) atom_dec(volatile __global unsigned long *p);
+long __attribute__((overloadable)) atom_dec(volatile __local long *p);
+unsigned long __attribute__((overloadable)) atom_dec(volatile __local unsigned long *p);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location polonged by p. Compute
+ * (old == cmp) ? val : old and store result at
+ * location polonged by p. The function
+ * returns old.
+ */
+long __attribute__((overloadable)) atomic_cmpxchg(volatile __global long *p, long cmp, long val);
+unsigned long __attribute__((overloadable)) atomic_cmpxchg(volatile __global unsigned long *p, unsigned long cmp, unsigned long val);
+long __attribute__((overloadable)) atomic_cmpxchg(volatile __local long *p, long cmp, long val);
+unsigned long __attribute__((overloadable)) atomic_cmpxchg(volatile __local unsigned long *p, unsigned long cmp, unsigned long val);
+
+long __attribute__((overloadable)) atom_cmpxchg(__global long *p, long cmp, long val);
+unsigned long __attribute__((overloadable)) atom_cmpxchg(__global unsigned long *p, unsigned long cmp, unsigned long val);
+long __attribute__((overloadable)) atom_cmpxchg(__local long *p, long cmp, long val);
+unsigned long __attribute__((overloadable)) atom_cmpxchg(__local unsigned long *p, unsigned long cmp, unsigned long val);
+
+long __attribute__((overloadable)) atom_cmpxchg(volatile __global long *p, long cmp, long val);
+unsigned long __attribute__((overloadable)) atom_cmpxchg(volatile __global unsigned long *p, unsigned long cmp, unsigned long val);
+long __attribute__((overloadable)) atom_cmpxchg(volatile __local long *p, long cmp, long val);
+unsigned long __attribute__((overloadable)) atom_cmpxchg(volatile __local unsigned long *p, unsigned long cmp, unsigned long val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location polonged by p. Compute
+ * min(old, val) and store minimum value at
+ * location polonged by p. The function
+ * returns old.
+ */
+long __attribute__((overloadable)) atomic_min(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_min(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atomic_min(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_min(volatile __local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_min(__global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_min(__global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_min(__local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_min(__local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_min(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_min(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_min(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_min(volatile __local unsigned long *p, unsigned long val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location polonged by p. Compute
+ * max(old, val) and store maximum value at
+ * location polonged by p. The function
+ * returns old.
+ */
+long __attribute__((overloadable)) atomic_max(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_max(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atomic_max(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_max(volatile __local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_max(__global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_max(__global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_max(__local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_max(__local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_max(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_max(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_max(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_max(volatile __local unsigned long *p, unsigned long val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location polonged by p. Compute
+ * (old & val) and store result at location
+ * polonged by p. The function returns old.
+ */
+long __attribute__((overloadable)) atomic_and(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_and(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atomic_and(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_and(volatile __local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_and(__global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_and(__global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_and(__local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_and(__local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_and(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_and(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_and(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_and(volatile __local unsigned long *p, unsigned long val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location polonged by p. Compute
+ * (old | val) and store result at location
+ * polonged by p. The function returns old.
+ */
+long __attribute__((overloadable)) atomic_or(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_or(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atomic_or(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_or(volatile __local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_or(__global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_or(__global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_or(__local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_or(__local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_or(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_or(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_or(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_or(volatile __local unsigned long *p, unsigned long val);
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location polonged by p. Compute
+ * (old ^ val) and store result at location
+ * polonged by p. The function returns old.
+ */
+long __attribute__((overloadable)) atomic_xor(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_xor(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atomic_xor(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atomic_xor(volatile __local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_xor(__global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xor(__global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_xor(__local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xor(__local unsigned long *p, unsigned long val);
+
+long __attribute__((overloadable)) atom_xor(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xor(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_xor(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xor(volatile __local unsigned long *p, unsigned long val);
+
+#pragma OPENCL EXTENSION cl_khr_int64_base_atomics : disable
+#pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : disable
+#endif
+
 // Built-in image functions
 // These values need to match the runtime equivalent
 //
@@ -527,504 +1021,6 @@ void __attribute__((overloadable)) write_imageui(__write_only image1d_array_t im
 void __attribute__((overloadable)) write_imagef(__write_only image3d_t image, int4 coord, float4 color);
 void __attribute__((overloadable)) write_imagei(__write_only image3d_t image, int4 coord, int4 color);
 void __attribute__((overloadable)) write_imageui(__write_only image3d_t image, int4 coord, uint4 color);
-
-// Atomic functions
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old + val) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_add(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_add(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_add(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_add(volatile __local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_add(__global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_add(__global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_add(__local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_add(__local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_add(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_add(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_add(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_add(volatile __local unsigned int *p, unsigned int val);
-
-/**
- * unsigned int atomic_sub (
- * volatile __global unsigned int *p,
- * unsigned int val)
- * int atomic_sub (volatile __local int *p, int val)
- * unsigned int atomic_sub (
- * volatile __local unsigned int *p,
- * unsigned int val)
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old - val) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_sub(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_sub(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_sub(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_sub(volatile __local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_sub(__global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_sub(__global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_sub(__local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_sub(__local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_sub(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_sub(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_sub(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_sub(volatile __local unsigned int *p, unsigned int val);
-
-/**
- * Swaps the old value stored at location p
- * with new value given by val. Returns old
- * value.
- */
-int __attribute__((overloadable)) atomic_xchg(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_xchg(volatile __global unsigned int *p, unsigned int val);
-float __attribute__((overloadable)) atomic_xchg(volatile __global float *p, float val);
-int __attribute__((overloadable)) atomic_xchg(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_xchg(volatile __local unsigned int *p, unsigned int val);
-float __attribute__((overloadable)) atomic_xchg(volatile __local float *p, float val);
-
-int __attribute__((overloadable)) atom_xchg(__global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xchg(__global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_xchg(__local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xchg(__local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_xchg(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xchg(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_xchg(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xchg(volatile __local unsigned int *p, unsigned int val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old + 1) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_inc(volatile __global int *p);
-unsigned int __attribute__((overloadable)) atomic_inc(volatile __global unsigned int *p);
-int __attribute__((overloadable)) atomic_inc(volatile __local int *p);
-unsigned int __attribute__((overloadable)) atomic_inc(volatile __local unsigned int *p);
-
-int __attribute__((overloadable)) atom_inc(__global int *p);
-unsigned int __attribute__((overloadable)) atom_inc(__global unsigned int *p);
-int __attribute__((overloadable)) atom_inc(__local int *p);
-unsigned int __attribute__((overloadable)) atom_inc(__local unsigned int *p);
-
-int __attribute__((overloadable)) atom_inc(volatile __global int *p);
-unsigned int __attribute__((overloadable)) atom_inc(volatile __global unsigned int *p);
-int __attribute__((overloadable)) atom_inc(volatile __local int *p);
-unsigned int __attribute__((overloadable)) atom_inc(volatile __local unsigned int *p);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old - 1) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_dec(volatile __global int *p);
-unsigned int __attribute__((overloadable)) atomic_dec(volatile __global unsigned int *p);
-int __attribute__((overloadable)) atomic_dec(volatile __local int *p);
-unsigned int __attribute__((overloadable)) atomic_dec(volatile __local unsigned int *p);
-
-int __attribute__((overloadable)) atom_dec(__global int *p);
-unsigned int __attribute__((overloadable)) atom_dec(__global unsigned int *p);
-int __attribute__((overloadable)) atom_dec(__local int *p);
-unsigned int __attribute__((overloadable)) atom_dec(__local unsigned int *p);
-
-int __attribute__((overloadable)) atom_dec(volatile __global int *p);
-unsigned int __attribute__((overloadable)) atom_dec(volatile __global unsigned int *p);
-int __attribute__((overloadable)) atom_dec(volatile __local int *p);
-unsigned int __attribute__((overloadable)) atom_dec(volatile __local unsigned int *p);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old == cmp) ? val : old and store result at
- * location pointed by p. The function
- * returns old.
- */
-int __attribute__((overloadable)) atomic_cmpxchg(volatile __global int *p, int cmp, int val);
-unsigned int __attribute__((overloadable)) atomic_cmpxchg(volatile __global unsigned int *p, unsigned int cmp, unsigned int val);
-int __attribute__((overloadable)) atomic_cmpxchg(volatile __local int *p, int cmp, int val);
-unsigned int __attribute__((overloadable)) atomic_cmpxchg(volatile __local unsigned int *p, unsigned int cmp, unsigned int val);
-
-int __attribute__((overloadable)) atom_cmpxchg(__global int *p, int cmp, int val);
-unsigned int __attribute__((overloadable)) atom_cmpxchg(__global unsigned int *p, unsigned int cmp, unsigned int val);
-int __attribute__((overloadable)) atom_cmpxchg(__local int *p, int cmp, int val);
-unsigned int __attribute__((overloadable)) atom_cmpxchg(__local unsigned int *p, unsigned int cmp, unsigned int val);
-
-int __attribute__((overloadable)) atom_cmpxchg(volatile __global int *p, int cmp, int val);
-unsigned int __attribute__((overloadable)) atom_cmpxchg(volatile __global unsigned int *p, unsigned int cmp, unsigned int val);
-int __attribute__((overloadable)) atom_cmpxchg(volatile __local int *p, int cmp, int val);
-unsigned int __attribute__((overloadable)) atom_cmpxchg(volatile __local unsigned int *p, unsigned int cmp, unsigned int val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * min(old, val) and store minimum value at
- * location pointed by p. The function
- * returns old.
- */
-int __attribute__((overloadable)) atomic_min(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_min(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_min(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_min(volatile __local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_min(__global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_min(__global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_min(__local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_min(__local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_min(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_min(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_min(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_min(volatile __local unsigned int *p, unsigned int val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * max(old, val) and store maximum value at
- * location pointed by p. The function
- * returns old.
- */
-int __attribute__((overloadable)) atomic_max(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_max(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_max(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_max(volatile __local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_max(__global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_max(__global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_max(__local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_max(__local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_max(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_max(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_max(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_max(volatile __local unsigned int *p, unsigned int val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old & val) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_and(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_and(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_and(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_and(volatile __local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_and(__global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_and(__global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_and(__local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_and(__local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_and(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_and(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_and(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_and(volatile __local unsigned int *p, unsigned int val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old | val) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_or(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_or(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_or(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_or(volatile __local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_or(__global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_or(__global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_or(__local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_or(__local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_or(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_or(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_or(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_or(volatile __local unsigned int *p, unsigned int val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old ^ val) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_xor(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_xor(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_xor(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_xor(volatile __local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_xor(__global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xor(__global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_xor(__local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xor(__local unsigned int *p, unsigned int val);
-
-int __attribute__((overloadable)) atom_xor(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xor(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_xor(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xor(volatile __local unsigned int *p, unsigned int val);
-
-#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
-#pragma OPENCL EXTENSION cl_khr_int64_base_atomics : enable
-#pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : enable
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location polonged by p. Compute
- * (old + val) and store result at location
- * polonged by p. The function returns old.
- */
-long __attribute__((overloadable)) atomic_add(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_add(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atomic_add(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_add(volatile __local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_add(__global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_add(__global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_add(__local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_add(__local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_add(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_add(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_add(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_add(volatile __local unsigned long *p, unsigned long val);
-
-/**
- * unsigned long atomic_sub (
- * volatile __global unsigned long *p,
- * unsigned long val)
- * long atomic_sub (volatile __local long *p, long val)
- * unsigned long atomic_sub (
- * volatile __local unsigned long *p,
- * unsigned long val)
- * Read the 32-bit value (referred to as old)
- * stored at location polonged by p. Compute
- * (old - val) and store result at location
- * polonged by p. The function returns old.
- */
-long __attribute__((overloadable)) atomic_sub(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_sub(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atomic_sub(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_sub(volatile __local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_sub(__global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_sub(__global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_sub(__local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_sub(__local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_sub(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_sub(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_sub(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_sub(volatile __local unsigned long *p, unsigned long val);
-
-/**
- * Swaps the old value stored at location p
- * with new value given by val. Returns old
- * value.
- */
-long __attribute__((overloadable)) atomic_xchg(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_xchg(volatile __global unsigned long *p, unsigned long val);
-float __attribute__((overloadable)) atomic_xchg(volatile __global float *p, float val);
-long __attribute__((overloadable)) atomic_xchg(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_xchg(volatile __local unsigned long *p, unsigned long val);
-float __attribute__((overloadable)) atomic_xchg(volatile __local float *p, float val);
-
-long __attribute__((overloadable)) atom_xchg(__global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xchg(__global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_xchg(__local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xchg(__local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_xchg(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xchg(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_xchg(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xchg(volatile __local unsigned long *p, unsigned long val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location polonged by p. Compute
- * (old + 1) and store result at location
- * polonged by p. The function returns old.
- */
-long __attribute__((overloadable)) atomic_inc(volatile __global long *p);
-unsigned long __attribute__((overloadable)) atomic_inc(volatile __global unsigned long *p);
-long __attribute__((overloadable)) atomic_inc(volatile __local long *p);
-unsigned long __attribute__((overloadable)) atomic_inc(volatile __local unsigned long *p);
-
-long __attribute__((overloadable)) atom_inc(__global long *p);
-unsigned long __attribute__((overloadable)) atom_inc(__global unsigned long *p);
-long __attribute__((overloadable)) atom_inc(__local long *p);
-unsigned long __attribute__((overloadable)) atom_inc(__local unsigned long *p);
-
-long __attribute__((overloadable)) atom_inc(volatile __global long *p);
-unsigned long __attribute__((overloadable)) atom_inc(volatile __global unsigned long *p);
-long __attribute__((overloadable)) atom_inc(volatile __local long *p);
-unsigned long __attribute__((overloadable)) atom_inc(volatile __local unsigned long *p);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location polonged by p. Compute
- * (old - 1) and store result at location
- * polonged by p. The function returns old.
- */
-long __attribute__((overloadable)) atomic_dec(volatile __global long *p);
-unsigned long __attribute__((overloadable)) atomic_dec(volatile __global unsigned long *p);
-long __attribute__((overloadable)) atomic_dec(volatile __local long *p);
-unsigned long __attribute__((overloadable)) atomic_dec(volatile __local unsigned long *p);
-
-long __attribute__((overloadable)) atom_dec(__global long *p);
-unsigned long __attribute__((overloadable)) atom_dec(__global unsigned long *p);
-long __attribute__((overloadable)) atom_dec(__local long *p);
-unsigned long __attribute__((overloadable)) atom_dec(__local unsigned long *p);
-
-long __attribute__((overloadable)) atom_dec(volatile __global long *p);
-unsigned long __attribute__((overloadable)) atom_dec(volatile __global unsigned long *p);
-long __attribute__((overloadable)) atom_dec(volatile __local long *p);
-unsigned long __attribute__((overloadable)) atom_dec(volatile __local unsigned long *p);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location polonged by p. Compute
- * (old == cmp) ? val : old and store result at
- * location polonged by p. The function
- * returns old.
- */
-long __attribute__((overloadable)) atomic_cmpxchg(volatile __global long *p, long cmp, long val);
-unsigned long __attribute__((overloadable)) atomic_cmpxchg(volatile __global unsigned long *p, unsigned long cmp, unsigned long val);
-long __attribute__((overloadable)) atomic_cmpxchg(volatile __local long *p, long cmp, long val);
-unsigned long __attribute__((overloadable)) atomic_cmpxchg(volatile __local unsigned long *p, unsigned long cmp, unsigned long val);
-
-long __attribute__((overloadable)) atom_cmpxchg(__global long *p, long cmp, long val);
-unsigned long __attribute__((overloadable)) atom_cmpxchg(__global unsigned long *p, unsigned long cmp, unsigned long val);
-long __attribute__((overloadable)) atom_cmpxchg(__local long *p, long cmp, long val);
-unsigned long __attribute__((overloadable)) atom_cmpxchg(__local unsigned long *p, unsigned long cmp, unsigned long val);
-
-long __attribute__((overloadable)) atom_cmpxchg(volatile __global long *p, long cmp, long val);
-unsigned long __attribute__((overloadable)) atom_cmpxchg(volatile __global unsigned long *p, unsigned long cmp, unsigned long val);
-long __attribute__((overloadable)) atom_cmpxchg(volatile __local long *p, long cmp, long val);
-unsigned long __attribute__((overloadable)) atom_cmpxchg(volatile __local unsigned long *p, unsigned long cmp, unsigned long val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location polonged by p. Compute
- * min(old, val) and store minimum value at
- * location polonged by p. The function
- * returns old.
- */
-long __attribute__((overloadable)) atomic_min(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_min(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atomic_min(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_min(volatile __local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_min(__global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_min(__global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_min(__local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_min(__local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_min(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_min(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_min(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_min(volatile __local unsigned long *p, unsigned long val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location polonged by p. Compute
- * max(old, val) and store maximum value at
- * location polonged by p. The function
- * returns old.
- */
-long __attribute__((overloadable)) atomic_max(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_max(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atomic_max(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_max(volatile __local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_max(__global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_max(__global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_max(__local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_max(__local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_max(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_max(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_max(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_max(volatile __local unsigned long *p, unsigned long val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location polonged by p. Compute
- * (old & val) and store result at location
- * polonged by p. The function returns old.
- */
-long __attribute__((overloadable)) atomic_and(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_and(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atomic_and(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_and(volatile __local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_and(__global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_and(__global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_and(__local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_and(__local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_and(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_and(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_and(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_and(volatile __local unsigned long *p, unsigned long val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location polonged by p. Compute
- * (old | val) and store result at location
- * polonged by p. The function returns old.
- */
-long __attribute__((overloadable)) atomic_or(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_or(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atomic_or(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_or(volatile __local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_or(__global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_or(__global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_or(__local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_or(__local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_or(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_or(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_or(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_or(volatile __local unsigned long *p, unsigned long val);
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location polonged by p. Compute
- * (old ^ val) and store result at location
- * polonged by p. The function returns old.
- */
-long __attribute__((overloadable)) atomic_xor(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_xor(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atomic_xor(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atomic_xor(volatile __local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_xor(__global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xor(__global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_xor(__local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xor(__local unsigned long *p, unsigned long val);
-
-long __attribute__((overloadable)) atom_xor(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xor(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_xor(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xor(volatile __local unsigned long *p, unsigned long val);
-
-#pragma OPENCL EXTENSION cl_khr_int64_base_atomics : disable
-#pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : disable
-#endif
-
-
-
-
 
 
 #if defined(cl_khr_gl_msaa_sharing)

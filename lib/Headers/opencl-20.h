@@ -10,6 +10,521 @@
 
 #include "opencl-common.h"
 
+// OpenCL 1.x atomic functions
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old + val) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_add(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_add(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_add(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_add(volatile __local unsigned int *p, unsigned int val);
+
+#if defined(cl_khr_int32_base_atomics)
+int __attribute__((overloadable)) atom_add(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_add(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_add(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_add(volatile __local unsigned int *p, unsigned int val);
+#endif
+
+#if defined(cl_khr_int64_base_atomics)
+long __attribute__((overloadable)) atom_add(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_add(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_add(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_add(volatile __local unsigned long *p, unsigned long val);
+#endif
+
+/**
+ * unsigned int atomic_sub (volatile __global unsigned int *p, unsigned int val)
+ * int atomic_sub (volatile __local int *p, int val)
+ * unsigned int atomic_sub (volatile __local unsigned int *p, unsigned int val)
+ *
+ * Read the 32-bit value (referred to as old) stored at location pointed by p.
+ * Compute (old - val) and store result at location pointed by p. The function
+ * returns old.
+ */
+int __attribute__((overloadable)) atomic_sub(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_sub(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_sub(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_sub(volatile __local unsigned int *p, unsigned int val);
+
+#if defined(cl_khr_int32_base_atomics)
+int __attribute__((overloadable)) atom_sub(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_sub(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_sub(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_sub(volatile __local unsigned int *p, unsigned int val);
+#endif
+
+#if defined(cl_khr_int64_base_atomics)
+long __attribute__((overloadable)) atom_sub(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_sub(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_sub(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_sub(volatile __local unsigned long *p, unsigned long val);
+#endif
+
+/**
+ * Swaps the old value stored at location p
+ * with new value given by val. Returns old
+ * value.
+ */
+int __attribute__((overloadable)) atomic_xchg(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_xchg(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_xchg(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_xchg(volatile __local unsigned int *p, unsigned int val);
+float __attribute__((overloadable)) atomic_xchg(volatile __global float *p, float val);
+float __attribute__((overloadable)) atomic_xchg(volatile __local float *p, float val);
+
+#if defined(cl_khr_int32_base_atomics)
+int __attribute__((overloadable)) atom_xchg(volatile __global int *p, int val);
+int __attribute__((overloadable)) atom_xchg(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xchg(volatile __global unsigned int *p, unsigned int val);
+unsigned int __attribute__((overloadable)) atom_xchg(volatile __local unsigned int *p, unsigned int val);
+#endif
+
+#if defined(cl_khr_int64_base_atomics)
+long __attribute__((overloadable)) atom_xchg(volatile __global long *p, long val);
+long __attribute__((overloadable)) atom_xchg(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xchg(volatile __global unsigned long *p, unsigned long val);
+unsigned long __attribute__((overloadable)) atom_xchg(volatile __local unsigned long *p, unsigned long val);
+#endif
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old + 1) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_inc(volatile __global int *p);
+unsigned int __attribute__((overloadable)) atomic_inc(volatile __global unsigned int *p);
+int __attribute__((overloadable)) atomic_inc(volatile __local int *p);
+unsigned int __attribute__((overloadable)) atomic_inc(volatile __local unsigned int *p);
+
+#if defined(cl_khr_int32_base_atomics)
+int __attribute__((overloadable)) atom_inc(volatile __global int *p);
+unsigned int __attribute__((overloadable)) atom_inc(volatile __global unsigned int *p);
+int __attribute__((overloadable)) atom_inc(volatile __local int *p);
+unsigned int __attribute__((overloadable)) atom_inc(volatile __local unsigned int *p);
+#endif
+
+#if defined(cl_khr_int64_base_atomics)
+long __attribute__((overloadable)) atom_inc(volatile __global long *p);
+unsigned long __attribute__((overloadable)) atom_inc(volatile __global unsigned long *p);
+long __attribute__((overloadable)) atom_inc(volatile __local long *p);
+unsigned long __attribute__((overloadable)) atom_inc(volatile __local unsigned long *p);
+#endif
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old - 1) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_dec(volatile __global int *p);
+unsigned int __attribute__((overloadable)) atomic_dec(volatile __global unsigned int *p);
+int __attribute__((overloadable)) atomic_dec(volatile __local int *p);
+unsigned int __attribute__((overloadable)) atomic_dec(volatile __local unsigned int *p);
+
+#if defined(cl_khr_int32_base_atomics)
+int __attribute__((overloadable)) atom_dec(volatile __global int *p);
+unsigned int __attribute__((overloadable)) atom_dec(volatile __global unsigned int *p);
+int __attribute__((overloadable)) atom_dec(volatile __local int *p);
+unsigned int __attribute__((overloadable)) atom_dec(volatile __local unsigned int *p);
+#endif
+
+#if defined(cl_khr_int64_base_atomics)
+long __attribute__((overloadable)) atom_dec(volatile __global long *p);
+unsigned long __attribute__((overloadable)) atom_dec(volatile __global unsigned long *p);
+long __attribute__((overloadable)) atom_dec(volatile __local long *p);
+unsigned long __attribute__((overloadable)) atom_dec(volatile __local unsigned long *p);
+#endif
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old == cmp) ? val : old and store result at
+ * location pointed by p. The function
+ * returns old.
+ */
+int __attribute__((overloadable)) atomic_cmpxchg(volatile __global int *p, int cmp, int val);
+unsigned int __attribute__((overloadable)) atomic_cmpxchg(volatile __global unsigned int *p, unsigned int cmp, unsigned int val);
+int __attribute__((overloadable)) atomic_cmpxchg(volatile __local int *p, int cmp, int val);
+unsigned int __attribute__((overloadable)) atomic_cmpxchg(volatile __local unsigned int *p, unsigned int cmp, unsigned int val);
+
+#if defined(cl_khr_int32_base_atomics)
+int __attribute__((overloadable)) atom_cmpxchg(volatile __global int *p, int cmp, int val);
+unsigned int __attribute__((overloadable)) atom_cmpxchg(volatile __global unsigned int *p, unsigned int cmp, unsigned int val);
+int __attribute__((overloadable)) atom_cmpxchg(volatile __local int *p, int cmp, int val);
+unsigned int __attribute__((overloadable)) atom_cmpxchg(volatile __local unsigned int *p, unsigned int cmp, unsigned int val);
+#endif
+
+#if defined(cl_khr_int64_base_atomics)
+long __attribute__((overloadable)) atom_cmpxchg(volatile __global long *p, long cmp, long val);
+unsigned long __attribute__((overloadable)) atom_cmpxchg(volatile __global unsigned long *p, unsigned long cmp, unsigned long val);
+long __attribute__((overloadable)) atom_cmpxchg(volatile __local long *p, long cmp, long val);
+unsigned long __attribute__((overloadable)) atom_cmpxchg(volatile __local unsigned long *p, unsigned long cmp, unsigned long val);
+#endif
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * min(old, val) and store minimum value at
+ * location pointed by p. The function
+ * returns old.
+ */
+int __attribute__((overloadable)) atomic_min(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_min(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_min(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_min(volatile __local unsigned int *p, unsigned int val);
+
+#if defined(cl_khr_int32_extended_atomics)
+int __attribute__((overloadable)) atom_min(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_min(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_min(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_min(volatile __local unsigned int *p, unsigned int val);
+#endif
+
+#if defined(cl_khr_int64_extended_atomics)
+long __attribute__((overloadable)) atom_min(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_min(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_min(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_min(volatile __local unsigned long *p, unsigned long val);
+#endif
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * max(old, val) and store maximum value at
+ * location pointed by p. The function
+ * returns old.
+ */
+int __attribute__((overloadable)) atomic_max(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_max(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_max(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_max(volatile __local unsigned int *p, unsigned int val);
+
+#if defined(cl_khr_int32_extended_atomics)
+int __attribute__((overloadable)) atom_max(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_max(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_max(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_max(volatile __local unsigned int *p, unsigned int val);
+#endif
+
+#if defined(cl_khr_int64_extended_atomics)
+long __attribute__((overloadable)) atom_max(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_max(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_max(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_max(volatile __local unsigned long *p, unsigned long val);
+#endif
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old & val) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_and(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_and(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_and(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_and(volatile __local unsigned int *p, unsigned int val);
+
+#if defined(cl_khr_int32_extended_atomics)
+int __attribute__((overloadable)) atom_and(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_and(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_and(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_and(volatile __local unsigned int *p, unsigned int val);
+#endif
+
+#if defined(cl_khr_int64_extended_atomics)
+long __attribute__((overloadable)) atom_and(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_and(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_and(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_and(volatile __local unsigned long *p, unsigned long val);
+#endif
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old | val) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_or(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_or(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_or(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_or(volatile __local unsigned int *p, unsigned int val);
+
+#if defined(cl_khr_int32_extended_atomics)
+int __attribute__((overloadable)) atom_or(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_or(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_or(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_or(volatile __local unsigned int *p, unsigned int val);
+#endif
+
+#if defined(cl_khr_int64_extended_atomics)
+long __attribute__((overloadable)) atom_or(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_or(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_or(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_or(volatile __local unsigned long *p, unsigned long val);
+#endif
+
+/**
+ * Read the 32-bit value (referred to as old)
+ * stored at location pointed by p. Compute
+ * (old ^ val) and store result at location
+ * pointed by p. The function returns old.
+ */
+int __attribute__((overloadable)) atomic_xor(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_xor(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atomic_xor(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atomic_xor(volatile __local unsigned int *p, unsigned int val);
+
+#if defined(cl_khr_int32_extended_atomics)
+int __attribute__((overloadable)) atom_xor(volatile __global int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xor(volatile __global unsigned int *p, unsigned int val);
+int __attribute__((overloadable)) atom_xor(volatile __local int *p, int val);
+unsigned int __attribute__((overloadable)) atom_xor(volatile __local unsigned int *p, unsigned int val);
+#endif
+
+#if defined(cl_khr_int64_extended_atomics)
+long __attribute__((overloadable)) atom_xor(volatile __global long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xor(volatile __global unsigned long *p, unsigned long val);
+long __attribute__((overloadable)) atom_xor(volatile __local long *p, long val);
+unsigned long __attribute__((overloadable)) atom_xor(volatile __local unsigned long *p, unsigned long val);
+#endif
+
+//
+// c11 atomics definitions
+//
+
+#define ATOMIC_VAR_INIT(x) (x)
+
+#define ATOMIC_FLAG_INIT 0
+
+// enum values aligned with what clang uses in EmitAtomicExpr()
+typedef enum memory_order
+{
+  memory_order_relaxed,
+  memory_order_acquire,
+  memory_order_release,
+  memory_order_acq_rel,
+  memory_order_seq_cst
+} memory_order;
+
+typedef enum memory_scope
+{
+  memory_scope_work_item,
+  memory_scope_work_group,
+  memory_scope_device,
+  memory_scope_all_svm_devices,
+  memory_scope_sub_group
+} memory_scope;
+
+// double atomics support requires extensions cl_khr_int64_base_atomics and cl_khr_int64_extended_atomics
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#pragma OPENCL EXTENSION cl_khr_int64_base_atomics : enable
+#pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : enable
+#endif
+
+// atomic_init()
+#define atomic_init_prototype_addrspace(TYPE, ADDRSPACE) \
+void __attribute__((overloadable)) atomic_init(volatile ADDRSPACE atomic_##TYPE *object, TYPE value);
+
+#define atomic_init_prototype(TYPE) \
+atomic_init_prototype_addrspace(TYPE, generic)
+
+atomic_init_prototype(int)
+atomic_init_prototype(uint)
+atomic_init_prototype(float)
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+atomic_init_prototype(long)
+atomic_init_prototype(ulong)
+atomic_init_prototype(double)
+#endif
+
+// atomic_work_item_fence()
+void __attribute__((overloadable)) atomic_work_item_fence(cl_mem_fence_flags flags, memory_order order, memory_scope scope);
+
+// atomic_fetch()
+#define atomic_fetch_prototype_addrspace(KEY, TYPE, OPTYPE, ADDRSPACE) \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand); \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order); \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order, memory_scope scope);
+
+#define atomic_fetch_prototype(KEY, TYPE, OPTYPE) \
+atomic_fetch_prototype_addrspace(KEY, TYPE, OPTYPE, generic)
+
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#define atomic_fetch_supported_prototype(KEY) \
+atomic_fetch_prototype(KEY, int, int) \
+atomic_fetch_prototype(KEY, uint, uint) \
+atomic_fetch_prototype(KEY, long, long) \
+atomic_fetch_prototype(KEY, ulong, ulong) \
+atomic_fetch_prototype(KEY, uint, int) \
+atomic_fetch_prototype(KEY, ulong, long) // the (size_t, ptrdiff_t) variety
+#else
+#define atomic_fetch_supported_prototype(KEY) \
+atomic_fetch_prototype(KEY, int, int) \
+atomic_fetch_prototype(KEY, uint, uint) \
+atomic_fetch_prototype(KEY, uint, int) // the (size_t, ptrdiff_t) variety for 32-bit
+#endif
+atomic_fetch_supported_prototype(add)
+atomic_fetch_supported_prototype(sub)
+atomic_fetch_supported_prototype(or)
+atomic_fetch_supported_prototype(xor)
+atomic_fetch_supported_prototype(and)
+
+#undef atomic_fetch_supported_prototype
+
+// atomic_fetch_min/max()
+
+#define atomic_fetch_minmax_prototype_addrspace(KEY, TYPE, OPTYPE, ADDRSPACE) \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand); \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order); \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order, memory_scope scope);
+
+#define atomic_fetch_minmax_prototype(KEY, TYPE, OPTYPE) \
+atomic_fetch_minmax_prototype_addrspace(KEY, TYPE, OPTYPE, generic)
+
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#define atomic_fetch_minmax_supported_prototypes(KEY) \
+atomic_fetch_minmax_prototype(KEY, int, int) \
+atomic_fetch_minmax_prototype(KEY, uint, uint) \
+atomic_fetch_minmax_prototype(KEY, long, long) \
+atomic_fetch_minmax_prototype(KEY, ulong, ulong) \
+atomic_fetch_minmax_prototype(KEY, uint, int) \
+atomic_fetch_minmax_prototype(KEY, ulong, long) // ulong/long flavor - the (size_t, ptrdiff_t) variety for 64-bit
+#else
+#define atomic_fetch_minmax_supported_prototypes(KEY) \
+atomic_fetch_minmax_prototype(KEY, int, int) \
+atomic_fetch_minmax_prototype(KEY, uint, uint) \
+atomic_fetch_minmax_prototype(KEY, uint, int) // uint/int flavor - the (size_t, ptrdiff_t) variety for 32-bit
+#endif
+
+atomic_fetch_minmax_supported_prototypes(min)
+atomic_fetch_minmax_supported_prototypes(max)
+
+#undef atomic_fetch_minmax_supported_prototypes
+#undef atomic_fetch_minmax_prototype
+#undef atomic_fetch_minmax_prototype_addrspace
+
+// atomic_store()
+
+#define atomic_store_prototype_addrspace(TYPE, ADDRSPACE) \
+void __attribute__((overloadable)) atomic_store(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired); \
+void __attribute__((overloadable)) atomic_store_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order); \
+void __attribute__((overloadable)) atomic_store_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order, memory_scope scope);
+
+#define atomic_store_prototype(TYPE) \
+atomic_store_prototype_addrspace(TYPE, generic)
+
+atomic_store_prototype(int)
+atomic_store_prototype(uint)
+atomic_store_prototype(float)
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+atomic_store_prototype(double)
+atomic_store_prototype(long)
+atomic_store_prototype(ulong)
+#endif
+// atomic_load()
+
+#define atomic_load_prototype_addrspace(TYPE, ADDRSPACE) \
+TYPE __attribute__((overloadable)) atomic_load(volatile ADDRSPACE atomic_##TYPE *object); \
+TYPE __attribute__((overloadable)) atomic_load_explicit(volatile ADDRSPACE atomic_##TYPE *object, memory_order order); \
+TYPE __attribute__((overloadable)) atomic_load_explicit(volatile ADDRSPACE atomic_##TYPE *object, memory_order order, memory_scope scope);
+
+#define atomic_load_prototype(TYPE) \
+atomic_load_prototype_addrspace(TYPE, generic)
+
+atomic_load_prototype(int)
+atomic_load_prototype(uint)
+atomic_load_prototype(float)
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+atomic_load_prototype(double)
+atomic_load_prototype(long)
+atomic_load_prototype(ulong)
+#endif
+
+// atomic_exchange()
+
+#define atomic_exchange_prototype_addrspace(TYPE, ADDRSPACE) \
+TYPE __attribute__((overloadable)) atomic_exchange(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired); \
+TYPE __attribute__((overloadable)) atomic_exchange_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order); \
+TYPE __attribute__((overloadable)) atomic_exchange_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order, memory_scope scope);
+
+#define atomic_exchange_prototype(TYPE) \
+atomic_exchange_prototype_addrspace(TYPE, generic)
+
+atomic_exchange_prototype(int)
+atomic_exchange_prototype(uint)
+atomic_exchange_prototype(float)
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+atomic_exchange_prototype(double)
+atomic_exchange_prototype(long)
+atomic_exchange_prototype(ulong)
+#endif
+
+// atomic_compare_exchange_strong() and atomic_compare_exchange_weak()
+
+#define atomic_compare_exchange_strength_prototype_addrspace(TYPE, ADDRSPACE, ADDRSPACE2, STRENGTH) \
+bool __attribute__((overloadable)) atomic_compare_exchange_##STRENGTH(volatile ADDRSPACE atomic_##TYPE *object, ADDRSPACE2 TYPE *expected, TYPE desired); \
+bool __attribute__((overloadable)) atomic_compare_exchange_##STRENGTH##_explicit(volatile ADDRSPACE atomic_##TYPE *object, ADDRSPACE2 TYPE *expected, \
+                                                                                 TYPE desired, memory_order success, memory_order failure); \
+bool __attribute__((overloadable)) atomic_compare_exchange_##STRENGTH##_explicit(volatile ADDRSPACE atomic_##TYPE *object, ADDRSPACE2 TYPE *expected, \
+                                                                                 TYPE desired, memory_order success, memory_order failure, memory_scope scope);
+
+#define atomic_compare_exchange_strength_prototype(TYPE, STRENGTH) \
+atomic_compare_exchange_strength_prototype_addrspace(TYPE, generic, generic, STRENGTH)
+
+atomic_compare_exchange_strength_prototype(int, strong)
+atomic_compare_exchange_strength_prototype(uint, strong)
+atomic_compare_exchange_strength_prototype(int, weak)
+atomic_compare_exchange_strength_prototype(uint, weak)
+atomic_compare_exchange_strength_prototype(float, strong)
+atomic_compare_exchange_strength_prototype(float, weak)
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+atomic_compare_exchange_strength_prototype(double, strong)
+atomic_compare_exchange_strength_prototype(double, weak)
+atomic_compare_exchange_strength_prototype(long, strong)
+atomic_compare_exchange_strength_prototype(long, weak)
+atomic_compare_exchange_strength_prototype(ulong, strong)
+atomic_compare_exchange_strength_prototype(ulong, weak)
+#endif
+
+// atomic_flag_test_and_set() and atomic_flag_clear()
+
+#define atomic_flag_prototype_addrspace(ADDRSPACE, FUNCTYPE, RET) \
+RET __attribute__((overloadable)) atomic_flag_##FUNCTYPE(volatile ADDRSPACE atomic_flag *object); \
+RET __attribute__((overloadable)) atomic_flag_##FUNCTYPE##_explicit(volatile ADDRSPACE atomic_flag *object, memory_order order); \
+RET __attribute__((overloadable)) atomic_flag_##FUNCTYPE##_explicit(volatile ADDRSPACE atomic_flag *object, memory_order order, memory_scope scope);
+
+#define atomic_flag_prototype(FUNCTYPE, RET) \
+atomic_flag_prototype_addrspace(generic, FUNCTYPE, RET)
+
+atomic_flag_prototype(test_and_set, bool)
+atomic_flag_prototype(clear, void)
+
+// undef to not leak into user code
+#undef atomic_flag_prototype
+#undef atomic_flag_prototype_addrspace
+#undef atomic_compare_exchange_strength_prototype
+#undef atomic_compare_exchange_strength_prototype_addrspace
+#undef atomic_exchange_prototype
+#undef atomic_exchange_prototype_addrspace
+#undef atomic_load_prototype
+#undef atomic_load_prototype_addrspace
+#undef atomic_store_prototype
+#undef atomic_store_prototype_addrspace
+#undef atomic_fetch_prototype
+#undef atomic_fetch_prototype_addrspace
+#undef atomic_init_prototype
+#undef atomic_init_prototype_addrspace
+
+void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags, memory_scope scope);
+void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags);
+
+
 // Built-in image functions
 // These values need to match the runtime equivalent
 //
@@ -574,520 +1089,6 @@ bool is_valid_event (clk_event_t event);
 void __attribute__((overloadable)) capture_event_profiling_info(clk_event_t, clk_profiling_info, __global void* value);
 
 queue_t __attribute__((overloadable)) get_default_queue(void);
-
-// OpenCL 1.x atomic functions
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old + val) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_add(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_add(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_add(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_add(volatile __local unsigned int *p, unsigned int val);
-
-#if defined(cl_khr_int32_base_atomics)
-int __attribute__((overloadable)) atom_add(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_add(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_add(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_add(volatile __local unsigned int *p, unsigned int val);
-#endif
-
-#if defined(cl_khr_int64_base_atomics)
-long __attribute__((overloadable)) atom_add(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_add(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_add(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_add(volatile __local unsigned long *p, unsigned long val);
-#endif
-
-/**
- * unsigned int atomic_sub (volatile __global unsigned int *p, unsigned int val)
- * int atomic_sub (volatile __local int *p, int val)
- * unsigned int atomic_sub (volatile __local unsigned int *p, unsigned int val)
- *
- * Read the 32-bit value (referred to as old) stored at location pointed by p.
- * Compute (old - val) and store result at location pointed by p. The function
- * returns old.
- */
-int __attribute__((overloadable)) atomic_sub(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_sub(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_sub(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_sub(volatile __local unsigned int *p, unsigned int val);
-
-#if defined(cl_khr_int32_base_atomics)
-int __attribute__((overloadable)) atom_sub(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_sub(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_sub(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_sub(volatile __local unsigned int *p, unsigned int val);
-#endif
-
-#if defined(cl_khr_int64_base_atomics)
-long __attribute__((overloadable)) atom_sub(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_sub(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_sub(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_sub(volatile __local unsigned long *p, unsigned long val);
-#endif
-
-/**
- * Swaps the old value stored at location p
- * with new value given by val. Returns old
- * value.
- */
-int __attribute__((overloadable)) atomic_xchg(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_xchg(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_xchg(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_xchg(volatile __local unsigned int *p, unsigned int val);
-float __attribute__((overloadable)) atomic_xchg(volatile __global float *p, float val);
-float __attribute__((overloadable)) atomic_xchg(volatile __local float *p, float val);
-
-#if defined(cl_khr_int32_base_atomics)
-int __attribute__((overloadable)) atom_xchg(volatile __global int *p, int val);
-int __attribute__((overloadable)) atom_xchg(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xchg(volatile __global unsigned int *p, unsigned int val);
-unsigned int __attribute__((overloadable)) atom_xchg(volatile __local unsigned int *p, unsigned int val);
-#endif
-
-#if defined(cl_khr_int64_base_atomics)
-long __attribute__((overloadable)) atom_xchg(volatile __global long *p, long val);
-long __attribute__((overloadable)) atom_xchg(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xchg(volatile __global unsigned long *p, unsigned long val);
-unsigned long __attribute__((overloadable)) atom_xchg(volatile __local unsigned long *p, unsigned long val);
-#endif
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old + 1) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_inc(volatile __global int *p);
-unsigned int __attribute__((overloadable)) atomic_inc(volatile __global unsigned int *p);
-int __attribute__((overloadable)) atomic_inc(volatile __local int *p);
-unsigned int __attribute__((overloadable)) atomic_inc(volatile __local unsigned int *p);
-
-#if defined(cl_khr_int32_base_atomics)
-int __attribute__((overloadable)) atom_inc(volatile __global int *p);
-unsigned int __attribute__((overloadable)) atom_inc(volatile __global unsigned int *p);
-int __attribute__((overloadable)) atom_inc(volatile __local int *p);
-unsigned int __attribute__((overloadable)) atom_inc(volatile __local unsigned int *p);
-#endif
-
-#if defined(cl_khr_int64_base_atomics)
-long __attribute__((overloadable)) atom_inc(volatile __global long *p);
-unsigned long __attribute__((overloadable)) atom_inc(volatile __global unsigned long *p);
-long __attribute__((overloadable)) atom_inc(volatile __local long *p);
-unsigned long __attribute__((overloadable)) atom_inc(volatile __local unsigned long *p);
-#endif
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old - 1) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_dec(volatile __global int *p);
-unsigned int __attribute__((overloadable)) atomic_dec(volatile __global unsigned int *p);
-int __attribute__((overloadable)) atomic_dec(volatile __local int *p);
-unsigned int __attribute__((overloadable)) atomic_dec(volatile __local unsigned int *p);
-
-#if defined(cl_khr_int32_base_atomics)
-int __attribute__((overloadable)) atom_dec(volatile __global int *p);
-unsigned int __attribute__((overloadable)) atom_dec(volatile __global unsigned int *p);
-int __attribute__((overloadable)) atom_dec(volatile __local int *p);
-unsigned int __attribute__((overloadable)) atom_dec(volatile __local unsigned int *p);
-#endif
-
-#if defined(cl_khr_int64_base_atomics)
-long __attribute__((overloadable)) atom_dec(volatile __global long *p);
-unsigned long __attribute__((overloadable)) atom_dec(volatile __global unsigned long *p);
-long __attribute__((overloadable)) atom_dec(volatile __local long *p);
-unsigned long __attribute__((overloadable)) atom_dec(volatile __local unsigned long *p);
-#endif
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old == cmp) ? val : old and store result at
- * location pointed by p. The function
- * returns old.
- */
-int __attribute__((overloadable)) atomic_cmpxchg(volatile __global int *p, int cmp, int val);
-unsigned int __attribute__((overloadable)) atomic_cmpxchg(volatile __global unsigned int *p, unsigned int cmp, unsigned int val);
-int __attribute__((overloadable)) atomic_cmpxchg(volatile __local int *p, int cmp, int val);
-unsigned int __attribute__((overloadable)) atomic_cmpxchg(volatile __local unsigned int *p, unsigned int cmp, unsigned int val);
-
-#if defined(cl_khr_int32_base_atomics)
-int __attribute__((overloadable)) atom_cmpxchg(volatile __global int *p, int cmp, int val);
-unsigned int __attribute__((overloadable)) atom_cmpxchg(volatile __global unsigned int *p, unsigned int cmp, unsigned int val);
-int __attribute__((overloadable)) atom_cmpxchg(volatile __local int *p, int cmp, int val);
-unsigned int __attribute__((overloadable)) atom_cmpxchg(volatile __local unsigned int *p, unsigned int cmp, unsigned int val);
-#endif
-
-#if defined(cl_khr_int64_base_atomics)
-long __attribute__((overloadable)) atom_cmpxchg(volatile __global long *p, long cmp, long val);
-unsigned long __attribute__((overloadable)) atom_cmpxchg(volatile __global unsigned long *p, unsigned long cmp, unsigned long val);
-long __attribute__((overloadable)) atom_cmpxchg(volatile __local long *p, long cmp, long val);
-unsigned long __attribute__((overloadable)) atom_cmpxchg(volatile __local unsigned long *p, unsigned long cmp, unsigned long val);
-#endif
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * min(old, val) and store minimum value at
- * location pointed by p. The function
- * returns old.
- */
-int __attribute__((overloadable)) atomic_min(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_min(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_min(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_min(volatile __local unsigned int *p, unsigned int val);
-
-#if defined(cl_khr_int32_extended_atomics)
-int __attribute__((overloadable)) atom_min(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_min(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_min(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_min(volatile __local unsigned int *p, unsigned int val);
-#endif
-
-#if defined(cl_khr_int64_extended_atomics)
-long __attribute__((overloadable)) atom_min(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_min(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_min(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_min(volatile __local unsigned long *p, unsigned long val);
-#endif
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * max(old, val) and store maximum value at
- * location pointed by p. The function
- * returns old.
- */
-int __attribute__((overloadable)) atomic_max(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_max(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_max(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_max(volatile __local unsigned int *p, unsigned int val);
-
-#if defined(cl_khr_int32_extended_atomics)
-int __attribute__((overloadable)) atom_max(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_max(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_max(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_max(volatile __local unsigned int *p, unsigned int val);
-#endif
-
-#if defined(cl_khr_int64_extended_atomics)
-long __attribute__((overloadable)) atom_max(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_max(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_max(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_max(volatile __local unsigned long *p, unsigned long val);
-#endif
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old & val) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_and(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_and(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_and(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_and(volatile __local unsigned int *p, unsigned int val);
-
-#if defined(cl_khr_int32_extended_atomics)
-int __attribute__((overloadable)) atom_and(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_and(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_and(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_and(volatile __local unsigned int *p, unsigned int val);
-#endif
-
-#if defined(cl_khr_int64_extended_atomics)
-long __attribute__((overloadable)) atom_and(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_and(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_and(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_and(volatile __local unsigned long *p, unsigned long val);
-#endif
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old | val) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_or(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_or(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_or(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_or(volatile __local unsigned int *p, unsigned int val);
-
-#if defined(cl_khr_int32_extended_atomics)
-int __attribute__((overloadable)) atom_or(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_or(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_or(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_or(volatile __local unsigned int *p, unsigned int val);
-#endif
-
-#if defined(cl_khr_int64_extended_atomics)
-long __attribute__((overloadable)) atom_or(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_or(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_or(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_or(volatile __local unsigned long *p, unsigned long val);
-#endif
-
-/**
- * Read the 32-bit value (referred to as old)
- * stored at location pointed by p. Compute
- * (old ^ val) and store result at location
- * pointed by p. The function returns old.
- */
-int __attribute__((overloadable)) atomic_xor(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_xor(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atomic_xor(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atomic_xor(volatile __local unsigned int *p, unsigned int val);
-
-#if defined(cl_khr_int32_extended_atomics)
-int __attribute__((overloadable)) atom_xor(volatile __global int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xor(volatile __global unsigned int *p, unsigned int val);
-int __attribute__((overloadable)) atom_xor(volatile __local int *p, int val);
-unsigned int __attribute__((overloadable)) atom_xor(volatile __local unsigned int *p, unsigned int val);
-#endif
-
-#if defined(cl_khr_int64_extended_atomics)
-long __attribute__((overloadable)) atom_xor(volatile __global long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xor(volatile __global unsigned long *p, unsigned long val);
-long __attribute__((overloadable)) atom_xor(volatile __local long *p, long val);
-unsigned long __attribute__((overloadable)) atom_xor(volatile __local unsigned long *p, unsigned long val);
-#endif
-
-//
-// c11 atomics definitions
-//
-
-#define ATOMIC_VAR_INIT(x) (x)
-
-#define ATOMIC_FLAG_INIT 0
-
-// enum values aligned with what clang uses in EmitAtomicExpr()
-typedef enum memory_order
-{
-  memory_order_relaxed,
-  memory_order_acquire,
-  memory_order_release,
-  memory_order_acq_rel,
-  memory_order_seq_cst
-} memory_order;
-
-typedef enum memory_scope
-{
-  memory_scope_work_item,
-  memory_scope_work_group,
-  memory_scope_device,
-  memory_scope_all_svm_devices,
-  memory_scope_sub_group
-} memory_scope;
-
-// double atomics support requires extensions cl_khr_int64_base_atomics and cl_khr_int64_extended_atomics
-#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
-#pragma OPENCL EXTENSION cl_khr_int64_base_atomics : enable
-#pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : enable
-#endif
-
-// atomic_init()
-#define atomic_init_prototype_addrspace(TYPE, ADDRSPACE) \
-void __attribute__((overloadable)) atomic_init(volatile ADDRSPACE atomic_##TYPE *object, TYPE value);
-
-#define atomic_init_prototype(TYPE) \
-atomic_init_prototype_addrspace(TYPE, generic)
-
-atomic_init_prototype(int)
-atomic_init_prototype(uint)
-atomic_init_prototype(float)
-#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
-atomic_init_prototype(long)
-atomic_init_prototype(ulong)
-atomic_init_prototype(double)
-#endif
-
-// atomic_work_item_fence()
-void __attribute__((overloadable)) atomic_work_item_fence(cl_mem_fence_flags flags, memory_order order, memory_scope scope);
-
-// atomic_fetch()
-#define atomic_fetch_prototype_addrspace(KEY, TYPE, OPTYPE, ADDRSPACE) \
-TYPE __attribute__((overloadable)) atomic_fetch_##KEY(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand); \
-TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order); \
-TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order, memory_scope scope);
-
-#define atomic_fetch_prototype(KEY, TYPE, OPTYPE) \
-atomic_fetch_prototype_addrspace(KEY, TYPE, OPTYPE, generic)
-
-#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
-#define atomic_fetch_supported_prototype(KEY) \
-atomic_fetch_prototype(KEY, int, int) \
-atomic_fetch_prototype(KEY, uint, uint) \
-atomic_fetch_prototype(KEY, long, long) \
-atomic_fetch_prototype(KEY, ulong, ulong) \
-atomic_fetch_prototype(KEY, uint, int) \
-atomic_fetch_prototype(KEY, ulong, long) // the (size_t, ptrdiff_t) variety
-#else
-#define atomic_fetch_supported_prototype(KEY) \
-atomic_fetch_prototype(KEY, int, int) \
-atomic_fetch_prototype(KEY, uint, uint) \
-atomic_fetch_prototype(KEY, uint, int) // the (size_t, ptrdiff_t) variety for 32-bit
-#endif
-atomic_fetch_supported_prototype(add)
-atomic_fetch_supported_prototype(sub)
-atomic_fetch_supported_prototype(or)
-atomic_fetch_supported_prototype(xor)
-atomic_fetch_supported_prototype(and)
-
-#undef atomic_fetch_supported_prototype
-
-// atomic_fetch_min/max()
-
-#define atomic_fetch_minmax_prototype_addrspace(KEY, TYPE, OPTYPE, ADDRSPACE) \
-TYPE __attribute__((overloadable)) atomic_fetch_##KEY(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand); \
-TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order); \
-TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order, memory_scope scope);
-
-#define atomic_fetch_minmax_prototype(KEY, TYPE, OPTYPE) \
-atomic_fetch_minmax_prototype_addrspace(KEY, TYPE, OPTYPE, generic)
-
-#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
-#define atomic_fetch_minmax_supported_prototypes(KEY) \
-atomic_fetch_minmax_prototype(KEY, int, int) \
-atomic_fetch_minmax_prototype(KEY, uint, uint) \
-atomic_fetch_minmax_prototype(KEY, long, long) \
-atomic_fetch_minmax_prototype(KEY, ulong, ulong) \
-atomic_fetch_minmax_prototype(KEY, uint, int) \
-atomic_fetch_minmax_prototype(KEY, ulong, long) // ulong/long flavor - the (size_t, ptrdiff_t) variety for 64-bit
-#else
-#define atomic_fetch_minmax_supported_prototypes(KEY) \
-atomic_fetch_minmax_prototype(KEY, int, int) \
-atomic_fetch_minmax_prototype(KEY, uint, uint) \
-atomic_fetch_minmax_prototype(KEY, uint, int) // uint/int flavor - the (size_t, ptrdiff_t) variety for 32-bit
-#endif
-
-atomic_fetch_minmax_supported_prototypes(min)
-atomic_fetch_minmax_supported_prototypes(max)
-
-#undef atomic_fetch_minmax_supported_prototypes
-#undef atomic_fetch_minmax_prototype
-#undef atomic_fetch_minmax_prototype_addrspace
-
-// atomic_store()
-
-#define atomic_store_prototype_addrspace(TYPE, ADDRSPACE) \
-void __attribute__((overloadable)) atomic_store(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired); \
-void __attribute__((overloadable)) atomic_store_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order); \
-void __attribute__((overloadable)) atomic_store_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order, memory_scope scope);
-
-#define atomic_store_prototype(TYPE) \
-atomic_store_prototype_addrspace(TYPE, generic)
-
-atomic_store_prototype(int)
-atomic_store_prototype(uint)
-atomic_store_prototype(float)
-#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
-atomic_store_prototype(double)
-atomic_store_prototype(long)
-atomic_store_prototype(ulong)
-#endif
-// atomic_load()
-
-#define atomic_load_prototype_addrspace(TYPE, ADDRSPACE) \
-TYPE __attribute__((overloadable)) atomic_load(volatile ADDRSPACE atomic_##TYPE *object); \
-TYPE __attribute__((overloadable)) atomic_load_explicit(volatile ADDRSPACE atomic_##TYPE *object, memory_order order); \
-TYPE __attribute__((overloadable)) atomic_load_explicit(volatile ADDRSPACE atomic_##TYPE *object, memory_order order, memory_scope scope);
-
-#define atomic_load_prototype(TYPE) \
-atomic_load_prototype_addrspace(TYPE, generic)
-
-atomic_load_prototype(int)
-atomic_load_prototype(uint)
-atomic_load_prototype(float)
-#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
-atomic_load_prototype(double)
-atomic_load_prototype(long)
-atomic_load_prototype(ulong)
-#endif
-
-// atomic_exchange()
-
-#define atomic_exchange_prototype_addrspace(TYPE, ADDRSPACE) \
-TYPE __attribute__((overloadable)) atomic_exchange(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired); \
-TYPE __attribute__((overloadable)) atomic_exchange_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order); \
-TYPE __attribute__((overloadable)) atomic_exchange_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order, memory_scope scope);
-
-#define atomic_exchange_prototype(TYPE) \
-atomic_exchange_prototype_addrspace(TYPE, generic)
-
-atomic_exchange_prototype(int)
-atomic_exchange_prototype(uint)
-atomic_exchange_prototype(float)
-#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
-atomic_exchange_prototype(double)
-atomic_exchange_prototype(long)
-atomic_exchange_prototype(ulong)
-#endif
-
-// atomic_compare_exchange_strong() and atomic_compare_exchange_weak()
-
-#define atomic_compare_exchange_strength_prototype_addrspace(TYPE, ADDRSPACE, ADDRSPACE2, STRENGTH) \
-bool __attribute__((overloadable)) atomic_compare_exchange_##STRENGTH(volatile ADDRSPACE atomic_##TYPE *object, ADDRSPACE2 TYPE *expected, TYPE desired); \
-bool __attribute__((overloadable)) atomic_compare_exchange_##STRENGTH##_explicit(volatile ADDRSPACE atomic_##TYPE *object, ADDRSPACE2 TYPE *expected, \
-                                                                                 TYPE desired, memory_order success, memory_order failure); \
-bool __attribute__((overloadable)) atomic_compare_exchange_##STRENGTH##_explicit(volatile ADDRSPACE atomic_##TYPE *object, ADDRSPACE2 TYPE *expected, \
-                                                                                 TYPE desired, memory_order success, memory_order failure, memory_scope scope);
-
-#define atomic_compare_exchange_strength_prototype(TYPE, STRENGTH) \
-atomic_compare_exchange_strength_prototype_addrspace(TYPE, generic, generic, STRENGTH)
-
-atomic_compare_exchange_strength_prototype(int, strong)
-atomic_compare_exchange_strength_prototype(uint, strong)
-atomic_compare_exchange_strength_prototype(int, weak)
-atomic_compare_exchange_strength_prototype(uint, weak)
-atomic_compare_exchange_strength_prototype(float, strong)
-atomic_compare_exchange_strength_prototype(float, weak)
-#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
-atomic_compare_exchange_strength_prototype(double, strong)
-atomic_compare_exchange_strength_prototype(double, weak)
-atomic_compare_exchange_strength_prototype(long, strong)
-atomic_compare_exchange_strength_prototype(long, weak)
-atomic_compare_exchange_strength_prototype(ulong, strong)
-atomic_compare_exchange_strength_prototype(ulong, weak)
-#endif
-
-// atomic_flag_test_and_set() and atomic_flag_clear()
-
-#define atomic_flag_prototype_addrspace(ADDRSPACE, FUNCTYPE, RET) \
-RET __attribute__((overloadable)) atomic_flag_##FUNCTYPE(volatile ADDRSPACE atomic_flag *object); \
-RET __attribute__((overloadable)) atomic_flag_##FUNCTYPE##_explicit(volatile ADDRSPACE atomic_flag *object, memory_order order); \
-RET __attribute__((overloadable)) atomic_flag_##FUNCTYPE##_explicit(volatile ADDRSPACE atomic_flag *object, memory_order order, memory_scope scope);
-
-#define atomic_flag_prototype(FUNCTYPE, RET) \
-atomic_flag_prototype_addrspace(generic, FUNCTYPE, RET)
-
-atomic_flag_prototype(test_and_set, bool)
-atomic_flag_prototype(clear, void)
-
-// undef to not leak into user code
-#undef atomic_flag_prototype
-#undef atomic_flag_prototype_addrspace
-#undef atomic_compare_exchange_strength_prototype
-#undef atomic_compare_exchange_strength_prototype_addrspace
-#undef atomic_exchange_prototype
-#undef atomic_exchange_prototype_addrspace
-#undef atomic_load_prototype
-#undef atomic_load_prototype_addrspace
-#undef atomic_store_prototype
-#undef atomic_store_prototype_addrspace
-#undef atomic_fetch_prototype
-#undef atomic_fetch_prototype_addrspace
-#undef atomic_init_prototype
-#undef atomic_init_prototype_addrspace
-
-void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags, memory_scope scope);
-void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags);
 
 // Workgroup builtins
 int __attribute__((overloadable)) work_group_all(int predicate);
