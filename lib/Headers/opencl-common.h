@@ -5256,6 +5256,937 @@ half8 __const_func __attribute__((overloadable)) select( half8 a, half8 b, ushor
 half16 __const_func __attribute__((overloadable)) select( half16 a, half16 b, ushort16 c );
 #endif //cl_khr_fp16
 
+// Vector data load and store functions
+
+/**
+ * Return sizeof (gentypen) bytes of data read
+ * from address (p + (offset * n)). The address
+ * computed as (p + (offset * n)) must be 8-bit
+ * aligned if gentype is char, uchar; 16-bit
+ * aligned if gentype is short, ushort; 32-bit
+ * aligned if gentype is int, uint, float; 64-bit
+ * aligned if gentype is long, ulong.
+ */
+char2 __attribute__((overloadable)) vload2(size_t offset, const __global char *p);
+uchar2 __attribute__((overloadable)) vload2(size_t offset, const __global uchar *p);
+short2 __attribute__((overloadable)) vload2(size_t offset, const __global short *p);
+ushort2 __attribute__((overloadable)) vload2(size_t offset, const __global ushort *p);
+int2 __attribute__((overloadable)) vload2(size_t offset, const __global int *p);
+uint2 __attribute__((overloadable)) vload2(size_t offset, const __global uint *p);
+long2 __attribute__((overloadable)) vload2(size_t offset, const __global long *p);
+ulong2 __attribute__((overloadable)) vload2(size_t offset, const __global ulong *p);
+float2 __attribute__((overloadable)) vload2(size_t offset, const __global float *p);
+char3 __attribute__((overloadable)) vload3(size_t offset, const __global char *p);
+uchar3 __attribute__((overloadable)) vload3(size_t offset, const __global uchar *p);
+short3 __attribute__((overloadable)) vload3(size_t offset, const __global short *p);
+ushort3 __attribute__((overloadable)) vload3(size_t offset, const __global ushort *p);
+int3 __attribute__((overloadable)) vload3(size_t offset, const __global int *p);
+uint3 __attribute__((overloadable)) vload3(size_t offset, const __global uint *p);
+long3 __attribute__((overloadable)) vload3(size_t offset, const __global long *p);
+ulong3 __attribute__((overloadable)) vload3(size_t offset, const __global ulong *p);
+float3 __attribute__((overloadable)) vload3(size_t offset, const __global float *p);
+char4 __attribute__((overloadable)) vload4(size_t offset, const __global char *p);
+uchar4 __attribute__((overloadable)) vload4(size_t offset, const __global uchar *p);
+short4 __attribute__((overloadable)) vload4(size_t offset, const __global short *p);
+ushort4 __attribute__((overloadable)) vload4(size_t offset, const __global ushort *p);
+int4 __attribute__((overloadable)) vload4(size_t offset, const __global int *p);
+uint4 __attribute__((overloadable)) vload4(size_t offset, const __global uint *p);
+long4 __attribute__((overloadable)) vload4(size_t offset, const __global long *p);
+ulong4 __attribute__((overloadable)) vload4(size_t offset, const __global ulong *p);
+float4 __attribute__((overloadable)) vload4(size_t offset, const __global float *p);
+char8 __attribute__((overloadable)) vload8(size_t offset, const __global char *p);
+uchar8 __attribute__((overloadable)) vload8(size_t offset, const __global uchar *p);
+short8 __attribute__((overloadable)) vload8(size_t offset, const __global short *p);
+ushort8 __attribute__((overloadable)) vload8(size_t offset, const __global ushort *p);
+int8 __attribute__((overloadable)) vload8(size_t offset, const __global int *p);
+uint8 __attribute__((overloadable)) vload8(size_t offset, const __global uint *p);
+long8 __attribute__((overloadable)) vload8(size_t offset, const __global long *p);
+ulong8 __attribute__((overloadable)) vload8(size_t offset, const __global ulong *p);
+float8 __attribute__((overloadable)) vload8(size_t offset, const __global float *p);
+char16 __attribute__((overloadable)) vload16(size_t offset, const __global char *p);
+uchar16 __attribute__((overloadable)) vload16(size_t offset, const __global uchar *p);
+short16 __attribute__((overloadable)) vload16(size_t offset, const __global short *p);
+ushort16 __attribute__((overloadable)) vload16(size_t offset, const __global ushort *p);
+int16 __attribute__((overloadable)) vload16(size_t offset, const __global int *p);
+uint16 __attribute__((overloadable)) vload16(size_t offset, const __global uint *p);
+long16 __attribute__((overloadable)) vload16(size_t offset, const __global long *p);
+ulong16 __attribute__((overloadable)) vload16(size_t offset, const __global ulong *p);
+float16 __attribute__((overloadable)) vload16(size_t offset, const __global float *p);
+char2 __attribute__((overloadable)) vload2(size_t offset, const __local char *p);
+uchar2 __attribute__((overloadable)) vload2(size_t offset, const __local uchar *p);
+short2 __attribute__((overloadable)) vload2(size_t offset, const __local short *p);
+ushort2 __attribute__((overloadable)) vload2(size_t offset, const __local ushort *p);
+int2 __attribute__((overloadable)) vload2(size_t offset, const __local int *p);
+uint2 __attribute__((overloadable)) vload2(size_t offset, const __local uint *p);
+long2 __attribute__((overloadable)) vload2(size_t offset, const __local long *p);
+ulong2 __attribute__((overloadable)) vload2(size_t offset, const __local ulong *p);
+float2 __attribute__((overloadable)) vload2(size_t offset, const __local float *p);
+char3 __attribute__((overloadable)) vload3(size_t offset, const __local char *p);
+uchar3 __attribute__((overloadable)) vload3(size_t offset, const __local uchar *p);
+short3 __attribute__((overloadable)) vload3(size_t offset, const __local short *p);
+ushort3 __attribute__((overloadable)) vload3(size_t offset, const __local ushort *p);
+int3 __attribute__((overloadable)) vload3(size_t offset, const __local int *p);
+uint3 __attribute__((overloadable)) vload3(size_t offset, const __local uint *p);
+long3 __attribute__((overloadable)) vload3(size_t offset, const __local long *p);
+ulong3 __attribute__((overloadable)) vload3(size_t offset, const __local ulong *p);
+float3 __attribute__((overloadable)) vload3(size_t offset, const __local float *p);
+char4 __attribute__((overloadable)) vload4(size_t offset, const __local char *p);
+uchar4 __attribute__((overloadable)) vload4(size_t offset, const __local uchar *p);
+short4 __attribute__((overloadable)) vload4(size_t offset, const __local short *p);
+ushort4 __attribute__((overloadable)) vload4(size_t offset, const __local ushort *p);
+int4 __attribute__((overloadable)) vload4(size_t offset, const __local int *p);
+uint4 __attribute__((overloadable)) vload4(size_t offset, const __local uint *p);
+long4 __attribute__((overloadable)) vload4(size_t offset, const __local long *p);
+ulong4 __attribute__((overloadable)) vload4(size_t offset, const __local ulong *p);
+float4 __attribute__((overloadable)) vload4(size_t offset, const __local float *p);
+char8 __attribute__((overloadable)) vload8(size_t offset, const __local char *p);
+uchar8 __attribute__((overloadable)) vload8(size_t offset, const __local uchar *p);
+short8 __attribute__((overloadable)) vload8(size_t offset, const __local short *p);
+ushort8 __attribute__((overloadable)) vload8(size_t offset, const __local ushort *p);
+int8 __attribute__((overloadable)) vload8(size_t offset, const __local int *p);
+uint8 __attribute__((overloadable)) vload8(size_t offset, const __local uint *p);
+long8 __attribute__((overloadable)) vload8(size_t offset, const __local long *p);
+ulong8 __attribute__((overloadable)) vload8(size_t offset, const __local ulong *p);
+float8 __attribute__((overloadable)) vload8(size_t offset, const __local float *p);
+char16 __attribute__((overloadable)) vload16(size_t offset, const __local char *p);
+uchar16 __attribute__((overloadable)) vload16(size_t offset, const __local uchar *p);
+short16 __attribute__((overloadable)) vload16(size_t offset, const __local short *p);
+ushort16 __attribute__((overloadable)) vload16(size_t offset, const __local ushort *p);
+int16 __attribute__((overloadable)) vload16(size_t offset, const __local int *p);
+uint16 __attribute__((overloadable)) vload16(size_t offset, const __local uint *p);
+long16 __attribute__((overloadable)) vload16(size_t offset, const __local long *p);
+ulong16 __attribute__((overloadable)) vload16(size_t offset, const __local ulong *p);
+float16 __attribute__((overloadable)) vload16(size_t offset, const __local float *p);
+char2 __attribute__((overloadable)) vload2(size_t offset, const __private char *p);
+uchar2 __attribute__((overloadable)) vload2(size_t offset, const __private uchar *p);
+short2 __attribute__((overloadable)) vload2(size_t offset, const __private short *p);
+ushort2 __attribute__((overloadable)) vload2(size_t offset, const __private ushort *p);
+int2 __attribute__((overloadable)) vload2(size_t offset, const __private int *p);
+uint2 __attribute__((overloadable)) vload2(size_t offset, const __private uint *p);
+long2 __attribute__((overloadable)) vload2(size_t offset, const __private long *p);
+ulong2 __attribute__((overloadable)) vload2(size_t offset, const __private ulong *p);
+float2 __attribute__((overloadable)) vload2(size_t offset, const __private float *p);
+char3 __attribute__((overloadable)) vload3(size_t offset, const __private char *p);
+uchar3 __attribute__((overloadable)) vload3(size_t offset, const __private uchar *p);
+short3 __attribute__((overloadable)) vload3(size_t offset, const __private short *p);
+ushort3 __attribute__((overloadable)) vload3(size_t offset, const __private ushort *p);
+int3 __attribute__((overloadable)) vload3(size_t offset, const __private int *p);
+uint3 __attribute__((overloadable)) vload3(size_t offset, const __private uint *p);
+long3 __attribute__((overloadable)) vload3(size_t offset, const __private long *p);
+ulong3 __attribute__((overloadable)) vload3(size_t offset, const __private ulong *p);
+float3 __attribute__((overloadable)) vload3(size_t offset, const __private float *p);
+char4 __attribute__((overloadable)) vload4(size_t offset, const __private char *p);
+uchar4 __attribute__((overloadable)) vload4(size_t offset, const __private uchar *p);
+short4 __attribute__((overloadable)) vload4(size_t offset, const __private short *p);
+ushort4 __attribute__((overloadable)) vload4(size_t offset, const __private ushort *p);
+int4 __attribute__((overloadable)) vload4(size_t offset, const __private int *p);
+uint4 __attribute__((overloadable)) vload4(size_t offset, const __private uint *p);
+long4 __attribute__((overloadable)) vload4(size_t offset, const __private long *p);
+ulong4 __attribute__((overloadable)) vload4(size_t offset, const __private ulong *p);
+float4 __attribute__((overloadable)) vload4(size_t offset, const __private float *p);
+char8 __attribute__((overloadable)) vload8(size_t offset, const __private char *p);
+uchar8 __attribute__((overloadable)) vload8(size_t offset, const __private uchar *p);
+short8 __attribute__((overloadable)) vload8(size_t offset, const __private short *p);
+ushort8 __attribute__((overloadable)) vload8(size_t offset, const __private ushort *p);
+int8 __attribute__((overloadable)) vload8(size_t offset, const __private int *p);
+uint8 __attribute__((overloadable)) vload8(size_t offset, const __private uint *p);
+long8 __attribute__((overloadable)) vload8(size_t offset, const __private long *p);
+ulong8 __attribute__((overloadable)) vload8(size_t offset, const __private ulong *p);
+float8 __attribute__((overloadable)) vload8(size_t offset, const __private float *p);
+char16 __attribute__((overloadable)) vload16(size_t offset, const __private char *p);
+uchar16 __attribute__((overloadable)) vload16(size_t offset, const __private uchar *p);
+short16 __attribute__((overloadable)) vload16(size_t offset, const __private short *p);
+ushort16 __attribute__((overloadable)) vload16(size_t offset, const __private ushort *p);
+int16 __attribute__((overloadable)) vload16(size_t offset, const __private int *p);
+uint16 __attribute__((overloadable)) vload16(size_t offset, const __private uint *p);
+long16 __attribute__((overloadable)) vload16(size_t offset, const __private long *p);
+ulong16 __attribute__((overloadable)) vload16(size_t offset, const __private ulong *p);
+float16 __attribute__((overloadable)) vload16(size_t offset, const __private float *p);
+
+double2 __attribute__((overloadable)) vload2(size_t offset, const __global double *p);
+double3 __attribute__((overloadable)) vload3(size_t offset, const __global double *p);
+double4 __attribute__((overloadable)) vload4(size_t offset, const __global double *p);
+double8 __attribute__((overloadable)) vload8(size_t offset, const __global double *p);
+double16 __attribute__((overloadable)) vload16(size_t offset, const __global double *p);
+double2 __attribute__((overloadable)) vload2(size_t offset, const __local double *p);
+double3 __attribute__((overloadable)) vload3(size_t offset, const __local double *p);
+double4 __attribute__((overloadable)) vload4(size_t offset, const __local double *p);
+double8 __attribute__((overloadable)) vload8(size_t offset, const __local double *p);
+double16 __attribute__((overloadable)) vload16(size_t offset, const __local double *p);
+double2 __attribute__((overloadable)) vload2(size_t offset, const __private double *p);
+double3 __attribute__((overloadable)) vload3(size_t offset, const __private double *p);
+double4 __attribute__((overloadable)) vload4(size_t offset, const __private double *p);
+double8 __attribute__((overloadable)) vload8(size_t offset, const __private double *p);
+double16 __attribute__((overloadable)) vload16(size_t offset, const __private double *p);
+
+char2 __attribute__((overloadable)) vload2(size_t offset, const __constant char *p);
+uchar2 __attribute__((overloadable)) vload2(size_t offset, const __constant uchar *p);
+short2 __attribute__((overloadable)) vload2(size_t offset, const __constant short *p);
+ushort2 __attribute__((overloadable)) vload2(size_t offset, const __constant ushort *p);
+int2 __attribute__((overloadable)) vload2(size_t offset, const __constant int *p);
+uint2 __attribute__((overloadable)) vload2(size_t offset, const __constant uint *p);
+long2 __attribute__((overloadable)) vload2(size_t offset, const __constant long *p);
+ulong2 __attribute__((overloadable)) vload2(size_t offset, const __constant ulong *p);
+float2 __attribute__((overloadable)) vload2(size_t offset, const __constant float *p);
+char3 __attribute__((overloadable)) vload3(size_t offset, const __constant char *p);
+uchar3 __attribute__((overloadable)) vload3(size_t offset, const __constant uchar *p);
+short3 __attribute__((overloadable)) vload3(size_t offset, const __constant short *p);
+ushort3 __attribute__((overloadable)) vload3(size_t offset, const __constant ushort *p);
+int3 __attribute__((overloadable)) vload3(size_t offset, const __constant int *p);
+uint3 __attribute__((overloadable)) vload3(size_t offset, const __constant uint *p);
+long3 __attribute__((overloadable)) vload3(size_t offset, const __constant long *p);
+ulong3 __attribute__((overloadable)) vload3(size_t offset, const __constant ulong *p);
+float3 __attribute__((overloadable)) vload3(size_t offset, const __constant float *p);
+char4 __attribute__((overloadable)) vload4(size_t offset, const __constant char *p);
+uchar4 __attribute__((overloadable)) vload4(size_t offset, const __constant uchar *p);
+short4 __attribute__((overloadable)) vload4(size_t offset, const __constant short *p);
+ushort4 __attribute__((overloadable)) vload4(size_t offset, const __constant ushort *p);
+int4 __attribute__((overloadable)) vload4(size_t offset, const __constant int *p);
+uint4 __attribute__((overloadable)) vload4(size_t offset, const __constant uint *p);
+long4 __attribute__((overloadable)) vload4(size_t offset, const __constant long *p);
+ulong4 __attribute__((overloadable)) vload4(size_t offset, const __constant ulong *p);
+float4 __attribute__((overloadable)) vload4(size_t offset, const __constant float *p);
+char8 __attribute__((overloadable)) vload8(size_t offset, const __constant char *p);
+uchar8 __attribute__((overloadable)) vload8(size_t offset, const __constant uchar *p);
+short8 __attribute__((overloadable)) vload8(size_t offset, const __constant short *p);
+ushort8 __attribute__((overloadable)) vload8(size_t offset, const __constant ushort *p);
+int8 __attribute__((overloadable)) vload8(size_t offset, const __constant int *p);
+uint8 __attribute__((overloadable)) vload8(size_t offset, const __constant uint *p);
+long8 __attribute__((overloadable)) vload8(size_t offset, const __constant long *p);
+ulong8 __attribute__((overloadable)) vload8(size_t offset, const __constant ulong *p);
+float8 __attribute__((overloadable)) vload8(size_t offset, const __constant float *p);
+char16 __attribute__((overloadable)) vload16(size_t offset, const __constant char *p);
+uchar16 __attribute__((overloadable)) vload16(size_t offset, const __constant uchar *p);
+short16 __attribute__((overloadable)) vload16(size_t offset, const __constant short *p);
+ushort16 __attribute__((overloadable)) vload16(size_t offset, const __constant ushort *p);
+int16 __attribute__((overloadable)) vload16(size_t offset, const __constant int *p);
+uint16 __attribute__((overloadable)) vload16(size_t offset, const __constant uint *p);
+long16 __attribute__((overloadable)) vload16(size_t offset, const __constant long *p);
+ulong16 __attribute__((overloadable)) vload16(size_t offset, const __constant ulong *p);
+float16 __attribute__((overloadable)) vload16(size_t offset, const __constant float *p);
+double2 __attribute__((overloadable)) vload2(size_t offset, const __constant double *p);
+double3 __attribute__((overloadable)) vload3(size_t offset, const __constant double *p);
+double4 __attribute__((overloadable)) vload4(size_t offset, const __constant double *p);
+double8 __attribute__((overloadable)) vload8(size_t offset, const __constant double *p);
+double16 __attribute__((overloadable)) vload16(size_t offset, const __constant double *p);
+
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) vload(size_t offset, const __global half *p);
+half2 __attribute__((overloadable)) vload2(size_t offset, const __global half *p);
+half3 __attribute__((overloadable)) vload3(size_t offset, const __global half *p);
+half4 __attribute__((overloadable)) vload4(size_t offset, const __global half *p);
+half8 __attribute__((overloadable)) vload8(size_t offset, const __global half *p);
+half16 __attribute__((overloadable)) vload16(size_t offset, const __global half *p);
+half __attribute__((overloadable)) vload(size_t offset, const __local half *p);
+half2 __attribute__((overloadable)) vload2(size_t offset, const __local half *p);
+half3 __attribute__((overloadable)) vload3(size_t offset, const __local half *p);
+half4 __attribute__((overloadable)) vload4(size_t offset, const __local half *p);
+half8 __attribute__((overloadable)) vload8(size_t offset, const __local half *p);
+half16 __attribute__((overloadable)) vload16(size_t offset, const __local half *p);
+half __attribute__((overloadable)) vload(size_t offset, const __private half *p);
+half2 __attribute__((overloadable)) vload2(size_t offset, const __private half *p);
+half3 __attribute__((overloadable)) vload3(size_t offset, const __private half *p);
+half4 __attribute__((overloadable)) vload4(size_t offset, const __private half *p);
+half8 __attribute__((overloadable)) vload8(size_t offset, const __private half *p);
+half16 __attribute__((overloadable)) vload16(size_t offset, const __private half *p);
+half __attribute__((overloadable)) vload(size_t offset, const __constant half *p);
+half2 __attribute__((overloadable)) vload2(size_t offset, const __constant half *p);
+half3 __attribute__((overloadable)) vload3(size_t offset, const __constant half *p);
+half4 __attribute__((overloadable)) vload4(size_t offset, const __constant half *p);
+half8 __attribute__((overloadable)) vload8(size_t offset, const __constant half *p);
+half16 __attribute__((overloadable)) vload16(size_t offset, const __constant half *p);
+#endif //cl_khr_fp16
+
+/**
+ * Write sizeof (gentypen) bytes given by data
+ * to address (p + (offset * n)). The address
+ * computed as (p + (offset * n)) must be 8-bit
+ * aligned if gentype is char, uchar; 16-bit
+ * aligned if gentype is short, ushort; 32-bit
+ * aligned if gentype is int, uint, float; 64-bit
+ * aligned if gentype is long, ulong.
+ */
+void __attribute__((overloadable)) vstore2(char2 data, size_t offset, __global char *p);
+void __attribute__((overloadable)) vstore2(uchar2 data, size_t offset, __global uchar *p);
+void __attribute__((overloadable)) vstore2(short2 data, size_t offset, __global short *p);
+void __attribute__((overloadable)) vstore2(ushort2 data, size_t offset, __global ushort *p);
+void __attribute__((overloadable)) vstore2(int2 data, size_t offset, __global int *p);
+void __attribute__((overloadable)) vstore2(uint2 data, size_t offset, __global uint *p);
+void __attribute__((overloadable)) vstore2(long2 data, size_t offset, __global long *p);
+void __attribute__((overloadable)) vstore2(ulong2 data, size_t offset, __global ulong *p);
+void __attribute__((overloadable)) vstore2(float2 data, size_t offset, __global float *p);
+void __attribute__((overloadable)) vstore3(char3 data, size_t offset, __global char *p);
+void __attribute__((overloadable)) vstore3(uchar3 data, size_t offset, __global uchar *p);
+void __attribute__((overloadable)) vstore3(short3 data, size_t offset, __global short *p);
+void __attribute__((overloadable)) vstore3(ushort3 data, size_t offset, __global ushort *p);
+void __attribute__((overloadable)) vstore3(int3 data, size_t offset, __global int *p);
+void __attribute__((overloadable)) vstore3(uint3 data, size_t offset, __global uint *p);
+void __attribute__((overloadable)) vstore3(long3 data, size_t offset, __global long *p);
+void __attribute__((overloadable)) vstore3(ulong3 data, size_t offset, __global ulong *p);
+void __attribute__((overloadable)) vstore3(float3 data, size_t offset, __global float *p);
+void __attribute__((overloadable)) vstore4(char4 data, size_t offset, __global char *p);
+void __attribute__((overloadable)) vstore4(uchar4 data, size_t offset, __global uchar *p);
+void __attribute__((overloadable)) vstore4(short4 data, size_t offset, __global short *p);
+void __attribute__((overloadable)) vstore4(ushort4 data, size_t offset, __global ushort *p);
+void __attribute__((overloadable)) vstore4(int4 data, size_t offset, __global int *p);
+void __attribute__((overloadable)) vstore4(uint4 data, size_t offset, __global uint *p);
+void __attribute__((overloadable)) vstore4(long4 data, size_t offset, __global long *p);
+void __attribute__((overloadable)) vstore4(ulong4 data, size_t offset, __global ulong *p);
+void __attribute__((overloadable)) vstore4(float4 data, size_t offset, __global float *p);
+void __attribute__((overloadable)) vstore8(char8 data, size_t offset, __global char *p);
+void __attribute__((overloadable)) vstore8(uchar8 data, size_t offset, __global uchar *p);
+void __attribute__((overloadable)) vstore8(short8 data, size_t offset, __global short *p);
+void __attribute__((overloadable)) vstore8(ushort8 data, size_t offset, __global ushort *p);
+void __attribute__((overloadable)) vstore8(int8 data, size_t offset, __global int *p);
+void __attribute__((overloadable)) vstore8(uint8 data, size_t offset, __global uint *p);
+void __attribute__((overloadable)) vstore8(long8 data, size_t offset, __global long *p);
+void __attribute__((overloadable)) vstore8(ulong8 data, size_t offset, __global ulong *p);
+void __attribute__((overloadable)) vstore8(float8 data, size_t offset, __global float *p);
+void __attribute__((overloadable)) vstore16(char16 data, size_t offset, __global char *p);
+void __attribute__((overloadable)) vstore16(uchar16 data, size_t offset, __global uchar *p);
+void __attribute__((overloadable)) vstore16(short16 data, size_t offset, __global short *p);
+void __attribute__((overloadable)) vstore16(ushort16 data, size_t offset, __global ushort *p);
+void __attribute__((overloadable)) vstore16(int16 data, size_t offset, __global int *p);
+void __attribute__((overloadable)) vstore16(uint16 data, size_t offset, __global uint *p);
+void __attribute__((overloadable)) vstore16(long16 data, size_t offset, __global long *p);
+void __attribute__((overloadable)) vstore16(ulong16 data, size_t offset, __global ulong *p);
+void __attribute__((overloadable)) vstore16(float16 data, size_t offset, __global float *p);
+void __attribute__((overloadable)) vstore2(char2 data, size_t offset, __local char *p);
+void __attribute__((overloadable)) vstore2(uchar2 data, size_t offset, __local uchar *p);
+void __attribute__((overloadable)) vstore2(short2 data, size_t offset, __local short *p);
+void __attribute__((overloadable)) vstore2(ushort2 data, size_t offset, __local ushort *p);
+void __attribute__((overloadable)) vstore2(int2 data, size_t offset, __local int *p);
+void __attribute__((overloadable)) vstore2(uint2 data, size_t offset, __local uint *p);
+void __attribute__((overloadable)) vstore2(long2 data, size_t offset, __local long *p);
+void __attribute__((overloadable)) vstore2(ulong2 data, size_t offset, __local ulong *p);
+void __attribute__((overloadable)) vstore2(float2 data, size_t offset, __local float *p);
+void __attribute__((overloadable)) vstore3(char3 data, size_t offset, __local char *p);
+void __attribute__((overloadable)) vstore3(uchar3 data, size_t offset, __local uchar *p);
+void __attribute__((overloadable)) vstore3(short3 data, size_t offset, __local short *p);
+void __attribute__((overloadable)) vstore3(ushort3 data, size_t offset, __local ushort *p);
+void __attribute__((overloadable)) vstore3(int3 data, size_t offset, __local int *p);
+void __attribute__((overloadable)) vstore3(uint3 data, size_t offset, __local uint *p);
+void __attribute__((overloadable)) vstore3(long3 data, size_t offset, __local long *p);
+void __attribute__((overloadable)) vstore3(ulong3 data, size_t offset, __local ulong *p);
+void __attribute__((overloadable)) vstore3(float3 data, size_t offset, __local float *p);
+void __attribute__((overloadable)) vstore4(char4 data, size_t offset, __local char *p);
+void __attribute__((overloadable)) vstore4(uchar4 data, size_t offset, __local uchar *p);
+void __attribute__((overloadable)) vstore4(short4 data, size_t offset, __local short *p);
+void __attribute__((overloadable)) vstore4(ushort4 data, size_t offset, __local ushort *p);
+void __attribute__((overloadable)) vstore4(int4 data, size_t offset, __local int *p);
+void __attribute__((overloadable)) vstore4(uint4 data, size_t offset, __local uint *p);
+void __attribute__((overloadable)) vstore4(long4 data, size_t offset, __local long *p);
+void __attribute__((overloadable)) vstore4(ulong4 data, size_t offset, __local ulong *p);
+void __attribute__((overloadable)) vstore4(float4 data, size_t offset, __local float *p);
+void __attribute__((overloadable)) vstore8(char8 data, size_t offset, __local char *p);
+void __attribute__((overloadable)) vstore8(uchar8 data, size_t offset, __local uchar *p);
+void __attribute__((overloadable)) vstore8(short8 data, size_t offset, __local short *p);
+void __attribute__((overloadable)) vstore8(ushort8 data, size_t offset, __local ushort *p);
+void __attribute__((overloadable)) vstore8(int8 data, size_t offset, __local int *p);
+void __attribute__((overloadable)) vstore8(uint8 data, size_t offset, __local uint *p);
+void __attribute__((overloadable)) vstore8(long8 data, size_t offset, __local long *p);
+void __attribute__((overloadable)) vstore8(ulong8 data, size_t offset, __local ulong *p);
+void __attribute__((overloadable)) vstore8(float8 data, size_t offset, __local float *p);
+void __attribute__((overloadable)) vstore16(char16 data, size_t offset, __local char *p);
+void __attribute__((overloadable)) vstore16(uchar16 data, size_t offset, __local uchar *p);
+void __attribute__((overloadable)) vstore16(short16 data, size_t offset, __local short *p);
+void __attribute__((overloadable)) vstore16(ushort16 data, size_t offset, __local ushort *p);
+void __attribute__((overloadable)) vstore16(int16 data, size_t offset, __local int *p);
+void __attribute__((overloadable)) vstore16(uint16 data, size_t offset, __local uint *p);
+void __attribute__((overloadable)) vstore16(long16 data, size_t offset, __local long *p);
+void __attribute__((overloadable)) vstore16(ulong16 data, size_t offset, __local ulong *p);
+void __attribute__((overloadable)) vstore16(float16 data, size_t offset, __local float *p);
+void __attribute__((overloadable)) vstore2(char2 data, size_t offset, __private char *p);
+void __attribute__((overloadable)) vstore2(uchar2 data, size_t offset, __private uchar *p);
+void __attribute__((overloadable)) vstore2(short2 data, size_t offset, __private short *p);
+void __attribute__((overloadable)) vstore2(ushort2 data, size_t offset, __private ushort *p);
+void __attribute__((overloadable)) vstore2(int2 data, size_t offset, __private int *p);
+void __attribute__((overloadable)) vstore2(uint2 data, size_t offset, __private uint *p);
+void __attribute__((overloadable)) vstore2(long2 data, size_t offset, __private long *p);
+void __attribute__((overloadable)) vstore2(ulong2 data, size_t offset, __private ulong *p);
+void __attribute__((overloadable)) vstore2(float2 data, size_t offset, __private float *p);
+void __attribute__((overloadable)) vstore3(char3 data, size_t offset, __private char *p);
+void __attribute__((overloadable)) vstore3(uchar3 data, size_t offset, __private uchar *p);
+void __attribute__((overloadable)) vstore3(short3 data, size_t offset, __private short *p);
+void __attribute__((overloadable)) vstore3(ushort3 data, size_t offset, __private ushort *p);
+void __attribute__((overloadable)) vstore3(int3 data, size_t offset, __private int *p);
+void __attribute__((overloadable)) vstore3(uint3 data, size_t offset, __private uint *p);
+void __attribute__((overloadable)) vstore3(long3 data, size_t offset, __private long *p);
+void __attribute__((overloadable)) vstore3(ulong3 data, size_t offset, __private ulong *p);
+void __attribute__((overloadable)) vstore3(float3 data, size_t offset, __private float *p);
+void __attribute__((overloadable)) vstore4(char4 data, size_t offset, __private char *p);
+void __attribute__((overloadable)) vstore4(uchar4 data, size_t offset, __private uchar *p);
+void __attribute__((overloadable)) vstore4(short4 data, size_t offset, __private short *p);
+void __attribute__((overloadable)) vstore4(ushort4 data, size_t offset, __private ushort *p);
+void __attribute__((overloadable)) vstore4(int4 data, size_t offset, __private int *p);
+void __attribute__((overloadable)) vstore4(uint4 data, size_t offset, __private uint *p);
+void __attribute__((overloadable)) vstore4(long4 data, size_t offset, __private long *p);
+void __attribute__((overloadable)) vstore4(ulong4 data, size_t offset, __private ulong *p);
+void __attribute__((overloadable)) vstore4(float4 data, size_t offset, __private float *p);
+void __attribute__((overloadable)) vstore8(char8 data, size_t offset, __private char *p);
+void __attribute__((overloadable)) vstore8(uchar8 data, size_t offset, __private uchar *p);
+void __attribute__((overloadable)) vstore8(short8 data, size_t offset, __private short *p);
+void __attribute__((overloadable)) vstore8(ushort8 data, size_t offset, __private ushort *p);
+void __attribute__((overloadable)) vstore8(int8 data, size_t offset, __private int *p);
+void __attribute__((overloadable)) vstore8(uint8 data, size_t offset, __private uint *p);
+void __attribute__((overloadable)) vstore8(long8 data, size_t offset, __private long *p);
+void __attribute__((overloadable)) vstore8(ulong8 data, size_t offset, __private ulong *p);
+void __attribute__((overloadable)) vstore8(float8 data, size_t offset, __private float *p);
+void __attribute__((overloadable)) vstore16(char16 data, size_t offset, __private char *p);
+void __attribute__((overloadable)) vstore16(uchar16 data, size_t offset, __private uchar *p);
+void __attribute__((overloadable)) vstore16(short16 data, size_t offset, __private short *p);
+void __attribute__((overloadable)) vstore16(ushort16 data, size_t offset, __private ushort *p);
+void __attribute__((overloadable)) vstore16(int16 data, size_t offset, __private int *p);
+void __attribute__((overloadable)) vstore16(uint16 data, size_t offset, __private uint *p);
+void __attribute__((overloadable)) vstore16(long16 data, size_t offset, __private long *p);
+void __attribute__((overloadable)) vstore16(ulong16 data, size_t offset, __private ulong *p);
+void __attribute__((overloadable)) vstore16(float16 data, size_t offset, __private float *p);
+void __attribute__((overloadable)) vstore2(double2 data, size_t offset, __global double *p);
+void __attribute__((overloadable)) vstore3(double3 data, size_t offset, __global double *p);
+void __attribute__((overloadable)) vstore4(double4 data, size_t offset, __global double *p);
+void __attribute__((overloadable)) vstore8(double8 data, size_t offset, __global double *p);
+void __attribute__((overloadable)) vstore16(double16 data, size_t offset, __global double *p);
+void __attribute__((overloadable)) vstore2(double2 data, size_t offset, __local double *p);
+void __attribute__((overloadable)) vstore3(double3 data, size_t offset, __local double *p);
+void __attribute__((overloadable)) vstore4(double4 data, size_t offset, __local double *p);
+void __attribute__((overloadable)) vstore8(double8 data, size_t offset, __local double *p);
+void __attribute__((overloadable)) vstore16(double16 data, size_t offset, __local double *p);
+void __attribute__((overloadable)) vstore2(double2 data, size_t offset, __private double *p);
+void __attribute__((overloadable)) vstore3(double3 data, size_t offset, __private double *p);
+void __attribute__((overloadable)) vstore4(double4 data, size_t offset, __private double *p);
+void __attribute__((overloadable)) vstore8(double8 data, size_t offset, __private double *p);
+void __attribute__((overloadable)) vstore16(double16 data, size_t offset, __private double *p);
+#ifdef cl_khr_fp16
+void __attribute__((overloadable)) vstore(half data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore(half data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore(half data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __private half *p);
+#endif //cl_khr_fp16
+
+/**
+ * Read sizeof (half) bytes of data from address
+ * (p + offset). The data read is interpreted as a
+ * half value. The half value is converted to a
+ * float value and the float value is returned.
+ * The read address computed as (p + offset)
+ * must be 16-bit aligned.
+ */
+float __attribute__((overloadable)) vload_half(size_t offset, const __global half *p);
+float __attribute__((overloadable)) vload_half(size_t offset, const __local half *p);
+float __attribute__((overloadable)) vload_half(size_t offset, const __private half *p);
+float __attribute__((overloadable)) vload_half(size_t offset, const __constant half *p);
+
+/**
+ * Read sizeof (halfn) bytes of data from address
+ * (p + (offset * n)). The data read is interpreted
+ * as a halfn value. The halfn value read is
+ * converted to a floatn value and the floatn
+ * value is returned. The read address computed
+ * as (p + (offset * n)) must be 16-bit aligned.
+ */
+float2 __attribute__((overloadable)) vload_half2(size_t offset, const __global half *p);
+float3 __attribute__((overloadable)) vload_half3(size_t offset, const __global half *p);
+float4 __attribute__((overloadable)) vload_half4(size_t offset, const __global half *p);
+float8 __attribute__((overloadable)) vload_half8(size_t offset, const __global half *p);
+float16 __attribute__((overloadable)) vload_half16(size_t offset, const __global half *p);
+float2 __attribute__((overloadable)) vload_half2(size_t offset, const __local half *p);
+float3 __attribute__((overloadable)) vload_half3(size_t offset, const __local half *p);
+float4 __attribute__((overloadable)) vload_half4(size_t offset, const __local half *p);
+float8 __attribute__((overloadable)) vload_half8(size_t offset, const __local half *p);
+float16 __attribute__((overloadable)) vload_half16(size_t offset, const __local half *p);
+float2 __attribute__((overloadable)) vload_half2(size_t offset, const __private half *p);
+float3 __attribute__((overloadable)) vload_half3(size_t offset, const __private half *p);
+float4 __attribute__((overloadable)) vload_half4(size_t offset, const __private half *p);
+float8 __attribute__((overloadable)) vload_half8(size_t offset, const __private half *p);
+float16 __attribute__((overloadable)) vload_half16(size_t offset, const __private half *p);
+float2 __attribute__((overloadable)) vload_half2(size_t offset, const __constant half *p);
+float3 __attribute__((overloadable)) vload_half3(size_t offset, const __constant half *p);
+float4 __attribute__((overloadable)) vload_half4(size_t offset, const __constant half *p);
+float8 __attribute__((overloadable)) vload_half8(size_t offset, const __constant half *p);
+float16 __attribute__((overloadable)) vload_half16(size_t offset, const __constant half *p);
+
+/**
+ * The float value given by data is first
+ * converted to a half value using the appropriate
+ * rounding mode. The half value is then written
+ * to address computed as (p + offset). The
+ * address computed as (p + offset) must be 16-
+ * bit aligned.
+ * vstore_half use the current rounding mode.
+ * The default current rounding mode is round to
+ * nearest even.
+ */
+void __attribute__((overloadable)) vstore_half(float data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half_rte(float data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half_rtz(float data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half_rtp(float data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half_rtn(float data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half(float data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half_rte(float data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half_rtz(float data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half_rtp(float data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half_rtn(float data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half(float data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half_rte(float data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half_rtz(float data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half_rtp(float data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half_rtn(float data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half(double data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half_rte(double data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half_rtz(double data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half_rtp(double data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half_rtn(double data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half(double data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half_rte(double data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half_rtz(double data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half_rtp(double data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half_rtn(double data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half(double data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half_rte(double data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half_rtz(double data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half_rtp(double data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half_rtn(double data, size_t offset, __private half *p);
+
+/**
+ * The floatn value given by data is converted to
+ * a halfn value using the appropriate rounding
+ * mode. The halfn value is then written to
+ * address computed as (p + (offset * n)). The
+ * address computed as (p + (offset * n)) must be
+ * 16-bit aligned.
+ * vstore_halfn uses the current rounding mode.
+ * The default current rounding mode is round to
+ * nearest even.
+ */
+void __attribute__((overloadable)) vstore_half2(float2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half3(float3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half4(float4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half8(float8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half16(float16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half2_rte(float2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half3_rte(float3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half4_rte(float4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half8_rte(float8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half16_rte(float16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half2_rtz(float2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half3_rtz(float3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half4_rtz(float4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half8_rtz(float8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half16_rtz(float16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half2_rtp(float2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half3_rtp(float3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half4_rtp(float4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half8_rtp(float8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half16_rtp(float16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half2_rtn(float2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half3_rtn(float3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half4_rtn(float4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half8_rtn(float8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half16_rtn(float16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half2(float2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half3(float3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half4(float4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half8(float8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half16(float16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half2_rte(float2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half3_rte(float3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half4_rte(float4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half8_rte(float8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half16_rte(float16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half2_rtz(float2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half3_rtz(float3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half4_rtz(float4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half8_rtz(float8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half16_rtz(float16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half2_rtp(float2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half3_rtp(float3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half4_rtp(float4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half8_rtp(float8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half16_rtp(float16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half2_rtn(float2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half3_rtn(float3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half4_rtn(float4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half8_rtn(float8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half16_rtn(float16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half2(float2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half3(float3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half4(float4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half8(float8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half16(float16 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half2_rte(float2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half3_rte(float3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half4_rte(float4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half8_rte(float8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half16_rte(float16 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half2_rtz(float2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half3_rtz(float3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half4_rtz(float4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half8_rtz(float8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half16_rtz(float16 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half2_rtp(float2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half3_rtp(float3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half4_rtp(float4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half8_rtp(float8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half16_rtp(float16 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half2_rtn(float2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half3_rtn(float3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half4_rtn(float4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half8_rtn(float8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half16_rtn(float16 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half2(double2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half3(double3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half4(double4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half8(double8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half16(double16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half2_rte(double2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half3_rte(double3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half4_rte(double4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half8_rte(double8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half16_rte(double16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half2_rtz(double2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half3_rtz(double3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half4_rtz(double4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half8_rtz(double8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half16_rtz(double16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half2_rtp(double2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half3_rtp(double3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half4_rtp(double4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half8_rtp(double8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half16_rtp(double16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half2_rtn(double2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half3_rtn(double3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half4_rtn(double4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half8_rtn(double8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half16_rtn(double16 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstore_half2(double2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half3(double3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half4(double4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half8(double8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half16(double16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half2_rte(double2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half3_rte(double3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half4_rte(double4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half8_rte(double8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half16_rte(double16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half2_rtz(double2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half3_rtz(double3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half4_rtz(double4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half8_rtz(double8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half16_rtz(double16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half2_rtp(double2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half3_rtp(double3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half4_rtp(double4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half8_rtp(double8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half16_rtp(double16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half2_rtn(double2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half3_rtn(double3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half4_rtn(double4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half8_rtn(double8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half16_rtn(double16 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstore_half2(double2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half3(double3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half4(double4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half8(double8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half16(double16 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half2_rte(double2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half3_rte(double3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half4_rte(double4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half8_rte(double8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half16_rte(double16 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half2_rtz(double2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half3_rtz(double3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half4_rtz(double4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half8_rtz(double8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half16_rtz(double16 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half2_rtp(double2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half3_rtp(double3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half4_rtp(double4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half8_rtp(double8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half16_rtp(double16 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half2_rtn(double2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half3_rtn(double3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half4_rtn(double4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half8_rtn(double8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstore_half16_rtn(double16 data, size_t offset, __private half *p);
+
+/**
+ * For n = 1, 2, 4, 8 and 16 read sizeof (halfn)
+ * bytes of data from address (p + (offset * n)).
+ * The data read is interpreted as a halfn value.
+ * The halfn value read is converted to a floatn
+ * value and the floatn value is returned.
+ * The address computed as (p + (offset * n))
+ * must be aligned to sizeof (halfn) bytes.
+ * For n = 3, vloada_half3 reads a half3 from
+ * address (p + (offset * 4)) and returns a float3.
+ * The address computed as (p + (offset * 4))
+ * must be aligned to sizeof (half) * 4 bytes.
+ */
+float __attribute__((overloadable)) vloada_half(size_t offset, const __global half *p);
+float2 __attribute__((overloadable)) vloada_half2(size_t offset, const __global half *p);
+float3 __attribute__((overloadable)) vloada_half3(size_t offset, const __global half *p);
+float4 __attribute__((overloadable)) vloada_half4(size_t offset, const __global half *p);
+float8 __attribute__((overloadable)) vloada_half8(size_t offset, const __global half *p);
+float16 __attribute__((overloadable)) vloada_half16(size_t offset, const __global half *p);
+float __attribute__((overloadable)) vloada_half(size_t offset, const __local half *p);
+float2 __attribute__((overloadable)) vloada_half2(size_t offset, const __local half *p);
+float3 __attribute__((overloadable)) vloada_half3(size_t offset, const __local half *p);
+float4 __attribute__((overloadable)) vloada_half4(size_t offset, const __local half *p);
+float8 __attribute__((overloadable)) vloada_half8(size_t offset, const __local half *p);
+float16 __attribute__((overloadable)) vloada_half16(size_t offset, const __local half *p);
+float __attribute__((overloadable)) vloada_half(size_t offset, const __private half *p);
+float2 __attribute__((overloadable)) vloada_half2(size_t offset, const __private half *p);
+float3 __attribute__((overloadable)) vloada_half3(size_t offset, const __private half *p);
+float4 __attribute__((overloadable)) vloada_half4(size_t offset, const __private half *p);
+float8 __attribute__((overloadable)) vloada_half8(size_t offset, const __private half *p);
+float16 __attribute__((overloadable)) vloada_half16(size_t offset, const __private half *p);
+float __attribute__((overloadable)) vloada_half(size_t offset, const __constant half *p);
+float2 __attribute__((overloadable)) vloada_half2(size_t offset, const __constant half *p);
+float3 __attribute__((overloadable)) vloada_half3(size_t offset, const __constant half *p);
+float4 __attribute__((overloadable)) vloada_half4(size_t offset, const __constant half *p);
+float8 __attribute__((overloadable)) vloada_half8(size_t offset, const __constant half *p);
+float16 __attribute__((overloadable)) vloada_half16(size_t offset, const __constant half *p);
+
+/**
+ * The floatn value given by data is converted to
+ * a halfn value using the appropriate rounding
+ * mode.
+ * For n = 1, 2, 4, 8 and 16, the halfn value is
+ * written to the address computed as (p + (offset
+ * * n)). The address computed as (p + (offset *
+ * n)) must be aligned to sizeof (halfn) bytes.
+ * For n = 3, the half3 value is written to the
+ * address computed as (p + (offset * 4)). The
+ * address computed as (p + (offset * 4)) must be
+ * aligned to sizeof (half) * 4 bytes.
+ * vstorea_halfn uses the current rounding
+ * mode. The default current rounding mode is
+ * round to nearest even.
+ */
+void __attribute__((overloadable)) vstorea_half(float data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half2(float2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half3(float3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half4(float4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half8(float8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half16(float16 data, size_t offset, __global half *p);
+
+void __attribute__((overloadable)) vstorea_half_rte(float data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half2_rte(float2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half3_rte(float3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half4_rte(float4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half8_rte(float8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half16_rte(float16 data, size_t offset, __global half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtz(float data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half2_rtz(float2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half3_rtz(float3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half4_rtz(float4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half8_rtz(float8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half16_rtz(float16 data, size_t offset, __global half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtp(float data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half2_rtp(float2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half3_rtp(float3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half4_rtp(float4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half8_rtp(float8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half16_rtp(float16 data, size_t offset, __global half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtn(float data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half2_rtn(float2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half3_rtn(float3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half4_rtn(float4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half8_rtn(float8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half16_rtn(float16 data, size_t offset, __global half *p);
+
+void __attribute__((overloadable)) vstorea_half(float data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half2(float2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half3(float3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half4(float4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half8(float8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half16(float16 data, size_t offset, __local half *p);
+
+void __attribute__((overloadable)) vstorea_half_rte(float data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half2_rte(float2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half3_rte(float3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half4_rte(float4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half8_rte(float8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half16_rte(float16 data, size_t offset, __local half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtz(float data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half2_rtz(float2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half3_rtz(float3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half4_rtz(float4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half8_rtz(float8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half16_rtz(float16 data, size_t offset, __local half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtp(float data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half2_rtp(float2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half3_rtp(float3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half4_rtp(float4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half8_rtp(float8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half16_rtp(float16 data, size_t offset, __local half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtn(float data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half2_rtn(float2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half3_rtn(float3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half4_rtn(float4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half8_rtn(float8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half16_rtn(float16 data, size_t offset, __local half *p);
+
+void __attribute__((overloadable)) vstorea_half(float data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half2(float2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half3(float3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half4(float4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half8(float8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half16(float16 data, size_t offset, __private half *p);
+
+void __attribute__((overloadable)) vstorea_half_rte(float data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half2_rte(float2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half3_rte(float3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half4_rte(float4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half8_rte(float8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half16_rte(float16 data, size_t offset, __private half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtz(float data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half2_rtz(float2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half3_rtz(float3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half4_rtz(float4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half8_rtz(float8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half16_rtz(float16 data, size_t offset, __private half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtp(float data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half2_rtp(float2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half3_rtp(float3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half4_rtp(float4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half8_rtp(float8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half16_rtp(float16 data, size_t offset, __private half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtn(float data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half2_rtn(float2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half3_rtn(float3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half4_rtn(float4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half8_rtn(float8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half16_rtn(float16 data, size_t offset, __private half *p);
+
+void __attribute__((overloadable)) vstorea_half(double data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half2(double2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half3(double3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half4(double4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half8(double8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half16(double16 data, size_t offset, __global half *p);
+
+void __attribute__((overloadable)) vstorea_half_rte(double data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half2_rte(double2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half3_rte(double3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half4_rte(double4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half8_rte(double8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half16_rte(double16 data, size_t offset, __global half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtz(double data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half2_rtz(double2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half3_rtz(double3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half4_rtz(double4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half8_rtz(double8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half16_rtz(double16 data, size_t offset, __global half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtp(double data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half2_rtp(double2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half3_rtp(double3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half4_rtp(double4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half8_rtp(double8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half16_rtp(double16 data, size_t offset, __global half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtn(double data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half2_rtn(double2 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half3_rtn(double3 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half4_rtn(double4 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half8_rtn(double8 data, size_t offset, __global half *p);
+void __attribute__((overloadable)) vstorea_half16_rtn(double16 data, size_t offset, __global half *p);
+
+void __attribute__((overloadable)) vstorea_half(double data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half2(double2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half3(double3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half4(double4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half8(double8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half16(double16 data, size_t offset, __local half *p);
+
+void __attribute__((overloadable)) vstorea_half_rte(double data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half2_rte(double2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half3_rte(double3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half4_rte(double4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half8_rte(double8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half16_rte(double16 data, size_t offset, __local half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtz(double data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half2_rtz(double2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half3_rtz(double3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half4_rtz(double4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half8_rtz(double8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half16_rtz(double16 data, size_t offset, __local half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtp(double data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half2_rtp(double2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half3_rtp(double3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half4_rtp(double4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half8_rtp(double8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half16_rtp(double16 data, size_t offset, __local half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtn(double data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half2_rtn(double2 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half3_rtn(double3 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half4_rtn(double4 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half8_rtn(double8 data, size_t offset, __local half *p);
+void __attribute__((overloadable)) vstorea_half16_rtn(double16 data, size_t offset, __local half *p);
+
+void __attribute__((overloadable)) vstorea_half(double data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half2(double2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half3(double3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half4(double4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half8(double8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half16(double16 data, size_t offset, __private half *p);
+
+void __attribute__((overloadable)) vstorea_half_rte(double data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half2_rte(double2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half3_rte(double3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half4_rte(double4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half8_rte(double8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half16_rte(double16 data, size_t offset, __private half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtz(double data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half2_rtz(double2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half3_rtz(double3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half4_rtz(double4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half8_rtz(double8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half16_rtz(double16 data, size_t offset, __private half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtp(double data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half2_rtp(double2 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half3_rtp(double3 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half4_rtp(double4 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half8_rtp(double8 data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half16_rtp(double16 data, size_t offset, __private half *p);
+
+void __attribute__((overloadable)) vstorea_half_rtn(double data, size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half2_rtn(double2 data,size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half3_rtn(double3 data,size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half4_rtn(double4 data,size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half8_rtn(double8 data,size_t offset, __private half *p);
+void __attribute__((overloadable)) vstorea_half16_rtn(double16 data,size_t offset, __private half *p);
+
 // Synchronization functions
 
 /**
@@ -12268,51 +13199,7 @@ void __attribute__((overloadable)) prefetch(const __global half4 *p, size_t num_
 void __attribute__((overloadable)) prefetch(const __global half8 *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global half16 *p, size_t num_elements);
 
-// vload
-half __attribute__((overloadable)) vload(size_t offset, const __global half *p);
-half2 __attribute__((overloadable)) vload2(size_t offset, const __global half *p);
-half3 __attribute__((overloadable)) vload3(size_t offset, const __global half *p);
-half4 __attribute__((overloadable)) vload4(size_t offset, const __global half *p);
-half8 __attribute__((overloadable)) vload8(size_t offset, const __global half *p);
-half16 __attribute__((overloadable)) vload16(size_t offset, const __global half *p);
-half __attribute__((overloadable)) vload(size_t offset, const __local half *p);
-half2 __attribute__((overloadable)) vload2(size_t offset, const __local half *p);
-half3 __attribute__((overloadable)) vload3(size_t offset, const __local half *p);
-half4 __attribute__((overloadable)) vload4(size_t offset, const __local half *p);
-half8 __attribute__((overloadable)) vload8(size_t offset, const __local half *p);
-half16 __attribute__((overloadable)) vload16(size_t offset, const __local half *p);
-half __attribute__((overloadable)) vload(size_t offset, const __private half *p);
-half2 __attribute__((overloadable)) vload2(size_t offset, const __private half *p);
-half3 __attribute__((overloadable)) vload3(size_t offset, const __private half *p);
-half4 __attribute__((overloadable)) vload4(size_t offset, const __private half *p);
-half8 __attribute__((overloadable)) vload8(size_t offset, const __private half *p);
-half16 __attribute__((overloadable)) vload16(size_t offset, const __private half *p);
-half __attribute__((overloadable)) vload(size_t offset, const __constant half *p);
-half2 __attribute__((overloadable)) vload2(size_t offset, const __constant half *p);
-half3 __attribute__((overloadable)) vload3(size_t offset, const __constant half *p);
-half4 __attribute__((overloadable)) vload4(size_t offset, const __constant half *p);
-half8 __attribute__((overloadable)) vload8(size_t offset, const __constant half *p);
-half16 __attribute__((overloadable)) vload16(size_t offset, const __constant half *p);
 
-// vstore
-void __attribute__((overloadable)) vstore(half data, size_t offset, __global half *p);
-void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __global half *p);
-void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __global half *p);
-void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __global half *p);
-void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __global half *p);
-void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __global half *p);
-void __attribute__((overloadable)) vstore(half data, size_t offset, __local half *p);
-void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __local half *p);
-void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __local half *p);
-void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __local half *p);
-void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __local half *p);
-void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __local half *p);
-void __attribute__((overloadable)) vstore(half data, size_t offset, __private half *p);
-void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __private half *p);
-void __attribute__((overloadable)) vstore3(half3 data, size_t offset, __private half *p);
-void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __private half *p);
-void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __private half *p);
-void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __private half *p);
 #endif // cl_khr_fp16
 
 #endif // defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ == 120
