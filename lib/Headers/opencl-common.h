@@ -6583,6 +6583,16 @@ half16 __attribute__((overloadable)) convert_half16_rtz( half16 );
 #define as_half16(x) __builtin_astype((x), half16)
 #endif //cl_khr_fp16
 
+// Function qualifiers (section 6.7)
+
+#define __kernel_exec(X, typen) __kernel \
+	__attribute__((work_group_size_hint(X, 1, 1))) \
+	__attribute__((vec_type_hint(typen)))
+
+#define kernel_exec(X, typen) __kernel \
+	__attribute__((work_group_size_hint(X, 1, 1))) \
+	__attribute__((vec_type_hint(typen)))
+
 // work-item functions
 
 /**
@@ -6668,7 +6678,6 @@ size_t __const_func __attribute__((overloadable)) get_group_id(uint dimindx);
  */
 size_t __const_func __attribute__((overloadable)) get_global_offset(uint dimindx);
 
-int printf(__constant const char* st, ...);
 // Math functions:
 
 /**
@@ -13571,15 +13580,237 @@ unsigned int __attribute__((overloadable)) atom_xor(volatile __local unsigned in
 #pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : disable
 #endif
 
-// Function qualifiers (section 6.7)
+//
+// c11 atomics definitions
+//
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#define ATOMIC_VAR_INIT(x) (x)
 
-#define __kernel_exec(X, typen) __kernel \
-	__attribute__((work_group_size_hint(X, 1, 1))) \
-	__attribute__((vec_type_hint(typen)))
+#define ATOMIC_FLAG_INIT 0
 
-#define kernel_exec(X, typen) __kernel \
-	__attribute__((work_group_size_hint(X, 1, 1))) \
-	__attribute__((vec_type_hint(typen)))
+// enum values aligned with what clang uses in EmitAtomicExpr()
+typedef enum memory_order
+{
+  memory_order_relaxed,
+  memory_order_acquire,
+  memory_order_release,
+  memory_order_acq_rel,
+  memory_order_seq_cst
+} memory_order;
+
+typedef enum memory_scope
+{
+  memory_scope_work_item,
+  memory_scope_work_group,
+  memory_scope_device,
+  memory_scope_all_svm_devices,
+  memory_scope_sub_group
+} memory_scope;
+
+// double atomics support requires extensions cl_khr_int64_base_atomics and cl_khr_int64_extended_atomics
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#pragma OPENCL EXTENSION cl_khr_int64_base_atomics : enable
+#pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : enable
+#endif
+
+// atomic_init()
+#define atomic_init_prototype_addrspace(TYPE, ADDRSPACE) \
+void __attribute__((overloadable)) atomic_init(volatile ADDRSPACE atomic_##TYPE *object, TYPE value);
+
+#define atomic_init_prototype(TYPE) \
+atomic_init_prototype_addrspace(TYPE, generic)
+
+atomic_init_prototype(int)
+atomic_init_prototype(uint)
+atomic_init_prototype(float)
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+atomic_init_prototype(long)
+atomic_init_prototype(ulong)
+atomic_init_prototype(double)
+#endif
+
+// atomic_work_item_fence()
+void __attribute__((overloadable)) atomic_work_item_fence(cl_mem_fence_flags flags, memory_order order, memory_scope scope);
+
+// atomic_fetch()
+#define atomic_fetch_prototype_addrspace(KEY, TYPE, OPTYPE, ADDRSPACE) \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand); \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order); \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order, memory_scope scope);
+
+#define atomic_fetch_prototype(KEY, TYPE, OPTYPE) \
+atomic_fetch_prototype_addrspace(KEY, TYPE, OPTYPE, generic)
+
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#define atomic_fetch_supported_prototype(KEY) \
+atomic_fetch_prototype(KEY, int, int) \
+atomic_fetch_prototype(KEY, uint, uint) \
+atomic_fetch_prototype(KEY, long, long) \
+atomic_fetch_prototype(KEY, ulong, ulong) \
+atomic_fetch_prototype(KEY, uint, int) \
+atomic_fetch_prototype(KEY, ulong, long) // the (size_t, ptrdiff_t) variety
+#else
+#define atomic_fetch_supported_prototype(KEY) \
+atomic_fetch_prototype(KEY, int, int) \
+atomic_fetch_prototype(KEY, uint, uint) \
+atomic_fetch_prototype(KEY, uint, int) // the (size_t, ptrdiff_t) variety for 32-bit
+#endif
+atomic_fetch_supported_prototype(add)
+atomic_fetch_supported_prototype(sub)
+atomic_fetch_supported_prototype(or)
+atomic_fetch_supported_prototype(xor)
+atomic_fetch_supported_prototype(and)
+
+#undef atomic_fetch_supported_prototype
+
+// atomic_fetch_min/max()
+
+#define atomic_fetch_minmax_prototype_addrspace(KEY, TYPE, OPTYPE, ADDRSPACE) \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand); \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order); \
+TYPE __attribute__((overloadable)) atomic_fetch_##KEY##_explicit(volatile ADDRSPACE atomic_##TYPE *object, OPTYPE operand, memory_order order, memory_scope scope);
+
+#define atomic_fetch_minmax_prototype(KEY, TYPE, OPTYPE) \
+atomic_fetch_minmax_prototype_addrspace(KEY, TYPE, OPTYPE, generic)
+
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#define atomic_fetch_minmax_supported_prototypes(KEY) \
+atomic_fetch_minmax_prototype(KEY, int, int) \
+atomic_fetch_minmax_prototype(KEY, uint, uint) \
+atomic_fetch_minmax_prototype(KEY, long, long) \
+atomic_fetch_minmax_prototype(KEY, ulong, ulong) \
+atomic_fetch_minmax_prototype(KEY, uint, int) \
+atomic_fetch_minmax_prototype(KEY, ulong, long) // ulong/long flavor - the (size_t, ptrdiff_t) variety for 64-bit
+#else
+#define atomic_fetch_minmax_supported_prototypes(KEY) \
+atomic_fetch_minmax_prototype(KEY, int, int) \
+atomic_fetch_minmax_prototype(KEY, uint, uint) \
+atomic_fetch_minmax_prototype(KEY, uint, int) // uint/int flavor - the (size_t, ptrdiff_t) variety for 32-bit
+#endif
+
+atomic_fetch_minmax_supported_prototypes(min)
+atomic_fetch_minmax_supported_prototypes(max)
+
+#undef atomic_fetch_minmax_supported_prototypes
+#undef atomic_fetch_minmax_prototype
+#undef atomic_fetch_minmax_prototype_addrspace
+
+// atomic_store()
+
+#define atomic_store_prototype_addrspace(TYPE, ADDRSPACE) \
+void __attribute__((overloadable)) atomic_store(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired); \
+void __attribute__((overloadable)) atomic_store_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order); \
+void __attribute__((overloadable)) atomic_store_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order, memory_scope scope);
+
+#define atomic_store_prototype(TYPE) \
+atomic_store_prototype_addrspace(TYPE, generic)
+
+atomic_store_prototype(int)
+atomic_store_prototype(uint)
+atomic_store_prototype(float)
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+atomic_store_prototype(double)
+atomic_store_prototype(long)
+atomic_store_prototype(ulong)
+#endif
+// atomic_load()
+
+#define atomic_load_prototype_addrspace(TYPE, ADDRSPACE) \
+TYPE __attribute__((overloadable)) atomic_load(volatile ADDRSPACE atomic_##TYPE *object); \
+TYPE __attribute__((overloadable)) atomic_load_explicit(volatile ADDRSPACE atomic_##TYPE *object, memory_order order); \
+TYPE __attribute__((overloadable)) atomic_load_explicit(volatile ADDRSPACE atomic_##TYPE *object, memory_order order, memory_scope scope);
+
+#define atomic_load_prototype(TYPE) \
+atomic_load_prototype_addrspace(TYPE, generic)
+
+atomic_load_prototype(int)
+atomic_load_prototype(uint)
+atomic_load_prototype(float)
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+atomic_load_prototype(double)
+atomic_load_prototype(long)
+atomic_load_prototype(ulong)
+#endif
+
+// atomic_exchange()
+
+#define atomic_exchange_prototype_addrspace(TYPE, ADDRSPACE) \
+TYPE __attribute__((overloadable)) atomic_exchange(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired); \
+TYPE __attribute__((overloadable)) atomic_exchange_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order); \
+TYPE __attribute__((overloadable)) atomic_exchange_explicit(volatile ADDRSPACE atomic_##TYPE *object, TYPE desired, memory_order order, memory_scope scope);
+
+#define atomic_exchange_prototype(TYPE) \
+atomic_exchange_prototype_addrspace(TYPE, generic)
+
+atomic_exchange_prototype(int)
+atomic_exchange_prototype(uint)
+atomic_exchange_prototype(float)
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+atomic_exchange_prototype(double)
+atomic_exchange_prototype(long)
+atomic_exchange_prototype(ulong)
+#endif
+
+// atomic_compare_exchange_strong() and atomic_compare_exchange_weak()
+
+#define atomic_compare_exchange_strength_prototype_addrspace(TYPE, ADDRSPACE, ADDRSPACE2, STRENGTH) \
+bool __attribute__((overloadable)) atomic_compare_exchange_##STRENGTH(volatile ADDRSPACE atomic_##TYPE *object, ADDRSPACE2 TYPE *expected, TYPE desired); \
+bool __attribute__((overloadable)) atomic_compare_exchange_##STRENGTH##_explicit(volatile ADDRSPACE atomic_##TYPE *object, ADDRSPACE2 TYPE *expected, \
+                                                                                 TYPE desired, memory_order success, memory_order failure); \
+bool __attribute__((overloadable)) atomic_compare_exchange_##STRENGTH##_explicit(volatile ADDRSPACE atomic_##TYPE *object, ADDRSPACE2 TYPE *expected, \
+                                                                                 TYPE desired, memory_order success, memory_order failure, memory_scope scope);
+
+#define atomic_compare_exchange_strength_prototype(TYPE, STRENGTH) \
+atomic_compare_exchange_strength_prototype_addrspace(TYPE, generic, generic, STRENGTH)
+
+atomic_compare_exchange_strength_prototype(int, strong)
+atomic_compare_exchange_strength_prototype(uint, strong)
+atomic_compare_exchange_strength_prototype(int, weak)
+atomic_compare_exchange_strength_prototype(uint, weak)
+atomic_compare_exchange_strength_prototype(float, strong)
+atomic_compare_exchange_strength_prototype(float, weak)
+#if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+atomic_compare_exchange_strength_prototype(double, strong)
+atomic_compare_exchange_strength_prototype(double, weak)
+atomic_compare_exchange_strength_prototype(long, strong)
+atomic_compare_exchange_strength_prototype(long, weak)
+atomic_compare_exchange_strength_prototype(ulong, strong)
+atomic_compare_exchange_strength_prototype(ulong, weak)
+#endif
+
+// atomic_flag_test_and_set() and atomic_flag_clear()
+
+#define atomic_flag_prototype_addrspace(ADDRSPACE, FUNCTYPE, RET) \
+RET __attribute__((overloadable)) atomic_flag_##FUNCTYPE(volatile ADDRSPACE atomic_flag *object); \
+RET __attribute__((overloadable)) atomic_flag_##FUNCTYPE##_explicit(volatile ADDRSPACE atomic_flag *object, memory_order order); \
+RET __attribute__((overloadable)) atomic_flag_##FUNCTYPE##_explicit(volatile ADDRSPACE atomic_flag *object, memory_order order, memory_scope scope);
+
+#define atomic_flag_prototype(FUNCTYPE, RET) \
+atomic_flag_prototype_addrspace(generic, FUNCTYPE, RET)
+
+atomic_flag_prototype(test_and_set, bool)
+atomic_flag_prototype(clear, void)
+
+// undef to not leak into user code
+#undef atomic_flag_prototype
+#undef atomic_flag_prototype_addrspace
+#undef atomic_compare_exchange_strength_prototype
+#undef atomic_compare_exchange_strength_prototype_addrspace
+#undef atomic_exchange_prototype
+#undef atomic_exchange_prototype_addrspace
+#undef atomic_load_prototype
+#undef atomic_load_prototype_addrspace
+#undef atomic_store_prototype
+#undef atomic_store_prototype_addrspace
+#undef atomic_fetch_prototype
+#undef atomic_fetch_prototype_addrspace
+#undef atomic_init_prototype
+#undef atomic_init_prototype_addrspace
+
+void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags, memory_scope scope);
+void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags);
+
+#endif //__OPENCL_C_VERSION__
 
 // Miscellaneous vector functions
 
@@ -14068,6 +14299,8 @@ half16 __const_func __attribute__((overloadable)) shuffle2( half4 x, half4 y, us
 half16 __const_func __attribute__((overloadable)) shuffle2( half8 x, half8 y, ushort16 mask );
 half16 __const_func __attribute__((overloadable)) shuffle2( half16 x, half16 y, ushort16 mask );
 #endif //cl_khr_fp16
+
+int printf(__constant const char* st, ...);
 
 // ToDo: reorganize
 // Image Read and Write Functions
