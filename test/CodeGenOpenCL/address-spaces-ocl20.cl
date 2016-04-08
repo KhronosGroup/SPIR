@@ -1,5 +1,9 @@
 // RUN: %clang_cc1 %s -triple spir-unknown-unknown -cl-std=CL2.0 -emit-llvm -O0 -o - | FileCheck %s
 
+#define CLK_ADDRESS_CLAMP_TO_EDGE       2
+#define CLK_NORMALIZED_COORDS_TRUE      1
+#define CLK_FILTER_LINEAR               0x20
+
 typedef unsigned char uchar;
 
 global int baz = 12; // OK. Initialization is allowed
@@ -12,8 +16,9 @@ global int * constant ptr3 = &baz; // OK
 global int *global baz_ptr = &baz;
 // CHECK: @baz_ptr = addrspace(1) global i32 addrspace(1)* @baz, align 4
 
-const sampler_t sampler = 10;
-// CHECK: @sampler = constant i32 10, align 4
+const sampler_t sampler = CLK_ADDRESS_CLAMP_TO_EDGE | CLK_NORMALIZED_COORDS_TRUE | CLK_FILTER_LINEAR;
+// CHECK: @.sampler.init = internal addrspace(2) constant %spirv.ConstantSampler { i32 1, i32 1, i32 1 }
+// CHECK: @sampler = constant %spirv.Sampler addrspace(2)* bitcast (%spirv.ConstantSampler addrspace(2)* @.sampler.init to %spirv.Sampler addrspace(2)*)
 
 static global int bat; // OK. Internal linkage
 // CHECK: @bat = internal addrspace(1) global i32 0, align 4

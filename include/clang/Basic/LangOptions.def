@@ -197,7 +197,6 @@ ENUM_LANGOPT(StackProtector, StackProtectorMode, 2, SSPOff,
              "stack protector mode")
 ENUM_LANGOPT(SignedOverflowBehavior, SignedOverflowBehaviorTy, 2, SOB_Undefined,
              "signed integer overflow handling")
-
 BENIGN_LANGOPT(ArrowDepth, 32, 256,
                "maximum number of operator->s to follow")
 BENIGN_LANGOPT(InstantiationDepth, 32, 256,
@@ -222,7 +221,7 @@ LANGOPT(SanitizeAddressFieldPadding, 2, 0, "controls how aggressive is ASan "
                                            "aggressive, 2: more aggressive)")
 
 LANGOPT(CLEnableHalf            , 1, 0, "cl-enable-half flag used")
-LANGOPT(CLKeepSamplerType, 1, 0, "Preserve type of sampler variables in emitted SPIR")
+LANGOPT(CLSamplerOpaque, 1, 0, "Emit sampler as a pointer to opaque structure")
 
 #undef LANGOPT
 #undef COMPATIBLE_LANGOPT
