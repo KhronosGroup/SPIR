@@ -1123,6 +1123,176 @@ half16 __const_func __attribute__((overloadable)) fmod( half16 x, half16 y );
 #endif //cl_khr_fp16
 
 /**
+ * Returns fmin( x - floor (x), 0x1.fffffep-1f ).
+ * floor(x) is returned in iptr.
+ */
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+float __attribute__((overloadable)) fract(float x, float *iptr);
+float2 __attribute__((overloadable)) fract(float2 x, float2 *iptr);
+float3 __attribute__((overloadable)) fract(float3 x, float3 *iptr);
+float4 __attribute__((overloadable)) fract(float4 x, float4 *iptr);
+float8 __attribute__((overloadable)) fract(float8 x, float8 *iptr);
+float16 __attribute__((overloadable)) fract(float16 x, float16 *iptr);
+double __attribute__((overloadable)) fract(double x, double *iptr);
+double2 __attribute__((overloadable)) fract(double2 x, double2 *iptr);
+double3 __attribute__((overloadable)) fract(double3 x, double3 *iptr);
+double4 __attribute__((overloadable)) fract(double4 x, double4 *iptr);
+double8 __attribute__((overloadable)) fract(double8 x, double8 *iptr);
+double16 __attribute__((overloadable)) fract(double16 x, double16 *iptr);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) fract(half x, half *iptr);
+half2 __attribute__((overloadable)) fract(half2 x, half2 *iptr);
+half3 __attribute__((overloadable)) fract(half3 x, half3 *iptr);
+half4 __attribute__((overloadable)) fract(half4 x, half4 *iptr);
+half8 __attribute__((overloadable)) fract(half8 x, half8 *iptr);
+half16 __attribute__((overloadable)) fract(half16 x, half16 *iptr);
+#endif //cl_khr_fp16
+#else
+float __attribute__((overloadable)) fract(float x, __global float *iptr);
+float2 __attribute__((overloadable)) fract(float2 x, __global float2 *iptr);
+float3 __attribute__((overloadable)) fract(float3 x, __global float3 *iptr);
+float4 __attribute__((overloadable)) fract(float4 x, __global float4 *iptr);
+float8 __attribute__((overloadable)) fract(float8 x, __global float8 *iptr);
+float16 __attribute__((overloadable)) fract(float16 x, __global float16 *iptr);
+float __attribute__((overloadable)) fract(float x, __local float *iptr);
+float2 __attribute__((overloadable)) fract(float2 x, __local float2 *iptr);
+float3 __attribute__((overloadable)) fract(float3 x, __local float3 *iptr);
+float4 __attribute__((overloadable)) fract(float4 x, __local float4 *iptr);
+float8 __attribute__((overloadable)) fract(float8 x, __local float8 *iptr);
+float16 __attribute__((overloadable)) fract(float16 x, __local float16 *iptr);
+float __attribute__((overloadable)) fract(float x, __private float *iptr);
+float2 __attribute__((overloadable)) fract(float2 x, __private float2 *iptr);
+float3 __attribute__((overloadable)) fract(float3 x, __private float3 *iptr);
+float4 __attribute__((overloadable)) fract(float4 x, __private float4 *iptr);
+float8 __attribute__((overloadable)) fract(float8 x, __private float8 *iptr);
+float16 __attribute__((overloadable)) fract(float16 x, __private float16 *iptr);
+double __attribute__((overloadable)) fract(double x, __global double *iptr);
+double2 __attribute__((overloadable)) fract(double2 x, __global double2 *iptr);
+double3 __attribute__((overloadable)) fract(double3 x, __global double3 *iptr);
+double4 __attribute__((overloadable)) fract(double4 x, __global double4 *iptr);
+double8 __attribute__((overloadable)) fract(double8 x, __global double8 *iptr);
+double16 __attribute__((overloadable)) fract(double16 x, __global double16 *iptr);
+double __attribute__((overloadable)) fract(double x, __local double *iptr);
+double2 __attribute__((overloadable)) fract(double2 x, __local double2 *iptr);
+double3 __attribute__((overloadable)) fract(double3 x, __local double3 *iptr);
+double4 __attribute__((overloadable)) fract(double4 x, __local double4 *iptr);
+double8 __attribute__((overloadable)) fract(double8 x, __local double8 *iptr);
+double16 __attribute__((overloadable)) fract(double16 x, __local double16 *iptr);
+double __attribute__((overloadable)) fract(double x, __private double *iptr);
+double2 __attribute__((overloadable)) fract(double2 x, __private double2 *iptr);
+double3 __attribute__((overloadable)) fract(double3 x, __private double3 *iptr);
+double4 __attribute__((overloadable)) fract(double4 x, __private double4 *iptr);
+double8 __attribute__((overloadable)) fract(double8 x, __private double8 *iptr);
+double16 __attribute__((overloadable)) fract(double16 x, __private double16 *iptr);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) fract(half x, __global half *iptr);
+half2 __attribute__((overloadable)) fract(half2 x, __global half2 *iptr);
+half3 __attribute__((overloadable)) fract(half3 x, __global half3 *iptr);
+half4 __attribute__((overloadable)) fract(half4 x, __global half4 *iptr);
+half8 __attribute__((overloadable)) fract(half8 x, __global half8 *iptr);
+half16 __attribute__((overloadable)) fract(half16 x, __global half16 *iptr);
+half __attribute__((overloadable)) fract(half x, __local half *iptr);
+half2 __attribute__((overloadable)) fract(half2 x, __local half2 *iptr);
+half3 __attribute__((overloadable)) fract(half3 x, __local half3 *iptr);
+half4 __attribute__((overloadable)) fract(half4 x, __local half4 *iptr);
+half8 __attribute__((overloadable)) fract(half8 x, __local half8 *iptr);
+half16 __attribute__((overloadable)) fract(half16 x, __local half16 *iptr);
+half __attribute__((overloadable)) fract(half x, __private half *iptr);
+half2 __attribute__((overloadable)) fract(half2 x, __private half2 *iptr);
+half3 __attribute__((overloadable)) fract(half3 x, __private half3 *iptr);
+half4 __attribute__((overloadable)) fract(half4 x, __private half4 *iptr);
+half8 __attribute__((overloadable)) fract(half8 x, __private half8 *iptr);
+half16 __attribute__((overloadable)) fract(half16 x, __private half16 *iptr);
+#endif //cl_khr_fp16
+#endif //__OPENCL_C_VERSION__
+
+/**
+ * Extract mantissa and exponent from x. For each
+ * component the mantissa returned is a float with
+ * magnitude in the interval [1/2, 1) or 0. Each
+ * component of x equals mantissa returned * 2^exp.
+ */
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+float __attribute__((overloadable)) frexp(float x, int *exp);
+float2 __attribute__((overloadable)) frexp(float2 x, int2 *exp);
+float3 __attribute__((overloadable)) frexp(float3 x, int3 *exp);
+float4 __attribute__((overloadable)) frexp(float4 x, int4 *exp);
+float8 __attribute__((overloadable)) frexp(float8 x, int8 *exp);
+float16 __attribute__((overloadable)) frexp(float16 x, int16 *exp);
+double __attribute__((overloadable)) frexp(double x, int *exp);
+double2 __attribute__((overloadable)) frexp(double2 x, int2 *exp);
+double3 __attribute__((overloadable)) frexp(double3 x, int3 *exp);
+double4 __attribute__((overloadable)) frexp(double4 x, int4 *exp);
+double8 __attribute__((overloadable)) frexp(double8 x, int8 *exp);
+double16 __attribute__((overloadable)) frexp(double16 x, int16 *exp);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) frexp(half x, int *exp);
+half2 __attribute__((overloadable)) frexp(half2 x, int2 *exp);
+half3 __attribute__((overloadable)) frexp(half3 x, int3 *exp);
+half4 __attribute__((overloadable)) frexp(half4 x, int4 *exp);
+half8 __attribute__((overloadable)) frexp(half8 x, int8 *exp);
+half16 __attribute__((overloadable)) frexp(half16 x, int16 *exp);
+#endif //cl_khr_fp16
+#else
+float __attribute__((overloadable)) frexp(float x, __global int *exp);
+float2 __attribute__((overloadable)) frexp(float2 x, __global int2 *exp);
+float3 __attribute__((overloadable)) frexp(float3 x, __global int3 *exp);
+float4 __attribute__((overloadable)) frexp(float4 x, __global int4 *exp);
+float8 __attribute__((overloadable)) frexp(float8 x, __global int8 *exp);
+float16 __attribute__((overloadable)) frexp(float16 x, __global int16 *exp);
+float __attribute__((overloadable)) frexp(float x, __local int *exp);
+float2 __attribute__((overloadable)) frexp(float2 x, __local int2 *exp);
+float3 __attribute__((overloadable)) frexp(float3 x, __local int3 *exp);
+float4 __attribute__((overloadable)) frexp(float4 x, __local int4 *exp);
+float8 __attribute__((overloadable)) frexp(float8 x, __local int8 *exp);
+float16 __attribute__((overloadable)) frexp(float16 x, __local int16 *exp);
+float __attribute__((overloadable)) frexp(float x, __private int *exp);
+float2 __attribute__((overloadable)) frexp(float2 x, __private int2 *exp);
+float3 __attribute__((overloadable)) frexp(float3 x, __private int3 *exp);
+float4 __attribute__((overloadable)) frexp(float4 x, __private int4 *exp);
+float8 __attribute__((overloadable)) frexp(float8 x, __private int8 *exp);
+float16 __attribute__((overloadable)) frexp(float16 x, __private int16 *exp);
+double __attribute__((overloadable)) frexp(double x, __global int *exp);
+double2 __attribute__((overloadable)) frexp(double2 x, __global int2 *exp);
+double3 __attribute__((overloadable)) frexp(double3 x, __global int3 *exp);
+double4 __attribute__((overloadable)) frexp(double4 x, __global int4 *exp);
+double8 __attribute__((overloadable)) frexp(double8 x, __global int8 *exp);
+double16 __attribute__((overloadable)) frexp(double16 x, __global int16 *exp);
+double __attribute__((overloadable)) frexp(double x, __local int *exp);
+double2 __attribute__((overloadable)) frexp(double2 x, __local int2 *exp);
+double3 __attribute__((overloadable)) frexp(double3 x, __local int3 *exp);
+double4 __attribute__((overloadable)) frexp(double4 x, __local int4 *exp);
+double8 __attribute__((overloadable)) frexp(double8 x, __local int8 *exp);
+double16 __attribute__((overloadable)) frexp(double16 x, __local int16 *exp);
+double __attribute__((overloadable)) frexp(double x, __private int *exp);
+double2 __attribute__((overloadable)) frexp(double2 x, __private int2 *exp);
+double3 __attribute__((overloadable)) frexp(double3 x, __private int3 *exp);
+double4 __attribute__((overloadable)) frexp(double4 x, __private int4 *exp);
+double8 __attribute__((overloadable)) frexp(double8 x, __private int8 *exp);
+double16 __attribute__((overloadable)) frexp(double16 x, __private int16 *exp);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) frexp(half x, __global int *exp);
+half2 __attribute__((overloadable)) frexp(half2 x, __global int2 *exp);
+half3 __attribute__((overloadable)) frexp(half3 x, __global int3 *exp);
+half4 __attribute__((overloadable)) frexp(half4 x, __global int4 *exp);
+half8 __attribute__((overloadable)) frexp(half8 x, __global int8 *exp);
+half16 __attribute__((overloadable)) frexp(half16 x, __global int16 *exp);
+half __attribute__((overloadable)) frexp(half x, __local int *exp);
+half2 __attribute__((overloadable)) frexp(half2 x, __local int2 *exp);
+half3 __attribute__((overloadable)) frexp(half3 x, __local int3 *exp);
+half4 __attribute__((overloadable)) frexp(half4 x, __local int4 *exp);
+half8 __attribute__((overloadable)) frexp(half8 x, __local int8 *exp);
+half16 __attribute__((overloadable)) frexp(half16 x, __local int16 *exp);
+half __attribute__((overloadable)) frexp(half x, __private int *exp);
+half2 __attribute__((overloadable)) frexp(half2 x, __private int2 *exp);
+half3 __attribute__((overloadable)) frexp(half3 x, __private int3 *exp);
+half4 __attribute__((overloadable)) frexp(half4 x, __private int4 *exp);
+half8 __attribute__((overloadable)) frexp(half8 x, __private int8 *exp);
+half16 __attribute__((overloadable)) frexp(half16 x, __private int16 *exp);
+#endif //cl_khr_fp16
+#endif //__OPENCL_C_VERSION__
+
+/**
  * Compute the value of the square root of x^2+ y^2
  * without undue overflow or underflow.
  */
@@ -1236,6 +1406,86 @@ half4 __const_func __attribute__((overloadable)) lgamma( half4 x );
 half8 __const_func __attribute__((overloadable)) lgamma( half8 x );
 half16 __const_func __attribute__((overloadable)) lgamma( half16 x );
 #endif //cl_khr_fp16
+
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+float __attribute__((overloadable)) lgamma_r(float x, int *signp);
+float2 __attribute__((overloadable)) lgamma_r(float2 x, int2 *signp);
+float3 __attribute__((overloadable)) lgamma_r(float3 x, int3 *signp);
+float4 __attribute__((overloadable)) lgamma_r(float4 x, int4 *signp);
+float8 __attribute__((overloadable)) lgamma_r(float8 x, int8 *signp);
+float16 __attribute__((overloadable)) lgamma_r(float16 x, int16 *signp);
+double __attribute__((overloadable)) lgamma_r(double x, int *signp);
+double2 __attribute__((overloadable)) lgamma_r(double2 x, int2 *signp);
+double3 __attribute__((overloadable)) lgamma_r(double3 x, int3 *signp);
+double4 __attribute__((overloadable)) lgamma_r(double4 x, int4 *signp);
+double8 __attribute__((overloadable)) lgamma_r(double8 x, int8 *signp);
+double16 __attribute__((overloadable)) lgamma_r(double16 x, int16 *signp);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) lgamma_r(half x, int *signp);
+half2 __attribute__((overloadable)) lgamma_r(half2 x, int2 *signp);
+half3 __attribute__((overloadable)) lgamma_r(half3 x, int3 *signp);
+half4 __attribute__((overloadable)) lgamma_r(half4 x, int4 *signp);
+half8 __attribute__((overloadable)) lgamma_r(half8 x, int8 *signp);
+half16 __attribute__((overloadable)) lgamma_r(half16 x, int16 *signp);
+#endif //cl_khr_fp16
+#else
+float __attribute__((overloadable)) lgamma_r(float x, __global int *signp);
+float2 __attribute__((overloadable)) lgamma_r(float2 x, __global int2 *signp);
+float3 __attribute__((overloadable)) lgamma_r(float3 x, __global int3 *signp);
+float4 __attribute__((overloadable)) lgamma_r(float4 x, __global int4 *signp);
+float8 __attribute__((overloadable)) lgamma_r(float8 x, __global int8 *signp);
+float16 __attribute__((overloadable)) lgamma_r(float16 x, __global int16 *signp);
+float __attribute__((overloadable)) lgamma_r(float x, __local int *signp);
+float2 __attribute__((overloadable)) lgamma_r(float2 x, __local int2 *signp);
+float3 __attribute__((overloadable)) lgamma_r(float3 x, __local int3 *signp);
+float4 __attribute__((overloadable)) lgamma_r(float4 x, __local int4 *signp);
+float8 __attribute__((overloadable)) lgamma_r(float8 x, __local int8 *signp);
+float16 __attribute__((overloadable)) lgamma_r(float16 x, __local int16 *signp);
+float __attribute__((overloadable)) lgamma_r(float x, __private int *signp);
+float2 __attribute__((overloadable)) lgamma_r(float2 x, __private int2 *signp);
+float3 __attribute__((overloadable)) lgamma_r(float3 x, __private int3 *signp);
+float4 __attribute__((overloadable)) lgamma_r(float4 x, __private int4 *signp);
+float8 __attribute__((overloadable)) lgamma_r(float8 x, __private int8 *signp);
+float16 __attribute__((overloadable)) lgamma_r(float16 x, __private int16 *signp);
+double __attribute__((overloadable)) lgamma_r(double x, __global int *signp);
+double2 __attribute__((overloadable)) lgamma_r(double2 x, __global int2 *signp);
+double3 __attribute__((overloadable)) lgamma_r(double3 x, __global int3 *signp);
+double4 __attribute__((overloadable)) lgamma_r(double4 x, __global int4 *signp);
+double8 __attribute__((overloadable)) lgamma_r(double8 x, __global int8 *signp);
+double16 __attribute__((overloadable)) lgamma_r(double16 x, __global int16 *signp);
+double __attribute__((overloadable)) lgamma_r(double x, __local int *signp);
+double2 __attribute__((overloadable)) lgamma_r(double2 x, __local int2 *signp);
+double3 __attribute__((overloadable)) lgamma_r(double3 x, __local int3 *signp);
+double4 __attribute__((overloadable)) lgamma_r(double4 x, __local int4 *signp);
+double8 __attribute__((overloadable)) lgamma_r(double8 x, __local int8 *signp);
+double16 __attribute__((overloadable)) lgamma_r(double16 x, __local int16 *signp);
+double __attribute__((overloadable)) lgamma_r(double x, __private int *signp);
+double2 __attribute__((overloadable)) lgamma_r(double2 x, __private int2 *signp);
+double3 __attribute__((overloadable)) lgamma_r(double3 x, __private int3 *signp);
+double4 __attribute__((overloadable)) lgamma_r(double4 x, __private int4 *signp);
+double8 __attribute__((overloadable)) lgamma_r(double8 x, __private int8 *signp);
+double16 __attribute__((overloadable)) lgamma_r(double16 x, __private int16 *signp);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) lgamma_r(half x, __global int *signp);
+half2 __attribute__((overloadable)) lgamma_r(half2 x, __global int2 *signp);
+half3 __attribute__((overloadable)) lgamma_r(half3 x, __global int3 *signp);
+half4 __attribute__((overloadable)) lgamma_r(half4 x, __global int4 *signp);
+half8 __attribute__((overloadable)) lgamma_r(half8 x, __global int8 *signp);
+half16 __attribute__((overloadable)) lgamma_r(half16 x, __global int16 *signp);
+half __attribute__((overloadable)) lgamma_r(half x, __local int *signp);
+half2 __attribute__((overloadable)) lgamma_r(half2 x, __local int2 *signp);
+half3 __attribute__((overloadable)) lgamma_r(half3 x, __local int3 *signp);
+half4 __attribute__((overloadable)) lgamma_r(half4 x, __local int4 *signp);
+half8 __attribute__((overloadable)) lgamma_r(half8 x, __local int8 *signp);
+half16 __attribute__((overloadable)) lgamma_r(half16 x, __local int16 *signp);
+half __attribute__((overloadable)) lgamma_r(half x, __private int *signp);
+half2 __attribute__((overloadable)) lgamma_r(half2 x, __private int2 *signp);
+half3 __attribute__((overloadable)) lgamma_r(half3 x, __private int3 *signp);
+half4 __attribute__((overloadable)) lgamma_r(half4 x, __private int4 *signp);
+half8 __attribute__((overloadable)) lgamma_r(half8 x, __private int8 *signp);
+half16 __attribute__((overloadable)) lgamma_r(half16 x, __private int16 *signp);
+#endif //cl_khr_fp16
+#endif //__OPENCL_C_VERSION__
 
 /**
  * Compute natural logarithm.
@@ -1437,6 +1687,93 @@ half16 __const_func __attribute__((overloadable)) minmag( half16 x, half16 y );
 #endif //cl_khr_fp16
 
 /**
+ * Decompose a floating-point number. The modf
+ * function breaks the argument x into integral and
+ * fractional parts, each of which has the same sign as
+ * the argument. It stores the integral part in the object
+ * pointed to by iptr.
+ */
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+float __attribute__((overloadable)) modf(float x, float *iptr);
+float2 __attribute__((overloadable)) modf(float2 x, float2 *iptr);
+float3 __attribute__((overloadable)) modf(float3 x, float3 *iptr);
+float4 __attribute__((overloadable)) modf(float4 x, float4 *iptr);
+float8 __attribute__((overloadable)) modf(float8 x, float8 *iptr);
+float16 __attribute__((overloadable)) modf(float16 x, float16 *iptr);
+double __attribute__((overloadable)) modf(double x, double *iptr);
+double2 __attribute__((overloadable)) modf(double2 x, double2 *iptr);
+double3 __attribute__((overloadable)) modf(double3 x, double3 *iptr);
+double4 __attribute__((overloadable)) modf(double4 x, double4 *iptr);
+double8 __attribute__((overloadable)) modf(double8 x, double8 *iptr);
+double16 __attribute__((overloadable)) modf(double16 x, double16 *iptr);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) modf( half x, half *iptr );
+half2 __attribute__((overloadable)) modf( half2 x, half2 *iptr );
+half3 __attribute__((overloadable)) modf( half3 x, half3 *iptr );
+half4 __attribute__((overloadable)) modf( half4 x, half4 *iptr );
+half8 __attribute__((overloadable)) modf( half8 x, half8 *iptr );
+half16 __attribute__((overloadable)) modf( half16 x, half16 *iptr );
+#endif //cl_khr_fp16
+#else
+float __attribute__((overloadable)) modf(float x, __global float *iptr);
+float2 __attribute__((overloadable)) modf(float2 x, __global float2 *iptr);
+float3 __attribute__((overloadable)) modf(float3 x, __global float3 *iptr);
+float4 __attribute__((overloadable)) modf(float4 x, __global float4 *iptr);
+float8 __attribute__((overloadable)) modf(float8 x, __global float8 *iptr);
+float16 __attribute__((overloadable)) modf(float16 x, __global float16 *iptr);
+float __attribute__((overloadable)) modf(float x, __local float *iptr);
+float2 __attribute__((overloadable)) modf(float2 x, __local float2 *iptr);
+float3 __attribute__((overloadable)) modf(float3 x, __local float3 *iptr);
+float4 __attribute__((overloadable)) modf(float4 x, __local float4 *iptr);
+float8 __attribute__((overloadable)) modf(float8 x, __local float8 *iptr);
+float16 __attribute__((overloadable)) modf(float16 x, __local float16 *iptr);
+float __attribute__((overloadable)) modf(float x, __private float *iptr);
+float2 __attribute__((overloadable)) modf(float2 x, __private float2 *iptr);
+float3 __attribute__((overloadable)) modf(float3 x, __private float3 *iptr);
+float4 __attribute__((overloadable)) modf(float4 x, __private float4 *iptr);
+float8 __attribute__((overloadable)) modf(float8 x, __private float8 *iptr);
+float16 __attribute__((overloadable)) modf(float16 x, __private float16 *iptr);
+double __attribute__((overloadable)) modf(double x, __global double *iptr);
+double2 __attribute__((overloadable)) modf(double2 x, __global double2 *iptr);
+double3 __attribute__((overloadable)) modf(double3 x, __global double3 *iptr);
+double4 __attribute__((overloadable)) modf(double4 x, __global double4 *iptr);
+double8 __attribute__((overloadable)) modf(double8 x, __global double8 *iptr);
+double16 __attribute__((overloadable)) modf(double16 x, __global double16 *iptr);
+double __attribute__((overloadable)) modf(double x, __local double *iptr);
+double2 __attribute__((overloadable)) modf(double2 x, __local double2 *iptr);
+double3 __attribute__((overloadable)) modf(double3 x, __local double3 *iptr);
+double4 __attribute__((overloadable)) modf(double4 x, __local double4 *iptr);
+double8 __attribute__((overloadable)) modf(double8 x, __local double8 *iptr);
+double16 __attribute__((overloadable)) modf(double16 x, __local double16 *iptr);
+double __attribute__((overloadable)) modf(double x, __private double *iptr);
+double2 __attribute__((overloadable)) modf(double2 x, __private double2 *iptr);
+double3 __attribute__((overloadable)) modf(double3 x, __private double3 *iptr);
+double4 __attribute__((overloadable)) modf(double4 x, __private double4 *iptr);
+double8 __attribute__((overloadable)) modf(double8 x, __private double8 *iptr);
+double16 __attribute__((overloadable)) modf(double16 x, __private double16 *iptr);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) modf( half x, __global half *iptr );
+half2 __attribute__((overloadable)) modf( half2 x, __global half2 *iptr );
+half3 __attribute__((overloadable)) modf( half3 x, __global half3 *iptr );
+half4 __attribute__((overloadable)) modf( half4 x, __global half4 *iptr );
+half8 __attribute__((overloadable)) modf( half8 x, __global half8 *iptr );
+half16 __attribute__((overloadable)) modf( half16 x, __global half16 *iptr );
+half __attribute__((overloadable)) modf( half x, __local half *iptr );
+half2 __attribute__((overloadable)) modf( half2 x, __local half2 *iptr );
+half3 __attribute__((overloadable)) modf( half3 x, __local half3 *iptr );
+half4 __attribute__((overloadable)) modf( half4 x, __local half4 *iptr );
+half8 __attribute__((overloadable)) modf( half8 x, __local half8 *iptr );
+half16 __attribute__((overloadable)) modf( half16 x, __local half16 *iptr );
+half __attribute__((overloadable)) modf( half x, __private half *iptr );
+half2 __attribute__((overloadable)) modf( half2 x, __private half2 *iptr );
+half3 __attribute__((overloadable)) modf( half3 x, __private half3 *iptr );
+half4 __attribute__((overloadable)) modf( half4 x, __private half4 *iptr );
+half8 __attribute__((overloadable)) modf( half8 x, __private half8 *iptr );
+half16 __attribute__((overloadable)) modf( half16 x, __private half16 *iptr );
+#endif //cl_khr_fp16
+#endif //__OPENCL_C_VERSION__
+
+/**
  * Returns a quiet NaN. The nancode may be placed
  * in the significand of the resulting NaN.
  */
@@ -1589,6 +1926,98 @@ half16 __const_func __attribute__((overloadable)) remainder( half16 x, half16 y 
 #endif //cl_khr_fp16
 
 /**
+ * The remquo function computes the value r such
+ * that r = x - n*y, where n is the integer nearest the
+ * exact value of x/y. If there are two integers closest
+ * to x/y, n shall be the even one. If r is zero, it is
+ * given the same sign as x. This is the same value
+ * that is returned by the remainder function.
+ * remquo also calculates the lower seven bits of the
+ * integral quotient x/y, and gives that value the same
+ * sign as x/y. It stores this signed value in the object
+ * pointed to by quo.
+ */
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+float __attribute__((overloadable)) remquo(float x, float y, int *quo);
+float2 __attribute__((overloadable)) remquo(float2 x, float2 y, int2 *quo);
+float3 __attribute__((overloadable)) remquo(float3 x, float3 y, int3 *quo);
+float4 __attribute__((overloadable)) remquo(float4 x, float4 y, int4 *quo);
+float8 __attribute__((overloadable)) remquo(float8 x, float8 y, int8 *quo);
+float16 __attribute__((overloadable)) remquo(float16 x, float16 y, int16 *quo);
+double __attribute__((overloadable)) remquo(double x, double y, int *quo);
+double2 __attribute__((overloadable)) remquo(double2 x, double2 y, int2 *quo);
+double3 __attribute__((overloadable)) remquo(double3 x, double3 y, int3 *quo);
+double4 __attribute__((overloadable)) remquo(double4 x, double4 y, int4 *quo);
+double8 __attribute__((overloadable)) remquo(double8 x, double8 y, int8 *quo);
+double16 __attribute__((overloadable)) remquo(double16 x, double16 y, int16 *quo);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) remquo(half x, half y, int *quo);
+half2 __attribute__((overloadable)) remquo(half2 x, half2 y, int2 *quo);
+half3 __attribute__((overloadable)) remquo(half3 x, half3 y, int3 *quo);
+half4 __attribute__((overloadable)) remquo(half4 x, half4 y, int4 *quo);
+half8 __attribute__((overloadable)) remquo(half8 x, half8 y, int8 *quo);
+half16 __attribute__((overloadable)) remquo(half16 x, half16 y, int16 *quo);
+
+#endif //cl_khr_fp16
+#else
+float __attribute__((overloadable)) remquo(float x, float y, __global int *quo);
+float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __global int2 *quo);
+float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __global int3 *quo);
+float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __global int4 *quo);
+float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __global int8 *quo);
+float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __global int16 *quo);
+float __attribute__((overloadable)) remquo(float x, float y, __local int *quo);
+float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __local int2 *quo);
+float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __local int3 *quo);
+float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __local int4 *quo);
+float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __local int8 *quo);
+float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __local int16 *quo);
+float __attribute__((overloadable)) remquo(float x, float y, __private int *quo);
+float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __private int2 *quo);
+float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __private int3 *quo);
+float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __private int4 *quo);
+float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __private int8 *quo);
+float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __private int16 *quo);
+double __attribute__((overloadable)) remquo(double x, double y, __global int *quo);
+double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __global int2 *quo);
+double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __global int3 *quo);
+double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __global int4 *quo);
+double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __global int8 *quo);
+double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __global int16 *quo);
+double __attribute__((overloadable)) remquo(double x, double y, __local int *quo);
+double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __local int2 *quo);
+double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __local int3 *quo);
+double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __local int4 *quo);
+double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __local int8 *quo);
+double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __local int16 *quo);
+double __attribute__((overloadable)) remquo(double x, double y, __private int *quo);
+double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __private int2 *quo);
+double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __private int3 *quo);
+double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __private int4 *quo);
+double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __private int8 *quo);
+double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __private int16 *quo);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) remquo(half x, half y, __global int *quo);
+half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __global int2 *quo);
+half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __global int3 *quo);
+half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __global int4 *quo);
+half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __global int8 *quo);
+half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __global int16 *quo);
+half __attribute__((overloadable)) remquo(half x, half y, __local int *quo);
+half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __local int2 *quo);
+half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __local int3 *quo);
+half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __local int4 *quo);
+half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __local int8 *quo);
+half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __local int16 *quo);
+half __attribute__((overloadable)) remquo(half x, half y, __private int *quo);
+half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __private int2 *quo);
+half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __private int3 *quo);
+half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __private int4 *quo);
+half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __private int8 *quo);
+half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __private int16 *quo);
+#endif //cl_khr_fp16
+#endif //__OPENCL_C_VERSION__
+/**
  * Round to integral value (using round to nearest
  * even rounding mode) in floating-point format.
  * Refer to section 7.1 for description of rounding
@@ -1712,6 +2141,91 @@ half4 __const_func __attribute__((overloadable)) sin( half4 );
 half8 __const_func __attribute__((overloadable)) sin( half8 );
 half16 __const_func __attribute__((overloadable)) sin( half16 );
 #endif //cl_khr_fp16
+
+/**
+ * Compute sine and cosine of x. The computed sine
+ * is the return value and computed cosine is returned
+ * in cosval.
+ */
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+float __attribute__((overloadable)) sincos(float x, float *cosval);
+float2 __attribute__((overloadable)) sincos(float2 x, float2 *cosval);
+float3 __attribute__((overloadable)) sincos(float3 x, float3 *cosval);
+float4 __attribute__((overloadable)) sincos(float4 x, float4 *cosval);
+float8 __attribute__((overloadable)) sincos(float8 x, float8 *cosval);
+float16 __attribute__((overloadable)) sincos(float16 x, float16 *cosval);
+double __attribute__((overloadable)) sincos(double x, double *cosval);
+double2 __attribute__((overloadable)) sincos(double2 x, double2 *cosval);
+double3 __attribute__((overloadable)) sincos(double3 x, double3 *cosval);
+double4 __attribute__((overloadable)) sincos(double4 x, double4 *cosval);
+double8 __attribute__((overloadable)) sincos(double8 x, double8 *cosval);
+double16 __attribute__((overloadable)) sincos(double16 x, double16 *cosval);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) sincos(half x, half *cosval);
+half2 __attribute__((overloadable)) sincos(half2 x, half2 *cosval);
+half3 __attribute__((overloadable)) sincos(half3 x, half3 *cosval);
+half4 __attribute__((overloadable)) sincos(half4 x, half4 *cosval);
+half8 __attribute__((overloadable)) sincos(half8 x, half8 *cosval);
+half16 __attribute__((overloadable)) sincos(half16 x, half16 *cosval);
+#endif //cl_khr_fp16
+#else
+float __attribute__((overloadable)) sincos(float x, __global float *cosval);
+float2 __attribute__((overloadable)) sincos(float2 x, __global float2 *cosval);
+float3 __attribute__((overloadable)) sincos(float3 x, __global float3 *cosval);
+float4 __attribute__((overloadable)) sincos(float4 x, __global float4 *cosval);
+float8 __attribute__((overloadable)) sincos(float8 x, __global float8 *cosval);
+float16 __attribute__((overloadable)) sincos(float16 x, __global float16 *cosval);
+float __attribute__((overloadable)) sincos(float x, __local float *cosval);
+float2 __attribute__((overloadable)) sincos(float2 x, __local float2 *cosval);
+float3 __attribute__((overloadable)) sincos(float3 x, __local float3 *cosval);
+float4 __attribute__((overloadable)) sincos(float4 x, __local float4 *cosval);
+float8 __attribute__((overloadable)) sincos(float8 x, __local float8 *cosval);
+float16 __attribute__((overloadable)) sincos(float16 x, __local float16 *cosval);
+float __attribute__((overloadable)) sincos(float x, __private float *cosval);
+float2 __attribute__((overloadable)) sincos(float2 x, __private float2 *cosval);
+float3 __attribute__((overloadable)) sincos(float3 x, __private float3 *cosval);
+float4 __attribute__((overloadable)) sincos(float4 x, __private float4 *cosval);
+float8 __attribute__((overloadable)) sincos(float8 x, __private float8 *cosval);
+float16 __attribute__((overloadable)) sincos(float16 x, __private float16 *cosval);
+double __attribute__((overloadable)) sincos(double x, __global double *cosval);
+double2 __attribute__((overloadable)) sincos(double2 x, __global double2 *cosval);
+double3 __attribute__((overloadable)) sincos(double3 x, __global double3 *cosval);
+double4 __attribute__((overloadable)) sincos(double4 x, __global double4 *cosval);
+double8 __attribute__((overloadable)) sincos(double8 x, __global double8 *cosval);
+double16 __attribute__((overloadable)) sincos(double16 x, __global double16 *cosval);
+double __attribute__((overloadable)) sincos(double x, __local double *cosval);
+double2 __attribute__((overloadable)) sincos(double2 x, __local double2 *cosval);
+double3 __attribute__((overloadable)) sincos(double3 x, __local double3 *cosval);
+double4 __attribute__((overloadable)) sincos(double4 x, __local double4 *cosval);
+double8 __attribute__((overloadable)) sincos(double8 x, __local double8 *cosval);
+double16 __attribute__((overloadable)) sincos(double16 x, __local double16 *cosval);
+double __attribute__((overloadable)) sincos(double x, __private double *cosval);
+double2 __attribute__((overloadable)) sincos(double2 x, __private double2 *cosval);
+double3 __attribute__((overloadable)) sincos(double3 x, __private double3 *cosval);
+double4 __attribute__((overloadable)) sincos(double4 x, __private double4 *cosval);
+double8 __attribute__((overloadable)) sincos(double8 x, __private double8 *cosval);
+double16 __attribute__((overloadable)) sincos(double16 x, __private double16 *cosval);
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) sincos(half x, __global half *cosval);
+half2 __attribute__((overloadable)) sincos(half2 x, __global half2 *cosval);
+half3 __attribute__((overloadable)) sincos(half3 x, __global half3 *cosval);
+half4 __attribute__((overloadable)) sincos(half4 x, __global half4 *cosval);
+half8 __attribute__((overloadable)) sincos(half8 x, __global half8 *cosval);
+half16 __attribute__((overloadable)) sincos(half16 x, __global half16 *cosval);
+half __attribute__((overloadable)) sincos(half x, __local half *cosval);
+half2 __attribute__((overloadable)) sincos(half2 x, __local half2 *cosval);
+half3 __attribute__((overloadable)) sincos(half3 x, __local half3 *cosval);
+half4 __attribute__((overloadable)) sincos(half4 x, __local half4 *cosval);
+half8 __attribute__((overloadable)) sincos(half8 x, __local half8 *cosval);
+half16 __attribute__((overloadable)) sincos(half16 x, __local half16 *cosval);
+half __attribute__((overloadable)) sincos(half x, __private half *cosval);
+half2 __attribute__((overloadable)) sincos(half2 x, __private half2 *cosval);
+half3 __attribute__((overloadable)) sincos(half3 x, __private half3 *cosval);
+half4 __attribute__((overloadable)) sincos(half4 x, __private half4 *cosval);
+half8 __attribute__((overloadable)) sincos(half8 x, __private half8 *cosval);
+half16 __attribute__((overloadable)) sincos(half16 x, __private half16 *cosval);
+#endif //cl_khr_fp16
+#endif //__OPENCL_C_VERSION__
 
 /**
  * Compute hyperbolic sine.
@@ -3791,6 +4305,12 @@ float __const_func __attribute__((overloadable)) fast_normalize(float p);
 float2 __const_func __attribute__((overloadable)) fast_normalize(float2 p);
 float3 __const_func __attribute__((overloadable)) fast_normalize(float3 p);
 float4 __const_func __attribute__((overloadable)) fast_normalize(float4 p);
+#ifdef cl_khr_fp16
+half __const_func __attribute__((overloadable)) fast_normalize(half p);
+half2 __const_func __attribute__((overloadable)) fast_normalize(half2 p);
+half3 __const_func __attribute__((overloadable)) fast_normalize(half3 p);
+half4 __const_func __attribute__((overloadable)) fast_normalize(half4 p);
+#endif //cl_khr_fp16
 
 // Relational functions:
 
@@ -11737,382 +12257,6 @@ event_t __attribute__((overloadable)) async_work_group_strided_copy(__global hal
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global half4 *dst, const __local half4 *src, size_t num_elements, size_t dst_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global half8 *dst, const __local half8 *src, size_t num_elements, size_t dst_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global half16 *dst, const __local half16 *src, size_t num_elements, size_t dst_stride, event_t event);
-#endif //cl_khr_fp16
-
-
-/**
- * Returns fmin( x - floor (x), 0x1.fffffep-1f ).
- * floor(x) is returned in iptr.
- */
-float __attribute__((overloadable)) fract(float x, __global float *iptr);
-float2 __attribute__((overloadable)) fract(float2 x, __global float2 *iptr);
-float3 __attribute__((overloadable)) fract(float3 x, __global float3 *iptr);
-float4 __attribute__((overloadable)) fract(float4 x, __global float4 *iptr);
-float8 __attribute__((overloadable)) fract(float8 x, __global float8 *iptr);
-float16 __attribute__((overloadable)) fract(float16 x, __global float16 *iptr);
-float __attribute__((overloadable)) fract(float x, __local float *iptr);
-float2 __attribute__((overloadable)) fract(float2 x, __local float2 *iptr);
-float3 __attribute__((overloadable)) fract(float3 x, __local float3 *iptr);
-float4 __attribute__((overloadable)) fract(float4 x, __local float4 *iptr);
-float8 __attribute__((overloadable)) fract(float8 x, __local float8 *iptr);
-float16 __attribute__((overloadable)) fract(float16 x, __local float16 *iptr);
-float __attribute__((overloadable)) fract(float x, __private float *iptr);
-float2 __attribute__((overloadable)) fract(float2 x, __private float2 *iptr);
-float3 __attribute__((overloadable)) fract(float3 x, __private float3 *iptr);
-float4 __attribute__((overloadable)) fract(float4 x, __private float4 *iptr);
-float8 __attribute__((overloadable)) fract(float8 x, __private float8 *iptr);
-float16 __attribute__((overloadable)) fract(float16 x, __private float16 *iptr);
-double __attribute__((overloadable)) fract(double x, __global double *iptr);
-double2 __attribute__((overloadable)) fract(double2 x, __global double2 *iptr);
-double3 __attribute__((overloadable)) fract(double3 x, __global double3 *iptr);
-double4 __attribute__((overloadable)) fract(double4 x, __global double4 *iptr);
-double8 __attribute__((overloadable)) fract(double8 x, __global double8 *iptr);
-double16 __attribute__((overloadable)) fract(double16 x, __global double16 *iptr);
-double __attribute__((overloadable)) fract(double x, __local double *iptr);
-double2 __attribute__((overloadable)) fract(double2 x, __local double2 *iptr);
-double3 __attribute__((overloadable)) fract(double3 x, __local double3 *iptr);
-double4 __attribute__((overloadable)) fract(double4 x, __local double4 *iptr);
-double8 __attribute__((overloadable)) fract(double8 x, __local double8 *iptr);
-double16 __attribute__((overloadable)) fract(double16 x, __local double16 *iptr);
-double __attribute__((overloadable)) fract(double x, __private double *iptr);
-double2 __attribute__((overloadable)) fract(double2 x, __private double2 *iptr);
-double3 __attribute__((overloadable)) fract(double3 x, __private double3 *iptr);
-double4 __attribute__((overloadable)) fract(double4 x, __private double4 *iptr);
-double8 __attribute__((overloadable)) fract(double8 x, __private double8 *iptr);
-double16 __attribute__((overloadable)) fract(double16 x, __private double16 *iptr);
-#ifdef cl_khr_fp16
-half __attribute__((overloadable)) fract(half x, __global half *iptr);
-half2 __attribute__((overloadable)) fract(half2 x, __global half2 *iptr);
-half3 __attribute__((overloadable)) fract(half3 x, __global half3 *iptr);
-half4 __attribute__((overloadable)) fract(half4 x, __global half4 *iptr);
-half8 __attribute__((overloadable)) fract(half8 x, __global half8 *iptr);
-half16 __attribute__((overloadable)) fract(half16 x, __global half16 *iptr);
-half __attribute__((overloadable)) fract(half x, __local half *iptr);
-half2 __attribute__((overloadable)) fract(half2 x, __local half2 *iptr);
-half3 __attribute__((overloadable)) fract(half3 x, __local half3 *iptr);
-half4 __attribute__((overloadable)) fract(half4 x, __local half4 *iptr);
-half8 __attribute__((overloadable)) fract(half8 x, __local half8 *iptr);
-half16 __attribute__((overloadable)) fract(half16 x, __local half16 *iptr);
-half __attribute__((overloadable)) fract(half x, __private half *iptr);
-half2 __attribute__((overloadable)) fract(half2 x, __private half2 *iptr);
-half3 __attribute__((overloadable)) fract(half3 x, __private half3 *iptr);
-half4 __attribute__((overloadable)) fract(half4 x, __private half4 *iptr);
-half8 __attribute__((overloadable)) fract(half8 x, __private half8 *iptr);
-half16 __attribute__((overloadable)) fract(half16 x, __private half16 *iptr);
-#endif //cl_khr_fp16
-
-/**
- * Extract mantissa and exponent from x. For each
- * component the mantissa returned is a float with
- * magnitude in the interval [1/2, 1) or 0. Each
- * component of x equals mantissa returned * 2^exp.
- */
-float __attribute__((overloadable)) frexp(float x, __global int *exp);
-float2 __attribute__((overloadable)) frexp(float2 x, __global int2 *exp);
-float3 __attribute__((overloadable)) frexp(float3 x, __global int3 *exp);
-float4 __attribute__((overloadable)) frexp(float4 x, __global int4 *exp);
-float8 __attribute__((overloadable)) frexp(float8 x, __global int8 *exp);
-float16 __attribute__((overloadable)) frexp(float16 x, __global int16 *exp);
-float __attribute__((overloadable)) frexp(float x, __local int *exp);
-float2 __attribute__((overloadable)) frexp(float2 x, __local int2 *exp);
-float3 __attribute__((overloadable)) frexp(float3 x, __local int3 *exp);
-float4 __attribute__((overloadable)) frexp(float4 x, __local int4 *exp);
-float8 __attribute__((overloadable)) frexp(float8 x, __local int8 *exp);
-float16 __attribute__((overloadable)) frexp(float16 x, __local int16 *exp);
-float __attribute__((overloadable)) frexp(float x, __private int *exp);
-float2 __attribute__((overloadable)) frexp(float2 x, __private int2 *exp);
-float3 __attribute__((overloadable)) frexp(float3 x, __private int3 *exp);
-float4 __attribute__((overloadable)) frexp(float4 x, __private int4 *exp);
-float8 __attribute__((overloadable)) frexp(float8 x, __private int8 *exp);
-float16 __attribute__((overloadable)) frexp(float16 x, __private int16 *exp);
-double __attribute__((overloadable)) frexp(double x, __global int *exp);
-double2 __attribute__((overloadable)) frexp(double2 x, __global int2 *exp);
-double3 __attribute__((overloadable)) frexp(double3 x, __global int3 *exp);
-double4 __attribute__((overloadable)) frexp(double4 x, __global int4 *exp);
-double8 __attribute__((overloadable)) frexp(double8 x, __global int8 *exp);
-double16 __attribute__((overloadable)) frexp(double16 x, __global int16 *exp);
-double __attribute__((overloadable)) frexp(double x, __local int *exp);
-double2 __attribute__((overloadable)) frexp(double2 x, __local int2 *exp);
-double3 __attribute__((overloadable)) frexp(double3 x, __local int3 *exp);
-double4 __attribute__((overloadable)) frexp(double4 x, __local int4 *exp);
-double8 __attribute__((overloadable)) frexp(double8 x, __local int8 *exp);
-double16 __attribute__((overloadable)) frexp(double16 x, __local int16 *exp);
-double __attribute__((overloadable)) frexp(double x, __private int *exp);
-double2 __attribute__((overloadable)) frexp(double2 x, __private int2 *exp);
-double3 __attribute__((overloadable)) frexp(double3 x, __private int3 *exp);
-double4 __attribute__((overloadable)) frexp(double4 x, __private int4 *exp);
-double8 __attribute__((overloadable)) frexp(double8 x, __private int8 *exp);
-double16 __attribute__((overloadable)) frexp(double16 x, __private int16 *exp);
-#ifdef cl_khr_fp16
-half __attribute__((overloadable)) frexp(half x, __global int *exp);
-half2 __attribute__((overloadable)) frexp(half2 x, __global int2 *exp);
-half3 __attribute__((overloadable)) frexp(half3 x, __global int3 *exp);
-half4 __attribute__((overloadable)) frexp(half4 x, __global int4 *exp);
-half8 __attribute__((overloadable)) frexp(half8 x, __global int8 *exp);
-half16 __attribute__((overloadable)) frexp(half16 x, __global int16 *exp);
-half __attribute__((overloadable)) frexp(half x, __local int *exp);
-half2 __attribute__((overloadable)) frexp(half2 x, __local int2 *exp);
-half3 __attribute__((overloadable)) frexp(half3 x, __local int3 *exp);
-half4 __attribute__((overloadable)) frexp(half4 x, __local int4 *exp);
-half8 __attribute__((overloadable)) frexp(half8 x, __local int8 *exp);
-half16 __attribute__((overloadable)) frexp(half16 x, __local int16 *exp);
-half __attribute__((overloadable)) frexp(half x, __private int *exp);
-half2 __attribute__((overloadable)) frexp(half2 x, __private int2 *exp);
-half3 __attribute__((overloadable)) frexp(half3 x, __private int3 *exp);
-half4 __attribute__((overloadable)) frexp(half4 x, __private int4 *exp);
-half8 __attribute__((overloadable)) frexp(half8 x, __private int8 *exp);
-half16 __attribute__((overloadable)) frexp(half16 x, __private int16 *exp);
-#endif //cl_khr_fp16
-float __attribute__((overloadable)) lgamma_r(float x, __global int *signp);
-float2 __attribute__((overloadable)) lgamma_r(float2 x, __global int2 *signp);
-float3 __attribute__((overloadable)) lgamma_r(float3 x, __global int3 *signp);
-float4 __attribute__((overloadable)) lgamma_r(float4 x, __global int4 *signp);
-float8 __attribute__((overloadable)) lgamma_r(float8 x, __global int8 *signp);
-float16 __attribute__((overloadable)) lgamma_r(float16 x, __global int16 *signp);
-float __attribute__((overloadable)) lgamma_r(float x, __local int *signp);
-float2 __attribute__((overloadable)) lgamma_r(float2 x, __local int2 *signp);
-float3 __attribute__((overloadable)) lgamma_r(float3 x, __local int3 *signp);
-float4 __attribute__((overloadable)) lgamma_r(float4 x, __local int4 *signp);
-float8 __attribute__((overloadable)) lgamma_r(float8 x, __local int8 *signp);
-float16 __attribute__((overloadable)) lgamma_r(float16 x, __local int16 *signp);
-float __attribute__((overloadable)) lgamma_r(float x, __private int *signp);
-float2 __attribute__((overloadable)) lgamma_r(float2 x, __private int2 *signp);
-float3 __attribute__((overloadable)) lgamma_r(float3 x, __private int3 *signp);
-float4 __attribute__((overloadable)) lgamma_r(float4 x, __private int4 *signp);
-float8 __attribute__((overloadable)) lgamma_r(float8 x, __private int8 *signp);
-float16 __attribute__((overloadable)) lgamma_r(float16 x, __private int16 *signp);
-double __attribute__((overloadable)) lgamma_r(double x, __global int *signp);
-double2 __attribute__((overloadable)) lgamma_r(double2 x, __global int2 *signp);
-double3 __attribute__((overloadable)) lgamma_r(double3 x, __global int3 *signp);
-double4 __attribute__((overloadable)) lgamma_r(double4 x, __global int4 *signp);
-double8 __attribute__((overloadable)) lgamma_r(double8 x, __global int8 *signp);
-double16 __attribute__((overloadable)) lgamma_r(double16 x, __global int16 *signp);
-double __attribute__((overloadable)) lgamma_r(double x, __local int *signp);
-double2 __attribute__((overloadable)) lgamma_r(double2 x, __local int2 *signp);
-double3 __attribute__((overloadable)) lgamma_r(double3 x, __local int3 *signp);
-double4 __attribute__((overloadable)) lgamma_r(double4 x, __local int4 *signp);
-double8 __attribute__((overloadable)) lgamma_r(double8 x, __local int8 *signp);
-double16 __attribute__((overloadable)) lgamma_r(double16 x, __local int16 *signp);
-double __attribute__((overloadable)) lgamma_r(double x, __private int *signp);
-double2 __attribute__((overloadable)) lgamma_r(double2 x, __private int2 *signp);
-double3 __attribute__((overloadable)) lgamma_r(double3 x, __private int3 *signp);
-double4 __attribute__((overloadable)) lgamma_r(double4 x, __private int4 *signp);
-double8 __attribute__((overloadable)) lgamma_r(double8 x, __private int8 *signp);
-double16 __attribute__((overloadable)) lgamma_r(double16 x, __private int16 *signp);
-#ifdef cl_khr_fp16
-half __attribute__((overloadable)) lgamma_r(half x, __global int *signp);
-half2 __attribute__((overloadable)) lgamma_r(half2 x, __global int2 *signp);
-half3 __attribute__((overloadable)) lgamma_r(half3 x, __global int3 *signp);
-half4 __attribute__((overloadable)) lgamma_r(half4 x, __global int4 *signp);
-half8 __attribute__((overloadable)) lgamma_r(half8 x, __global int8 *signp);
-half16 __attribute__((overloadable)) lgamma_r(half16 x, __global int16 *signp);
-half __attribute__((overloadable)) lgamma_r(half x, __local int *signp);
-half2 __attribute__((overloadable)) lgamma_r(half2 x, __local int2 *signp);
-half3 __attribute__((overloadable)) lgamma_r(half3 x, __local int3 *signp);
-half4 __attribute__((overloadable)) lgamma_r(half4 x, __local int4 *signp);
-half8 __attribute__((overloadable)) lgamma_r(half8 x, __local int8 *signp);
-half16 __attribute__((overloadable)) lgamma_r(half16 x, __local int16 *signp);
-half __attribute__((overloadable)) lgamma_r(half x, __private int *signp);
-half2 __attribute__((overloadable)) lgamma_r(half2 x, __private int2 *signp);
-half3 __attribute__((overloadable)) lgamma_r(half3 x, __private int3 *signp);
-half4 __attribute__((overloadable)) lgamma_r(half4 x, __private int4 *signp);
-half8 __attribute__((overloadable)) lgamma_r(half8 x, __private int8 *signp);
-half16 __attribute__((overloadable)) lgamma_r(half16 x, __private int16 *signp);
-#endif //cl_khr_fp16
-
-/**
- * The remquo function computes the value r such
- * that r = x - n*y, where n is the integer nearest the
- * exact value of x/y. If there are two integers closest
- * to x/y, n shall be the even one. If r is zero, it is
- * given the same sign as x. This is the same value
- * that is returned by the remainder function.
- * remquo also calculates the lower seven bits of the
- * integral quotient x/y, and gives that value the same
- * sign as x/y. It stores this signed value in the object
- * pointed to by quo.
- */
-float __attribute__((overloadable)) remquo(float x, float y, __global int *quo);
-float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __global int2 *quo);
-float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __global int3 *quo);
-float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __global int4 *quo);
-float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __global int8 *quo);
-float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __global int16 *quo);
-float __attribute__((overloadable)) remquo(float x, float y, __local int *quo);
-float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __local int2 *quo);
-float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __local int3 *quo);
-float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __local int4 *quo);
-float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __local int8 *quo);
-float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __local int16 *quo);
-float __attribute__((overloadable)) remquo(float x, float y, __private int *quo);
-float2 __attribute__((overloadable)) remquo(float2 x, float2 y, __private int2 *quo);
-float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __private int3 *quo);
-float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __private int4 *quo);
-float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __private int8 *quo);
-float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __private int16 *quo);
-double __attribute__((overloadable)) remquo(double x, double y, __global int *quo);
-double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __global int2 *quo);
-double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __global int3 *quo);
-double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __global int4 *quo);
-double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __global int8 *quo);
-double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __global int16 *quo);
-double __attribute__((overloadable)) remquo(double x, double y, __local int *quo);
-double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __local int2 *quo);
-double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __local int3 *quo);
-double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __local int4 *quo);
-double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __local int8 *quo);
-double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __local int16 *quo);
-double __attribute__((overloadable)) remquo(double x, double y, __private int *quo);
-double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __private int2 *quo);
-double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __private int3 *quo);
-double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __private int4 *quo);
-double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __private int8 *quo);
-double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __private int16 *quo);
-#ifdef cl_khr_fp16
-half __attribute__((overloadable)) remquo(half x, half y, __global int *quo);
-half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __global int2 *quo);
-half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __global int3 *quo);
-half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __global int4 *quo);
-half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __global int8 *quo);
-half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __global int16 *quo);
-half __attribute__((overloadable)) remquo(half x, half y, __local int *quo);
-half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __local int2 *quo);
-half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __local int3 *quo);
-half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __local int4 *quo);
-half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __local int8 *quo);
-half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __local int16 *quo);
-half __attribute__((overloadable)) remquo(half x, half y, __private int *quo);
-half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __private int2 *quo);
-half3 __attribute__((overloadable)) remquo(half3 x, half3 y, __private int3 *quo);
-half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __private int4 *quo);
-half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __private int8 *quo);
-half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __private int16 *quo);
-#endif //cl_khr_fp16
-
-/**
- * Compute sine and cosine of x. The computed sine
- * is the return value and computed cosine is returned
- * in cosval.
- */
-float __attribute__((overloadable)) sincos(float x, __global float *cosval);
-float2 __attribute__((overloadable)) sincos(float2 x, __global float2 *cosval);
-float3 __attribute__((overloadable)) sincos(float3 x, __global float3 *cosval);
-float4 __attribute__((overloadable)) sincos(float4 x, __global float4 *cosval);
-float8 __attribute__((overloadable)) sincos(float8 x, __global float8 *cosval);
-float16 __attribute__((overloadable)) sincos(float16 x, __global float16 *cosval);
-float __attribute__((overloadable)) sincos(float x, __local float *cosval);
-float2 __attribute__((overloadable)) sincos(float2 x, __local float2 *cosval);
-float3 __attribute__((overloadable)) sincos(float3 x, __local float3 *cosval);
-float4 __attribute__((overloadable)) sincos(float4 x, __local float4 *cosval);
-float8 __attribute__((overloadable)) sincos(float8 x, __local float8 *cosval);
-float16 __attribute__((overloadable)) sincos(float16 x, __local float16 *cosval);
-float __attribute__((overloadable)) sincos(float x, __private float *cosval);
-float2 __attribute__((overloadable)) sincos(float2 x, __private float2 *cosval);
-float3 __attribute__((overloadable)) sincos(float3 x, __private float3 *cosval);
-float4 __attribute__((overloadable)) sincos(float4 x, __private float4 *cosval);
-float8 __attribute__((overloadable)) sincos(float8 x, __private float8 *cosval);
-float16 __attribute__((overloadable)) sincos(float16 x, __private float16 *cosval);
-double __attribute__((overloadable)) sincos(double x, __global double *cosval);
-double2 __attribute__((overloadable)) sincos(double2 x, __global double2 *cosval);
-double3 __attribute__((overloadable)) sincos(double3 x, __global double3 *cosval);
-double4 __attribute__((overloadable)) sincos(double4 x, __global double4 *cosval);
-double8 __attribute__((overloadable)) sincos(double8 x, __global double8 *cosval);
-double16 __attribute__((overloadable)) sincos(double16 x, __global double16 *cosval);
-double __attribute__((overloadable)) sincos(double x, __local double *cosval);
-double2 __attribute__((overloadable)) sincos(double2 x, __local double2 *cosval);
-double3 __attribute__((overloadable)) sincos(double3 x, __local double3 *cosval);
-double4 __attribute__((overloadable)) sincos(double4 x, __local double4 *cosval);
-double8 __attribute__((overloadable)) sincos(double8 x, __local double8 *cosval);
-double16 __attribute__((overloadable)) sincos(double16 x, __local double16 *cosval);
-double __attribute__((overloadable)) sincos(double x, __private double *cosval);
-double2 __attribute__((overloadable)) sincos(double2 x, __private double2 *cosval);
-double3 __attribute__((overloadable)) sincos(double3 x, __private double3 *cosval);
-double4 __attribute__((overloadable)) sincos(double4 x, __private double4 *cosval);
-double8 __attribute__((overloadable)) sincos(double8 x, __private double8 *cosval);
-double16 __attribute__((overloadable)) sincos(double16 x, __private double16 *cosval);
-#ifdef cl_khr_fp16
-half __attribute__((overloadable)) sincos(half x, __global half *cosval);
-half2 __attribute__((overloadable)) sincos(half2 x, __global half2 *cosval);
-half3 __attribute__((overloadable)) sincos(half3 x, __global half3 *cosval);
-half4 __attribute__((overloadable)) sincos(half4 x, __global half4 *cosval);
-half8 __attribute__((overloadable)) sincos(half8 x, __global half8 *cosval);
-half16 __attribute__((overloadable)) sincos(half16 x, __global half16 *cosval);
-half __attribute__((overloadable)) sincos(half x, __local half *cosval);
-half2 __attribute__((overloadable)) sincos(half2 x, __local half2 *cosval);
-half3 __attribute__((overloadable)) sincos(half3 x, __local half3 *cosval);
-half4 __attribute__((overloadable)) sincos(half4 x, __local half4 *cosval);
-half8 __attribute__((overloadable)) sincos(half8 x, __local half8 *cosval);
-half16 __attribute__((overloadable)) sincos(half16 x, __local half16 *cosval);
-half __attribute__((overloadable)) sincos(half x, __private half *cosval);
-half2 __attribute__((overloadable)) sincos(half2 x, __private half2 *cosval);
-half3 __attribute__((overloadable)) sincos(half3 x, __private half3 *cosval);
-half4 __attribute__((overloadable)) sincos(half4 x, __private half4 *cosval);
-half8 __attribute__((overloadable)) sincos(half8 x, __private half8 *cosval);
-half16 __attribute__((overloadable)) sincos(half16 x, __private half16 *cosval);
-#endif //cl_khr_fp16
-
-/**
- * Decompose a floating-point number. The modf
- * function breaks the argument x into integral and
- * fractional parts, each of which has the same sign as
- * the argument. It stores the integral part in the object
- * pointed to by iptr.
- */
-float __attribute__((overloadable)) modf(float x, __global float *iptr);
-float2 __attribute__((overloadable)) modf(float2 x, __global float2 *iptr);
-float3 __attribute__((overloadable)) modf(float3 x, __global float3 *iptr);
-float4 __attribute__((overloadable)) modf(float4 x, __global float4 *iptr);
-float8 __attribute__((overloadable)) modf(float8 x, __global float8 *iptr);
-float16 __attribute__((overloadable)) modf(float16 x, __global float16 *iptr);
-float __attribute__((overloadable)) modf(float x, __local float *iptr);
-float2 __attribute__((overloadable)) modf(float2 x, __local float2 *iptr);
-float3 __attribute__((overloadable)) modf(float3 x, __local float3 *iptr);
-float4 __attribute__((overloadable)) modf(float4 x, __local float4 *iptr);
-float8 __attribute__((overloadable)) modf(float8 x, __local float8 *iptr);
-float16 __attribute__((overloadable)) modf(float16 x, __local float16 *iptr);
-float __attribute__((overloadable)) modf(float x, __private float *iptr);
-float2 __attribute__((overloadable)) modf(float2 x, __private float2 *iptr);
-float3 __attribute__((overloadable)) modf(float3 x, __private float3 *iptr);
-float4 __attribute__((overloadable)) modf(float4 x, __private float4 *iptr);
-float8 __attribute__((overloadable)) modf(float8 x, __private float8 *iptr);
-float16 __attribute__((overloadable)) modf(float16 x, __private float16 *iptr);
-double __attribute__((overloadable)) modf(double x, __global double *iptr);
-double2 __attribute__((overloadable)) modf(double2 x, __global double2 *iptr);
-double3 __attribute__((overloadable)) modf(double3 x, __global double3 *iptr);
-double4 __attribute__((overloadable)) modf(double4 x, __global double4 *iptr);
-double8 __attribute__((overloadable)) modf(double8 x, __global double8 *iptr);
-double16 __attribute__((overloadable)) modf(double16 x, __global double16 *iptr);
-double __attribute__((overloadable)) modf(double x, __local double *iptr);
-double2 __attribute__((overloadable)) modf(double2 x, __local double2 *iptr);
-double3 __attribute__((overloadable)) modf(double3 x, __local double3 *iptr);
-double4 __attribute__((overloadable)) modf(double4 x, __local double4 *iptr);
-double8 __attribute__((overloadable)) modf(double8 x, __local double8 *iptr);
-double16 __attribute__((overloadable)) modf(double16 x, __local double16 *iptr);
-double __attribute__((overloadable)) modf(double x, __private double *iptr);
-double2 __attribute__((overloadable)) modf(double2 x, __private double2 *iptr);
-double3 __attribute__((overloadable)) modf(double3 x, __private double3 *iptr);
-double4 __attribute__((overloadable)) modf(double4 x, __private double4 *iptr);
-double8 __attribute__((overloadable)) modf(double8 x, __private double8 *iptr);
-double16 __attribute__((overloadable)) modf(double16 x, __private double16 *iptr);
-#ifdef cl_khr_fp16
-half __attribute__((overloadable)) modf( half x, __global half *iptr );
-half2 __attribute__((overloadable)) modf( half2 x, __global half2 *iptr );
-half3 __attribute__((overloadable)) modf( half3 x, __global half3 *iptr );
-half4 __attribute__((overloadable)) modf( half4 x, __global half4 *iptr );
-half8 __attribute__((overloadable)) modf( half8 x, __global half8 *iptr );
-half16 __attribute__((overloadable)) modf( half16 x, __global half16 *iptr );
-half __attribute__((overloadable)) modf( half x, __local half *iptr );
-half2 __attribute__((overloadable)) modf( half2 x, __local half2 *iptr );
-half3 __attribute__((overloadable)) modf( half3 x, __local half3 *iptr );
-half4 __attribute__((overloadable)) modf( half4 x, __local half4 *iptr );
-half8 __attribute__((overloadable)) modf( half8 x, __local half8 *iptr );
-half16 __attribute__((overloadable)) modf( half16 x, __local half16 *iptr );
-half __attribute__((overloadable)) modf( half x, __private half *iptr );
-half2 __attribute__((overloadable)) modf( half2 x, __private half2 *iptr );
-half3 __attribute__((overloadable)) modf( half3 x, __private half3 *iptr );
-half4 __attribute__((overloadable)) modf( half4 x, __private half4 *iptr );
-half8 __attribute__((overloadable)) modf( half8 x, __private half8 *iptr );
-half16 __attribute__((overloadable)) modf( half16 x, __private half16 *iptr );
 #endif //cl_khr_fp16
 
 // ToDo: reorganize
