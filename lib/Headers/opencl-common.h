@@ -6599,7 +6599,7 @@ half16 __attribute__((overloadable)) convert_half16_rtz( half16 );
 	__attribute__((work_group_size_hint(X, 1, 1))) \
 	__attribute__((vec_type_hint(typen)))
 
-// work-item functions
+// OpenCL v1.2 s6.12.1, v2.0 s6.13.1 - Work-item Functions
 
 /**
  * Returns the number of dimensions in use. This is the
@@ -6684,7 +6684,13 @@ size_t __const_func __attribute__((overloadable)) get_group_id(uint dimindx);
  */
 size_t __const_func __attribute__((overloadable)) get_global_offset(uint dimindx);
 
-// Math functions:
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+size_t __attribute__((overloadable)) get_enqueued_local_size(uint dimindx);
+size_t __attribute__((overloadable)) get_global_linear_id(void);
+size_t __attribute__((overloadable)) get_local_linear_id(void);
+#endif //__OPENCL_C_VERSION__
+
+// OpenCL v1.2 s6.12.2, v2.0 s6.13.2 - Math functions
 
 /**
  * Arc cosine function.
@@ -9131,7 +9137,7 @@ double4 __const_func __attribute__((overloadable)) native_tan(double4 x);
 double8 __const_func __attribute__((overloadable)) native_tan(double8 x);
 double16 __const_func __attribute__((overloadable)) native_tan(double16 x);
 
-// Integer functions:
+// OpenCL v1.2 s6.12.3, v2.0 s6.13.3 - Integer Functions
 
 /**
  * Returns | x |.
@@ -10159,7 +10165,7 @@ uint8 __const_func __attribute__((overloadable)) mul24(uint8 x, uint8 y);
 int16 __const_func __attribute__((overloadable)) mul24(int16 x, int16 y);
 uint16 __const_func __attribute__((overloadable)) mul24(uint16 x, uint16 y);
 
-// Common functions:
+// OpenCL v1.2 s6.12.4, v2.0 s6.13.4 - Common Functions
 
 /**
  * Returns fmin(fmax(x, minval), maxval).
@@ -10489,7 +10495,7 @@ half8 __const_func __attribute__((overloadable)) sign( half8 x );
 half16 __const_func __attribute__((overloadable)) sign( half16 x );
 #endif //cl_khr_fp16
 
-// Geometric functions:
+// OpenCL v1.2 s6.12.5, v2.0 s6.13.5 - Geometric Functions
 
 /**
  * Returns the cross product of p0.xyz and p1.xyz. The
@@ -10640,7 +10646,7 @@ half3 __const_func __attribute__((overloadable)) fast_normalize(half3 p);
 half4 __const_func __attribute__((overloadable)) fast_normalize(half4 p);
 #endif //cl_khr_fp16
 
-// Relational functions:
+// OpenCL v1.2 s6.12.6, v2.0 s6.13.6 - Relational Functions
 
 /**
  * intn isequal (floatn x, floatn y)
@@ -11584,7 +11590,7 @@ half8 __const_func __attribute__((overloadable)) select( half8 a, half8 b, ushor
 half16 __const_func __attribute__((overloadable)) select( half16 a, half16 b, ushort16 c );
 #endif //cl_khr_fp16
 
-// Vector data load and store functions
+// OpenCL v1.2 s6.12.7, v2.0 s6.13.7 - Vector Data Load and Store Functions
 
 /**
  * Return sizeof (gentypen) bytes of data read
@@ -12800,7 +12806,7 @@ void __attribute__((overloadable)) vstorea_half8_rtn(double8 data,size_t offset,
 void __attribute__((overloadable)) vstorea_half16_rtn(double16 data,size_t offset, __private half *p);
 #endif //__OPENCL_C_VERSION__
 
-// Synchronization functions
+// OpenCL v1.2 s6.12.8, v2.0 s6.13.8 - Synchronization Functions
 
 /**
  * All work-items in a work-group executing the kernel
@@ -12836,7 +12842,12 @@ typedef uint cl_mem_fence_flags;
 
 void __attribute__((overloadable)) barrier(cl_mem_fence_flags flags);
 
-// Explicit memory fence functions
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags, memory_scope scope);
+void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags);
+#endif //__OPENCL_C_VERSION__
+
+// OpenCL v1.2 s6.12.9 - Explicit Memory Fence Functions
 
 /**
  * Orders loads and stores of a work-item
@@ -12891,7 +12902,23 @@ void __attribute__((overloadable)) write_mem_fence(cl_mem_fence_flags flags);
  */
 #define CLK_GLOBAL_MEM_FENCE   0x02
 
-// Async copies from global to local memory, local to global memory, and prefetch
+// OpenCL v2.0 s6.13.9 - Address Space Qualifier Functions
+
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+cl_mem_fence_flags __attribute__((overloadable)) get_fence(const void *ptr);
+cl_mem_fence_flags __attribute__((overloadable)) get_fence(void *ptr);
+
+
+__global  void* __attribute__((overloadable)) to_global(void*);
+__local   void* __attribute__((overloadable)) to_local(void*);
+__private void* __attribute__((overloadable)) to_private(void*);
+
+__global  const void* __attribute__((overloadable)) to_global(const void*);
+__local   const void* __attribute__((overloadable)) to_local(const void*);
+__private const void* __attribute__((overloadable)) to_private(const void*);
+#endif //__OPENCL_C_VERSION__
+
+// OpenCL v1.2 s6.12.10, v2.0 s6.13.10 - Async Copies from Global to Local Memory, Local to Global Memory, and Prefetch
 
 /**
  * event_t async_work_group_copy (
@@ -13305,7 +13332,8 @@ void __attribute__((overloadable)) prefetch(const __global half8 *p, size_t num_
 void __attribute__((overloadable)) prefetch(const __global half16 *p, size_t num_elements);
 #endif // cl_khr_fp16
 
-// OpenCL 1.x atomic functions
+// OpenCL v1.2 s6.12.11 - Atomic Functions
+
 #if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
 #pragma OPENCL EXTENSION cl_khr_int64_base_atomics : enable
 #pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : enable
@@ -13586,9 +13614,9 @@ unsigned int __attribute__((overloadable)) atom_xor(volatile __local unsigned in
 #pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : disable
 #endif
 
-//
-// c11 atomics definitions
-//
+
+// OpenCL v2.0 s6.13.11 - Atomics Functions
+
 #if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
 #define ATOMIC_VAR_INIT(x) (x)
 
@@ -13634,6 +13662,13 @@ atomic_init_prototype(long)
 atomic_init_prototype(ulong)
 atomic_init_prototype(double)
 #endif
+
+/**
+ * Queue a memory fence to ensure correct ordering of memory
+ * operations between work-items of a work-group to
+ * image memory.
+ */
+#define CLK_IMAGE_MEM_FENCE  0x04
 
 // atomic_work_item_fence()
 void __attribute__((overloadable)) atomic_work_item_fence(cl_mem_fence_flags flags, memory_order order, memory_scope scope);
@@ -13813,12 +13848,9 @@ atomic_flag_prototype(clear, void)
 #undef atomic_init_prototype
 #undef atomic_init_prototype_addrspace
 
-void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags, memory_scope scope);
-void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags);
-
 #endif //__OPENCL_C_VERSION__
 
-// Miscellaneous vector functions
+// OpenCL v1.2 s6.12.12, v2.0 s6.13.12 - Miscellaneous Vector Functions
 
 /**
  * The shuffle and shuffle2 built-in functions construct
@@ -14306,9 +14338,12 @@ half16 __const_func __attribute__((overloadable)) shuffle2( half8 x, half8 y, us
 half16 __const_func __attribute__((overloadable)) shuffle2( half16 x, half16 y, ushort16 mask );
 #endif //cl_khr_fp16
 
+// OpenCL v1.2 s6.12.13, v2.0 s6.13.13 - printf
+
 int printf(__constant const char* st, ...);
 
-// Built-in image functions
+// OpenCL v1.2 s6.12.14, v2.0 s6.13.14 - Image Read and Write Functions
+
 // These values need to match the runtime equivalent
 //
 // Addressing Mode.
@@ -15464,5 +15499,186 @@ int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_depth
 int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_t image);
 int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_depth_t image);
 #endif
+
+// OpenCL v2.0 s6.13.15 - Work-group Functions
+
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+int __attribute__((overloadable)) work_group_all(int predicate);
+int __attribute__((overloadable)) work_group_any(int predicate);
+
+#define WG_BROADCAST_1D_DECL(type) \
+type __attribute__((overloadable)) work_group_broadcast(type a, size_t local_id);
+#define WG_BROADCAST_2D_DECL(type) \
+type __attribute__((overloadable)) work_group_broadcast(type a, size_t x, size_t y);
+#define WG_BROADCAST_3D_DECL(type) \
+type __attribute__((overloadable)) work_group_broadcast(type a, size_t x, size_t y, size_t z);
+
+#define WG_BROADCAST_ALL_DECL(type) \
+WG_BROADCAST_1D_DECL(type) \
+WG_BROADCAST_2D_DECL(type) \
+WG_BROADCAST_3D_DECL(type)
+
+#ifdef cl_khr_fp16
+WG_BROADCAST_ALL_DECL(half)
+#endif
+WG_BROADCAST_ALL_DECL(int)
+WG_BROADCAST_ALL_DECL(uint)
+WG_BROADCAST_ALL_DECL(long)
+WG_BROADCAST_ALL_DECL(ulong)
+WG_BROADCAST_ALL_DECL(float)
+WG_BROADCAST_ALL_DECL(double)
+
+#define DECL_WORK_GROUP_REDUCE_OP(type, op_name) \
+type __attribute__((overloadable)) work_group_reduce_##op_name(type x);
+#define DECL_WORK_GROUP_SCAN_EXCLUSIVE_OP(type, op_name) \
+type __attribute__((overloadable)) work_group_scan_exclusive_##op_name(type x);
+#define DECL_WORK_GROUP_SCAN_INCLUSIVE_OP(type, op_name) \
+type __attribute__((overloadable)) work_group_scan_inclusive_##op_name(type x);
+
+#define DECL_WORK_GROUP_REDUCE_ALL(type) \
+DECL_WORK_GROUP_REDUCE_OP(type, add) \
+DECL_WORK_GROUP_REDUCE_OP(type, min) \
+DECL_WORK_GROUP_REDUCE_OP(type, max)
+
+#define DECL_WORK_GROUP_SCAN_EXCLUSIVE_ALL(type) \
+DECL_WORK_GROUP_SCAN_EXCLUSIVE_OP(type, add) \
+DECL_WORK_GROUP_SCAN_EXCLUSIVE_OP(type, min) \
+DECL_WORK_GROUP_SCAN_EXCLUSIVE_OP(type, max)
+
+#define DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(type) \
+DECL_WORK_GROUP_SCAN_INCLUSIVE_OP(type, add) \
+DECL_WORK_GROUP_SCAN_INCLUSIVE_OP(type, min) \
+DECL_WORK_GROUP_SCAN_INCLUSIVE_OP(type, max)
+
+#ifdef cl_khr_fp16
+DECL_WORK_GROUP_REDUCE_ALL(half)
+DECL_WORK_GROUP_SCAN_EXCLUSIVE_ALL(half)
+DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(half)
+#endif
+DECL_WORK_GROUP_REDUCE_ALL(int)
+DECL_WORK_GROUP_SCAN_EXCLUSIVE_ALL(int)
+DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(int)
+DECL_WORK_GROUP_REDUCE_ALL(uint)
+DECL_WORK_GROUP_SCAN_EXCLUSIVE_ALL(uint)
+DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(uint)
+DECL_WORK_GROUP_REDUCE_ALL(long)
+DECL_WORK_GROUP_SCAN_EXCLUSIVE_ALL(long)
+DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(long)
+DECL_WORK_GROUP_REDUCE_ALL(ulong)
+DECL_WORK_GROUP_SCAN_EXCLUSIVE_ALL(ulong)
+DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(ulong)
+DECL_WORK_GROUP_REDUCE_ALL(float)
+DECL_WORK_GROUP_SCAN_EXCLUSIVE_ALL(float)
+DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(float)
+DECL_WORK_GROUP_REDUCE_ALL(double)
+DECL_WORK_GROUP_SCAN_EXCLUSIVE_ALL(double)
+DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(double)
+
+#endif //__OPENCL_C_VERSION__
+
+// OpenCL v2.0 s6.13.16 - Pipe Functions
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#define PIPE_RESERVE_ID_VALID_BIT (1U << 30)
+#define CLK_NULL_RESERVE_ID (__builtin_astype(((void*)(~PIPE_RESERVE_ID_VALID_BIT)), reserve_id_t))
+bool __attribute__((overloadable)) is_valid_reserve_id(reserve_id_t reserve_id);
+#endif //__OPENCL_C_VERSION__
+
+
+// OpenCL v2.0 s6.13.17 - Enqueue Kernels
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+
+#define CL_COMPLETE                                 0x0
+#define CL_RUNNING                                  0x1
+#define CL_SUBMITTED                                0x2
+#define CL_QUEUED                                   0x3
+
+#define CLK_SUCCESS                                 0
+#define CLK_ENQUEUE_FAILURE                         -101
+#define CLK_INVALID_QUEUE                           -102
+#define CLK_INVALID_NDRANGE                         -160
+#define CLK_INVALID_EVENT_WAIT_LIST                 -57
+#define CLK_DEVICE_QUEUE_FULL                       -161
+#define CLK_INVALID_ARG_SIZE                        -51
+#define CLK_EVENT_ALLOCATION_FAILURE                -100
+#define CLK_OUT_OF_RESOURCES                        -5
+
+#define CLK_NULL_QUEUE                              0
+#define CLK_NULL_EVENT (__builtin_astype(((void*)(UINT32MAX)), clk_event_t))
+
+// execution model related definitions
+#define CLK_ENQUEUE_FLAGS_NO_WAIT                   0x0
+#define CLK_ENQUEUE_FLAGS_WAIT_KERNEL               0x1
+#define CLK_ENQUEUE_FLAGS_WAIT_WORK_GROUP           0x2
+
+typedef int kernel_enqueue_flags_t;
+typedef int clk_profiling_info;
+
+// Profiling info name (see capture_event_profiling_info)
+#define CLK_PROFILING_COMMAND_EXEC_TIME 0x1
+
+#define MAX_WORK_DIM        3
+#if defined(__clang__) && (__clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 9))
+typedef struct {
+    unsigned int workDimension;
+    size_t globalWorkOffset[MAX_WORK_DIM];
+    size_t globalWorkSize[MAX_WORK_DIM];
+    size_t localWorkSize[MAX_WORK_DIM];
+} ndrange_t;
+#endif
+
+ndrange_t __attribute__((overloadable)) ndrange_1D(size_t);
+ndrange_t __attribute__((overloadable)) ndrange_1D(size_t, size_t );
+ndrange_t __attribute__((overloadable)) ndrange_1D(size_t, size_t, size_t );
+
+ndrange_t __attribute__((overloadable)) ndrange_2D(const size_t[2]);
+ndrange_t __attribute__((overloadable)) ndrange_2D(const size_t[2], const size_t[2]);
+ndrange_t __attribute__((overloadable)) ndrange_2D(const size_t[2], const size_t[2], const size_t[2]);
+
+ndrange_t __attribute__((overloadable)) ndrange_3D(const size_t[3]);
+ndrange_t __attribute__((overloadable)) ndrange_3D(const size_t[3], const size_t[3]);
+ndrange_t __attribute__((overloadable)) ndrange_3D(const size_t[3], const size_t[3], const size_t[3]);
+
+int __attribute__((overloadable))
+enqueue_kernel(queue_t queue, kernel_enqueue_flags_t, const ndrange_t,
+               void (^block)(void));
+
+int __attribute__((overloadable))
+enqueue_kernel(queue_t queue, kernel_enqueue_flags_t, const ndrange_t, uint,
+               const __private clk_event_t *, __private clk_event_t *,
+               void (^block)(void));
+
+int __attribute__((overloadable))
+enqueue_kernel(queue_t queue, kernel_enqueue_flags_t flags,
+               const ndrange_t ndrange, void (^block)(local void *, ...),
+               uint size0, ...);
+
+int __attribute__((overloadable))
+enqueue_kernel(queue_t queue, kernel_enqueue_flags_t flags,
+               const ndrange_t ndrange, uint num_events_in_wait_list,
+               const __private clk_event_t *event_wait_list,
+               __private clk_event_t *event_ret,
+               void (^block)(local void *, ...), uint size0, ...);
+
+uint __attribute__((overloadable)) get_kernel_work_group_size(void (^block)(void));
+uint __attribute__((overloadable)) get_kernel_work_group_size(void (^block)(local void *, ...));
+uint __attribute__((overloadable)) get_kernel_preferred_work_group_size_multiple(void (^block)(void));
+uint __attribute__((overloadable)) get_kernel_preferred_work_group_size_multiple(void (^block)(local void *, ...));
+
+int __attribute__((overloadable)) enqueue_marker(queue_t, uint, const __private clk_event_t*, __private clk_event_t* );
+
+void __attribute__((overloadable)) retain_event(clk_event_t);
+
+void __attribute__((overloadable)) release_event(clk_event_t);
+
+clk_event_t create_user_event(void);
+
+void __attribute__((overloadable)) set_user_event_status( clk_event_t e, int state );
+
+bool is_valid_event (clk_event_t event);
+
+void __attribute__((overloadable)) capture_event_profiling_info(clk_event_t, clk_profiling_info, __global void* value);
+
+queue_t __attribute__((overloadable)) get_default_queue(void);
+#endif //__OPENCL_C_VERSION__
 
 #endif
