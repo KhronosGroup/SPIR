@@ -9556,6 +9556,62 @@ long16 __const_func __attribute__((overloadable)) clz(long16 x);
 ulong16 __const_func __attribute__((overloadable)) clz(ulong16 x);
 
 /**
+ * Returns the count of trailing 0-bits in x. If x is 0,
+ * returns the size in bits of the type of x or
+ * component type of x, if x is a vector.
+ */
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+char __attribute__((overloadable)) ctz(char x);
+uchar __attribute__((overloadable)) ctz(uchar x);
+char2 __attribute__((overloadable)) ctz(char2 x);
+uchar2 __attribute__((overloadable)) ctz(uchar2 x);
+char3 __attribute__((overloadable)) ctz(char3 x);
+uchar3 __attribute__((overloadable)) ctz(uchar3 x);
+char4 __attribute__((overloadable)) ctz(char4 x);
+uchar4 __attribute__((overloadable)) ctz(uchar4 x);
+char8 __attribute__((overloadable)) ctz(char8 x);
+uchar8 __attribute__((overloadable)) ctz(uchar8 x);
+char16 __attribute__((overloadable)) ctz(char16 x);
+uchar16 __attribute__((overloadable)) ctz(uchar16 x);
+short __attribute__((overloadable)) ctz(short x);
+ushort __attribute__((overloadable)) ctz(ushort x);
+short2 __attribute__((overloadable)) ctz(short2 x);
+ushort2 __attribute__((overloadable)) ctz(ushort2 x);
+short3 __attribute__((overloadable)) ctz(short3 x);
+ushort3 __attribute__((overloadable)) ctz(ushort3 x);
+short4 __attribute__((overloadable)) ctz(short4 x);
+ushort4 __attribute__((overloadable)) ctz(ushort4 x);
+short8 __attribute__((overloadable)) ctz(short8 x);
+ushort8 __attribute__((overloadable)) ctz(ushort8 x);
+short16 __attribute__((overloadable)) ctz(short16 x);
+ushort16 __attribute__((overloadable)) ctz(ushort16 x);
+int __attribute__((overloadable)) ctz(int x);
+uint __attribute__((overloadable)) ctz(uint x);
+int2 __attribute__((overloadable)) ctz(int2 x);
+uint2 __attribute__((overloadable)) ctz(uint2 x);
+int3 __attribute__((overloadable)) ctz(int3 x);
+uint3 __attribute__((overloadable)) ctz(uint3 x);
+int4 __attribute__((overloadable)) ctz(int4 x);
+uint4 __attribute__((overloadable)) ctz(uint4 x);
+int8 __attribute__((overloadable)) ctz(int8 x);
+uint8 __attribute__((overloadable)) ctz(uint8 x);
+int16 __attribute__((overloadable)) ctz(int16 x);
+uint16 __attribute__((overloadable)) ctz(uint16 x);
+long __attribute__((overloadable)) ctz(long x);
+ulong __attribute__((overloadable)) ctz(ulong x);
+long2 __attribute__((overloadable)) ctz(long2 x);
+ulong2 __attribute__((overloadable)) ctz(ulong2 x);
+long3 __attribute__((overloadable)) ctz(long3 x);
+ulong3 __attribute__((overloadable)) ctz(ulong3 x);
+long4 __attribute__((overloadable)) ctz(long4 x);
+ulong4 __attribute__((overloadable)) ctz(ulong4 x);
+long8 __attribute__((overloadable)) ctz(long8 x);
+ulong8 __attribute__((overloadable)) ctz(ulong8 x);
+long16 __attribute__((overloadable)) ctz(long16 x);
+ulong16 __attribute__((overloadable)) ctz(ulong16 x);
+#endif //__OPENCL_C_VERSION__
+
+/**
  * Returns mul_hi(a, b) + c.
  */
 char __const_func __attribute__((overloadable)) mad_hi(char a, char b, char c);
