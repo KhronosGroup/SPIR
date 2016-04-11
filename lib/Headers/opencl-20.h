@@ -10,12 +10,6 @@
 
 #include "opencl-common.h"
 
-
-//
-//Maximum supported size of a program scope global variable
-//
-#define CL_DEVICE_MAX_GLOBAL_VARIABLE_SIZE 0x10000
-
 #define CL_COMPLETE                                 0x0
 #define CL_RUNNING                                  0x1
 #define CL_SUBMITTED                                0x2
