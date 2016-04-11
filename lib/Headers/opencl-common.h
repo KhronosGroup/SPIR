@@ -15737,4 +15737,101 @@ void __attribute__((overloadable)) capture_event_profiling_info(clk_event_t, clk
 queue_t __attribute__((overloadable)) get_default_queue(void);
 #endif //__OPENCL_C_VERSION__
 
+// OpenCL Extension v2.0 s9.17 - Sub-groups
+
+#if defined(cl_intel_subgroups) || defined(cl_khr_subgroups)
+// Shared Sub Group Functions
+uint    __attribute__((overloadable)) get_sub_group_size( void );
+uint    __attribute__((overloadable)) get_max_sub_group_size( void );
+uint    __attribute__((overloadable)) get_num_sub_groups( void );
+uint    __attribute__((overloadable)) get_enqueued_num_sub_groups( void );
+uint    __attribute__((overloadable)) get_sub_group_id( void );
+uint    __attribute__((overloadable)) get_sub_group_local_id( void );
+
+void    __attribute__((overloadable)) sub_group_barrier( cl_mem_fence_flags flags );
+void    __attribute__((overloadable)) sub_group_barrier( cl_mem_fence_flags flags, memory_scope scope );
+
+int     __attribute__((overloadable)) sub_group_all( int predicate );
+int     __attribute__((overloadable)) sub_group_any( int predicate );
+
+int     __attribute__((overloadable)) sub_group_broadcast( int   x, uint sub_group_local_id );
+uint    __attribute__((overloadable)) sub_group_broadcast( uint  x, uint sub_group_local_id );
+long    __attribute__((overloadable)) sub_group_broadcast( long  x, uint sub_group_local_id );
+ulong   __attribute__((overloadable)) sub_group_broadcast( ulong x, uint sub_group_local_id );
+float   __attribute__((overloadable)) sub_group_broadcast( float x, uint sub_group_local_id );
+
+int     __attribute__((overloadable)) sub_group_reduce_add( int   x );
+uint    __attribute__((overloadable)) sub_group_reduce_add( uint  x );
+long    __attribute__((overloadable)) sub_group_reduce_add( long  x );
+ulong   __attribute__((overloadable)) sub_group_reduce_add( ulong x );
+float   __attribute__((overloadable)) sub_group_reduce_add( float x );
+int     __attribute__((overloadable)) sub_group_reduce_min( int   x );
+uint    __attribute__((overloadable)) sub_group_reduce_min( uint  x );
+long    __attribute__((overloadable)) sub_group_reduce_min( long  x );
+ulong   __attribute__((overloadable)) sub_group_reduce_min( ulong x );
+float   __attribute__((overloadable)) sub_group_reduce_min( float x );
+int     __attribute__((overloadable)) sub_group_reduce_max( int   x );
+uint    __attribute__((overloadable)) sub_group_reduce_max( uint  x );
+long    __attribute__((overloadable)) sub_group_reduce_max( long  x );
+ulong   __attribute__((overloadable)) sub_group_reduce_max( ulong x );
+float   __attribute__((overloadable)) sub_group_reduce_max( float x );
+
+int     __attribute__((overloadable)) sub_group_scan_exclusive_add( int   x );
+uint    __attribute__((overloadable)) sub_group_scan_exclusive_add( uint  x );
+long    __attribute__((overloadable)) sub_group_scan_exclusive_add( long  x );
+ulong   __attribute__((overloadable)) sub_group_scan_exclusive_add( ulong x );
+float   __attribute__((overloadable)) sub_group_scan_exclusive_add( float x );
+int     __attribute__((overloadable)) sub_group_scan_exclusive_min( int   x );
+uint    __attribute__((overloadable)) sub_group_scan_exclusive_min( uint  x );
+long    __attribute__((overloadable)) sub_group_scan_exclusive_min( long  x );
+ulong   __attribute__((overloadable)) sub_group_scan_exclusive_min( ulong x );
+float   __attribute__((overloadable)) sub_group_scan_exclusive_min( float x );
+int     __attribute__((overloadable)) sub_group_scan_exclusive_max( int   x );
+uint    __attribute__((overloadable)) sub_group_scan_exclusive_max( uint  x );
+long    __attribute__((overloadable)) sub_group_scan_exclusive_max( long  x );
+ulong   __attribute__((overloadable)) sub_group_scan_exclusive_max( ulong x );
+float   __attribute__((overloadable)) sub_group_scan_exclusive_max( float x );
+
+int     __attribute__((overloadable)) sub_group_scan_inclusive_add( int   x );
+uint    __attribute__((overloadable)) sub_group_scan_inclusive_add( uint  x );
+long    __attribute__((overloadable)) sub_group_scan_inclusive_add( long  x );
+ulong   __attribute__((overloadable)) sub_group_scan_inclusive_add( ulong x );
+float   __attribute__((overloadable)) sub_group_scan_inclusive_add( float x );
+int     __attribute__((overloadable)) sub_group_scan_inclusive_min( int   x );
+uint    __attribute__((overloadable)) sub_group_scan_inclusive_min( uint  x );
+long    __attribute__((overloadable)) sub_group_scan_inclusive_min( long  x );
+ulong   __attribute__((overloadable)) sub_group_scan_inclusive_min( ulong x );
+float   __attribute__((overloadable)) sub_group_scan_inclusive_min( float x );
+int     __attribute__((overloadable)) sub_group_scan_inclusive_max( int   x );
+uint    __attribute__((overloadable)) sub_group_scan_inclusive_max( uint  x );
+long    __attribute__((overloadable)) sub_group_scan_inclusive_max( long  x );
+ulong   __attribute__((overloadable)) sub_group_scan_inclusive_max( ulong x );
+float   __attribute__((overloadable)) sub_group_scan_inclusive_max( float x );
+
+#ifdef cl_khr_fp16
+half    __attribute__((overloadable)) sub_group_broadcast( half x, uint sub_group_local_id );
+half    __attribute__((overloadable)) sub_group_reduce_add( half x );
+half    __attribute__((overloadable)) sub_group_reduce_min( half x );
+half    __attribute__((overloadable)) sub_group_reduce_max( half x );
+half    __attribute__((overloadable)) sub_group_scan_exclusive_add( half x );
+half    __attribute__((overloadable)) sub_group_scan_exclusive_min( half x );
+half    __attribute__((overloadable)) sub_group_scan_exclusive_max( half x );
+half    __attribute__((overloadable)) sub_group_scan_inclusive_add( half x );
+half    __attribute__((overloadable)) sub_group_scan_inclusive_min( half x );
+half    __attribute__((overloadable)) sub_group_scan_inclusive_max( half x );
+#endif //cl_khr_fp16
+
+double  __attribute__((overloadable)) sub_group_broadcast( double x, uint sub_group_local_id );
+double  __attribute__((overloadable)) sub_group_reduce_add( double x );
+double  __attribute__((overloadable)) sub_group_reduce_min( double x );
+double  __attribute__((overloadable)) sub_group_reduce_max( double x );
+double  __attribute__((overloadable)) sub_group_scan_exclusive_add( double x );
+double  __attribute__((overloadable)) sub_group_scan_exclusive_min( double x );
+double  __attribute__((overloadable)) sub_group_scan_exclusive_max( double x );
+double  __attribute__((overloadable)) sub_group_scan_inclusive_add( double x );
+double  __attribute__((overloadable)) sub_group_scan_inclusive_min( double x );
+double  __attribute__((overloadable)) sub_group_scan_inclusive_max( double x );
+
+#endif //cl_khr_subgroups cl_intel_subgroups
+
 #endif
