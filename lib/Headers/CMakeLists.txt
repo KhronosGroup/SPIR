@@ -56,8 +56,7 @@ set(files
   x86intrin.h
   xmmintrin.h
   xopintrin.h
-  opencl-12.h
-  opencl-20.h
+  opencl.h
   )
 
 set(output_dir ${LLVM_LIBRARY_OUTPUT_INTDIR}/clang/${CLANG_VERSION}/include)
