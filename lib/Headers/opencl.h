@@ -13405,9 +13405,11 @@ unsigned int __attribute__((overloadable)) atomic_add(volatile __global unsigned
 int __attribute__((overloadable)) atomic_add(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atomic_add(volatile __local unsigned int *p, unsigned int val);
 
-#if defined(cl_khr_int32_base_atomics)
+#if defined(cl_khr_global_int32_base_atomics)
 int __attribute__((overloadable)) atom_add(volatile __global int *p, int val);
 unsigned int __attribute__((overloadable)) atom_add(volatile __global unsigned int *p, unsigned int val);
+#endif
+#if defined(cl_khr_local_int32_base_atomics)
 int __attribute__((overloadable)) atom_add(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atom_add(volatile __local unsigned int *p, unsigned int val);
 #endif
@@ -13429,9 +13431,11 @@ unsigned int __attribute__((overloadable)) atomic_sub(volatile __global unsigned
 int __attribute__((overloadable)) atomic_sub(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atomic_sub(volatile __local unsigned int *p, unsigned int val);
 
-#if defined(cl_khr_int32_base_atomics)
+#if defined(cl_khr_global_int32_base_atomics)
 int __attribute__((overloadable)) atom_sub(volatile __global int *p, int val);
 unsigned int __attribute__((overloadable)) atom_sub(volatile __global unsigned int *p, unsigned int val);
+#endif
+#if defined(cl_khr_local_int32_base_atomics)
 int __attribute__((overloadable)) atom_sub(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atom_sub(volatile __local unsigned int *p, unsigned int val);
 #endif
@@ -13455,9 +13459,11 @@ unsigned int __attribute__((overloadable)) atomic_xchg(volatile __local unsigned
 float __attribute__((overloadable)) atomic_xchg(volatile __global float *p, float val);
 float __attribute__((overloadable)) atomic_xchg(volatile __local float *p, float val);
 
-#if defined(cl_khr_int32_base_atomics)
+#if defined(cl_khr_global_int32_base_atomics)
 int __attribute__((overloadable)) atom_xchg(volatile __global int *p, int val);
 int __attribute__((overloadable)) atom_xchg(volatile __local int *p, int val);
+#endif
+#if defined(cl_khr_local_int32_base_atomics)
 unsigned int __attribute__((overloadable)) atom_xchg(volatile __global unsigned int *p, unsigned int val);
 unsigned int __attribute__((overloadable)) atom_xchg(volatile __local unsigned int *p, unsigned int val);
 #endif
@@ -13480,9 +13486,11 @@ unsigned int __attribute__((overloadable)) atomic_inc(volatile __global unsigned
 int __attribute__((overloadable)) atomic_inc(volatile __local int *p);
 unsigned int __attribute__((overloadable)) atomic_inc(volatile __local unsigned int *p);
 
-#if defined(cl_khr_int32_base_atomics)
+#if defined(cl_khr_global_int32_base_atomics)
 int __attribute__((overloadable)) atom_inc(volatile __global int *p);
 unsigned int __attribute__((overloadable)) atom_inc(volatile __global unsigned int *p);
+#endif
+#if defined(cl_khr_local_int32_base_atomics)
 int __attribute__((overloadable)) atom_inc(volatile __local int *p);
 unsigned int __attribute__((overloadable)) atom_inc(volatile __local unsigned int *p);
 #endif
@@ -13505,9 +13513,11 @@ unsigned int __attribute__((overloadable)) atomic_dec(volatile __global unsigned
 int __attribute__((overloadable)) atomic_dec(volatile __local int *p);
 unsigned int __attribute__((overloadable)) atomic_dec(volatile __local unsigned int *p);
 
-#if defined(cl_khr_int32_base_atomics)
+#if defined(cl_khr_global_int32_base_atomics)
 int __attribute__((overloadable)) atom_dec(volatile __global int *p);
 unsigned int __attribute__((overloadable)) atom_dec(volatile __global unsigned int *p);
+#endif
+#if defined(cl_khr_local_int32_base_atomics)
 int __attribute__((overloadable)) atom_dec(volatile __local int *p);
 unsigned int __attribute__((overloadable)) atom_dec(volatile __local unsigned int *p);
 #endif
@@ -13531,9 +13541,11 @@ unsigned int __attribute__((overloadable)) atomic_cmpxchg(volatile __global unsi
 int __attribute__((overloadable)) atomic_cmpxchg(volatile __local int *p, int cmp, int val);
 unsigned int __attribute__((overloadable)) atomic_cmpxchg(volatile __local unsigned int *p, unsigned int cmp, unsigned int val);
 
-#if defined(cl_khr_int32_base_atomics)
+#if defined(cl_khr_global_int32_base_atomics)
 int __attribute__((overloadable)) atom_cmpxchg(volatile __global int *p, int cmp, int val);
 unsigned int __attribute__((overloadable)) atom_cmpxchg(volatile __global unsigned int *p, unsigned int cmp, unsigned int val);
+#endif
+#if defined(cl_khr_local_int32_base_atomics)
 int __attribute__((overloadable)) atom_cmpxchg(volatile __local int *p, int cmp, int val);
 unsigned int __attribute__((overloadable)) atom_cmpxchg(volatile __local unsigned int *p, unsigned int cmp, unsigned int val);
 #endif
@@ -13557,9 +13569,11 @@ unsigned int __attribute__((overloadable)) atomic_min(volatile __global unsigned
 int __attribute__((overloadable)) atomic_min(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atomic_min(volatile __local unsigned int *p, unsigned int val);
 
-#if defined(cl_khr_int32_extended_atomics)
+#if defined(cl_khr_global_int32_extended_atomics)
 int __attribute__((overloadable)) atom_min(volatile __global int *p, int val);
 unsigned int __attribute__((overloadable)) atom_min(volatile __global unsigned int *p, unsigned int val);
+#endif
+#if defined(cl_khr_local_int32_extended_atomics)
 int __attribute__((overloadable)) atom_min(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atom_min(volatile __local unsigned int *p, unsigned int val);
 #endif
@@ -13567,6 +13581,8 @@ unsigned int __attribute__((overloadable)) atom_min(volatile __local unsigned in
 #if defined(cl_khr_int64_extended_atomics)
 long __attribute__((overloadable)) atom_min(volatile __global long *p, long val);
 unsigned long __attribute__((overloadable)) atom_min(volatile __global unsigned long *p, unsigned long val);
+#endif
+#if defined(cl_khr_local_int32_extended_atomics)
 long __attribute__((overloadable)) atom_min(volatile __local long *p, long val);
 unsigned long __attribute__((overloadable)) atom_min(volatile __local unsigned long *p, unsigned long val);
 #endif
@@ -13583,9 +13599,11 @@ unsigned int __attribute__((overloadable)) atomic_max(volatile __global unsigned
 int __attribute__((overloadable)) atomic_max(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atomic_max(volatile __local unsigned int *p, unsigned int val);
 
-#if defined(cl_khr_int32_extended_atomics)
+#if defined(cl_khr_global_int32_extended_atomics)
 int __attribute__((overloadable)) atom_max(volatile __global int *p, int val);
 unsigned int __attribute__((overloadable)) atom_max(volatile __global unsigned int *p, unsigned int val);
+#endif
+#if defined(cl_khr_local_int32_extended_atomics)
 int __attribute__((overloadable)) atom_max(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atom_max(volatile __local unsigned int *p, unsigned int val);
 #endif
@@ -13608,9 +13626,11 @@ unsigned int __attribute__((overloadable)) atomic_and(volatile __global unsigned
 int __attribute__((overloadable)) atomic_and(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atomic_and(volatile __local unsigned int *p, unsigned int val);
 
-#if defined(cl_khr_int32_extended_atomics)
+#if defined(cl_khr_global_int32_extended_atomics)
 int __attribute__((overloadable)) atom_and(volatile __global int *p, int val);
 unsigned int __attribute__((overloadable)) atom_and(volatile __global unsigned int *p, unsigned int val);
+#endif
+#if defined(cl_khr_local_int32_extended_atomics)
 int __attribute__((overloadable)) atom_and(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atom_and(volatile __local unsigned int *p, unsigned int val);
 #endif
@@ -13633,9 +13653,11 @@ unsigned int __attribute__((overloadable)) atomic_or(volatile __global unsigned 
 int __attribute__((overloadable)) atomic_or(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atomic_or(volatile __local unsigned int *p, unsigned int val);
 
-#if defined(cl_khr_int32_extended_atomics)
+#if defined(cl_khr_global_int32_extended_atomics)
 int __attribute__((overloadable)) atom_or(volatile __global int *p, int val);
 unsigned int __attribute__((overloadable)) atom_or(volatile __global unsigned int *p, unsigned int val);
+#endif
+#if defined(cl_khr_local_int32_extended_atomics)
 int __attribute__((overloadable)) atom_or(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atom_or(volatile __local unsigned int *p, unsigned int val);
 #endif
@@ -13658,9 +13680,11 @@ unsigned int __attribute__((overloadable)) atomic_xor(volatile __global unsigned
 int __attribute__((overloadable)) atomic_xor(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atomic_xor(volatile __local unsigned int *p, unsigned int val);
 
-#if defined(cl_khr_int32_extended_atomics)
+#if defined(cl_khr_global_int32_extended_atomics)
 int __attribute__((overloadable)) atom_xor(volatile __global int *p, int val);
 unsigned int __attribute__((overloadable)) atom_xor(volatile __global unsigned int *p, unsigned int val);
+#endif
+#if defined(cl_khr_local_int32_extended_atomics)
 int __attribute__((overloadable)) atom_xor(volatile __local int *p, int val);
 unsigned int __attribute__((overloadable)) atom_xor(volatile __local unsigned int *p, unsigned int val);
 #endif
@@ -15744,12 +15768,16 @@ queue_t __attribute__((overloadable)) get_default_queue(void);
 uint    __attribute__((overloadable)) get_sub_group_size( void );
 uint    __attribute__((overloadable)) get_max_sub_group_size( void );
 uint    __attribute__((overloadable)) get_num_sub_groups( void );
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
 uint    __attribute__((overloadable)) get_enqueued_num_sub_groups( void );
+#endif //__OPENCL_C_VERSION__
 uint    __attribute__((overloadable)) get_sub_group_id( void );
 uint    __attribute__((overloadable)) get_sub_group_local_id( void );
 
 void    __attribute__((overloadable)) sub_group_barrier( cl_mem_fence_flags flags );
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
 void    __attribute__((overloadable)) sub_group_barrier( cl_mem_fence_flags flags, memory_scope scope );
+#endif //__OPENCL_C_VERSION__
 
 int     __attribute__((overloadable)) sub_group_all( int predicate );
 int     __attribute__((overloadable)) sub_group_any( int predicate );
