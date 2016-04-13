@@ -12898,11 +12898,6 @@ typedef uint cl_mem_fence_flags;
 
 void __attribute__((overloadable)) barrier(cl_mem_fence_flags flags);
 
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
-void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags, memory_scope scope);
-void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags);
-#endif //__OPENCL_C_VERSION__
-
 // OpenCL v1.2 s6.12.9 - Explicit Memory Fence Functions
 
 /**
@@ -13720,6 +13715,11 @@ typedef enum memory_scope
   memory_scope_all_svm_devices,
   memory_scope_sub_group
 } memory_scope;
+
+#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags, memory_scope scope);
+void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags);
+#endif //__OPENCL_C_VERSION__
 
 // double atomics support requires extensions cl_khr_int64_base_atomics and cl_khr_int64_extended_atomics
 #if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
