@@ -79,7 +79,7 @@ Clone the OpenCL C++ standard libary to location where you installed Clang
 Step 6: Creating SPIR-V binaries
 --------------------------------
 
-To create a SPIR-V binary from a valid OpenCL-C file (.cl), use the following
+To create a SPIR-V binary from a valid OpenCL-C++ file (.cl), use the following
 command lines:
 
 ```bash
