@@ -205,7 +205,7 @@ void Sema::Initialize() {
   }
 
   // Initialize predefined OpenCL types.
-  if (PP.getLangOpts().OpenCL) {
+  if (PP.getLangOpts().OpenCL && !PP.getLangOpts().CPlusPlus) {
     addImplicitTypedef("image1d_t", Context.OCLImage1dTy);
     addImplicitTypedef("image1d_array_t", Context.OCLImage1dArrayTy);
     addImplicitTypedef("image1d_buffer_t", Context.OCLImage1dBufferTy);
@@ -349,6 +349,7 @@ ExprResult Sema::ImpCastExprToType(Expr *E, QualType Ty,
     case CK_ArrayToPointerDecay:
     case CK_FunctionToPointerDecay:
     case CK_ToVoid:
+    case CK_AddressSpaceConversion:
       break;
     }
   }

@@ -976,7 +976,16 @@ Sema::BuildCXXTypeConstructExpr(TypeSourceInfo *TInfo,
   InitializationSequence InitSeq(*this, Entity, Kind, Exprs);
   ExprResult Result = InitSeq.Perform(*this, Entity, Kind, Exprs);
 
-  if (Result.isInvalid() || !ListInitialization)
+  // [OCLC++10] Vector types for OpenCL C++ can be constructed using
+  // syntax similar to C++ constructor call, but they are converted
+  // list intialization (with narrowing restriction disabled) without
+  // involving actual constructor call.
+  // Because of that result expression needs to be explicitly casted
+  // to functional cast expression.
+  if (Result.isInvalid() || (!ListInitialization &&
+                             !(getLangOpts().OpenCL &&
+                               getLangOpts().CPlusPlus &&
+                               Ty->isExtVectorType())))
     return Result;
 
   Expr *Inner = Result.get();
@@ -1891,13 +1900,13 @@ bool Sema::FindAllocationOverload(SourceLocation StartLoc, SourceRange Range,
     if (FunctionTemplateDecl *FnTemplate = dyn_cast<FunctionTemplateDecl>(D)) {
       AddTemplateOverloadCandidate(FnTemplate, Alloc.getPair(),
                                    /*ExplicitTemplateArgs=*/nullptr,
-                                   Args, Candidates,
+                                   QualType(), Args, Candidates,
                                    /*SuppressUserConversions=*/false);
       continue;
     }
 
     FunctionDecl *Fn = cast<FunctionDecl>(D);
-    AddOverloadCandidate(Fn, Alloc.getPair(), Args, Candidates,
+    AddOverloadCandidate(Fn, Alloc.getPair(), Args, Candidates, QualType(),
                          /*SuppressUserConversions=*/false);
   }
 
@@ -1971,7 +1980,7 @@ bool Sema::FindAllocationOverload(SourceLocation StartLoc, SourceRange Range,
 /// Note that the placement and nothrow forms of new are *not* implicitly
 /// declared. Their use requires including \<new\>.
 void Sema::DeclareGlobalNewDelete() {
-  if (GlobalNewDeleteDeclared)
+  if (GlobalNewDeleteDeclared || getLangOpts().OpenCL)
     return;
 
   // C++ [basic.std.dynamic]p2:
@@ -2339,7 +2348,8 @@ Sema::ActOnCXXDelete(SourceLocation StartLoc, bool UseGlobal,
     QualType Pointee = Type->getAs<PointerType>()->getPointeeType();
     QualType PointeeElem = Context.getBaseElementType(Pointee);
 
-    if (unsigned AddressSpace = Pointee.getAddressSpace())
+    if (unsigned AddressSpace = Pointee.getAddressSpace() 
+        && !getLangOpts().OpenCL)
       return Diag(Ex.get()->getLocStart(), 
                   diag::err_address_space_qualified_delete)
                << Pointee.getUnqualifiedType() << AddressSpace;
@@ -2433,13 +2443,19 @@ Sema::ActOnCXXDelete(SourceLocation StartLoc, bool UseGlobal,
 
     }
 
-    if (!OperatorDelete)
+    if (!OperatorDelete) {
+      //in OpenCL C++ there are no usual allocation/deallocation funtioncs
+      if (getLangOpts().OpenCL)
+        return Diag(StartLoc, diag::err_ovl_no_viable_function_in_call)
+                    << DeleteName;
+
       // Look for a global declaration.
       OperatorDelete = FindUsualDeallocationFunction(
           StartLoc, !RequireCompleteType(StartLoc, Pointee, 0) &&
                     (!ArrayForm || UsualArrayDeleteWantsSize ||
                      Pointee.isDestructedType()),
           DeleteName);
+    }
 
     MarkFunctionReferenced(StartLoc, OperatorDelete);
     
@@ -2756,6 +2772,38 @@ Sema::PerformImplicitConversion(Expr *From, QualType ToType,
     ToType = ToAtomic->getValueType();
   }
 
+  // OpenCL C++
+  //   Implicit type conversion from the named address space to
+  //   the generic address space.
+  QualType LHSType = Context.getCanonicalType(ToType).getUnqualifiedType();
+  QualType RHSType = Context.getCanonicalType(FromType).getUnqualifiedType();
+  bool addressSpaceConversion = false;
+  if (Context.getLangOpts().OpenCLCPlusPlus &&
+      isa<PointerType>(LHSType) && isa<PointerType>(RHSType)) {
+    unsigned AddrSpaceL = LHSType->getPointeeType().getAddressSpace();
+    unsigned AddrSpaceR = RHSType->getPointeeType().getAddressSpace();
+    addressSpaceConversion = AddrSpaceL != AddrSpaceR;
+    if ((AddrSpaceL == 0 && AddrSpaceR == LangAS::openclcpp_generic) ||
+        (AddrSpaceL == LangAS::openclcpp_generic && AddrSpaceR == 0)) {
+      addressSpaceConversion = false;
+    }
+  }
+
+  if (addressSpaceConversion) {
+    assert((LHSType->getPointeeType().getAddressSpace()
+           == LangAS::openclcpp_generic ||
+           LHSType->getPointeeType().getAddressSpace()
+           == 0)
+           &&
+          "LHS pointer is not in the generic address space");
+    assert(RHSType->getPointeeType().getAddressSpace()
+           != LangAS::openclcpp_constant &&
+           "Constant to generic address space conversion is not allowed");
+
+    From = ImpCastExprToType(From, ToType, CK_AddressSpaceConversion,
+                             VK_RValue, /*BasePath=*/nullptr, CCK).get();
+  }
+
   // Perform the first implicit conversion.
   switch (SCS.First) {
   case ICK_Identity:
@@ -2846,6 +2894,17 @@ Sema::PerformImplicitConversion(Expr *From, QualType ToType,
 
   case ICK_Floating_Promotion:
   case ICK_Floating_Conversion:
+    // OpenCL C++
+    //   Conversion between half and floating point types is not
+    //   allowed if cl_khr_fp16 extension is not supported.
+    //   The built-in functions should be used instead.
+    if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+        (From->getType()->isHalfType() || ToType->isHalfType())) {
+      Diag(From->getLocStart(), diag::err_oclcpp_half_conversion)
+        << From->getType() << ToType;
+      return ExprError();
+    }
+
     From = ImpCastExprToType(From, ToType, CK_FloatingCast, 
                              VK_RValue, /*BasePath=*/nullptr, CCK).get();
     break;
@@ -2871,6 +2930,16 @@ Sema::PerformImplicitConversion(Expr *From, QualType ToType,
   }
 
   case ICK_Floating_Integral:
+    // OpenCL C++
+    //   Conversion between half and integer types is not allowed
+    //   if cl_khr_fp16 extension is not supported.
+    if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+        (From->getType()->isHalfType() || ToType->isHalfType())) {
+      Diag(From->getLocStart(), diag::err_oclcpp_half_conversion)
+        << From->getType() << ToType;
+      return ExprError();
+    }
+
     if (ToType->isRealFloatingType())
       From = ImpCastExprToType(From, ToType, CK_IntegralToFloating, 
                                VK_RValue, /*BasePath=*/nullptr, CCK).get();
@@ -2956,15 +3025,30 @@ Sema::PerformImplicitConversion(Expr *From, QualType ToType,
   }
 
   case ICK_Boolean_Conversion:
+    // OpenCL C++
+    //   Conversion between half and bool type is not allowed
+    //   if cl_khr_fp16 extension is not supported.
+    if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+        (From->getType()->isHalfType() || ToType->isHalfType())) {
+      Diag(From->getLocStart(), diag::err_oclcpp_half_conversion)
+        << From->getType() << ToType;
+      return ExprError();
+    }
+
     // Perform half-to-boolean conversion via float.
     if (From->getType()->isHalfType()) {
       From = ImpCastExprToType(From, Context.FloatTy, CK_FloatingCast).get();
       FromType = Context.FloatTy;
     }
 
-    From = ImpCastExprToType(From, Context.BoolTy,
-                             ScalarTypeToBooleanCastKind(FromType), 
-                             VK_RValue, /*BasePath=*/nullptr, CCK).get();
+    if (getLangOpts().OpenCLCPlusPlus &&
+        ToType->isBooleanVecType() && FromType->isIntegerVecType()) {
+      From = ImpCastExprToType(From, ToType, CK_IntegralToBoolean).get();
+    } else {
+      From = ImpCastExprToType(From, Context.BoolTy,
+                               ScalarTypeToBooleanCastKind(FromType),
+                               VK_RValue, /*BasePath=*/nullptr, CCK).get();
+    }
     break;
 
   case ICK_Derived_To_Base: {

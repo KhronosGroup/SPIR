@@ -1110,6 +1110,11 @@ bool Parser::isValidAfterTypeSpecifier(bool CouldBeBitfield) {
   case tok::kw_auto:            // struct foo {...} auto      x;
   case tok::kw_mutable:         // struct foo {...} mutable   x;
   case tok::kw_thread_local:    // struct foo {...} thread_local x;
+  case tok::kw___local:         // struct foo {...} __local x;
+  case tok::kw___global:        // struct foo {...} __global x;
+  case tok::kw___constant:      // struct foo {...} __constant x;
+  case tok::kw___private:       // struct foo {...} __private x;
+  case tok::kw___generic:       // struct foo {...} __generic x;
   case tok::kw_constexpr:       // struct foo {...} constexpr x;
     // As shown above, type qualifiers and storage class specifiers absolutely
     // can occur after class specifiers according to the grammar.  However,
@@ -1812,6 +1817,13 @@ BaseResult Parser::ParseBaseSpecifier(Decl *ClassDecl) {
   // Parse the 'virtual' keyword.
   if (TryConsumeToken(tok::kw_virtual))
     IsVirtual = true;
+
+  // OpenCL C++ prohibits use of virtual inheritance
+  if (getLangOpts().OpenCLCPlusPlus && IsVirtual) {
+    SourceLocation VirtualLoc = ConsumeToken();
+    Diag(VirtualLoc, diag::err_openclcxx_virtual_inheritance);
+    return true;
+  }
 
   CheckMisplacedCXX11Attribute(Attributes, StartLoc);
 
@@ -3459,6 +3471,9 @@ bool Parser::ParseCXX11AttributeArgs(IdentifierInfo *AttrName,
     // behaviors.
     ParseGNUAttributeArgs(AttrName, AttrNameLoc, Attrs, EndLoc, ScopeName,
                           ScopeLoc, AttributeList::AS_CXX11, nullptr);
+  else if (attributeIsTypeArgAttr(*AttrName))
+    ParseAttributeWithTypeArg(*AttrName, AttrNameLoc, Attrs, EndLoc, ScopeName,
+      ScopeLoc, AttributeList::AS_CXX11);
   else {
     unsigned NumArgs =
         ParseAttributeArgsCommon(AttrName, AttrNameLoc, Attrs, EndLoc,

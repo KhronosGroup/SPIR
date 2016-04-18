@@ -721,6 +721,12 @@ def ASM : DiagGroup<"asm", [
     ASMOperandWidths
   ]>;
 
+// OpenCL C++ warnings.
+def OpenCLCppOldScalarVecConvert : DiagGroup<"oclc++-old-scalar-vec-convert">;
+def OpenCLCpp : DiagGroup<"oclc++", [
+    OpenCLCppOldScalarVecConvert
+  ]>;
+
 // OpenMP warnings.
 def SourceUsesOpenMP : DiagGroup<"source-uses-openmp">;
 def OpenMPClauses : DiagGroup<"openmp-clauses">;

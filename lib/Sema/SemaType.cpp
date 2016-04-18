@@ -1883,7 +1883,8 @@ bool Sema::CheckFunctionReturnType(QualType T, SourceLocation Loc) {
   }
 
   // Functions cannot return half FP.
-  if (T->isHalfType() && !getLangOpts().HalfArgsAndReturns) {
+  if (T->isHalfType() && !getLangOpts().HalfArgsAndReturns &&
+      !getLangOpts().OpenCLCPlusPlus) {
     Diag(Loc, diag::err_parameters_retval_cannot_have_fp16_type) << 1 <<
       FixItHint::CreateInsertion(Loc, "*");
     return true;
@@ -1913,7 +1914,8 @@ QualType Sema::BuildFunctionType(QualType T,
     if (ParamType->isVoidType()) {
       Diag(Loc, diag::err_param_with_void_type);
       Invalid = true;
-    } else if (ParamType->isHalfType() && !getLangOpts().HalfArgsAndReturns) {
+    } else if (ParamType->isHalfType() && !getLangOpts().HalfArgsAndReturns &&
+               !getLangOpts().OpenCLCPlusPlus) {
       // Disallow half FP arguments.
       Diag(Loc, diag::err_parameters_retval_cannot_have_fp16_type) << 0 <<
         FixItHint::CreateInsertion(Loc, "*");
@@ -2903,12 +2905,13 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
       // Do not allow returning half FP value.
       // FIXME: This really should be in BuildFunctionType.
       if (T->isHalfType()) {
-        if (S.getLangOpts().OpenCL) {
+        if (S.getLangOpts().OpenCL && !S.getLangOpts().OpenCLCPlusPlus) {
           if (!S.getOpenCLOptions().cl_khr_fp16) {
             S.Diag(D.getIdentifierLoc(), diag::err_opencl_half_return) << T;
             D.setInvalidType(true);
           } 
-        } else if (!S.getLangOpts().HalfArgsAndReturns) {
+        } else if (!S.getLangOpts().HalfArgsAndReturns &&
+                   !S.getLangOpts().OpenCLCPlusPlus) {
           S.Diag(D.getIdentifierLoc(),
             diag::err_parameters_retval_cannot_have_fp16_type) << 1;
           D.setInvalidType(true);
@@ -3091,14 +3094,15 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
           } else if (ParamTy->isHalfType()) {
             // Disallow half FP parameters.
             // FIXME: This really should be in BuildFunctionType.
-            if (S.getLangOpts().OpenCL) {
+            if (S.getLangOpts().OpenCL && !S.getLangOpts().OpenCLCPlusPlus) {
               if (!S.getOpenCLOptions().cl_khr_fp16) {
                 S.Diag(Param->getLocation(),
                   diag::err_opencl_half_param) << ParamTy;
                 D.setInvalidType();
                 Param->setInvalidDecl();
               }
-            } else if (!S.getLangOpts().HalfArgsAndReturns) {
+            } else if (!S.getLangOpts().HalfArgsAndReturns &&
+                       !S.getLangOpts().OpenCLCPlusPlus) {
               S.Diag(Param->getLocation(),
                 diag::err_parameters_retval_cannot_have_fp16_type) << 0;
               D.setInvalidType();
@@ -4098,7 +4102,9 @@ static void HandleAddressSpaceTypeAttribute(QualType &Type,
 
   // ISO/IEC TR 18037 S5.3 (amending C99 6.7.3): "A function type shall not be
   // qualified by an address-space qualifier."
-  if (Type->isFunctionType()) {
+  // This restriction doesn't apply to OpenCL C++
+  if (Type->isFunctionType() && (!S.getLangOpts().OpenCL ||
+      !S.getLangOpts().CPlusPlus)) {
     S.Diag(Attr.getLoc(), diag::err_attribute_address_function_type);
     Attr.setInvalid();
     return;
@@ -4145,18 +4151,24 @@ static void HandleAddressSpaceTypeAttribute(QualType &Type,
     ASIdx = static_cast<unsigned>(addrSpace.getZExtValue());
   } else {
     // The keyword-based type attributes imply which address space to use.
+    bool isOpenCLCPP = S.Context.getLangOpts().OpenCLCPlusPlus;
     switch (Attr.getKind()) {
     case AttributeList::AT_OpenCLGlobalAddressSpace:
-      ASIdx = LangAS::opencl_global; break;
+      ASIdx = isOpenCLCPP? LangAS::openclcpp_global: LangAS::opencl_global;
+      break;
     case AttributeList::AT_OpenCLLocalAddressSpace:
-      ASIdx = LangAS::opencl_local; break;
+      ASIdx = isOpenCLCPP? LangAS::openclcpp_local: LangAS::opencl_local;
+      break;
     case AttributeList::AT_OpenCLConstantAddressSpace:
-      ASIdx = LangAS::opencl_constant; break;
+      ASIdx = isOpenCLCPP? LangAS::openclcpp_constant: LangAS::opencl_constant;
+      break;
     case AttributeList::AT_OpenCLGenericAddressSpace:
-      ASIdx = LangAS::opencl_generic; break;
+      ASIdx = isOpenCLCPP? LangAS::openclcpp_generic: LangAS::opencl_generic;
+      break;
     default:
       assert(Attr.getKind() == AttributeList::AT_OpenCLPrivateAddressSpace);
-      ASIdx = 0; break;
+      ASIdx = isOpenCLCPP? LangAS::openclcpp_private: 0;
+      break;
     }
   }
   
@@ -5138,8 +5150,11 @@ static void processTypeAttrs(TypeProcessingState &state, QualType &type,
   // Pointers that are declared without pointing to a named address space point
   // to the generic address space.
   if (OpenCLVersion >= 200 && !hasOpenCLAddressSpace &&
-    type.getAddressSpace() == 0) {
-    if (state.getCurrentChunkIndex() > 0 &&
+    type.getAddressSpace() == 0 && !type->isDependentType() &&
+    !type->isFunctionType()) {
+    bool isOpenCLCPP = state.getSema().Context.getLangOpts().OpenCLCPlusPlus;
+    if (!isOpenCLCPP &&
+        state.getCurrentChunkIndex() > 0 &&
         D.getTypeObject(state.getCurrentChunkIndex()-1).Kind == DeclaratorChunk::Pointer)
       type = state.getSema().Context.getAddrSpaceQualType(type, LangAS::opencl_generic);
     else if (state.getCurrentChunkIndex() == 0 &&
@@ -5148,11 +5163,15 @@ static void processTypeAttrs(TypeProcessingState &state, QualType &type,
                  !D.isFunctionDefinition() &&
                  D.getDeclSpec().getStorageClassSpec() != DeclSpec::SCS_typedef &&
                  !type->isSamplerT())
-      type = state.getSema().Context.getAddrSpaceQualType(type, LangAS::opencl_global);
+      type = state.getSema().Context.getAddrSpaceQualType(type, isOpenCLCPP ?
+                                                      LangAS::openclcpp_global:
+                                                      LangAS::opencl_global);
     else if(state.getCurrentChunkIndex() == 0 &&
-            D.getContext() == Declarator::BlockContext &&
-            D.getDeclSpec().getStorageClassSpec() == DeclSpec::SCS_static)
-      type = state.getSema().Context.getAddrSpaceQualType(type, LangAS::opencl_global);
+            (D.getDeclSpec().getStorageClassSpec() == DeclSpec::SCS_static ||
+             D.getDeclSpec().getStorageClassSpec() == DeclSpec::SCS_extern))
+      type = state.getSema().Context.getAddrSpaceQualType(type, isOpenCLCPP ?
+                                                      LangAS::openclcpp_global:
+                                                      LangAS::opencl_global);
   }
 }
 

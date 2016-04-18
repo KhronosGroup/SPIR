@@ -1833,12 +1833,15 @@ static void GenerateHasAttrSpellingStringSwitch(
     // document, which can be found at: 
     // https://isocpp.org/std/standing-documents/sd-6-sg10-feature-test-recommendations
     int Version = 1;
+    bool OCL = false;
 
     if (Variety == "CXX11") {
         std::vector<Record *> Spellings = Attr->getValueAsListOfDefs("Spellings");
         for (const auto &Spelling : Spellings) {
-          if (Spelling->getValueAsString("Variety") == "CXX11") {
+          if (Spelling->getValueAsString("Variety") == "CXX11"
+              && FlattenedSpelling(*Spelling).nameSpace() == Scope) {
             Version = static_cast<int>(Spelling->getValueAsInt("Version"));
+            OCL = static_cast<bool>(Spelling->getValueAsBit("OpenCL"));
             if (Scope.empty() && Version == 1)
               PrintError(Spelling->getLoc(), "C++ standard attributes must "
               "have valid version information.");
@@ -1880,11 +1883,19 @@ static void GenerateHasAttrSpellingStringSwitch(
       
       // If this is the C++11 variety, also add in the LangOpts test.
       if (Variety == "CXX11")
+      {
         Test += " && LangOpts.CPlusPlus11";
+        if (OCL)
+          Test += " && LangOpts.OpenCL";
+      }
     } else if (Variety == "CXX11")
+    {
       // C++11 mode should be checked against LangOpts, which is presumed to be
       // present in the caller.
       Test = "LangOpts.CPlusPlus11";
+      if (OCL)
+        Test += " && LangOpts.OpenCL";
+    }
 
     std::string TestStr =
         !Test.empty() ? Test + " ? " + llvm::itostr(Version) + " : 0" : "1";

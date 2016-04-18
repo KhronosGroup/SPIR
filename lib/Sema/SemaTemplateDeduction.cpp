@@ -906,7 +906,8 @@ static bool hasInconsistentOrSupersetQualifiersOf(QualType ParamType,
   
   // Mismatched (but not missing) address spaces.
   if (ParamQs.getAddressSpace() != ArgQs.getAddressSpace() &&
-      ParamQs.hasAddressSpace())
+      ParamQs.hasAddressSpace() &&
+      !ParamQs.isAddressSpaceSupersetOf(ArgQs))
     return true;
 
   // Mismatched (but not missing) Objective-C lifetime qualifiers.
@@ -1359,6 +1360,18 @@ DeduceTemplateArgumentsByTypeMatch(Sema &S,
 
     //     type [i]
     case Type::DependentSizedArray: {
+      // OpenCL C++
+      //   If template parameter is not qualified with address space,
+      //   use argument address space to complete array size deduction.
+      if (S.Context.getLangOpts().OpenCL &&
+          (TDF & TDF_ParamWithReferenceType) &&
+          !Param.hasAddressSpace() &&
+          Arg.hasAddressSpace()) {
+        Qualifiers quals = Param.getQualifiers();
+        quals.setAddressSpace(Arg.getAddressSpace());
+        Param = S.Context.getQualifiedType(Param.getUnqualifiedType(), quals);
+      }
+
       const ArrayType *ArrayArg = S.Context.getAsArrayType(Arg);
       if (!ArrayArg)
         return Sema::TDK_NonDeducedMismatch;
@@ -2717,6 +2730,15 @@ CheckOriginalCallArgDeduction(Sema &S, Sema::OriginalCallArg OriginalArg,
       AQuals.setObjCLifetime(DeducedAQuals.getObjCLifetime());
     }
 
+    // OpenCL C++
+    //   The generic address space can be implicitly added to type
+    //   during deduction, this address space can be ignored
+    if (S.getLangOpts().OpenCLCPlusPlus &&
+        DeducedAQuals.getAddressSpace() == LangAS::openclcpp_generic &&
+        AQuals.getAddressSpace() != LangAS::openclcpp_generic) {
+      DeducedAQuals.setAddressSpace(AQuals.getAddressSpace());
+    }
+
     if (AQuals == DeducedAQuals) {
       // Qualifiers match; there's nothing to do.
     } else if (!DeducedAQuals.compatiblyIncludes(AQuals)) {
@@ -3145,17 +3167,33 @@ static bool AdjustFunctionParmAndArgTypesForDeduction(Sema &S,
     if (ArgType->isIncompleteArrayType() && !S.RequireCompleteExprType(Arg, 0))
       ArgType = Arg->getType();
 
+    // OpenCL C++
+    //   Ignore address space to check if lvalue can be used instead of rvalue
+    QualType PointeeTypeAS = PointeeType;
+    if (S.Context.getLangOpts().OpenCLCPlusPlus) {
+      Qualifiers PointeeQs = PointeeType.getQualifiers();
+      if (PointeeQs.getAddressSpace() == LangAS::openclcpp_generic ||
+          PointeeQs.getAddressSpace() == ArgType.getAddressSpace()) {
+        PointeeQs.removeAddressSpace();
+        PointeeTypeAS = S.Context.getQualifiedType(
+                                              PointeeType.getUnqualifiedType(),
+                                              PointeeQs);
+      }
+    }
+
     //   [C++0x] If P is an rvalue reference to a cv-unqualified
     //   template parameter and the argument is an lvalue, the type
     //   "lvalue reference to A" is used in place of A for type
     //   deduction.
     if (isa<RValueReferenceType>(ParamType)) {
-      if (!PointeeType.getQualifiers() &&
-          isa<TemplateTypeParmType>(PointeeType) &&
+      if (!PointeeTypeAS.getQualifiers() &&
+          isa<TemplateTypeParmType>(PointeeTypeAS) &&
           Arg->Classify(S.Context).isLValue() &&
           Arg->getType() != S.Context.OverloadTy &&
-          Arg->getType() != S.Context.BoundMemberTy)
+          Arg->getType() != S.Context.BoundMemberTy) {
+
         ArgType = S.Context.getLValueReferenceType(ArgType);
+      }
     }
 
     //   [...] If P is a reference type, the type referred to by P is used

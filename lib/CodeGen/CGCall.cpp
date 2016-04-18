@@ -59,8 +59,11 @@ static unsigned ClangCallConvToLLVMCallConv(CallingConv CC) {
 /// Derives the 'this' type for codegen purposes, i.e. ignoring method
 /// qualification.
 /// FIXME: address space qualification?
-static CanQualType GetThisType(ASTContext &Context, const CXXRecordDecl *RD) {
+static CanQualType GetThisType(ASTContext &Context, const CXXRecordDecl *RD,
+                               unsigned int addressSpace) {
   QualType RecTy = Context.getTagDeclType(RD)->getCanonicalTypeInternal();
+  if (Context.getLangOpts().OpenCLCPlusPlus)
+    RecTy = Context.getAddrSpaceQualType(RecTy, addressSpace);
   return Context.getPointerType(CanQualType::CreateUnsafe(RecTy));
 }
 
@@ -158,12 +161,13 @@ static CallingConv getCallingConventionForDecl(const Decl *D, bool IsWindows) {
 /// constructor or destructor.
 const CGFunctionInfo &
 CodeGenTypes::arrangeCXXMethodType(const CXXRecordDecl *RD,
-                                   const FunctionProtoType *FTP) {
+                                   const FunctionProtoType *FTP,
+                                   unsigned int addressSpace) {
   SmallVector<CanQualType, 16> argTypes;
 
   // Add the 'this' pointer.
   if (RD)
-    argTypes.push_back(GetThisType(Context, RD));
+    argTypes.push_back(GetThisType(Context, RD, addressSpace));
   else
     argTypes.push_back(Context.VoidPtrTy);
 
@@ -186,7 +190,8 @@ CodeGenTypes::arrangeCXXMethodDeclaration(const CXXMethodDecl *MD) {
   if (MD->isInstance()) {
     // The abstract case is perfectly fine.
     const CXXRecordDecl *ThisType = TheCXXABI.getThisArgumentTypeForMethod(MD);
-    return arrangeCXXMethodType(ThisType, prototype.getTypePtr());
+    return arrangeCXXMethodType(ThisType, prototype.getTypePtr(),
+                                MD->getType().getAddressSpace());
   }
 
   return arrangeFreeFunctionType(prototype);
@@ -197,7 +202,8 @@ CodeGenTypes::arrangeCXXStructorDeclaration(const CXXMethodDecl *MD,
                                             StructorType Type) {
 
   SmallVector<CanQualType, 16> argTypes;
-  argTypes.push_back(GetThisType(Context, MD->getParent()));
+  argTypes.push_back(GetThisType(Context, MD->getParent(),
+                                 MD->getType().getAddressSpace()));
 
   GlobalDecl GD;
   if (auto *CD = dyn_cast<CXXConstructorDecl>(MD)) {
@@ -345,7 +351,8 @@ const CGFunctionInfo &
 CodeGenTypes::arrangeMSMemberPointerThunk(const CXXMethodDecl *MD) {
   assert(MD->isVirtual() && "only virtual memptrs have thunks");
   CanQual<FunctionProtoType> FTP = GetFormalType(MD);
-  CanQualType ArgTys[] = { GetThisType(Context, MD->getParent()) };
+  CanQualType ArgTys[] = { GetThisType(Context, MD->getParent(),
+                                       MD->getType().getAddressSpace()) };
   return arrangeLLVMFunctionInfo(Context.VoidTy, /*instanceMethod=*/false,
                                  /*chainCall=*/false, ArgTys,
                                  FTP->getExtInfo(), RequiredArgs(1));
@@ -1274,6 +1281,14 @@ CodeGenTypes::GetFunctionType(const CGFunctionInfo &FI) {
     QualType Ret = FI.getReturnType();
     llvm::Type *Ty = ConvertType(Ret);
     unsigned AddressSpace = Context.getTargetAddressSpace(Ret);
+
+    // OpenCL C++
+    //   The value returned from function can't be in the address space.
+    //   To handle all cases, the return pointer should point to
+    //   the generic address space
+    if (Context.getLangOpts().OpenCLCPlusPlus)
+      AddressSpace = Context.getTargetAddressSpace(LangAS::openclcpp_generic);
+
     ArgTypes[IRFunctionArgs.getSRetArgNo()] =
         llvm::PointerType::get(Ty, AddressSpace);
   }
@@ -1657,6 +1672,20 @@ static const NonNullAttr *getNonNullAttr(const Decl *FD, const ParmVarDecl *PVD,
   return nullptr;
 }
 
+static void HandleOpenCLCXXMaxSizeAttr(const VarDecl* Decl,
+                                       llvm::Argument* Arg,
+                                       llvm::LLVMContext& Context) {
+  if (const ParmVarDecl *PVD = dyn_cast<ParmVarDecl>(Decl)) {
+    if (const auto MaxSize = PVD->getAttr<OpenCLCXXMaxSizeAttr>()) {
+      llvm::AttrBuilder Builder;
+      Builder.addDereferenceableAttr(MaxSize->getMaxSize());
+      Arg->addAttr(llvm::AttributeSet::get(Context,
+        Arg->getArgNo() + 1,
+        Builder));
+    }
+  }
+}
+
 void CodeGenFunction::EmitFunctionProlog(const CGFunctionInfo &FI,
                                          llvm::Function *Fn,
                                          const FunctionArgList &Args) {
@@ -1801,6 +1830,8 @@ void CodeGenFunction::EmitFunctionProlog(const CGFunctionInfo &FI,
                                                 AI->getArgNo() + 1,
                                                 llvm::Attribute::NonNull));
 
+          HandleOpenCLCXXMaxSizeAttr(Arg, AI, getLLVMContext());
+
           QualType OTy = PVD->getOriginalType();
           if (const auto *ArrTy =
               getContext().getAsConstantArrayType(OTy)) {
@@ -1875,11 +1906,13 @@ void CodeGenFunction::EmitFunctionProlog(const CGFunctionInfo &FI,
                 adjustThisParameterInVirtualFunctionPrologue(*this, CurGD, V);
         }
 
+        llvm::Type *LTy = ConvertType(Arg->getType());
+        V = EmitAddrSpaceCast(V, LTy);
+
         // Because of merging of function types from multiple decls it is
         // possible for the type of an argument to not match the corresponding
         // type in the function type. Since we are codegening the callee
         // in here, add a cast to the argument type.
-        llvm::Type *LTy = ConvertType(Arg->getType());
         if (V->getType() != LTy)
           V = Builder.CreateBitCast(V, LTy);
 
@@ -1949,6 +1982,7 @@ void CodeGenFunction::EmitFunctionProlog(const CGFunctionInfo &FI,
         assert(NumIRArgs == 1);
         auto AI = FnArgs[FirstIRArg];
         AI->setName(Arg->getName() + ".coerce");
+        HandleOpenCLCXXMaxSizeAttr(Arg, AI, getLLVMContext());
         CreateCoercedStore(AI, Ptr, /*DestIsVolatile=*/false, *this);
       }
 
@@ -3015,6 +3049,14 @@ RValue CodeGenFunction::EmitCall(const CGFunctionInfo &CallInfo,
     if (!SRetPtr)
       SRetPtr = CreateMemTemp(RetTy);
     if (IRFunctionArgs.hasSRetArg()) {
+      // OpenCL C++
+      //   The return structure pointer is in the generic address space,
+      //   so the address space cast is required.
+      if (CGM.getContext().getLangOpts().OpenCLCPlusPlus) {
+        SRetPtr = Builder.CreateAddrSpaceCast(SRetPtr,
+                        IRFuncTy->getParamType(IRFunctionArgs.getSRetArgNo()));
+      }
+
       IRCallArgs[IRFunctionArgs.getSRetArgNo()] = SRetPtr;
     } else {
       llvm::Value *Addr =
@@ -3140,11 +3182,17 @@ RValue CodeGenFunction::EmitCall(const CGFunctionInfo &CallInfo,
             V->getType()->isIntegerTy())
           V = Builder.CreateZExt(V, ArgInfo.getCoerceToType());
 
-        // If the argument doesn't match, perform a bitcast to coerce it.  This
-        // can happen due to trivial type mismatches.
+        // If the argument doesn't match, perform a bitcast or addrspacecast in case of pointers to coerce it.
+        // This can happen due to trivial type mismatches.
         if (FirstIRArg < IRFuncTy->getNumParams() &&
-            V->getType() != IRFuncTy->getParamType(FirstIRArg))
-          V = Builder.CreateBitCast(V, IRFuncTy->getParamType(FirstIRArg));
+            V->getType() != IRFuncTy->getParamType(FirstIRArg)) {
+                V = EmitAddrSpaceCast(V, IRFuncTy->getParamType(FirstIRArg));
+
+                if (V->getType() != IRFuncTy->getParamType(FirstIRArg))
+                  V = Builder.CreateBitCast(V,
+                                           IRFuncTy->getParamType(FirstIRArg));
+        }
+
         IRCallArgs[FirstIRArg] = V;
         break;
       }

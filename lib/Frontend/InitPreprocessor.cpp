@@ -875,6 +875,14 @@ static void InitializePredefinedMacros(const TargetInfo &TI,
     Builder.defineMacro("_OPENMP", "201307");
   }
 
+  // OpenCL definition of macros enabling half/double support
+  if (LangOpts.OpenCLCPlusPlus) {
+    if (LangOpts.CLEnableHalf)
+      Builder.defineMacro("cl_khr_fp16");
+    if (LangOpts.CLFp64Enable)
+      Builder.defineMacro("cl_khr_fp64");
+  }
+
   // CUDA device path compilaton
   if (LangOpts.CUDAIsDevice) {
     // The CUDA_ARCH value is set for the GPU target specified in the NVPTX

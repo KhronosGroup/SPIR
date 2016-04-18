@@ -89,6 +89,32 @@ class TypeNameValidatorCCC : public CorrectionCandidateCallback {
   bool AllowClassTemplates;
 };
 
+const Type* isOCLCXXASWrapper(QualType T, ASTContext &Context) {
+  const RecordType *RT = T->getAs<RecordType>();
+  if (!RT)
+    return nullptr;
+
+  const RecordDecl *RD = RT->getDecl();
+  if (RD->hasFlexibleArrayMember())
+    return nullptr;
+
+  const CXXRecordDecl *CXXRD = dyn_cast<CXXRecordDecl>(RD);
+
+  // OCL C++ address space wrapper should not have any base class
+  if (CXXRD && CXXRD->bases_begin() != CXXRD->bases_end())
+    return nullptr;
+
+  // more than one field
+  if (std::distance(RD->field_begin(), RD->field_end()) > 1)
+    return nullptr;
+
+  auto FT = RD->field_begin()->getType();
+  if (!FT->isPointerType())
+    return nullptr;
+
+  return FT.getTypePtr();
+}
+
 }
 
 /// \brief Determine whether the token kind starts a simple-type-specifier.
@@ -5372,7 +5398,8 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
   // There is no generic address space name for program scope variables.
   // All program scope variables must be declared in the __constant address space.
   if (getLangOpts().OpenCL && !S->getParent() &&
-      LangAS::opencl_constant != R.getAddressSpace()) {
+      LangAS::opencl_constant != R.getAddressSpace() &&
+      LangAS::openclcpp_constant != R.getAddressSpace()) {
     // One exception is the sampler_t which can be declared as "const" instead
     // of "__constant" address space.
     if (R->isSamplerT() && R.isConstant(Context));
@@ -5383,7 +5410,7 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
     } else if (getLangOpts().OpenCLVersion < 200) {
         Diag(D.getIdentifierLoc(), diag::err_program_scope_variable_non_constant);
         D.setInvalidType();
-    } else if (LangAS::opencl_global != R.getAddressSpace()) {
+    } else if (!getLangOpts().OpenCLCPlusPlus && LangAS::opencl_global != R.getAddressSpace()) {
       Diag(D.getIdentifierLoc(),
              diag::err_program_scope_variable_non_constant_or_global);
       D.setInvalidType();
@@ -5408,7 +5435,7 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
     // OpenCL v1.0 s6.8.a.3: Pointers to functions are not allowed.
     QualType NR = R;
     while (NR->isPointerType()) {
-      if (NR->isFunctionPointerType()) {
+      if (NR->isFunctionPointerType() && !S->isTemplateParamScope()) {
         Diag(D.getIdentifierLoc(), diag::err_opencl_function_pointer_variable);
         D.setInvalidType();
         break;
@@ -5416,9 +5443,10 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
       NR = NR->getPointeeType();
     }
 
-    if (!getOpenCLOptions().cl_khr_fp16) {
+    if (!getLangOpts().OpenCLCPlusPlus &&  !getOpenCLOptions().cl_khr_fp16) {
       // OpenCL v1.2 s6.1.1.1: reject declaring variables of the half and
       // half array type (unless the cl_khr_fp16 extension is enabled).
+      // OpenCL C++: it's always allowed to declare variable of the half type.
       if (Context.getBaseElementType(R)->isHalfType()) {
         Diag(D.getIdentifierLoc(), diag::err_opencl_half_declaration) << R;
         D.setInvalidType();
@@ -5467,10 +5495,12 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
   if (getLangOpts().OpenCL) {
     // Set up the special work-group-local storage class for variables in the
     // OpenCL __local address space.
-    if (R.getAddressSpace() == LangAS::opencl_local) {
+    if (R.getAddressSpace() == LangAS::opencl_local ||
+        R.getAddressSpace() == LangAS::openclcpp_local) {
       SC = SC_OpenCLWorkGroupLocal;
     }
-    if (R.getAddressSpace() == LangAS::opencl_constant) {
+    if (R.getAddressSpace() == LangAS::opencl_constant || 
+        R.getAddressSpace() == LangAS::openclcpp_constant) {
       if (SC == SC_Extern)
         SC = SC_OpenCLConstantExtern;
       else
@@ -5538,6 +5568,7 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
       case SC_PrivateExtern:
         llvm_unreachable("C storage class in c++!");
       case SC_OpenCLWorkGroupLocal:
+        if (!getLangOpts().OpenCLCPlusPlus)
         llvm_unreachable("OpenCL storage class in c++!");
       }
     }    
@@ -6151,7 +6182,8 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
   // This includes arrays of objects with address space qualifiers, but not
   // automatic variables that point to other address spaces.
   // ISO/IEC TR 18037 S5.1.2
-  if (NewVD->hasLocalStorage() && T.getAddressSpace() != 0) {
+  if (NewVD->hasLocalStorage() && T.getAddressSpace() != 0 &&
+      T.getAddressSpace() != LangAS::openclcpp_private) {
     Diag(NewVD->getLocation(), diag::err_as_qualified_auto_decl);
     NewVD->setInvalidDecl();
     return;
@@ -6167,12 +6199,20 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
         NewVD->setInvalidDecl();
         return;
       }
-    } else if (T.getAddressSpace() != LangAS::opencl_constant &&
+    } else if (!getLangOpts().OpenCLCPlusPlus &&
+               T.getAddressSpace() != LangAS::opencl_constant &&
                T.getAddressSpace() != LangAS::opencl_global &&
                !T->isSamplerT()) {
         Diag(NewVD->getLocation(), diag::err_opencl20_global_invalid_addr_space);
         NewVD->setInvalidDecl();
         return;
+    }
+    else if (getLangOpts().OpenCLCPlusPlus &&
+             (T.getAddressSpace() == LangAS::openclcpp_private ||
+              T.getAddressSpace() == LangAS::openclcpp_generic)) {
+      Diag(NewVD->getLocation(), diag::err_openclcpp_global_invalid_addr_space);
+      NewVD->setInvalidDecl();
+      return;
     }
   }
   
@@ -6180,7 +6220,9 @@ void Sema::CheckVariableDeclarationType(VarDecl *NewVD) {
   // scope.
   if ( getLangOpts().OpenCL && NewVD->isStaticLocal() ) {
     if ( LangOpts.OpenCLVersion >= 200 ) {
-      if ( T.getAddressSpace() != LangAS::opencl_global && T.getAddressSpace() != LangAS::opencl_constant ) {
+      if ( T.getAddressSpace() != LangAS::opencl_global && T.getAddressSpace() != LangAS::opencl_constant &&
+           T.getAddressSpace() != LangAS::openclcpp_global && T.getAddressSpace() != LangAS::openclcpp_constant &&
+           T.getAddressSpace() != LangAS::openclcpp_local) {
         Diag(NewVD->getLocation(), diag::err_static_variables);
         NewVD->setInvalidDecl();
         return;
@@ -6824,17 +6866,22 @@ enum OpenCLParamType {
   RecordKernelParam
 };
 
-static OpenCLParamType getOpenCLKernelParameterType(QualType PT) {
-  if (PT->isPointerType()) {
+static OpenCLParamType getOpenCLKernelParameterType(const Sema &S, QualType PT) {
+  if (PT->isPointerType() || PT->isReferenceType()) {
     QualType PointeeType = PT->getPointeeType();
     if (PointeeType->isPointerType())
       return PtrPtrKernelParam;
 
     unsigned addrSpace = PointeeType.getAddressSpace();
-    return (addrSpace != LangAS::opencl_global &&
-            addrSpace != LangAS::opencl_constant &&
-            addrSpace != LangAS::opencl_local) ? PrivatePtrKernelParam
-                                              : PtrKernelParam;
+    if (addrSpace != LangAS::opencl_global &&
+        addrSpace != LangAS::opencl_constant &&
+        addrSpace != LangAS::opencl_local &&
+        addrSpace != LangAS::openclcpp_global &&
+        addrSpace != LangAS::openclcpp_constant &&
+        addrSpace != LangAS::openclcpp_local)
+      return PrivatePtrKernelParam;
+
+    return PtrKernelParam;
   }
 
   // TODO: Forbid the other integer types (size_t, ptrdiff_t...) when they can
@@ -6844,7 +6891,7 @@ static OpenCLParamType getOpenCLKernelParameterType(QualType PT) {
     return PtrKernelParam;
 
   if (PT->isBooleanType() || PT->isEventT() || PT->isReserveIdT() ||
-      PT->isHalfType())
+      (PT->isHalfType() && !S.getLangOpts().OpenCLCPlusPlus))
     return InvalidKernelParam;
 
   if (PT->isRecordType())
@@ -6865,7 +6912,7 @@ static void checkIsValidOpenCLKernelParameter(
   if (ValidTypes.count(PT.getTypePtr()))
     return;
 
-  switch (getOpenCLKernelParameterType(PT)) {
+  switch (getOpenCLKernelParameterType(S, PT)) {
   case PtrPtrKernelParam:
     // OpenCL v1.2 s6.9.a:
     // A kernel function argument cannot be declared as a
@@ -6875,10 +6922,12 @@ static void checkIsValidOpenCLKernelParameter(
     return;
 
   case PrivatePtrKernelParam:
-    // OpenCL v1.2 s6.9.a:
-    // A kernel function argument cannot be declared as a
-    // pointer to the private address space.
-    S.Diag(Param->getLocation(), diag::err_kernel_arg_address_space);
+    // OpenCL v1.2 and v2.0 s6.9.a:
+    // Arguments to kernel functions declared in a program that are pointers must be
+    // declared with the __global, __constant or __local qualifier. 
+      S.Diag(Param->getLocation(), S.getLangOpts().OpenCLCPlusPlus?
+                                     diag::err_oclcpp_kernel_arg_address_space:
+                                     diag::err_kernel_arg_address_space);
     D.setInvalidType();
     return;
 
@@ -6948,8 +6997,9 @@ static void checkIsValidOpenCLKernelParameter(
       if (ValidTypes.count(QT.getTypePtr()))
         continue;
 
-      OpenCLParamType ParamType = getOpenCLKernelParameterType(QT);
-      if (ParamType == ValidKernelParam)
+      OpenCLParamType ParamType = getOpenCLKernelParameterType(S, QT);
+      if (ParamType == ValidKernelParam ||
+          (S.LangOpts.CPlusPlus && ParamType == PtrKernelParam))
         continue;
 
       if (ParamType == RecordKernelParam) {
@@ -7211,8 +7261,17 @@ Sema::ActOnFunctionDeclarator(Scope *S, Declarator &D, DeclContext *DC,
           NewFD->getType()->castAs<FunctionProtoType>();
       QualType Result =
           SubstAutoType(FPT->getReturnType(), Context.DependentTy);
-      NewFD->setType(Context.getFunctionType(Result, FPT->getParamTypes(),
-                                             FPT->getExtProtoInfo()));
+
+      QualType FuncType = Context.getFunctionType(Result, FPT->getParamTypes(),
+                                                  FPT->getExtProtoInfo());
+
+      // OpenCL C++
+      //   Methods can be qualified with address space
+      if (getLangOpts().OpenCL && NewFD->getType().hasAddressSpace()) {
+        FuncType = Context.getAddrSpaceQualType(FuncType,
+                                           NewFD->getType().getAddressSpace());
+      }
+      NewFD->setType(FuncType);
     }
 
     // C++ [dcl.fct.spec]p3:
@@ -7460,9 +7519,20 @@ Sema::ActOnFunctionDeclarator(Scope *S, Declarator &D, DeclContext *DC,
     unsigned AddressSpace = RetType.getAddressSpace();
     if (AddressSpace == LangAS::opencl_local ||
         AddressSpace == LangAS::opencl_global ||
-        AddressSpace == LangAS::opencl_constant) {
+        AddressSpace == LangAS::opencl_constant ||
+        AddressSpace == LangAS::openclcpp_local ||
+        AddressSpace == LangAS::openclcpp_global ||
+        AddressSpace == LangAS::openclcpp_constant ||
+        AddressSpace == LangAS::openclcpp_generic) {
       Diag(NewFD->getLocation(),
            diag::err_opencl_return_value_with_address_space);
+      NewFD->setInvalidDecl();
+    }
+
+    if (!NewFD->isInvalidDecl() && NewFD->hasAttr<OpenCLKernelAttr>() &&
+        NewFD->getDescribedFunctionTemplate()) {
+      Diag(NewFD->getLocation(),
+        diag::err_opencl_kernel_template_decl);
       NewFD->setInvalidDecl();
     }
   }
@@ -8884,7 +8954,9 @@ void Sema::AddInitializerToDecl(Decl *RealDecl, Expr *Init,
 
   // OpenCL 1.1 6.5.2: "Variables allocated in the __local address space inside
   // a kernel function cannot be initialized."
-  if (VDecl->getStorageClass() == SC_OpenCLWorkGroupLocal) {
+  // OpenCL C++ allows to initialize variables in __local address space
+  if (VDecl->getStorageClass() == SC_OpenCLWorkGroupLocal &&
+     !getLangOpts().CPlusPlus) {
     Diag(VDecl->getLocation(), diag::err_local_cant_init);
     VDecl->setInvalidDecl();
     return;
@@ -10405,6 +10477,37 @@ Decl *Sema::ActOnStartOfFunctionDef(Scope *FnBodyScope, Decl *D) {
   // Check the validity of our function parameters
   CheckParmsForFunctionDef(FD->param_begin(), FD->param_end(),
                            /*CheckParameterNames=*/true);
+
+  // For OpenCL C++: check if max_size attribute was applied to kernel function's
+  // parameter which is in local or constant address space.
+  if (getLangOpts().OpenCLCPlusPlus) {
+    bool IsKernelFun = FD->getAttr<OpenCLKernelAttr>() != nullptr;
+    for (auto Param : FD->params()) {
+      if (const auto *Attr = Param->getAttr<OpenCLCXXMaxSizeAttr>()) {
+        bool Valid = IsKernelFun;
+
+        if (Valid) {
+          auto PType = Param->getType();
+          if (!PType->isPointerType()) {
+            if (const Type* ElemT = isOCLCXXASWrapper(PType, getASTContext()))
+              PType = ElemT->getPointeeType();
+            else
+              Valid = false;
+          }
+          else
+            PType = PType->getPointeeType();
+
+          Valid = Valid &&
+                (PType.getAddressSpace() == LangAS::openclcpp_constant ||
+                 PType.getAddressSpace() == LangAS::openclcpp_local);
+        }
+
+        if (!Valid)
+          Diag(Param->getLocation(), diag::err_attribute_wrong_decl_type)
+            << Attr->getSpelling() << ExpectedLocalOrConstantKernelParam;
+      }
+    }
+  }
 
   // Introduce our parameters into the function scope
   for (auto Param : FD->params()) {

@@ -51,6 +51,35 @@ llvm::Value *CodeGenFunction::EmitCastToVoidPtr(llvm::Value *value) {
   return Builder.CreateBitCast(value, destType);
 }
 
+/// Emit address space cast if needed
+llvm::Value *CodeGenFunction::EmitAddrSpaceCast(llvm::Value *value,
+                                                llvm::Type *type) {
+  llvm::Type *RHSType = value->getType();
+  bool addrSpaceCast = false;
+  if (getLangOpts().OpenCLCPlusPlus &&
+      isa<llvm::PointerType>(type) &&
+      isa<llvm::PointerType>(RHSType)) {
+    unsigned int LHSAS = type->getPointerAddressSpace();
+    unsigned int RHSAS = RHSType->getPointerAddressSpace();
+    addrSpaceCast = LHSAS != RHSAS;
+  }
+
+  if (addrSpaceCast) {
+    unsigned int GAS = getContext().getTargetAddressSpace(
+                                                       LangAS::openclcpp_generic);
+    unsigned int CAS = getContext().getTargetAddressSpace(
+                                                      LangAS::openclcpp_constant);
+    assert((type->getPointerAddressSpace() == GAS ||
+            type->getPointerAddressSpace() == 0) &&
+           "LHS pointer is not in the generic address space");
+    assert(RHSType->getPointerAddressSpace() != CAS &&
+           "Constant to generic address space conversion is not allowed");
+    value = Builder.CreateAddrSpaceCast(value, type);
+  }
+
+  return value;
+}
+
 /// CreateTempAlloca - This creates a alloca and inserts it into the entry
 /// block.
 llvm::AllocaInst *CodeGenFunction::CreateTempAlloca(llvm::Type *Ty,
@@ -1263,6 +1292,7 @@ void CodeGenFunction::EmitStoreOfScalar(llvm::Value *Value, llvm::Value *Addr,
     return;
   }
 
+  Value = EmitAddrSpaceCast(Value, Addr->getType()->getPointerElementType());
   llvm::StoreInst *Store = Builder.CreateStore(Value, Addr, Volatile);
   if (Alignment)
     Store->setAlignment(Alignment);

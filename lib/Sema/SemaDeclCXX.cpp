@@ -5171,8 +5171,17 @@ void Sema::CheckExplicitlyDefaultedSpecialMember(CXXMethodDecl *MD) {
   if (CSM == CXXCopyAssignment || CSM == CXXMoveAssignment) {
     // Check for return type matching.
     ReturnType = Type->getReturnType();
-    QualType ExpectedReturnType =
-        Context.getLValueReferenceType(Context.getTypeDeclType(RD));
+
+    QualType DeclType = Context.getTypeDeclType(RD);
+    // OpenCL C++
+    //   move and copy operators should return a reference in the same
+    //   address space as an address space of this
+    if (Context.getLangOpts().OpenCLCPlusPlus) {
+      DeclType = Context.getAddrSpaceQualType(DeclType,
+                                          MD->getType().getAddressSpace());
+    }
+    QualType ExpectedReturnType = Context.getLValueReferenceType(DeclType);
+
     if (!Context.hasSameType(ReturnType, ExpectedReturnType)) {
       Diag(MD->getLocation(), diag::err_defaulted_special_member_return_type)
         << (CSM == CXXMoveAssignment) << ExpectedReturnType;
@@ -5268,10 +5277,15 @@ void Sema::CheckExplicitlyDefaultedSpecialMember(CXXMethodDecl *MD) {
     FunctionProtoType::ExtProtoInfo EPI = Type->getExtProtoInfo();
     EPI.ExceptionSpec.Type = EST_Unevaluated;
     EPI.ExceptionSpec.SourceDecl = MD;
-    MD->setType(Context.getFunctionType(ReturnType,
-                                        llvm::makeArrayRef(&ArgType,
-                                                           ExpectedParams),
-                                        EPI));
+    QualType FnTy = Context.getFunctionType(ReturnType,
+                                            llvm::makeArrayRef(&ArgType,
+                                            ExpectedParams),
+                                            EPI);
+    if (Context.getLangOpts().OpenCLCPlusPlus) {
+      FnTy = Context.getAddrSpaceQualType(FnTy,
+                                          MD->getType().getAddressSpace());
+    }
+    MD->setType(FnTy);
   }
 
   if (ShouldDeleteSpecialMember(MD, CSM)) {
@@ -9383,7 +9397,12 @@ void Sema::AdjustDestructorExceptionSpec(CXXRecordDecl *ClassDecl,
   FunctionProtoType::ExtProtoInfo EPI = DtorType->getExtProtoInfo();
   EPI.ExceptionSpec.Type = EST_Unevaluated;
   EPI.ExceptionSpec.SourceDecl = Destructor;
-  Destructor->setType(Context.getFunctionType(Context.VoidTy, None, EPI));
+  QualType FuncType = Context.getFunctionType(Context.VoidTy, None, EPI);
+  if (Context.getLangOpts().OpenCL) {
+    FuncType = Context.getAddrSpaceQualType(FuncType,
+                                      Destructor->getType().getAddressSpace());
+  }
+  Destructor->setType(FuncType);
 
   // FIXME: If the destructor has a body that could throw, and the newly created
   // spec doesn't allow exceptions, we should emit a warning, because this
@@ -10462,7 +10481,13 @@ void Sema::DefineImplicitMoveAssignment(SourceLocation CurrentLocation,
   ParmVarDecl *Other = MoveAssignOperator->getParamDecl(0);
   QualType OtherRefType = Other->getType()->
       getAs<RValueReferenceType>()->getPointeeType();
-  assert(!OtherRefType.getQualifiers() &&
+  Qualifiers OtherQuals = OtherRefType.getQualifiers();
+  if (Context.getLangOpts().OpenCLCPlusPlus &&
+      MoveAssignOperator->getType().getAddressSpace()
+       == OtherRefType.getAddressSpace()) {
+    OtherQuals.removeAddressSpace();
+  }
+  assert(!OtherQuals &&
          "Bad argument type of defaulted move assignment");
 
   // Our location for everything implicitly-generated.

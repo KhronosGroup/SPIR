@@ -802,6 +802,19 @@ Value *ScalarExprEmitter::EmitScalarConversion(Value *Src, QualType SrcType,
     return Builder.CreateVectorSplat(NumElements, Elt, "splat");
   }
 
+  // For spirv we do zext of vector of bool to vector of integers
+  if (CGF.CGM.getLangOpts().OpenCLCPlusPlus &&
+      SrcTy->isVectorTy() && DstTy->isVectorTy()) {
+    if (SrcTy->getVectorElementType()->isIntegerTy(1) &&
+        DstTy->getVectorElementType()->getIntegerBitWidth() > 1) {
+      return Builder.CreateZExt(Src, DstTy, "conv");
+    }
+    if (SrcTy->getVectorElementType()->isIntegerTy() &&
+      DstTy->getVectorElementType()->isIntegerTy(1)) {
+      return EmitIntToBoolConversion(Src);
+    }
+  }
+
   // Allow bitcast from vector to integer/fp of the same size.
   if (isa<llvm::VectorType>(SrcTy) ||
       isa<llvm::VectorType>(DstTy))
@@ -1363,6 +1376,23 @@ Value *ScalarExprEmitter::VisitCastExpr(CastExpr *CE) {
     llvm::Type *DstTy = ConvertType(DestTy);
     if (SrcTy->isPtrOrPtrVectorTy() && DstTy->isPtrOrPtrVectorTy() &&
         SrcTy->getPointerAddressSpace() != DstTy->getPointerAddressSpace()) {
+      // OpenCL C++
+      //   In OpenCL C++ the generic address space to the pointers with
+      //   no address space specified in CodeGen. In such case, the bitcast may
+      //   not be sufficient and it should be changed to the address space cast.
+      //   The only valid scenario is to cast to the generic from non-constant
+      //   address space.
+      if (CGF.getContext().getLangOpts().OpenCLCPlusPlus) {
+        unsigned int CAS = CGF.getContext().getTargetAddressSpace(
+                                                   LangAS::openclcpp_constant);
+        unsigned int GAS = CGF.getContext().getTargetAddressSpace(
+                                                    LangAS::openclcpp_generic);
+        assert(SrcTy->getPointerAddressSpace() != CAS &&
+               "LHS pointer cannot be in the constant address space");
+        assert(DstTy->getPointerAddressSpace() == GAS &&
+              "RHS pointer must be in the generic address space");
+        return Builder.CreateAddrSpaceCast(Src, DstTy);
+      }
       llvm_unreachable("wrong cast for pointers in different address spaces"
                        "(must be an address space cast)!");
     }
@@ -1686,6 +1716,11 @@ ScalarExprEmitter::EmitScalarPrePostIncDec(const UnaryOperator *E, LValue LV,
   // Decrement does not have this property.
   if (isInc && type->isBooleanType()) {
     value = Builder.getTrue();
+
+  // The logic above is also applicable for vector of bool.
+  } else if (isInc && type->isExtVectorType() &&
+             type->getAs<ExtVectorType>()->isBooleanVecType()) {
+    value = llvm::ConstantInt::get(value->getType(), amount);
 
   // Most common case by far: integer increment.
   } else if (type->isIntegerType()) {
@@ -2884,6 +2919,33 @@ Value *ScalarExprEmitter::EmitCompare(const BinaryOperator *E,unsigned UICmpOpc,
                                   LHS, RHS, "cmp");
     } else {
       // Unsigned integers and pointers.
+      // OpenCL C++
+      //   If this is a pointer comparison and one of the pointers in
+      //   the generic address space, convert the second pointer to the generic
+      //   address space.
+      if (CGF.getLangOpts().OpenCLCPlusPlus &&
+          LHS->getType()->isPointerTy() && RHS->getType()->isPointerTy()) {
+        llvm::Type *LHSPointeeType = LHS->getType()->getPointerElementType();
+        llvm::Type *RHSPointeeType = RHS->getType()->getPointerElementType();
+        if (LHS->getType()->getPointerAddressSpace()
+                                 != RHS->getType()->getPointerAddressSpace()) {
+          unsigned int GAS =
+             CGF.getContext().getTargetAddressSpace(LangAS::openclcpp_generic);
+          unsigned int CAS =
+            CGF.getContext().getTargetAddressSpace(LangAS::openclcpp_constant);
+          if (LHS->getType()->getPointerAddressSpace() == GAS) {
+            assert(RHS->getType()->getPointerAddressSpace() != CAS &&
+              "Constant to generic address space conversion is not allowed");
+            RHS = Builder.CreateAddrSpaceCast(RHS, LHS->getType());
+          }
+          else if (RHS->getType()->getPointerAddressSpace() == GAS) {
+            assert(LHS->getType()->getPointerAddressSpace() != CAS &&
+              "Constant to generic address space conversion is not allowed");
+            LHS = Builder.CreateAddrSpaceCast(LHS, RHS->getType());
+          }
+        }
+      }
+
       Result = Builder.CreateICmp((llvm::ICmpInst::Predicate)UICmpOpc,
                                   LHS, RHS, "cmp");
     }

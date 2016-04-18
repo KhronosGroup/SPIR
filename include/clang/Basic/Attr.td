@@ -190,11 +190,13 @@ class Spelling<string name, string variety> {
 
 class GNU<string name> : Spelling<name, "GNU">;
 class Declspec<string name> : Spelling<name, "Declspec">;
-class CXX11<string namespace, string name, int version = 1>
+class CXX11<string namespace, string name, int version = 1, bit OCL = 0>
     : Spelling<name, "CXX11"> {
   string Namespace = namespace;
   int Version = version;
-} class Keyword<string name> : Spelling<name, "Keyword">;
+  bit OpenCL = OCL;
+} 
+class Keyword<string name> : Spelling<name, "Keyword">;
 class Pragma<string namespace, string name> : Spelling<name, "Pragma"> {
   string Namespace = namespace;
 }
@@ -230,6 +232,7 @@ class LangOpt<string name> {
 def MicrosoftExt : LangOpt<"MicrosoftExt">;
 def Borland : LangOpt<"Borland">;
 def CUDA : LangOpt<"CUDA">;
+def OpenCLCPlusPlus : LangOpt<"OpenCLCPlusPlus">;
 
 // Defines targets for target-specific attributes. The list of strings should
 // specify architectures for which the target applies, based off the ArchType
@@ -348,7 +351,7 @@ def Alias : Attr {
 
 def Aligned : InheritableAttr {
   let Spellings = [GCC<"aligned">, Declspec<"align">, Keyword<"alignas">,
-                   Keyword<"_Alignas">];
+                   Keyword<"_Alignas">, CXX11<"cl", "aligned", 220, 1>];
 //  let Subjects = SubjectList<[NonBitField, NormalVar, Tag]>;
   let Args = [AlignedArgument<"Alignment", 1>];
   let Accessors = [Accessor<"isGNU", [GCC<"aligned">]>,
@@ -611,9 +614,16 @@ def OpenCLKernel : InheritableAttr {
 }
 
 def OpenCLUnrollHint : InheritableAttr {
-  let Spellings = [GNU<"opencl_unroll_hint">];
-  let Args = [UnsignedArgument<"UnrollHint">];
+  let Spellings = [GNU<"opencl_unroll_hint">, CXX11<"cl", "unroll_hint", 220, 1>];
+  let Args = [UnsignedArgument<"UnrollHint", 1>];
   let Documentation = [Undocumented];
+}
+
+def OpenCLCXXIvdep : InheritableAttr {
+  let Spellings = [CXX11<"cl", "ivdep", 220, 1>];
+  let Args = [UnsignedArgument<"SafeLen", 1>];
+  let Documentation = [Undocumented];
+  let LangOpts = [OpenCLCPlusPlus];
 }
 
 // This attribute is both a type attribute, and a declaration attribute (for
@@ -1124,7 +1134,7 @@ def Ownership : InheritableAttr {
 }
 
 def Packed : InheritableAttr {
-  let Spellings = [GCC<"packed">];
+  let Spellings = [GCC<"packed">, CXX11<"cl", "packed", 220, 1>];
 //  let Subjects = [Tag, Field];
   let Documentation = [Undocumented];
 }
@@ -1162,19 +1172,41 @@ def Regparm : TypeAttr {
 }
 
 def ReqdWorkGroupSize : InheritableAttr {
-  let Spellings = [GNU<"reqd_work_group_size">];
+  let Spellings = [GNU<"reqd_work_group_size">,
+                  CXX11<"cl", "required_work_group_size", 220, 1>];
   let Args = [UnsignedArgument<"XDim">, UnsignedArgument<"YDim">,
               UnsignedArgument<"ZDim">];
   let Subjects = SubjectList<[Function], ErrorDiag>;
   let Documentation = [Undocumented];
 }
 
+def ReqdSubGroupSize : InheritableAttr {
+  let Spellings = [GNU<"reqd_sub_group_size">];
+  let Args = [UnsignedArgument<"XDim">];
+  let Documentation = [Undocumented];
+}
+
+def ReqdNumSubGroups : InheritableAttr {
+  let Spellings = [CXX11<"cl", "required_num_sub_groups", 220, 1>];
+  let Args = [UnsignedArgument<"NumSubGroups">];
+  let Subjects = SubjectList<[Function], ErrorDiag>;
+  let Documentation = [Undocumented];
+}
+
 def WorkGroupSizeHint :  InheritableAttr {
-  let Spellings = [GNU<"work_group_size_hint">];
+  let Spellings = [GNU<"work_group_size_hint">, 
+                  CXX11<"cl","work_group_size_hint", 220, 1>];
   let Args = [UnsignedArgument<"XDim">, 
               UnsignedArgument<"YDim">,
               UnsignedArgument<"ZDim">];
   let Subjects = SubjectList<[Function], ErrorDiag>;
+  let Documentation = [Undocumented];
+}
+
+def OpenCLCXXMaxSize : InheritableParamAttr {
+  let Spellings = [CXX11<"cl", "max_size", 220, 1>];
+  let Args = [UnsignedArgument<"MaxSize">];
+  let Subjects = SubjectList<[ParmVar], ErrorDiag>;
   let Documentation = [Undocumented];
 }
 
@@ -1299,7 +1331,8 @@ def VectorSize : TypeAttr {
 }
 
 def VecTypeHint : InheritableAttr {
-  let Spellings = [GNU<"vec_type_hint">];
+  let Spellings = [GNU<"vec_type_hint">, 
+                  CXX11<"cl", "vec_type_hint", 220, 1>];
   let Args = [TypeArgument<"TypeHint">];
   let Subjects = SubjectList<[Function], ErrorDiag>;
   let Documentation = [Undocumented];

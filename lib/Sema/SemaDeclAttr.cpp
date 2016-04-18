@@ -2288,6 +2288,61 @@ static void handleWorkGroupSize(Sema &S, Decl *D,
                                        Attr.getAttributeSpellingListIndex()));
 }
 
+static void handleNumSubGroups(Sema& S, Decl* D,
+                               const AttributeList& Attr) {
+  assert(Attr.getKind() == AttributeList::AT_ReqdNumSubGroups
+    && Attr.getNumArgs() == 1 && "invalid attribute handled!");
+
+  uint32_t NumSubGroups = 0;
+  const Expr* ArgE = Attr.getArgAsExpr(0);
+  if (!checkUInt32Argument(S, Attr, ArgE, NumSubGroups))
+    return;
+  if (NumSubGroups == 0) {
+    S.Diag(Attr.getLoc(), diag::err_attribute_argument_is_zero)
+      << Attr.getName() << ArgE->getSourceRange();
+    return;
+  }
+
+  D->addAttr(::new (S.Context) ReqdNumSubGroupsAttr(Attr.getRange(), 
+              S.Context, NumSubGroups, Attr.getAttributeSpellingListIndex()));
+}
+
+// Handles reqd_sub_group_size.
+static void handleSubGroupSize(Sema &S, Decl *D,
+                               const AttributeList &Attr) {
+  assert(Attr.getKind() == AttributeList::AT_ReqdSubGroupSize);
+
+  // Attribute has 1 argument.
+  if (!checkAttributeNumArgs(S, Attr, 1)) return;
+
+  unsigned SGSize[1];
+  for (unsigned i = 0; i < 1; ++i) {
+    Expr *E = Attr.getArgAsExpr(i);
+    llvm::APSInt ArgNum(32);
+    if (E->isTypeDependent() || E->isValueDependent() ||
+        !E->isIntegerConstantExpr(ArgNum, S.Context)) {
+      S.Diag(Attr.getLoc(), diag::err_attribute_argument_type)
+        << Attr.getName()->getName() << AANT_ArgumentIntegerConstant << E->getSourceRange();
+      return;
+    }
+    SGSize[i] = (unsigned) ArgNum.getZExtValue();
+  }
+
+  if (Attr.getKind() == AttributeList::AT_ReqdSubGroupSize
+    && D->hasAttr<ReqdSubGroupSizeAttr>()) {
+      ReqdSubGroupSizeAttr *A = D->getAttr<ReqdSubGroupSizeAttr>();
+      if (!(A->getXDim() == SGSize[0])) {
+        S.Diag(Attr.getLoc(), diag::warn_duplicate_attribute) <<
+          Attr.getName();
+      }
+  }
+
+  D->addAttr(::new (S.Context)
+               ReqdSubGroupSizeAttr(Attr.getRange(), S.Context,
+                                    SGSize[0],
+                                    Attr.getAttributeSpellingListIndex()));
+}
+
 static void handleVecTypeHint(Sema &S, Decl *D, const AttributeList &Attr) {
   if (!Attr.hasParsedType()) {
     S.Diag(Attr.getLoc(), diag::err_attribute_wrong_number_arguments)
@@ -3418,6 +3473,46 @@ static void handleOpenCLNoSVMAttr(Sema &S, Decl *D, const AttributeList &Attr){
   D->addAttr(OpenCLNoSVMAttr::CreateImplicit(S.Context, Attr.getRange()));
 }
 
+static void handleOpenCLCXXMaxSizeAttr(Sema& S, Decl* D,
+                                       const AttributeList& Attr) {
+  Expr* E = Attr.getArgAsExpr(0);
+  assert(E != nullptr);
+
+  llvm::APSInt ArgVal(32);
+  uint32_t Size;
+
+  if (E->isTypeDependent() || E->isValueDependent() ||
+    !E->isIntegerConstantExpr(ArgVal, S.Context)) {
+    S.Diag(Attr.getLoc(), diag::err_attribute_argument_type)
+      << Attr.getName()->getName() << AANT_ArgumentIntegerConstant
+      << E->getSourceRange();
+    return;
+  }
+
+  int64_t val = ArgVal.getSExtValue();
+
+  if (val <= 0) {
+    S.Diag(Attr.getRange().getBegin(), diag::err_opencl_invalid_attr_arg)
+      << Attr.getName()->getName();
+    return;
+  }
+
+  Size = static_cast<uint32_t>(val);
+
+  if (auto MaxSize = D->getAttr<OpenCLCXXMaxSizeAttr>()) {
+    if (MaxSize->getMaxSize() != Size)
+      S.Diag(Attr.getLoc(), diag::warn_duplicate_attribute) << Attr.getName();
+
+    if (Size > MaxSize->getMaxSize())
+      D->dropAttr<OpenCLCXXMaxSizeAttr>();
+    else
+      return;
+  }
+
+  D->addAttr(::new (S.Context) OpenCLCXXMaxSizeAttr(Attr.getRange(), S.Context,
+                   (int)Size, Attr.getAttributeSpellingListIndex()));
+}
+
 bool Sema::CheckCallingConvAttr(const AttributeList &attr, CallingConv &CC, 
                                 const FunctionDecl *FD) {
   if (attr.isInvalid())
@@ -4393,7 +4488,10 @@ static void ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D,
   switch (Attr.getKind()) {
   default:
     // Type attributes are handled elsewhere; silently move on.
-    assert(Attr.isTypeAttr() && "Non-type attribute not handled");
+    // If non-type attribute was not handled, assume it is supposed to be placed
+    // on statment rather than declaration
+    if (!Attr.isTypeAttr())
+      S.Diag(Attr.getLoc(), diag::warn_attribute_expected_on_statment) << Attr.getName();
     break;
   case AttributeList::AT_Interrupt:
     handleInterruptAttr(S, D, Attr);
@@ -4625,6 +4723,12 @@ static void ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D,
   case AttributeList::AT_ReqdWorkGroupSize:
     handleWorkGroupSize<ReqdWorkGroupSizeAttr>(S, D, Attr);
     break;
+  case AttributeList::AT_ReqdSubGroupSize:
+    handleSubGroupSize(S, D, Attr);
+    break;
+  case AttributeList::AT_ReqdNumSubGroups:
+    handleNumSubGroups(S, D, Attr);
+    break;
   case AttributeList::AT_VecTypeHint:
     handleVecTypeHint(S, D, Attr);
     break;
@@ -4746,7 +4850,9 @@ static void ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D,
   case AttributeList::AT_OpenCLNoSVM:
     handleOpenCLNoSVMAttr(S, D, Attr);
     break;
-
+  case AttributeList::AT_OpenCLCXXMaxSize:
+    handleOpenCLCXXMaxSizeAttr(S, D, Attr);
+    break;
   // Microsoft attributes:
   case AttributeList::AT_MsStruct:
     handleSimpleAttribute<MsStructAttr>(S, D, Attr);
@@ -4899,25 +5005,19 @@ void Sema::ProcessDeclAttributeList(Scope *S, Decl *D,
   // for these. Additionally, it would be good to have a way to specify "these
   // attribute must never appear as a group" for attributes like cold and hot.
   if (!D->hasAttr<OpenCLKernelAttr>()) {
+    Attr* Invalid = nullptr;
     // These attributes cannot be applied to a non-kernel function.
-    if (Attr *A = D->getAttr<ReqdWorkGroupSizeAttr>()) {
-      // FIXME: This emits a different error message than
-      // diag::err_attribute_wrong_decl_type + ExpectedKernelFunction.
-      Diag(D->getLocation(), diag::err_opencl_kernel_attr) << A;
-      D->setInvalidDecl();
-    } else if (Attr *A = D->getAttr<WorkGroupSizeHintAttr>()) {
-      Diag(D->getLocation(), diag::err_opencl_kernel_attr) << A;
-      D->setInvalidDecl();
-    } else if (Attr *A = D->getAttr<VecTypeHintAttr>()) {
-      Diag(D->getLocation(), diag::err_opencl_kernel_attr) << A;
-      D->setInvalidDecl();
-    } else if (Attr *A = D->getAttr<AMDGPUNumVGPRAttr>()) {
-      Diag(D->getLocation(), diag::err_attribute_wrong_decl_type)
-        << A << ExpectedKernelFunction;
-      D->setInvalidDecl();
-    } else if (Attr *A = D->getAttr<AMDGPUNumSGPRAttr>()) {
-      Diag(D->getLocation(), diag::err_attribute_wrong_decl_type)
-        << A << ExpectedKernelFunction;
+    if (!(Invalid = D->getAttr<ReqdWorkGroupSizeAttr>()))
+      if (!(Invalid = D->getAttr<WorkGroupSizeHintAttr>()))
+        if (!(Invalid = D->getAttr<VecTypeHintAttr>()))
+          if (!(Invalid = D->getAttr<ReqdSubGroupSizeAttr>()))
+            if (!(Invalid = D->getAttr<ReqdNumSubGroupsAttr>()))
+              if (!(Invalid = D->getAttr<AMDGPUNumVGPRAttr>()))
+                Invalid = D->getAttr<AMDGPUNumSGPRAttr>();
+
+      if (Invalid) {
+        Diag(D->getLocation(), diag::err_attribute_wrong_decl_type)
+          << Invalid << ExpectedKernelFunction;
       D->setInvalidDecl();
     }
   }

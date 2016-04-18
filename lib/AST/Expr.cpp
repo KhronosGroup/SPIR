@@ -3390,21 +3390,31 @@ unsigned ExtVectorElementExpr::getNumElements() const {
 
 /// containsDuplicateElements - Return true if any element access is repeated.
 bool ExtVectorElementExpr::containsDuplicateElements() const {
-  // FIXME: Refactor this code to an accessor on the AST node which returns the
-  // "type" of component access, and share with code below and in Sema.
+  // FIXME: share with code below and in Sema.
   StringRef Comp = Accessor->getName();
+  ExtVectorType::AccessorKind AccessKind =
+      ExtVectorType::detectAccessorKind(Comp);
+
+  assert(AccessKind != ExtVectorType::UnknownAccessor &&
+         "Unknown accessor kind detected.");
 
   // Halving swizzles do not contain duplicate elements.
-  if (Comp == "hi" || Comp == "lo" || Comp == "even" || Comp == "odd")
+  if (AccessKind == ExtVectorType::HalvingAccessor)
     return false;
 
   // Advance past s-char prefix on hex swizzles.
-  if (Comp[0] == 's' || Comp[0] == 'S')
+  if (AccessKind == ExtVectorType::NumericAccessor)
     Comp = Comp.substr(1);
 
-  for (unsigned i = 0, e = Comp.size(); i != e; ++i)
-    if (Comp.substr(i + 1).find(Comp[i]) != StringRef::npos)
-        return true;
+  bool HasIndex[16] = {};
+  int Idx;
+
+  for (size_t I = 0, E = Comp.size(); I < E &&
+       (Idx = ExtVectorType::getAccessorIdx(Comp[I], AccessKind)) != -1; ++I) {
+    if (HasIndex[Idx])
+      return true;
+    HasIndex[Idx] = true;
+  }
 
   return false;
 }
@@ -3413,27 +3423,34 @@ bool ExtVectorElementExpr::containsDuplicateElements() const {
 void ExtVectorElementExpr::getEncodedElementAccess(
                                   SmallVectorImpl<unsigned> &Elts) const {
   StringRef Comp = Accessor->getName();
-  if (Comp[0] == 's' || Comp[0] == 'S')
+  ExtVectorType::AccessorKind AccessKind =
+      ExtVectorType::detectAccessorKind(Comp);
+
+  assert(AccessKind != ExtVectorType::UnknownAccessor &&
+         "Unknown accessor kind detected.");
+
+  ExtVectorType::HalvingAccessorMode HalvingMode = ExtVectorType::UnknownHalf;
+  if (AccessKind == ExtVectorType::HalvingAccessor) {
+    HalvingMode = ExtVectorType::getHalvingAccessorMode(Comp);
+
+    assert(HalvingMode != ExtVectorType::UnknownHalf &&
+           "Unknown accessor halving mode.");
+  }
+
+  if (AccessKind == ExtVectorType::NumericAccessor)
     Comp = Comp.substr(1);
 
-  bool isHi =   Comp == "hi";
-  bool isLo =   Comp == "lo";
-  bool isEven = Comp == "even";
-  bool isOdd  = Comp == "odd";
-
-  for (unsigned i = 0, e = getNumElements(); i != e; ++i) {
+  for (unsigned I = 0, E = getNumElements(); I < E; ++I) {
     uint64_t Index;
 
-    if (isHi)
-      Index = e + i;
-    else if (isLo)
-      Index = i;
-    else if (isEven)
-      Index = 2 * i;
-    else if (isOdd)
-      Index = 2 * i + 1;
-    else
-      Index = ExtVectorType::getAccessorIdx(Comp[i]);
+    switch (HalvingMode) {
+      case ExtVectorType::HighHalf: Index = E + I; break;
+      case ExtVectorType::LowHalf:  Index = I; break;
+      case ExtVectorType::EvenHalf: Index = 2 * I; break;
+      case ExtVectorType::OddHalf:  Index = 2 * I + 1; break;
+      default:
+        Index = ExtVectorType::getAccessorIdx(Comp[I], AccessKind);
+    }
 
     Elts.push_back(Index);
   }

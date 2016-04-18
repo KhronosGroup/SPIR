@@ -569,7 +569,8 @@ static void GenOpenCLArgMetadata(const FunctionDecl *FD, llvm::Function *Fn,
       if (ty.isRestrictQualified())
         typeQuals = "restrict";
       if (pointeeTy.isConstQualified() ||
-          (pointeeTy.getAddressSpace() == LangAS::opencl_constant))
+          pointeeTy.getAddressSpace() == LangAS::opencl_constant ||
+          pointeeTy.getAddressSpace() == LangAS::openclcpp_constant)
         typeQuals += typeQuals.empty() ? "const" : " const";
       if (pointeeTy.isVolatileQualified())
         typeQuals += typeQuals.empty() ? "volatile" : " volatile";
@@ -586,7 +587,8 @@ static void GenOpenCLArgMetadata(const FunctionDecl *FD, llvm::Function *Fn,
                                           getAs<PipeType>(), Policy);
 
       // Get address qualifier.
-      addressQuals.push_back(llvm::ConstantAsMetadata::get(Builder.getInt32(ASTCtx.getTargetAddressSpace(LangAS::opencl_global))));
+      unsigned int globalAS = ASTCtx.getLangOpts().OpenCLCPlusPlus ? LangAS::openclcpp_global : LangAS::opencl_global;
+      addressQuals.push_back(llvm::ConstantAsMetadata::get(Builder.getInt32(ASTCtx.getTargetAddressSpace(globalAS))));
 
       // Get argument type qualifiers.
       typeQuals += typeQuals.empty() ? "pipe" : " pipe";
@@ -687,6 +689,24 @@ void CodeGenFunction::EmitOpenCLKernelMetadata(const FunctionDecl *FD,
         llvm::ConstantAsMetadata::get(Builder.getInt32(A->getXDim())),
         llvm::ConstantAsMetadata::get(Builder.getInt32(A->getYDim())),
         llvm::ConstantAsMetadata::get(Builder.getInt32(A->getZDim()))};
+    kernelMDArgs.push_back(llvm::MDNode::get(Context, attrMDArgs));
+  }
+
+  if (FD->hasAttr<ReqdSubGroupSizeAttr>()) {
+    ReqdSubGroupSizeAttr *attr = FD->getAttr<ReqdSubGroupSizeAttr>();
+    llvm::Metadata *attrMDArgs[] = {
+      llvm::MDString::get(Context, "reqd_sub_group_size"),
+      llvm::ConstantAsMetadata::get(Builder.getInt32(attr->getXDim()))
+    };
+    kernelMDArgs.push_back(llvm::MDNode::get(Context, attrMDArgs));
+  }
+
+  if (FD->hasAttr<ReqdNumSubGroupsAttr>()) {
+    ReqdNumSubGroupsAttr* attr = FD->getAttr<ReqdNumSubGroupsAttr>();
+    llvm::Metadata* attrMDArgs[] = {
+      llvm::MDString::get(Context, "reqd_num_sub_groups"),
+      llvm::ConstantAsMetadata::get(Builder.getInt32(attr->getNumSubGroups()))
+    };
     kernelMDArgs.push_back(llvm::MDNode::get(Context, attrMDArgs));
   }
 

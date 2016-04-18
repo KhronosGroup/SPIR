@@ -595,22 +595,16 @@ void CodeGenFunction::EmitCondBrHints(llvm::LLVMContext &Context,
   // FIXME: Should this really start with a size of 1?
   SmallVector<llvm::Metadata *, 2> Metadata(1);
   for (const auto *Attr : Attrs) {
-    const LoopHintAttr *LH = dyn_cast<LoopHintAttr>(Attr);
+    llvm::Constant *Value = nullptr;
+    llvm::MDString *Name = nullptr;
 
-    if (!LH) {
-      // Maybe it is OpenCL unroll hint
-      const OpenCLUnrollHintAttr * OpenCLHint = dyn_cast<OpenCLUnrollHintAttr>(Attr);
-      // Skip non loop hint attributes
-      if(!OpenCLHint)
-          continue;
-      llvm::Constant *Value = 0;
-      llvm::MDString *Name = 0;
-      unsigned int unrollCount = OpenCLHint->getUnrollHint();
-      if(unrollCount == 0) {
+    if (const auto *OCLUnroll = dyn_cast<OpenCLUnrollHintAttr>(Attr)) {
+      unsigned int unrollCount = OCLUnroll->getUnrollHint();
+      if (unrollCount == 0) {
         Name = llvm::MDString::get(Context, "llvm.loop.unroll.full");
         Value = Builder.getTrue();
       }
-      else if(unrollCount == 1) {
+      else if (unrollCount == 1) {
         Name = llvm::MDString::get(Context, "llvm.loop.unroll.disable");
         Value = Builder.getFalse();
       }
@@ -618,13 +612,29 @@ void CodeGenFunction::EmitCondBrHints(llvm::LLVMContext &Context,
         Name = llvm::MDString::get(Context, "llvm.loop.unroll.count");
         Value = llvm::ConstantInt::get(Int32Ty, unrollCount);
       }
+    }
+    else if (const auto *OCLIvdep = dyn_cast<OpenCLCXXIvdepAttr>(Attr)) {
+      Name = llvm::MDString::get(Context, "opencl_ivdep");
+      if (auto SafeLen = OCLIvdep->getSafeLen())
+        Value = llvm::ConstantInt::get(Int32Ty, SafeLen);
+    }
+
+    if (Name != nullptr) {
       SmallVector<llvm::Metadata *, 2> OpValues;
       OpValues.push_back(Name);
-      OpValues.push_back(llvm::ConstantAsMetadata::get(Value));
-      // Set or overwrite metadata indicated by Name.
+      if (Value)
+        OpValues.push_back(llvm::ConstantAsMetadata::get(Value));
+
       Metadata.push_back(llvm::MDNode::get(Context, OpValues));
       continue;
     }
+
+    const LoopHintAttr *LH = dyn_cast<LoopHintAttr>(Attr);
+
+    // Skip non loop hint attributes
+    if (!LH)
+      continue;
+
     LoopHintAttr::OptionType Option = LH->getOption();
     LoopHintAttr::LoopHintState State = LH->getState();
     const char *MetadataName;
@@ -655,8 +665,6 @@ void CodeGenFunction::EmitCondBrHints(llvm::LLVMContext &Context,
       ValueInt = static_cast<int>(ValueAPS.getSExtValue());
     }
 
-    llvm::Constant *Value;
-    llvm::MDString *Name;
     switch (Option) {
     case LoopHintAttr::Vectorize:
     case LoopHintAttr::Interleave:
@@ -1083,12 +1091,19 @@ void CodeGenFunction::EmitReturnStmt(const ReturnStmt &S) {
     // If this function returns a reference, take the address of the expression
     // rather than the value.
     RValue Result = EmitReferenceBindingToExpr(RV);
-    Builder.CreateStore(Result.getScalarVal(), ReturnValue);
+
+    llvm::Value *V = EmitAddrSpaceCast(Result.getScalarVal(),
+                              ReturnValue->getType()->getPointerElementType());
+    Builder.CreateStore(V, ReturnValue);
   } else {
     switch (getEvaluationKind(RV->getType())) {
-    case TEK_Scalar:
-      Builder.CreateStore(EmitScalarExpr(RV), ReturnValue);
-      break;
+    case TEK_Scalar: {
+        llvm::Value *V = EmitAddrSpaceCast(EmitScalarExpr(RV),
+                              ReturnValue->getType()->getPointerElementType());
+
+        Builder.CreateStore(V, ReturnValue);
+        break;
+      }
     case TEK_Complex:
       EmitComplexExprIntoLValue(RV,
                      MakeNaturalAlignAddrLValue(ReturnValue, RV->getType()),

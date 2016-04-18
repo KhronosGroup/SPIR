@@ -35,7 +35,9 @@ llvm::Type *CGOpenCLRuntime::convertOpenCLSpecificType(const Type *T) {
 
   llvm::LLVMContext& Ctx = CGM.getLLVMContext();
   uint32_t ImgAddrSpc =
-    CGM.getContext().getTargetAddressSpace(LangAS::opencl_global);
+    CGM.getContext().getTargetAddressSpace(
+      CGM.getContext().getLangOpts().OpenCLCPlusPlus? LangAS::openclcpp_global:
+                                                      LangAS::opencl_global);
   switch (cast<BuiltinType>(T)->getKind()) {
   default: 
     llvm_unreachable("Unexpected opencl builtin type!");

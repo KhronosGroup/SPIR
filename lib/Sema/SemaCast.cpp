@@ -510,6 +510,12 @@ CastsAwayConstness(Sema &Self, QualType SrcType, QualType DestType,
         !DestQuals.compatiblyIncludesObjCLifetime(SrcQuals))
       return true;
     
+    // OpenCL C++
+    //   Not all address space casts are allowed
+    if (Self.Context.getLangOpts().OpenCLCPlusPlus &&
+        !DestQuals.isAddressSpaceSupersetOf(SrcQuals))
+      return true;
+    
     cv1.push_back(RetainedSrcQuals);
     cv2.push_back(RetainedDestQuals);
 
@@ -645,6 +651,16 @@ void CastOperation::CheckDynamicCast() {
       << CT_Dynamic << OrigSrcType << this->DestType << OpRange;
     SrcExpr = ExprError();
     return;
+  }
+
+  // OpenCL C++
+  //   Not all address space casts are allowed
+  Qualifiers DestQuals = DestPointee.getQualifiers();
+  Qualifiers SrcQuals = SrcPointee.getQualifiers();
+  if (!DestQuals.isAddressSpaceSupersetOf(SrcQuals)) {
+    Self.Diag(OpRange.getBegin(), diag::err_bad_cxx_cast_qualifiers_away)
+      << CT_Dynamic << OrigSrcType << this->DestType << OpRange;
+    SrcExpr = ExprError();
   }
 
   // C++ 5.2.7p3: If the type of v is the same as the required result type,
@@ -1933,6 +1949,28 @@ static TryCastResult TryReinterpretCast(Sema &Self, ExprResult &SrcExpr,
     return TC_NotApplicable;
   }
 
+  // OpenCL C++
+  //   Not all address space casts are allowed
+  bool addressSpaceCast = false;
+  if (Self.Context.getLangOpts().OpenCLCPlusPlus) {
+    QualType UnwrappedSrcType = Self.Context.getCanonicalType(SrcType),
+             UnwrappedDestType = Self.Context.getCanonicalType(DestType);
+
+    while (UnwrapDissimilarPointerTypes(UnwrappedSrcType, UnwrappedDestType)) {
+      Qualifiers SrcQuals, DestQuals;
+      Self.Context.getUnqualifiedArrayType(UnwrappedSrcType, SrcQuals);
+      Self.Context.getUnqualifiedArrayType(UnwrappedDestType, DestQuals);
+
+      if (!DestQuals.isAddressSpaceSupersetOf(SrcQuals)) {
+        msg = diag::err_bad_cxx_cast_qualifiers_away;
+        return TC_Failed;
+      }
+
+      if (SrcQuals.getAddressSpace() != DestQuals.getAddressSpace())
+        addressSpaceCast = true;
+    }
+  }
+
   // C++ 5.2.10p2: The reinterpret_cast operator shall not cast away constness.
   // The C-style cast operator can.
   if (CastsAwayConstness(Self, SrcType, DestType, /*CheckCVR=*/!CStyle,
@@ -1957,7 +1995,7 @@ static TryCastResult TryReinterpretCast(Sema &Self, ExprResult &SrcExpr,
       Kind = CK_BitCast;
     }
   } else {
-    Kind = CK_BitCast;
+    Kind = addressSpaceCast ? CK_AddressSpaceConversion: CK_BitCast;
   }
 
   // Any pointer can be cast to an Objective-C pointer type with a C-style

@@ -101,10 +101,12 @@ CodeGenFunction::GetAddressOfDirectBaseInCompleteClass(llvm::Value *This,
   // TODO: for complete types, this should be possible with a GEP.
   llvm::Value *V = This;
   if (Offset.isPositive()) {
-    V = Builder.CreateBitCast(V, Int8PtrTy);
+    V = Builder.CreateBitCast(V, Builder.getInt8PtrTy(
+                                      V->getType()->getPointerAddressSpace()));
     V = Builder.CreateConstInBoundsGEP1_64(V, Offset.getQuantity());
   }
-  V = Builder.CreateBitCast(V, ConvertType(Base)->getPointerTo());
+  V = Builder.CreateBitCast(V, ConvertType(Base)->getPointerTo(
+                                      V->getType()->getPointerAddressSpace()));
 
   return V;
 }
@@ -129,7 +131,8 @@ ApplyNonVirtualAndVirtualOffset(CodeGenFunction &CGF, llvm::Value *ptr,
   }
   
   // Apply the base offset.
-  ptr = CGF.Builder.CreateBitCast(ptr, CGF.Int8PtrTy);
+  ptr = CGF.Builder.CreateBitCast(ptr, CGF.Builder.getInt8PtrTy(
+                                    ptr->getType()->getPointerAddressSpace()));
   ptr = CGF.Builder.CreateInBoundsGEP(ptr, baseOffset, "add.ptr");
   return ptr;
 }
@@ -173,7 +176,8 @@ llvm::Value *CodeGenFunction::GetAddressOfBaseClass(
 
   // Get the base pointer type.
   llvm::Type *BasePtrTy = 
-    ConvertType((PathEnd[-1])->getType())->getPointerTo();
+    ConvertType((PathEnd[-1])->getType())->getPointerTo(
+                                   Value->getType()->getPointerAddressSpace());
 
   QualType DerivedTy = getContext().getRecordType(Derived);
   CharUnits DerivedAlign = getContext().getTypeAlignInChars(DerivedTy);
@@ -248,7 +252,8 @@ CodeGenFunction::GetAddressOfDerivedClass(llvm::Value *Value,
 
   QualType DerivedTy =
     getContext().getCanonicalType(getContext().getTagDeclType(Derived));
-  llvm::Type *DerivedPtrTy = ConvertType(DerivedTy)->getPointerTo();
+  llvm::Type *DerivedPtrTy = ConvertType(DerivedTy)->getPointerTo(
+                                   Value->getType()->getPointerAddressSpace());
 
   llvm::Value *NonVirtualOffset =
     CGM.GetNonVirtualBaseClassOffset(Derived, PathBegin, PathEnd);
@@ -626,7 +631,16 @@ void CodeGenFunction::EmitInitializerForField(
       // a flat array.
       QualType BaseElementTy = getContext().getBaseElementType(FieldType);
       llvm::Type *BasePtr = ConvertType(BaseElementTy);
-      BasePtr = llvm::PointerType::getUnqual(BasePtr);
+
+      // OpenCL C++
+      //   Base pointer must be in the same address space as LHS
+      if (getContext().getLangOpts().OpenCLCPlusPlus) {
+        BasePtr = llvm::PointerType::get(BasePtr,
+                        LHS.getAddress()->getType()->getPointerAddressSpace());
+      }
+      else {
+        BasePtr = llvm::PointerType::getUnqual(BasePtr);
+      }
       llvm::Value *BaseAddrPtr = Builder.CreateBitCast(LHS.getAddress(), 
                                                        BasePtr);
       LHS = MakeAddrLValue(BaseAddrPtr, BaseElementTy);

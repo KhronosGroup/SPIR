@@ -1,3 +1,6 @@
+add_subdirectory(OclCxxRewrite)
+
+
 set(LLVM_LINK_COMPONENTS
   BitReader
   BitWriter
@@ -83,4 +86,5 @@ add_clang_library(clangCodeGen
   clangBasic
   clangFrontend
   clangLex
+  clangOclCxxRewrite
   )

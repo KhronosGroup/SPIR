@@ -254,8 +254,10 @@ static bool isEmptyRecord(ASTContext &Context, QualType T, bool AllowArrays) {
 ///
 /// \return The field declaration for the single non-empty field, if
 /// it exists.
-static const Type *isSingleElementStruct(QualType T, ASTContext &Context) {
-  const RecordType *RT = T->getAsStructureType();
+static const Type *isSingleElementStruct(QualType T, ASTContext &Context,
+                                         bool AllowClass = false) {
+  const RecordType *RT = AllowClass? T->getAs<RecordType>():
+                                     T->getAsStructureType();
   if (!RT)
     return nullptr;
 
@@ -278,7 +280,7 @@ static const Type *isSingleElementStruct(QualType T, ASTContext &Context) {
 
       // If this is non-empty and not a single element struct, the composite
       // cannot be a single element struct.
-      Found = isSingleElementStruct(I.getType(), Context);
+      Found = isSingleElementStruct(I.getType(), Context, AllowClass);
       if (!Found)
         return nullptr;
     }
@@ -307,7 +309,7 @@ static const Type *isSingleElementStruct(QualType T, ASTContext &Context) {
     if (!isAggregateTypeForABI(FT)) {
       Found = FT.getTypePtr();
     } else {
-      Found = isSingleElementStruct(FT, Context);
+      Found = isSingleElementStruct(FT, Context, AllowClass);
       if (!Found)
         return nullptr;
     }
@@ -416,6 +418,12 @@ llvm::Value *DefaultABIInfo::EmitVAArg(llvm::Value *VAListAddr, QualType Ty,
 }
 
 ABIArgInfo DefaultABIInfo::classifyArgumentType(QualType Ty) const {
+  if (getContext().getLangOpts().OpenCLCPlusPlus &&
+      isAggregateTypeForABI(Ty)) {
+    if (const Type *T = isSingleElementStruct(Ty, getContext(), true))
+      return ABIArgInfo::getDirect(CGT.ConvertType(QualType(T, 0)));
+  }
+
   if (isAggregateTypeForABI(Ty, getContext().getLangOpts().CLKeepSamplerType))
     return ABIArgInfo::getIndirect(0);
 
@@ -428,6 +436,12 @@ ABIArgInfo DefaultABIInfo::classifyArgumentType(QualType Ty) const {
 }
 
 ABIArgInfo DefaultABIInfo::classifyReturnType(QualType RetTy) const {
+  if (getContext().getLangOpts().OpenCLCPlusPlus &&
+      isAggregateTypeForABI(RetTy)) {
+    if (const Type *T = isSingleElementStruct(RetTy, getContext(), true))
+      return ABIArgInfo::getDirect(CGT.ConvertType(QualType(T, 0)));
+  }
+
   if (RetTy->isVoidType())
     return ABIArgInfo::getIgnore();
 
@@ -1144,7 +1158,7 @@ void X86_32ABIInfo::computeInfo(CGFunctionInfo &FI) const {
   QualType RetTy = FI.getReturnType();
 
   if (getContext().getLangOpts().OpenCL) {
-    // Use OpenCL clessify to prevent coercing
+    // Use OpenCL classify to prevent coercing
     FI.getReturnInfo() = classifyOpenCL(RetTy);
 
     for (CGFunctionInfo::arg_iterator it = FI.arg_begin(), ie = FI.arg_end();
@@ -2709,7 +2723,7 @@ void X86_64ABIInfo::computeInfo(CGFunctionInfo &FI) const {
   QualType RetTy = FI.getReturnType();
 
   if (getContext().getLangOpts().OpenCL) {
-    // Use OpenCL clessify to prevent coercing
+    // Use OpenCL classify to prevent coercing
     FI.getReturnInfo() = classifyOpenCL(RetTy);
 
     for (CGFunctionInfo::arg_iterator it = FI.arg_begin(), ie = FI.arg_end();
@@ -3058,7 +3072,7 @@ void WinX86_64ABIInfo::computeInfo(CGFunctionInfo &FI) const {
     FI.getReturnInfo() = classify(FI.getReturnType(), FreeSSERegs, true);
 
   if (getContext().getLangOpts().OpenCL) {
-    // Use OpenCL clessify to prevent coercing
+    // Use OpenCL classify to prevent coercing
     FI.getReturnInfo() = classifyOpenCL(FI.getReturnType());
 
     for (CGFunctionInfo::arg_iterator it = FI.arg_begin(), ie = FI.arg_end();
@@ -6009,6 +6023,23 @@ void TCETargetCodeGenInfo::SetTargetAttributes(const Decl *D,
         // always true as the hint is not yet implemented.
         Operands.push_back(
             llvm::ConstantAsMetadata::get(llvm::ConstantInt::getTrue(Context)));
+        OpenCLMetadata->addOperand(llvm::MDNode::get(Context, Operands));
+      }
+
+      if (FD->hasAttr<ReqdSubGroupSizeAttr>()) {
+
+        // Convert the reqd_sub_group_size() attributes to metadata.
+        llvm::LLVMContext &Context = F->getContext();
+        llvm::NamedMDNode *OpenCLMetadata =
+            M.getModule().getOrInsertNamedMetadata("opencl.kernel_sg_size_info");
+
+        SmallVector<llvm::Metadata*, 2> Operands;
+        Operands.push_back(llvm::ConstantAsMetadata::get(F));
+
+        Operands.push_back(llvm::ConstantAsMetadata::get(llvm::Constant::getIntegerValue(M.Int32Ty,
+                             llvm::APInt(32,
+                             FD->getAttr<ReqdSubGroupSizeAttr>()->getXDim()))));
+
         OpenCLMetadata->addOperand(llvm::MDNode::get(Context, Operands));
       }
     }

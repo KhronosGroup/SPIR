@@ -265,7 +265,8 @@ public:
   const CGFunctionInfo &arrangeFreeFunctionType(CanQual<FunctionProtoType> Ty);
   const CGFunctionInfo &arrangeFreeFunctionType(CanQual<FunctionNoProtoType> Ty);
   const CGFunctionInfo &arrangeCXXMethodType(const CXXRecordDecl *RD,
-                                             const FunctionProtoType *FTP);
+                                             const FunctionProtoType *FTP,
+                                             unsigned int addressSpace = 0);
 
   /// "Arrange" the LLVM information for a call or type with the given
   /// signature.  This is largely an internal method; other clients

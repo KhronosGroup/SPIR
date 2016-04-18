@@ -193,7 +193,8 @@ llvm::Constant *CodeGenModule::getOrCreateStaticVarDecl(
 
   // Local address space cannot have an initializer.
   llvm::Constant *Init = nullptr;
-  if (Ty.getAddressSpace() != LangAS::opencl_local)
+  if (Ty.getAddressSpace() != LangAS::opencl_local &&
+      Ty.getAddressSpace() != LangAS::openclcpp_local)
     Init = EmitNullConstant(Ty);
   else
     Init = llvm::UndefValue::get(LTy);

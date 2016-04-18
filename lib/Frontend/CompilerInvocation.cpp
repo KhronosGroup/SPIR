@@ -1227,6 +1227,8 @@ void CompilerInvocation::setLangDefaults(LangOptions &Opts, InputKind IK,
     Opts.OpenCLVersion = 120;
   else if (LangStd == LangStandard::lang_opencl20)
     Opts.OpenCLVersion = 200;
+  else if (LangStd == LangStandard::lang_openclcpp)
+    Opts.OpenCLVersion = 220;
 
   // OpenCL has some additional defaults.
   if (Opts.OpenCL) {
@@ -1235,6 +1237,7 @@ void CompilerInvocation::setLangDefaults(LangOptions &Opts, InputKind IK,
     Opts.LaxVectorConversions = 0;
     Opts.DefaultFPContract = 1;
     Opts.NativeHalfType = 1;
+    Opts.OpenCLCPlusPlus = Opts.CPlusPlus;
   }
 
   Opts.CUDA = LangStd == LangStandard::lang_cuda || IK == IK_CUDA;
@@ -1371,6 +1374,7 @@ static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
     .Case("CL1.1", LangStandard::lang_opencl11)
     .Case("CL1.2", LangStandard::lang_opencl12)
     .Case("CL2.0", LangStandard::lang_opencl20)
+    .Case("c++", LangStandard::lang_openclcpp)
     .Default(LangStandard::lang_unspecified);
     
     if (OpenCLLangStd == LangStandard::lang_unspecified) {
@@ -1509,7 +1513,7 @@ static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
   Opts.RTTI = !Args.hasArg(OPT_fno_rtti);
   Opts.RTTIData = Opts.RTTI && !Args.hasArg(OPT_fno_rtti_data);
   Opts.Blocks = Args.hasArg(OPT_fblocks);
-  if (Opts.OpenCLVersion >= 200) {
+  if (Opts.OpenCLVersion >= 200 && !Opts.OpenCLCPlusPlus) {
     Opts.Blocks = 1;
   } else {
     Opts.Blocks = Args.hasArg(OPT_fblocks);
@@ -1664,6 +1668,7 @@ static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
       Args.hasArg(OPT_fretain_comments_from_system_headers);
 
   Opts.CLEnableHalf = Args.hasArg(OPT_cl_enable_half);
+  Opts.CLFp64Enable = Args.hasArg(OPT_cl_fp64_enable);
 
   unsigned SSP = getLastArgIntValue(Args, OPT_stack_protector, 0, Diags);
   switch (SSP) {

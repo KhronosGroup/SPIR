@@ -1010,6 +1010,11 @@ Parser::isExpressionOrTypeSpecifierSimple(tok::TokenKind Kind) {
   case tok::kw_event_t:
   case tok::kw_queue_t:
   case tok::kw_clk_event_t:
+  case tok::kw___local:
+  case tok::kw___global:
+  case tok::kw___constant:
+  case tok::kw___private:
+  case tok::kw___generic:
   case tok::kw___unknown_anytype:
     return TPResult::False;
 
@@ -1279,6 +1284,13 @@ Parser::isCXXDeclarationSpecifier(Parser::TPResult BracedCastResult,
     // cv-qualifier
   case tok::kw_const:
   case tok::kw_volatile:
+
+    // OpenCL address spaces
+  case tok::kw___local:
+  case tok::kw___global:
+  case tok::kw___generic:
+  case tok::kw___private:
+  case tok::kw___constant:
 
     // GNU
   case tok::kw_restrict:

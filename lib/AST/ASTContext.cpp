@@ -702,7 +702,12 @@ static const LangAS::Map *getAddressSpaceMap(const TargetInfo &T,
       4, // opencl_generic
       5, // cuda_device
       6, // cuda_constant
-      7  // cuda_shared
+      7, // cuda_shared
+      8, // openclcpp_global
+      9, // openclcpp_local
+      10, // openclcpp_constant
+      11, // openclcpp_generic
+      12, // openclcpp_private
     };
     return &FakeAddrSpaceMap;
   } else {
@@ -2131,7 +2136,10 @@ void ASTContext::adjustDeducedFunctionResultType(FunctionDecl *FD,
   while (true) {
     const FunctionProtoType *FPT = FD->getType()->castAs<FunctionProtoType>();
     FunctionProtoType::ExtProtoInfo EPI = FPT->getExtProtoInfo();
-    FD->setType(getFunctionType(ResultType, FPT->getParamTypes(), EPI));
+    QualType FnTy = getFunctionType(ResultType, FPT->getParamTypes(), EPI);
+    if (getLangOpts().OpenCLCPlusPlus)
+      FnTy = getAddrSpaceQualType(FnTy, FD->getType().getAddressSpace());
+    FD->setType(FnTy);
     if (FunctionDecl *Next = FD->getPreviousDecl())
       FD = Next;
     else
@@ -2164,9 +2172,12 @@ static QualType getFunctionTypeWithExceptionSpec(
   // Anything else must be a function type. Rebuild it with the new exception
   // specification.
   const FunctionProtoType *Proto = cast<FunctionProtoType>(Orig);
-  return Context.getFunctionType(
-      Proto->getReturnType(), Proto->getParamTypes(),
-      Proto->getExtProtoInfo().withExceptionSpec(ESI));
+  QualType FnTy = Context.getFunctionType(
+    Proto->getReturnType(), Proto->getParamTypes(),
+    Proto->getExtProtoInfo().withExceptionSpec(ESI));
+  if (Context.getLangOpts().OpenCLCPlusPlus)
+    FnTy = Context.getAddrSpaceQualType(FnTy, Orig.getAddressSpace());
+  return FnTy;
 }
 
 void ASTContext::adjustExceptionSpec(
@@ -7847,6 +7858,13 @@ static QualType DecodeTypeFromStr(const char *&Str, const ASTContext &Context,
       // qualified with an address space.
       char *End;
       unsigned AddrSpace = strtoul(Str, &End, 10);
+      // OpenCL C++
+      //   All pointers and references are qualified with the generic address
+      //   space if it's not specified otherwise.
+      if (Context.getLangOpts().OpenCLCPlusPlus &&
+          Str == End && AddrSpace == 0) {
+        Type = Context.getAddrSpaceQualType(Type, LangAS::openclcpp_generic);
+      }
       if (End != Str && AddrSpace != 0) {
         Type = Context.getAddrSpaceQualType(Type, AddrSpace);
         Str = End;

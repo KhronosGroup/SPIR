@@ -70,7 +70,8 @@ bool QualType::isConstant(QualType T, ASTContext &Ctx) {
   if (const ArrayType *AT = Ctx.getAsArrayType(T))
     return AT->getElementType().isConstant(Ctx);
 
-  return T.getAddressSpace() == LangAS::opencl_constant;
+  return T.getAddressSpace() == LangAS::opencl_constant || 
+         T.getAddressSpace() == LangAS::openclcpp_constant;
 }
 
 unsigned ConstantArrayType::getNumAddressingBits(ASTContext &Context,
@@ -853,6 +854,12 @@ bool Type::isIntegerVecType() const {
 bool Type::isRealVecType() const {
   if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
     return VT->getElementType()->isRealType();
+  return false;
+}
+
+bool Type::isBooleanVecType() const {
+  if (const VectorType *VT = dyn_cast<VectorType>(CanonicalType))
+    return VT->getElementType()->isBooleanType();
   return false;
 }
 

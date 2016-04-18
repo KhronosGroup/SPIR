@@ -412,10 +412,19 @@ public:
     return
         // Address spaces must match exactly.
         getAddressSpace() == other.getAddressSpace() ||
-        // Otherwise in OpenCLC v2.0 s6.5.5: every address space except
+        // In OpenCLC v2.0 s6.5.5: every address space except
         // for __constant can be used as __generic.
         (getAddressSpace() == LangAS::opencl_generic &&
-         other.getAddressSpace() != LangAS::opencl_constant);
+         other.getAddressSpace() != LangAS::opencl_constant) ||
+        // Otherwise in OpenCL C++ every address space except
+        // for __constant can be used as __generic or 0.
+        ((getAddressSpace() == LangAS::openclcpp_generic ||
+          getAddressSpace() == 0) &&
+        (other.getAddressSpace() == LangAS::openclcpp_private ||
+         other.getAddressSpace() == LangAS::openclcpp_local ||
+         other.getAddressSpace() == LangAS::openclcpp_global ||
+         other.getAddressSpace() == LangAS::openclcpp_generic ||
+         other.getAddressSpace() == 0));
   }
 
   /// \brief Determines if these qualifiers compatibly include another set.
@@ -1549,6 +1558,7 @@ public:
   bool isDoubleVecType() const;
   bool isIntegerVecType() const;
   bool isRealVecType() const;
+  bool isBooleanVecType() const;
 
   // Type Predicates: Check to see if this type is structurally the specified
   // type, ignoring typedefs and qualifiers.
@@ -2654,6 +2664,25 @@ class ExtVectorType : public VectorType {
     VectorType(ExtVector, vecType, nElements, canonType, GenericVector) {}
   friend class ASTContext;  // ASTContext creates these.
 public:
+  enum AccessorKind {
+    UnknownAccessor = -1, // Accessor kind is unknown.
+    PointAccesor,         // Accessor is xyzw point coordinate.
+    ColorAccessor,        // Accessor is rgba color component.
+    NumericAccessor,      // Accessor is hexadecimal numeric component
+                          // index (0-based).
+    HalvingAccessor       // Accessor is selecting part of vector
+                          // (half-sized).
+  };
+
+  enum HalvingAccessorMode {
+    UnknownHalf = -1,
+    HighHalf,         // High half of vector selected.
+    LowHalf,          // Low half of vector selected.
+    EvenHalf,         // Even-numbered components selected.
+    OddHalf           // Odd-numbered components selected.
+  };
+
+
   static int getPointAccessorIdx(char c) {
     switch (c) {
     default: return -1;
@@ -2663,6 +2692,17 @@ public:
     case 'w': return 3;
     }
   }
+
+  static int getColorAccessorIdx(char c) {
+    switch (c) {
+    default: return -1;
+    case 'r': return 0;
+    case 'g': return 1;
+    case 'b': return 2;
+    case 'a': return 3;
+    }
+  }
+
   static int getNumericAccessorIdx(char c) {
     switch (c) {
       default: return -1;
@@ -2691,16 +2731,65 @@ public:
     }
   }
 
-  static int getAccessorIdx(char c) {
-    if (int idx = getPointAccessorIdx(c)+1) return idx-1;
-    return getNumericAccessorIdx(c);
+  static HalvingAccessorMode getHalvingAccessorMode(StringRef name) {
+    if (name == "hi")
+      return HighHalf;
+    if (name == "lo")
+      return LowHalf;
+    if (name == "even")
+      return EvenHalf;
+    if (name == "odd")
+      return OddHalf;
+    return UnknownHalf;
   }
 
-  bool isAccessorWithinNumElements(char c) const {
-    if (int idx = getAccessorIdx(c)+1)
-      return unsigned(idx-1) < getNumElements();
+  static AccessorKind detectAccessorKind(StringRef name) {
+    if (name.empty())
+      return UnknownAccessor;
+    if (name == "hi" || name == "lo" || name == "even" || name == "odd")
+      return HalvingAccessor;
+
+    switch (name[0]) {
+      default: return UnknownAccessor;
+      case 'x':
+      case 'y':
+      case 'z':
+      case 'w': return PointAccesor;
+      case 'r':
+      case 'g':
+      case 'b':
+      case 'a': return ColorAccessor;
+      case 's':
+      case 'S':
+        // Name of numeric accessor must be s-prefixed and contain
+        // at least one additional character.
+        if (name.size() > 1)
+          return NumericAccessor;
+        return UnknownAccessor;
+    }
+  }
+
+  static int getAccessorIdx(char c, AccessorKind kind) {
+    // Does not work for HalvingAccessor kind.
+    assert(kind != HalvingAccessor &&
+        "HalvingAccessor kind is not supported here");
+
+    switch (kind) {
+      default: return -1;
+      case PointAccesor: return getPointAccessorIdx(c);
+      case ColorAccessor: return getColorAccessorIdx(c);
+      case NumericAccessor: return getNumericAccessorIdx(c);
+    }
+  }
+
+  bool isAccessorWithinNumElements(char c, AccessorKind kind) const {
+    if (kind == HalvingAccessor)
+      return true;
+    if (int idx = getAccessorIdx(c, kind) + 1)
+      return unsigned(idx - 1) < getNumElements();
     return false;
   }
+
   bool isSugared() const { return false; }
   QualType desugar() const { return QualType(this, 0); }
 

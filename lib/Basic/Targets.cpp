@@ -1379,6 +1379,11 @@ namespace {
     1,    // cuda_device
     4,    // cuda_constant
     3,    // cuda_shared
+    1,    // openclcpp_global
+    3,    // openclcpp_local
+    4,    // openclcpp_constant
+    0,    // openclcpp_generic
+    0,    // openclcpp_private
   };
   class NVPTXTargetInfo : public TargetInfo {
     static const char * const GCCRegNames[];
@@ -1531,7 +1536,12 @@ static const unsigned R600AddrSpaceMap[] = {
   4,    // opencl_generic
   1,    // cuda_device
   2,    // cuda_constant
-  3     // cuda_shared
+  3,    // cuda_shared
+  1,    // openclcpp_global
+  3,    // openclcpp_local
+  2,    // openclcpp_constant
+  4,    // openclcpp_generic
+  0,    // openclcpp_private
 };
 
 // If you edit the description strings, make sure you update
@@ -5539,7 +5549,12 @@ namespace {
       0, // opencl_generic
       0, // cuda_device
       0, // cuda_constant
-      0  // cuda_shared
+      0, // cuda_shared
+      3, // openclcpp_global
+      4, // openclcpp_local
+      5, // openclcpp_constant
+      0, // openclcpp_generic
+      0, // openclcpp_private
   };
 
   class TCETargetInfo : public TargetInfo{
@@ -6302,7 +6317,12 @@ namespace {
     4,    // opencl_generic
     0,    // cuda_device
     0,    // cuda_constant
-    0     // cuda_shared
+    0,    // cuda_shared
+    1,    // openclcpp_global
+    3,    // openclcpp_local
+    2,    // openclcpp_constant
+    4,    // openclcpp_generic
+    0,    // openclcpp_private
   };
   class SPIRTargetInfo : public TargetInfo {
   public:

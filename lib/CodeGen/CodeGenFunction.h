@@ -1049,6 +1049,8 @@ private:
   ///   "work_group_size_hint", and three 32-bit integers X, Y and Z.
   /// - A node for the reqd_work_group_size(X,Y,Z) qualifier contains string 
   ///   "reqd_work_group_size", and three 32-bit integers X, Y and Z.
+  /// - A node for the reqd_sub_group_size(X) qualifier contains string
+  ///   "reqd_sub_group_size", and one 32-bit integer X.
   void EmitOpenCLKernelMetadata(const FunctionDecl *FD, 
                                 llvm::Function *Fn);
 
@@ -1504,6 +1506,9 @@ public:
 
   /// Emit a cast to void* in the appropriate address space.
   llvm::Value *EmitCastToVoidPtr(llvm::Value *value);
+
+  /// Emit address space cast if needed
+  llvm::Value *EmitAddrSpaceCast(llvm::Value *value, llvm::Type *type);
 
   /// EvaluateExprAsBool - Perform the usual unary conversions on the specified
   /// expression and compare the result against zero, returning an Int1Ty value.

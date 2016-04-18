@@ -1500,7 +1500,11 @@ ExprResult Sema::ActOnLambdaExpr(SourceLocation StartLoc, Stmt *Body,
     //   has a public non-virtual non-explicit const conversion function
     //   to pointer to function having the same parameter and return
     //   types as the closure type's function call operator.
-    if (Captures.empty() && CaptureDefault == LCD_None)
+    // OpenCL C++
+    //   Function pointers and lambda to function pointer conversion
+    //   are not supported.
+    if (!getLangOpts().OpenCLCPlusPlus &&
+        Captures.empty() && CaptureDefault == LCD_None)
       addFunctionPointerConversion(*this, IntroducerRange, Class,
                                    CallOperator);
 

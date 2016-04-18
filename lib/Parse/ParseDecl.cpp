@@ -210,7 +210,7 @@ static bool attributeHasIdentifierArg(const IdentifierInfo &II) {
 }
 
 /// \brief Determine whether the given attribute parses a type argument.
-static bool attributeIsTypeArgAttr(const IdentifierInfo &II) {
+bool clang::attributeIsTypeArgAttr(const IdentifierInfo &II) {
 #define CLANG_ATTR_TYPE_ARG_LIST
   return llvm::StringSwitch<bool>(normalizeAttrName(II.getName()))
 #include "clang/Parse/AttrParserStringSwitches.inc"
@@ -3058,8 +3058,15 @@ void Parser::ParseDeclarationSpecifiers(DeclSpec &DS,
       isInvalid = DS.setFunctionSpecInline(Loc, PrevSpec, DiagID);
       break;
     case tok::kw_virtual:
+      if (getLangOpts().OpenCLCPlusPlus) {
+        DiagID = diag::err_openclcxx_virtual_function;
+        PrevSpec = Tok.getIdentifierInfo()->getNameStart();
+        isInvalid = true;
+      }
+      else
       isInvalid = DS.setFunctionSpecVirtual(Loc, PrevSpec, DiagID);
       break;
+
     case tok::kw_explicit:
       isInvalid = DS.setFunctionSpecExplicit(Loc, PrevSpec, DiagID);
       break;
@@ -3416,6 +3423,8 @@ void Parser::ParseDeclarationSpecifiers(DeclSpec &DS,
           << PrevSpec << FixItHint::CreateRemoval(Tok.getLocation());
       else if (DiagID == diag::err_opencl_unknown_type_specifier)
         Diag(Tok, DiagID) << PrevSpec << isStorageClass;
+      else if (DiagID == diag::err_openclcxx_virtual_function)
+        Diag(Tok, DiagID);
       else
         Diag(Tok, DiagID) << PrevSpec;
     }
@@ -5489,6 +5498,24 @@ void Parser::ParseFunctionDeclarator(Declarator &D,
         ConstQualifierLoc = DS.getConstSpecLoc();
         VolatileQualifierLoc = DS.getVolatileSpecLoc();
         RestrictQualifierLoc = DS.getRestrictSpecLoc();
+        if (getLangOpts().OpenCLCPlusPlus) {
+          ParsedAttributes &attrs = DS.getAttributes();
+          AttributeList *list = attrs.getList();
+          while (list) {
+            switch (list->getKind()) {
+            case AttributeList::AT_OpenCLConstantAddressSpace:
+            case AttributeList::AT_OpenCLLocalAddressSpace:
+            case AttributeList::AT_OpenCLGlobalAddressSpace:
+            case AttributeList::AT_OpenCLPrivateAddressSpace:
+            case AttributeList::AT_OpenCLGenericAddressSpace:
+              FnAttrs.add(list);
+              break;
+            default:
+              break;
+            }
+            list = list->getNext();
+          }
+        }
       }
 
       // Parse ref-qualifier[opt].

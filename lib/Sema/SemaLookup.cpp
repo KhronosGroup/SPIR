@@ -2552,7 +2552,7 @@ Sema::SpecialMemberOverloadResult *Sema::LookupSpecialMember(CXXRecordDecl *RD,
                            OCS, true);
       else
         AddOverloadCandidate(M, DeclAccessPair::make(M, AS_public),
-                             llvm::makeArrayRef(&Arg, NumArgs), OCS, true);
+                             llvm::makeArrayRef(&Arg, NumArgs), OCS, ThisTy, true);
     } else if (FunctionTemplateDecl *Tmpl =
                  dyn_cast<FunctionTemplateDecl>(Cand)) {
       if (SM == CXXCopyAssignment || SM == CXXMoveAssignment)
@@ -2562,7 +2562,8 @@ Sema::SpecialMemberOverloadResult *Sema::LookupSpecialMember(CXXRecordDecl *RD,
                                    OCS, true);
       else
         AddTemplateOverloadCandidate(Tmpl, DeclAccessPair::make(Tmpl, AS_public),
-                                     nullptr, llvm::makeArrayRef(&Arg, NumArgs),
+                                     nullptr, ThisTy,
+                                     llvm::makeArrayRef(&Arg, NumArgs),
                                      OCS, true);
     } else {
       assert(isa<UsingDecl>(Cand) && "illegal Kind of operator = Decl");
@@ -2735,7 +2736,27 @@ Sema::LookupLiteralOperator(Scope *S, LookupResult &R,
         IsExactMatch = true;
         for (unsigned ArgIdx = 0; ArgIdx != ArgTys.size(); ++ArgIdx) {
           QualType ParamTy = FD->getParamDecl(ArgIdx)->getType();
-          if (!Context.hasSameUnqualifiedType(ArgTys[ArgIdx], ParamTy)) {
+          QualType ArgTy = ArgTys[ArgIdx];
+
+          // OpenCL C++
+          //   Param can be in the generic address space, but the string
+          //   can be allocated in the private or global memory
+          if (Context.getLangOpts().OpenCLCPlusPlus &&
+              ParamTy->isPointerType() && ArgTy->isPointerType()) {
+            QualType ParamPtrTy = ParamTy->getPointeeType();
+            QualType ArgPtrTy = ArgTy->getPointeeType();
+            Qualifiers ParamQuals = ParamPtrTy.getQualifiers();
+            Qualifiers ArgQuals = ArgPtrTy.getQualifiers();
+            if (ParamQuals.isAddressSpaceSupersetOf(ArgQuals)) {
+              ArgQuals.removeAddressSpace();
+              ArgQuals.setAddressSpace(ParamQuals.getAddressSpace());
+              ArgPtrTy =Context.getQualifiedType(ArgPtrTy.getUnqualifiedType(),
+                                                 ArgQuals);
+              ArgTy = Context.getPointerType(ArgPtrTy);
+            }
+          }
+
+          if (!Context.hasSameUnqualifiedType(ArgTy, ParamTy)) {
             IsExactMatch = false;
             break;
           }

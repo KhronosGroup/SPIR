@@ -601,6 +601,10 @@ def cl_fp32_correctly_rounded_divide_sqrt : Flag<["-"], "cl-fp32-correctly-round
   HelpText<"OpenCL only. This option causes single precision floating-point divide and sqrt to be correctly rounded.">;
 def cl_enable_half : Flag<["-"], "cl-enable-half">,
   HelpText<"OpenCL only. This option enables the dereferencing of half pointers">;
+def : Flag<["-"], "cl-fp16-enable">, Alias<cl_enable_half>,
+  HelpText<"OpenCL only. This option enables full half data type support">;
+def cl_fp64_enable : Flag<["-"], "cl-fp64-enable">,
+  HelpText<"OpenCL only. This option enables double data type support">;
 
 // SPIR generator options
 def cl_spir_compile_options : Separate<["-"], "cl-spir-compile-options">,

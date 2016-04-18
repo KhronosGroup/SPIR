@@ -2791,6 +2791,9 @@ TypeLoc Sema::getReturnTypeLoc(FunctionDecl *FD) const {
   TypeLoc TL = FD->getTypeSourceInfo()->getTypeLoc().IgnoreParens();
   while (auto ATL = TL.getAs<AttributedTypeLoc>())
     TL = ATL.getModifiedLoc().IgnoreParens();
+  if (Context.getLangOpts().OpenCLCPlusPlus &&
+      FD->getType().hasAddressSpace())
+    TL = TL.getUnqualifiedLoc();
   return TL.castAs<FunctionProtoTypeLoc>().getReturnLoc();
 }
 

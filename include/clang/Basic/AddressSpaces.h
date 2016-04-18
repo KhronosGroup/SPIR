@@ -36,6 +36,12 @@ enum ID {
   cuda_constant,
   cuda_shared,
 
+  openclcpp_global,
+  openclcpp_local,
+  openclcpp_constant,
+  openclcpp_generic,
+  openclcpp_private,
+
   Last,
   Count = Last-Offset
 };

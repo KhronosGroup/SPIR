@@ -2960,10 +2960,18 @@ static llvm::GlobalVariable *
 GenerateStringLiteral(llvm::Constant *C, llvm::GlobalValue::LinkageTypes LT,
                       CodeGenModule &CGM, StringRef GlobalName,
                       unsigned Alignment) {
-  // OpenCL v1.2 s6.5.3: a string literal is in the constant address space.
+
   unsigned AddrSpace = 0;
   if (CGM.getLangOpts().OpenCL)
-    AddrSpace = CGM.getContext().getTargetAddressSpace(LangAS::opencl_constant);
+  {
+    if (!CGM.getLangOpts().CPlusPlus)
+      // OpenCL v1.2 s6.5.3: a string literal is in the constant address space.
+      AddrSpace = CGM.getContext().getTargetAddressSpace(LangAS::opencl_constant);
+    else
+      // OpenCL C++: a string literal in global scope is in the global
+      // address space
+      AddrSpace = CGM.getContext().getTargetAddressSpace(LangAS::openclcpp_global);
+  }
 
   // Create a global variable for this string
   auto *GV = new llvm::GlobalVariable(

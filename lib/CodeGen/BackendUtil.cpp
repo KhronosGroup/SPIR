@@ -11,6 +11,11 @@
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/LangOptions.h"
 #include "clang/Basic/TargetOptions.h"
+#include "clang/CodeGen/OclCxxRewrite/BifNameReflower.h"
+#include "clang/CodeGen/OclCxxRewrite/BoolOpsLegalizer.h"
+#include "clang/CodeGen/OclCxxRewrite/ExecModelLegalizer.h"
+#include "clang/CodeGen/OclCxxRewrite/ModuleMDGen.h"
+#include "clang/CodeGen/OclCxxRewrite/StaticStorageCtorLegalizer.h"
 #include "clang/Frontend/CodeGenOptions.h"
 #include "clang/Frontend/FrontendDiagnostic.h"
 #include "clang/Frontend/Utils.h"
@@ -385,6 +390,14 @@ void EmitAssemblyHelper::CreatePasses() {
     InstrProfOptions Options;
     Options.NoRedZone = CodeGenOpts.DisableRedZone;
     MPM->add(createInstrProfilingPass(Options));
+  }
+
+  if (LangOpts.OpenCLCPlusPlus) {
+    MPM->add(createOclCxxBifNameReflowerPass());
+    MPM->add(createOclCxxBoolOpsLegalizerPass());
+    MPM->add(createOclCxxExecModelLegalizerPass());
+    MPM->add(createOclCxxStaticStorageCtorLegalizerPass());
+    MPM->add(createOclCxxModuleMDGenPass()); // TODO: Make dependency explicit.
   }
 
   PMBuilder.populateModulePassManager(*MPM);

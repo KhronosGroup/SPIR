@@ -508,6 +508,10 @@ def err_object_cannot_be_passed_returned_by_value : Error<
   "; did you forget * in %1?">;
 def err_parameters_retval_cannot_have_fp16_type : Error<
   "%select{parameters|function return value}0 cannot have __fp16 type; did you forget * ?">;
+def err_oclcpp_half_operator : Error<
+  "operator on %0 type is not allowed if cl_khr_fp16 extension is not supported">;
+def err_oclcpp_half_conversion : Error<
+  "conversion from %0 to %1 type is not allowed if cl_khr_fp16 extension is not supported">;
 def err_opencl_dereferencing : Error<
   "dereferencing pointer of type %0 is not allowed">;
 def err_opencl_half_load_store : Error<
@@ -2201,6 +2205,9 @@ def err_attribute_dll_thread_local : Error<
 def warn_attribute_invalid_on_definition : Warning<
   "'%0' attribute cannot be specified on a definition">,
   InGroup<IgnoredAttributes>;
+def warn_attribute_expected_on_statment : Warning<
+  "%0 attribute ignored - should be specified on statement">,
+  InGroup<IgnoredAttributes>;
 def err_attribute_dll_redeclaration : Error<
   "redeclaration of %q0 cannot add %q1 attribute">;
 def warn_attribute_dll_redeclaration : Warning<
@@ -2261,7 +2268,8 @@ def warn_attribute_wrong_decl_type : Warning<
   "Objective-C instance methods|init methods of interface or class extension declarations|"
   "variables, functions and classes|Objective-C protocols|"
   "functions and global variables|structs or typedefs|"
-  "interface or protocol declarations|kernel functions}1">,
+  "interface or protocol declarations|kernel functions|kernel paremeters which are in "
+  "local or constant address space}1">,
   InGroup<IgnoredAttributes>;
 def err_attribute_wrong_decl_type : Error<warn_attribute_wrong_decl_type.Text>;
 def warn_type_attribute_wrong_type : Warning<
@@ -5391,6 +5399,9 @@ def err_address_space_qualified_delete : Error<
 def err_default_init_const : Error<
   "default initialization of an object of const type %0"
   "%select{| without a user-provided default constructor}1">;
+def err_default_init_constant : Error<
+  "default initialization of an object in constant address space %0"
+  "%select{| without a user-provided default constructor}1">;
 def note_add_initializer : Note<
   "add an explicit initializer to initialize %0">;
 def err_delete_operand : Error<"cannot delete expression of type %0">;
@@ -7237,8 +7248,10 @@ def err_expected_kernel_void_return_type : Error<
   "kernel must have void return type">;
 def err_opencl20_global_invalid_addr_space : Error<
   "program scope variables must reside global or constant address space">;
+def err_openclcpp_global_invalid_addr_space : Error<
+  "program scope variables must reside global, local or constant address space">;
 def err_sampler_initializer_not_integer : Error<
-  "sampler_t initialization requires 32-bit integer, not %0">;
+  "sampler_t initialization requires integer, not %0">;
 def err_event_initialization : Error<
   "cannot initialize event_t">;
 def err_event_argument_not_null : Error<
@@ -7256,8 +7269,10 @@ def err_invalid_vector_promotion : Error<
 def err_implicit_pointer_address_space_cast : Error<
   "illegal implicit conversion between two pointers with different address "
   "spaces">;
-def err_opencl_unroll_hint_factor : Error<
-  "opencl_unroll_hint requires a positive integral compile time constant expression">;
+def err_opencl_invalid_attr_arg : Error<
+  "attribute %0 requires a positive integral compile time constant expression">;
+def err_kernel_invalid_arg_type : Error<
+  "%0 type cannot be used as the type of a kernel function argument">;
 def err_static_variables : Error<
   "static storage class can be specified only for global and constant variables">;
 def err_enqueue_kernel_num_args_mismatch : Error<
@@ -7266,6 +7281,8 @@ def err_variadic_enqueue_kernel : Error<
   "variadic arguments passed to 'enqueue_kernel' has to be of type 'unsigned int'">;
 def err_kernel_arg_address_space : Error<
   "pointer arguments to kernel functions must reside in '__global', '__constant' or '__local' address space">;
+def err_oclcpp_kernel_arg_address_space : Error<
+  "pointer and reference arguments to kernel functions must reside in '__global', '__constant' or '__local' address space">;
 def err_opencl_pointer_to_image : Error<
   "pointer to image is invalid in OpenCL">;
 def err_scalar_type_rank_greater_than_vector_type : Error<
@@ -7333,8 +7350,27 @@ def err_opencl_kernel_attr :
   Error<"attribute %0 can only be applied to a kernel function">;
 def err_opencl_return_value_with_address_space : Error<
   "return value cannot be qualified with address space">;
+def err_opencl_kernel_template_decl : Error<
+  "kernel functions cannot be a template">;
 def err_opencl_constant_no_init : Error<
   "variable in constant address space must be initialized">;
+// OpenCL C++-specific issues and warnings.
+def warn_oclcpp_osvc_type_narrowing : Warning<
+  "type %0 is narrowed to %1 during scalar-to-vector conversion "
+  "and it will be possibly truncated and/or lose precision">,
+  InGroup<OpenCLCppOldScalarVecConvert>;
+def warn_oclcpp_osvc_variable_narrowing : Warning<
+  "non-constant-expression is narrowed from type %0 to %1 during "
+  "scalar-to-vector conversion and it will be possibly truncated "
+  "and/or lose precision">,
+  InGroup<OpenCLCppOldScalarVecConvert>;
+def warn_oclcpp_osvc_constant_narrowing : Warning<
+  "constant expression evaluates to %0 which cannot be narrowed to type %1 "
+  "during scalar-to-vector conversion without truncation "
+  "and/or precision loss">,
+  InGroup<OpenCLCppOldScalarVecConvert>;
+def note_oclcpp_osvc_narrowing_silence : Note<
+  "insert an explicit cast of scalar to %0 to silence this issue">;
 } // end of sema category
 
 let CategoryName = "OpenMP Issue" in {

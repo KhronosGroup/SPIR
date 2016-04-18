@@ -29,7 +29,7 @@ LLVM build system to automatically recognize it and build it along with LLVM.
   cd $LLVM_SRC_ROOT/tools
   git clone https://github.com/KhronosGroup/SPIR clang
   cd clang
-  git checkout --track -b spirv-1.0 remotes/origin/spirv-1.0
+  git checkout --track -b spirv-1.1 remotes/origin/spirv-1.1
 ```
 
 --------------------------------
@@ -65,25 +65,39 @@ The Clang compiler is available as `clang` and `clang++`. It supports a gcc
 like command line interface. See the man page for clang (installed into
 $prefix/share/man/man1) for more information.
 
+-----------------------------------
+Step 5: OpenCL C++ standard library
+-----------------------------------
+
+Clone the OpenCL C++ standard libary to location where you installed Clang
+
+```bash
+  git clone https://github.com/KhronosGroup/libclcxx.git master
+```
+
 --------------------------------
-Step 5: Creating SPIR-V binaries
+Step 6: Creating SPIR-V binaries
 --------------------------------
 
 To create a SPIR-V binary from a valid OpenCL-C file (.cl), use the following
 command lines:
 
 ```bash
-  clang -cc1 -emit-spirv -triple <triple> -cl-std=<CLversion> -include opencl.h -x cl -o <output> <input>
+  clang -cc1 -emit-spirv -triple <triple> -cl-std=c++ -I <libclcxx dir> -x cl -o <output> <input>
 ```
 
 Notes:
 
 * `<triple>`: for 32 bit SPIR-V use spir-unknown-unknown, for 64 bit SPIR-V use spir64-unknown-unknown.
-* -D<extension>: to enable support for extension. e.g. -Dcl_khr_fp16 compile option will enable half support.
-* -O<optimization level>: -O0 (default) is the only tested option value at the moment. It's assumed by design that all optimizations are executed by SPIR-V consumer.
+* -D<extension>: to enable support for extension. e.g. -Dcl_khr_mipmap_image compile option will enable mipmap support.
+* -cl-fp16-enable: to enable half support and define cl_khr_fp16
+* -cl-fp64-enable: to enable double support and define cl_khr_fp64
+* -O<optimization level>: -O0 (default) is the only tested option value at the moment. It's assumed by design that all optimizations are executed by SPIR-V consumer
+* `<libclcxx dir>`: path to include directory from libclcxx (https://github.com/KhronosGroup/libclcxx)
+.
 
 ```bash
-  clang -cc1 -emit-spirv -triple=spir-unknown-unknown -cl-std=CL2.0 -include opencl.h kernel.cl -o kernel.spir
+  clang -cc1 -emit-spirv -triple=spir-unknown-unknown -cl-std=c++ -I include kernel.cl -o kernel.spir
 ```
 
 ----------------

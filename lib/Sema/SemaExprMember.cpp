@@ -285,89 +285,70 @@ static bool IsValidSwizzleLength(unsigned len)
 /// VK should be set in advance to the value kind of the base
 /// expression.
 static QualType
-CheckExtVectorComponent(Sema &S, QualType baseType, ExprValueKind &VK,
+CheckExtVectorComponent(Sema &S, QualType BaseType, ExprValueKind &VK,
                         SourceLocation OpLoc, const IdentifierInfo *CompName,
                         SourceLocation CompLoc) {
-  // FIXME: Share logic with ExtVectorElementExpr::containsDuplicateElements,
-  // see FIXME there.
+  // FIXME: Share logic with ExtVectorElementExpr::containsDuplicateElements.
   //
   // FIXME: This logic can be greatly simplified by splitting it along
   // halving/not halving and reworking the component checking.
-  const ExtVectorType *vecType = baseType->getAs<ExtVectorType>();
+  const ExtVectorType *VecType = BaseType->getAs<ExtVectorType>();
 
   // The vector accessor can't exceed the number of elements.
-  const char *compStr = CompName->getNameStart();
-
-  // This flag determines whether or not the component is one of the four
-  // special names that indicate a subset of exactly half the elements are
-  // to be selected.
-  bool HalvingSwizzle = false;
-
-  // This flag determines whether or not CompName has an 's' char prefix,
-  // indicating that it is a string of hex values to be used as vector indices.
-  bool HexSwizzle = (*compStr == 's' || *compStr == 'S') && compStr[1];
+  const char *CompStr = CompName->getNameStart();
+  ExtVectorType::AccessorKind AccessKind = VecType->detectAccessorKind(CompStr);
 
   bool HasRepeated = false;
   bool HasIndex[16] = {};
 
   int Idx;
 
-  // Check that we've found one of the special components, or that the component
-  // names must come from the same set.
-  if (!strcmp(compStr, "hi") || !strcmp(compStr, "lo") ||
-      !strcmp(compStr, "even") || !strcmp(compStr, "odd")) {
-    HalvingSwizzle = true;
-  } else if (!HexSwizzle &&
-             (Idx = vecType->getPointAccessorIdx(*compStr)) != -1) {
-    do {
-      if (HasIndex[Idx]) HasRepeated = true;
-      HasIndex[Idx] = true;
-      compStr++;
-    } while (*compStr && (Idx = vecType->getPointAccessorIdx(*compStr)) != -1);
-  } else {
-    if (HexSwizzle) compStr++;
-    while ((Idx = vecType->getNumericAccessorIdx(*compStr)) != -1) {
-      if (HasIndex[Idx]) HasRepeated = true;
-      HasIndex[Idx] = true;
-      compStr++;
-    }
-  }
+  if (AccessKind != ExtVectorType::HalvingAccessor)
+  {
+    if (AccessKind == ExtVectorType::NumericAccessor)
+      ++CompStr;
 
-  if (!HalvingSwizzle && *compStr) {
-    // We didn't get to the end of the string. This means the component names
-    // didn't come from the same set *or* we encountered an illegal name.
-    S.Diag(OpLoc, diag::err_ext_vector_component_name_illegal)
-      << StringRef(compStr, 1) << SourceRange(CompLoc);
-    return QualType();
-  }
+    // Check that the component names must come from the same set (accessor
+    // kind).
+    while ((Idx = VecType->getAccessorIdx(*CompStr, AccessKind)) != -1) {
+      if (HasIndex[Idx])
+        HasRepeated = true;
+      HasIndex[Idx] = true;
+      ++CompStr;
+    }
+
+    if (*CompStr) {
+      // We didn't get to the end of the string. This means the component names
+      // didn't come from the same set *or* we encountered an illegal name.
+      S.Diag(OpLoc, diag::err_ext_vector_component_name_illegal)
+        << StringRef(CompStr, 1) << SourceRange(CompLoc);
+      return QualType();
+    }
 
   // Ensure no component accessor exceeds the width of the vector type it
   // operates on.
-  if (!HalvingSwizzle) {
-    compStr = CompName->getNameStart();
+    CompStr = CompName->getNameStart();
 
-    if (HexSwizzle)
-      compStr++;
+    if (AccessKind == ExtVectorType::NumericAccessor)
+      ++CompStr;
 
-    while (*compStr) {
-      if (!vecType->isAccessorWithinNumElements(*compStr++)) {
+    while (*CompStr) {
+      if (!VecType->isAccessorWithinNumElements(*CompStr++, AccessKind)) {
         S.Diag(OpLoc, diag::err_ext_vector_component_exceeds_length)
-          << baseType << SourceRange(CompLoc);
+          << BaseType << SourceRange(CompLoc);
         return QualType();
       }
     }
-  }
 
-  if (!HalvingSwizzle) {
-    compStr = CompName->getNameStart();
+    CompStr = CompName->getNameStart();
 
-    if (HexSwizzle)
-      compStr++;
+    if (AccessKind == ExtVectorType::NumericAccessor)
+      ++CompStr;
 
-    unsigned swizzleLength = StringRef(compStr).size();
-    if (IsValidSwizzleLength(swizzleLength) == false) {
+    unsigned SwizzleLength = StringRef(CompStr).size();
+    if (IsValidSwizzleLength(SwizzleLength) == false) {
       S.Diag(OpLoc, diag::err_ext_vector_component_invalid_length)
-        << swizzleLength << SourceRange(CompLoc);
+        << SwizzleLength << SourceRange(CompLoc);
       return QualType();
     }
   }
@@ -375,19 +356,27 @@ CheckExtVectorComponent(Sema &S, QualType baseType, ExprValueKind &VK,
   // The component accessor looks fine - now we need to compute the actual type.
   // The vector type is implied by the component accessor. For example,
   // vec4.b is a float, vec4.xy is a vec2, vec4.rgb is a vec3, etc.
-  // vec4.s0 is a float, vec4.s23 is a vec3, etc.
+  // vec4.s0 is a float, vec4.s23 is a vec2, etc.
   // vec4.hi, vec4.lo, vec4.e, and vec4.o all return vec2.
-  unsigned CompSize = HalvingSwizzle ? (vecType->getNumElements() + 1) / 2
-                                     : CompName->getLength();
-  if (HexSwizzle)
+  // Base qualifiers should be transferred as well (like for fields in classes).
+  Qualifiers BaseQualifiers = BaseType.getQualifiers();
+  BaseQualifiers.removeObjCGCAttr();
+
+  unsigned CompSize = AccessKind == ExtVectorType::HalvingAccessor
+                        ? (VecType->getNumElements() + 1) / 2
+                        : CompName->getLength();
+  if (AccessKind == ExtVectorType::NumericAccessor)
     CompSize--;
 
   if (CompSize == 1)
-    return vecType->getElementType();
+    return BaseQualifiers.hasQualifiers()
+             ? S.Context.getQualifiedType(VecType->getElementType(),
+                                          BaseQualifiers)
+             : VecType->getElementType();
 
   if (HasRepeated) VK = VK_RValue;
 
-  QualType VT = S.Context.getExtVectorType(vecType->getElementType(), CompSize);
+  QualType VT = S.Context.getExtVectorType(VecType->getElementType(), CompSize);
   // Now look up the TypeDefDecl from the vector type. Without this,
   // diagostics look bad. We want extended vector types to appear built-in.
   for (Sema::ExtVectorDeclsType::iterator 
@@ -395,10 +384,16 @@ CheckExtVectorComponent(Sema &S, QualType baseType, ExprValueKind &VK,
          E = S.ExtVectorDecls.end(); 
        I != E; ++I) {
     if ((*I)->getUnderlyingType() == VT)
-      return S.Context.getTypedefType(*I);
+      return BaseQualifiers.hasQualifiers()
+               ? S.Context.getQualifiedType(S.Context.getTypedefType(*I),
+                                            BaseQualifiers)
+               : S.Context.getTypedefType(*I);
   }
-  
-  return VT; // should never get here (a typedef type should always be found).
+
+  // Should never get here (a typedef type should always be found).
+  return BaseQualifiers.hasQualifiers()
+           ? S.Context.getQualifiedType(VT, BaseQualifiers)
+           : VT;
 }
 
 static Decl *FindGetterSetterNameDeclFromProtocolList(const ObjCProtocolDecl*PDecl,
@@ -1725,8 +1720,8 @@ BuildFieldReferenceExpr(Sema &S, Expr *BaseExpr, bool IsArrow,
     Qualifiers MemberQuals
     = S.Context.getCanonicalType(MemberType).getQualifiers();
 
-    assert(!MemberQuals.hasAddressSpace());
-
+    assert(!MemberQuals.hasAddressSpace() ||
+          S.Context.getLangOpts().OpenCLCPlusPlus);
 
     Qualifiers Combined = BaseQuals + MemberQuals;
     if (Combined != MemberQuals)

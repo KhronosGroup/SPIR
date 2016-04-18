@@ -13,6 +13,11 @@
 
 let Component = "Parse" in {
 
+def err_openclcxx_virtual_function : Error<
+  "OpenCL C++ prohibits use of virtual functions">;
+def err_openclcxx_virtual_inheritance : Error<
+  "OpenCL C++ prohibits use of virtual inheritance">;
+  
 def w_asm_qualifier_ignored : Warning<"ignored %0 qualifier on asm">,
                               CatInlineAsm;
 def warn_file_asm_volatile : Warning<
@@ -943,8 +948,8 @@ def err_pragma_optimize_extra_argument : Error<
 def err_opencl_unknown_type_specifier : Error<
   "OpenCL does not support the '%0' %select{type qualifier|storage class specifier}1">;
 
-def err_opencl_unroll_hint_on_non_loop : Error<
-  "OpenCL only supports opencl_unroll_hint on for, while, and do statements">;
+def err_opencl_loop_attr_on_non_loop : Error<
+  "OpenCL only supports %0 on for, while, and do statements">;
 
 // OpenCL EXTENSION pragma (OpenCL 1.1 [9.1])
 def warn_pragma_expected_colon : Warning<

@@ -405,6 +405,9 @@ bool ItaniumMangleContextImpl::shouldMangleCXXName(const NamedDecl *D) {
     if (FD->isMain())
       return false;
 
+    if (FD->hasAttr<OpenCLKernelAttr>())
+      return false;
+
     // C++ functions and those whose names are not a simple identifier need
     // mangling.
     if (!FD->getDeclName().isIdentifier() || L == CXXLanguageLinkage)
@@ -1251,6 +1254,19 @@ void CXXNameMangler::mangleNestedName(const NamedDecl *ND,
     // We do not consider restrict a distinguishing attribute for overloading
     // purposes so we must not mangle it.
     MethodQuals.removeRestrict();
+
+    // OpenCL C++
+    //   The methods can be overloaded based on the address space in OpenCL C++.
+    //   If no address space was specified, the generic will be added.
+    if (getASTContext().getLangOpts().OpenCLCPlusPlus) {
+      unsigned int AS = Method->getType().getAddressSpace();
+      if (AS == 0)
+        AS = getASTContext().getTargetAddressSpace(LangAS::openclcpp_generic);
+
+      // Mangle method address space. It is needed to deduce a 'this' type
+      MethodQuals.setAddressSpace(AS);
+    }
+
     mangleQualifiers(MethodQuals);
     mangleRefQualifier(Method->getRefQualifier());
   }
@@ -1756,10 +1772,18 @@ void CXXNameMangler::mangleQualifiers(Qualifiers Quals) {
       switch (AS) {
       default: llvm_unreachable("Not a language specific address space");
       //  <OpenCL-addrspace> ::= "CL" [ "global" | "local" | "constant" ]
-      case LangAS::opencl_global:   ASString = "CLglobal";   break;
-      case LangAS::opencl_local:    ASString = "CLlocal";    break;
-      case LangAS::opencl_constant: ASString = "CLconstant"; break;
-      case LangAS::opencl_generic:  ASString = "CLgeneric";  break;
+      case LangAS::opencl_global:
+      case LangAS::openclcpp_global:
+        ASString = "CLglobal";
+        break;
+      case LangAS::opencl_local:
+      case LangAS::openclcpp_local:
+        ASString = "CLlocal";
+        break;
+      case LangAS::opencl_constant:
+      case LangAS::openclcpp_constant:
+        ASString = "CLconstant";
+        break;
       //  <CUDA-addrspace> ::= "CU" [ "device" | "constant" | "shared" ]
       case LangAS::cuda_device:     ASString = "CUdevice";   break;
       case LangAS::cuda_constant:   ASString = "CUconstant"; break;
@@ -2117,6 +2141,15 @@ void CXXNameMangler::mangleType(const MemberPointerType *T) {
   Out << 'M';
   mangleType(QualType(T->getClass(), 0));
   QualType PointeeType = T->getPointeeType();
+  // OpenCL C++
+  //   The generic address space is added to all pointers with no address
+  //   space specified in CodeGen. To maintain compatibility with OpenCL C,
+  //   the generic address space should be present in the mangled name.
+  if (getASTContext().getLangOpts().OpenCLCPlusPlus &&
+      !PointeeType->isFunctionType() && !PointeeType.hasAddressSpace())
+    PointeeType = getASTContext().getAddrSpaceQualType(PointeeType,
+                                                    LangAS::openclcpp_generic);
+
   if (const FunctionProtoType *FPT = dyn_cast<FunctionProtoType>(PointeeType)) {
     mangleType(FPT);
     
@@ -2158,7 +2191,16 @@ void CXXNameMangler::mangleType(const SubstTemplateTypeParmPackType *T) {
 // <type> ::= P <type>   # pointer-to
 void CXXNameMangler::mangleType(const PointerType *T) {
   Out << 'P';
-  mangleType(T->getPointeeType());
+  QualType PointeeType = T->getPointeeType();
+  // OpenCL C++
+  //   The generic address space is added to all pointers with no address
+  //   space specified in CodeGen. To maintain compatibility with OpenCL C,
+  //   the generic address space should be present in the mangled name.
+  if (getASTContext().getLangOpts().OpenCLCPlusPlus &&
+      !PointeeType->isFunctionType() && !PointeeType.hasAddressSpace())
+    PointeeType = getASTContext().getAddrSpaceQualType(PointeeType,
+                                                    LangAS::openclcpp_generic);
+  mangleType(PointeeType);
 }
 void CXXNameMangler::mangleType(const ObjCObjectPointerType *T) {
   Out << 'P';
@@ -2168,13 +2210,31 @@ void CXXNameMangler::mangleType(const ObjCObjectPointerType *T) {
 // <type> ::= R <type>   # reference-to
 void CXXNameMangler::mangleType(const LValueReferenceType *T) {
   Out << 'R';
-  mangleType(T->getPointeeType());
+  QualType PointeeType = T->getPointeeType();
+  // OpenCL C++
+  //   The generic address space is added to all references with no address
+  //   space specified in CodeGen. To maintain compatibility with OpenCL C,
+  //   the generic address space should be present in the mangled name.
+  if (getASTContext().getLangOpts().OpenCLCPlusPlus &&
+      !PointeeType->isFunctionType() && !PointeeType.hasAddressSpace())
+    PointeeType = getASTContext().getAddrSpaceQualType(PointeeType,
+                                                    LangAS::openclcpp_generic);
+  mangleType(PointeeType);
 }
 
 // <type> ::= O <type>   # rvalue reference-to (C++0x)
 void CXXNameMangler::mangleType(const RValueReferenceType *T) {
   Out << 'O';
-  mangleType(T->getPointeeType());
+  QualType PointeeType = T->getPointeeType();
+  // OpenCL C++
+  //   The generic address space is added to all references with no address
+  //   space specified in CodeGen. To maintain compatibility with OpenCL C,
+  //   the generic address space should be present in the mangled name.
+  if (getASTContext().getLangOpts().OpenCLCPlusPlus &&
+      !PointeeType->isFunctionType() && !PointeeType.hasAddressSpace())
+    PointeeType = getASTContext().getAddrSpaceQualType(PointeeType,
+                                                    LangAS::openclcpp_generic);
+  mangleType(PointeeType);
 }
 
 // <type> ::= C <type>   # complex pair (C 2000)

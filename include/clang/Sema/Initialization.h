@@ -673,6 +673,8 @@ public:
     SK_ConversionSequenceNoNarrowing,
     /// \brief Perform list-initialization without a constructor.
     SK_ListInitialization,
+    /// \brief Wrap (parenthesized) list of arguments in initialization list.
+    SK_WrapArgListInInitList,
     /// \brief Unwrap the single-element initializer list for a reference.
     SK_UnwrapInitList,
     /// \brief Rewrap the single-element initializer list for a reference.
@@ -747,6 +749,11 @@ public:
       /// \brief When Kind = SK_ConversionSequence, the implicit conversion
       /// sequence.
       ImplicitConversionSequence *ICS;
+
+      /// \brief When Kind = SK_ListInitialization, the flag indicating
+      /// that narrowing conversion is allowed in list initialization
+      /// (in top level of initialization list).
+      bool AllowNarrowingConvInListInit;
 
       /// \brief When Kind = SK_RewrapInitList, the syntactic form of the
       /// wrapping list.
@@ -827,6 +834,9 @@ public:
     FK_VariableLengthArrayHasInitializer,
     /// \brief List initialization failed at some point.
     FK_ListInitializationFailed,
+    /// \brief List-like initialization of vector type where list
+    /// is specified as direct initializer (in parenthesized list) failed.
+    FK_VectorParenListInitializationFailed,
     /// \brief Initializer has a placeholder type which cannot be
     /// resolved by initialization.
     FK_PlaceholderType,
@@ -1019,7 +1029,12 @@ public:
                                  QualType T, bool TopLevelOfInitList = false);
 
   /// \brief Add a list-initialization step.
-  void AddListInitializationStep(QualType T);
+  void AddListInitializationStep(QualType T,
+                                 bool AllowNarrowingConv = false);
+
+  /// \brief Add a step which wraps (parenthesized) list of arguments
+  /// in initialization list.
+  void AddWrapArgListInInitListStep(QualType T);
 
   /// \brief Add a constructor-initialization step.
   ///

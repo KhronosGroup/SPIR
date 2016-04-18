@@ -98,8 +98,14 @@ static void EmitDeclDestroy(CodeGenFunction &CGF, const VarDecl &D,
     CXXDestructorDecl *dtor = record->getDestructor();
 
     function = CGM.getAddrOfCXXStructor(dtor, StructorType::Complete);
-    argument = llvm::ConstantExpr::getBitCast(
+    if (type.hasAddressSpace()) {
+      argument = llvm::ConstantExpr::getAddrSpaceCast(
         addr, CGF.getTypes().ConvertType(type)->getPointerTo());
+    }
+    else {
+      argument = llvm::ConstantExpr::getBitCast(
+        addr, CGF.getTypes().ConvertType(type)->getPointerTo());
+    }
 
   // Otherwise, the standard logic requires a helper function.
   } else {
@@ -128,6 +134,9 @@ static void EmitDeclInvariant(CodeGenFunction &CGF, const VarDecl &D,
   CharUnits WidthChars = CGF.getContext().getTypeSizeInChars(D.getType());
   uint64_t Width = WidthChars.getQuantity();
   llvm::Value *Args[2] = { llvm::ConstantInt::getSigned(CGF.Int64Ty, Width),
+                           D.getType().hasAddressSpace()?
+                           llvm::ConstantExpr::getAddrSpaceCast(Addr,
+                                                                CGF.Int8PtrTy):
                            llvm::ConstantExpr::getBitCast(Addr, CGF.Int8PtrTy)};
   CGF.Builder.CreateCall(InvariantStart, Args);
 }

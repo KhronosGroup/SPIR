@@ -45,6 +45,30 @@ StmtResult Parser::ParseStatement(SourceLocation *TrailingElseLoc) {
   return Res;
 }
 
+bool Parser::CheckOpenCLLoopAttrsOnLoop(ParsedAttributesWithRange& Attrs)
+{
+  if (Attrs.empty())
+    return true;
+
+  //no need to check if attributes are placed on loop
+  if (Tok.is(tok::kw_for) || Tok.is(tok::kw_while) || Tok.is(tok::kw_do))
+    return true;
+
+  AttributeList *attrList = Attrs.getList();
+  while (attrList != nullptr) {
+    if (attrList->getKind() == AttributeList::AT_OpenCLUnrollHint ||
+      attrList->getKind() == AttributeList::AT_OpenCLCXXIvdep) {
+      Diag(Tok, diag::err_opencl_loop_attr_on_non_loop)
+        << attrList->getName()->getName();
+      return false;
+    }
+
+    attrList = attrList->getNext();
+  }
+
+  return true;
+}
+
 /// ParseStatementOrDeclaration - Read 'statement' or 'declaration'.
 ///       StatementOrDeclaration:
 ///         statement
@@ -104,19 +128,9 @@ Parser::ParseStatementOrDeclaration(StmtVector &Stmts, bool OnlyStatement,
   MaybeParseCXX11Attributes(Attrs, nullptr, /*MightBeObjCMessageSend*/ true);
 
   if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion >= 120) {
-    bool wasAttribute = Tok.is(tok::kw___attribute);
     MaybeParseGNUAttributes(Attrs);
-
-    if (!Tok.is(tok::kw___attribute) && wasAttribute) {
-      if (!(Tok.is(tok::kw_for) || Tok.is(tok::kw_while) || Tok.is(tok::kw_do))) {
-        AttributeList *attrList = Attrs.getList();
-        assert(attrList != NULL);
-        if (attrList->getName()->getName() == "opencl_unroll_hint") {
-          Diag(Tok, diag::err_opencl_unroll_hint_on_non_loop);
-          return StmtError();
-        }
-      }
-    }
+    if (!CheckOpenCLLoopAttrsOnLoop(Attrs))
+      return StmtError();
   }
 
   StmtResult Res = ParseStatementOrDeclarationAfterAttributes(Stmts,

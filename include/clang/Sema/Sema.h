@@ -2275,6 +2275,7 @@ public:
                             DeclAccessPair FoundDecl,
                             ArrayRef<Expr *> Args,
                             OverloadCandidateSet& CandidateSet,
+                            QualType DestTy,
                             bool SuppressUserConversions = false,
                             bool PartialOverloading = false,
                             bool AllowExplicit = false);
@@ -2308,6 +2309,7 @@ public:
   void AddTemplateOverloadCandidate(FunctionTemplateDecl *FunctionTemplate,
                                     DeclAccessPair FoundDecl,
                                  TemplateArgumentListInfo *ExplicitTemplateArgs,
+                                    QualType ObjectType,
                                     ArrayRef<Expr *> Args,
                                     OverloadCandidateSet& CandidateSet,
                                     bool SuppressUserConversions = false);

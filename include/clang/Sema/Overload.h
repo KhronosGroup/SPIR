@@ -228,7 +228,8 @@ namespace clang {
     ImplicitConversionRank getRank() const;
     NarrowingKind getNarrowingKind(ASTContext &Context, const Expr *Converted,
                                    APValue &ConstantValue,
-                                   QualType &ConstantType) const;
+                                   QualType &ConstantType,
+                                   bool AllowFpIntConstConv = false) const;
     bool isPointerConversionToBool() const;
     bool isPointerConversionToVoidPointer(ASTContext& Context) const;
     void dump() const;
@@ -330,7 +331,8 @@ namespace clang {
       unrelated_class,
       bad_qualifiers,
       lvalue_ref_to_rvalue,
-      rvalue_ref_to_lvalue
+      rvalue_ref_to_lvalue,
+      bad_address_space
     };
 
     // This can be null, e.g. for implicit object arguments.

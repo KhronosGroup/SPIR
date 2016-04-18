@@ -279,11 +279,17 @@ static const Expr *IgnoreNarrowingConversion(const Expr *Converted) {
 ///        value of the expression prior to the narrowing conversion.
 /// \param ConstantType  If this is an NK_Constant_Narrowing conversion, the
 ///        type of the expression prior to the narrowing conversion.
+/// \param AllowFpIntConstConv  Indicates that more relaxed narrowing check
+///        should be used. When set, conversions from floating point constant
+///        expression to integral value that will fit into the target
+///        integral type and render the same value as original when
+///        converted back will be treated a non-narrowing conversions.
 NarrowingKind
 StandardConversionSequence::getNarrowingKind(ASTContext &Ctx,
                                              const Expr *Converted,
                                              APValue &ConstantValue,
-                                             QualType &ConstantType) const {
+                                             QualType &ConstantType,
+                                             bool AllowFpIntConstConv) const {
   assert(Ctx.getLangOpts().CPlusPlus && "narrowing check outside C++");
 
   // C++11 [dcl.init.list]p7:
@@ -299,6 +305,44 @@ StandardConversionSequence::getNarrowingKind(ASTContext &Ctx,
   //    the original value when converted back to the original type, or
   case ICK_Floating_Integral:
     if (FromType->isRealFloatingType() && ToType->isIntegralType(Ctx)) {
+      if (AllowFpIntConstConv) {
+        const Expr *Initializer = IgnoreNarrowingConversion(Converted);
+        if (Initializer &&
+            Initializer->isCXX11ConstantExpr(Ctx, &ConstantValue)) {
+
+          assert(ConstantValue.isFloat() && "Only FP value expected here");
+
+          llvm::APFloat FpConstantValue = ConstantValue.getFloat();
+          // Convert the floating type to the integer.
+          llvm::APSInt Result(Ctx.getIntWidth(ToType),
+                              !ToType->isSignedIntegerOrEnumerationType());
+          bool Ignored;
+          llvm::APFloat::opStatus ConvertStatus =
+            FpConstantValue.convertToInteger(Result,
+                                             llvm::APFloat::rmTowardZero,
+                                             &Ignored);
+          if (ConvertStatus != llvm::APFloat::opOK &&
+              ConvertStatus != llvm::APFloat::opInexact) {
+            ConstantType = Initializer->getType();
+            return NK_Constant_Narrowing;
+          }
+          // And back.
+          llvm::APFloat ConvertedValue = FpConstantValue;
+          FpConstantValue.convertFromAPInt(Result, Result.isSigned(),
+                                           llvm::APFloat::rmNearestTiesToEven);
+          // If the resulting value is different, this was a narrowing
+          // conversion.
+          if (FpConstantValue.compare(ConvertedValue) !=
+              llvm::APFloat::cmpEqual) {
+            ConstantType = Initializer->getType();
+            return NK_Constant_Narrowing;
+          }
+        } else {
+          // Variables are always narrowings.
+          return NK_Variable_Narrowing;
+        }
+        return NK_Not_Narrowing;
+      }
       return NK_Type_Narrowing;
     } else if (FromType->isIntegralType(Ctx) && ToType->isRealFloatingType()) {
       llvm::APSInt IntConstantValue;
@@ -973,6 +1017,12 @@ bool Sema::IsOverload(FunctionDecl *New, FunctionDecl *Old,
       isa<FunctionNoProtoType>(NewQType.getTypePtr()))
     return false;
 
+  // OpenCL C++
+  //   Function overloading based on address space
+  if(Context.getLangOpts().OpenCLCPlusPlus &&
+     OldQType.getAddressSpace() != NewQType.getAddressSpace())
+    return true;
+
   const FunctionProtoType *OldType = cast<FunctionProtoType>(OldQType);
   const FunctionProtoType *NewType = cast<FunctionProtoType>(NewQType);
 
@@ -1349,6 +1399,13 @@ static bool IsVectorConversion(Sema &S, QualType FromType,
 
   // There are no conversions between extended vector types, only identity.
   if (ToType->isExtVectorType()) {
+    if (S.getLangOpts().OpenCLCPlusPlus &&
+        ToType->isBooleanVecType() && FromType->isIntegerVecType() &&
+        FromType->getAs<VectorType>()->getNumElements() ==
+        ToType->getAs<VectorType>()->getNumElements() ) {
+      ICK = ICK_Boolean_Conversion;
+      return true;
+    }
     // There are no conversions between extended vector types other than the
     // identity conversion.
     if (FromType->isExtVectorType())
@@ -2942,11 +2999,11 @@ IsInitializerListConstructorConversion(Sema &S, Expr *From, QualType ToType,
       if (ConstructorTmpl)
         S.AddTemplateOverloadCandidate(ConstructorTmpl, FoundDecl,
                                        /*ExplicitArgs*/ nullptr,
-                                       From, CandidateSet,
+                                       ToType, From, CandidateSet,
                                        SuppressUserConversions);
       else
         S.AddOverloadCandidate(Constructor, FoundDecl,
-                               From, CandidateSet,
+                               From, CandidateSet, ToType,
                                SuppressUserConversions);
     }
   }
@@ -3084,7 +3141,7 @@ IsUserDefinedConversion(Sema &S, Expr *From, QualType ToType,
           }
           if (ConstructorTmpl)
             S.AddTemplateOverloadCandidate(ConstructorTmpl, FoundDecl,
-                                           /*ExplicitArgs*/ nullptr,
+                                           /*ExplicitArgs*/ nullptr, ToType,
                                            llvm::makeArrayRef(Args, NumArgs),
                                            CandidateSet, SuppressUserConversions);
           else
@@ -3092,7 +3149,8 @@ IsUserDefinedConversion(Sema &S, Expr *From, QualType ToType,
             // From->ToType conversion via an static cast (c-style, etc).
             S.AddOverloadCandidate(Constructor, FoundDecl,
                                    llvm::makeArrayRef(Args, NumArgs),
-                                   CandidateSet, SuppressUserConversions);
+                                   CandidateSet, ToType,
+                                   SuppressUserConversions);
         }
       }
     }
@@ -4532,9 +4590,15 @@ TryListConversion(Sema &S, InitListExpr *From, QualType ToType,
   //   Otherwise, if the parameter has an aggregate type which can be
   //   initialized from the initializer list [...] the implicit conversion
   //   sequence is a user-defined conversion sequence.
-  if (ToType->isAggregateType()) {
-    // Type is an aggregate, argument is an init list. At this point it comes
-    // down to checking whether the initialization works.
+  //
+  // [OCLC++10] If the parameter type is vector, the implicit conversion
+  // sequence should emulate user-defined conversion (for parameter to behave
+  // the same way as it was of class type where the class can be constructed
+  // with init list).
+  if (ToType->isAggregateType() || (S.getLangOpts().OpenCLCPlusPlus &&
+                                    ToType->isVectorType())) {
+    // Type is an aggregate or vector, argument is an init list. At this point
+    // it comes down to checking whether the initialization works.
     // FIXME: Find out whether this parameter is consumed or not.
     InitializedEntity Entity =
         InitializedEntity::InitializeParameter(S.Context, ToType,
@@ -4707,6 +4771,10 @@ TryObjectArgumentInitialization(Sema &S, QualType FromType,
   unsigned Quals = isa<CXXDestructorDecl>(Method) ?
     Qualifiers::Const | Qualifiers::Volatile : Method->getTypeQualifiers();
   QualType ImplicitParamType =  S.Context.getCVRQualifiedType(ClassType, Quals);
+  if (S.getLangOpts().OpenCLCPlusPlus) {
+      ImplicitParamType = S.Context.getAddrSpaceQualType(ImplicitParamType,
+                                          Method->getType().getAddressSpace());
+  }
 
   // Set up the conversion sequence as a "bad" conversion, to allow us
   // to exit early.
@@ -4747,6 +4815,22 @@ TryObjectArgumentInitialization(Sema &S, QualType FromType,
                                     != FromTypeCanon.getLocalCVRQualifiers() &&
       !ImplicitParamType.isAtLeastAsQualifiedAs(FromTypeCanon)) {
     ICS.setBad(BadConversionSequence::bad_qualifiers,
+               FromType, ImplicitParamType);
+    return ICS;
+  }
+
+  // OpenCL C++
+  //   Implicit address space conversion is not allowed from:
+  //   - local, global and private to generic address space
+  //   - constant to generic
+  //   - generic to constant
+  Qualifiers ImplicitParamQuals = ImplicitParamType.getQualifiers();
+  Qualifiers FromTypeCanonQuals = FromTypeCanon.getQualifiers();
+  if (S.Context.getLangOpts().OpenCLCPlusPlus &&
+      ImplicitParamQuals.getAddressSpace()
+                                     != FromTypeCanonQuals.getAddressSpace() &&
+      !ImplicitParamQuals.isAddressSpaceSupersetOf(FromTypeCanonQuals)) {
+    ICS.setBad(BadConversionSequence::bad_address_space,
                FromType, ImplicitParamType);
     return ICS;
   }
@@ -5550,6 +5634,7 @@ Sema::AddOverloadCandidate(FunctionDecl *Function,
                            DeclAccessPair FoundDecl,
                            ArrayRef<Expr *> Args,
                            OverloadCandidateSet &CandidateSet,
+                           QualType DestTy,
                            bool SuppressUserConversions,
                            bool PartialOverloading,
                            bool AllowExplicit) {
@@ -5569,7 +5654,7 @@ Sema::AddOverloadCandidate(FunctionDecl *Function,
       // object argument (C++ [over.call.func]p3), and the acting context
       // is irrelevant.
       AddMethodCandidate(Method, FoundDecl, Method->getParent(),
-                         QualType(), Expr::Classification::makeSimpleLValue(),
+                         DestTy, Expr::Classification::makeSimpleLValue(),
                          Args, CandidateSet, SuppressUserConversions);
       return;
     }
@@ -5624,6 +5709,19 @@ Sema::AddOverloadCandidate(FunctionDecl *Function,
       Candidate.FailureKind = ovl_fail_illegal_constructor;
       return;
     }
+    // OpenCL C++:
+    //   The following address spaces conversions are not allowed:
+    //   - constant to generic
+    //   - generic to named address spaces (local, global or private)
+    if (getLangOpts().OpenCLCPlusPlus) {
+      Qualifiers qualsObject = DestTy.getQualifiers();
+      Qualifiers qualsConstructor = Function->getType().getQualifiers();
+      if (!qualsConstructor.isAddressSpaceSupersetOf(qualsObject)) {
+          Candidate.Viable = false;
+          Candidate.FailureKind = ovl_fail_bad_final_conversion;
+          return;
+      }
+    }
   }
 
   unsigned NumParams = Proto->getNumParams();
@@ -5654,8 +5752,9 @@ Sema::AddOverloadCandidate(FunctionDecl *Function,
   // OpenCL
   // A candidate function that uses extentions that are not enabled or
   // supported is not viable.
-  bool hasHalf = getOpenCLOptions().cl_khr_fp16 &&
-                 PP.getSupportedPragmas().cl_khr_fp16;
+  bool hasHalf = (getOpenCLOptions().cl_khr_fp16 &&
+                 PP.getSupportedPragmas().cl_khr_fp16) ||
+                 getLangOpts().OpenCLCPlusPlus;
   bool hasDouble = PP.getSupportedPragmas().cl_khr_fp64;
 
   if (getLangOpts().OpenCL) {
@@ -5914,7 +6013,7 @@ void Sema::AddFunctionCandidates(const UnresolvedSetImpl &Fns,
                            SuppressUserConversions);
       else
         AddOverloadCandidate(FD, F.getPair(), Args, CandidateSet,
-                             SuppressUserConversions);
+                             Args[0]->getType(), SuppressUserConversions);
     } else {
       FunctionTemplateDecl *FunTmpl = cast<FunctionTemplateDecl>(D);
       if (isa<CXXMethodDecl>(FunTmpl->getTemplatedDecl()) &&
@@ -5927,8 +6026,10 @@ void Sema::AddFunctionCandidates(const UnresolvedSetImpl &Fns,
                                    CandidateSet, SuppressUserConversions);
       else
         AddTemplateOverloadCandidate(FunTmpl, F.getPair(),
-                                     ExplicitTemplateArgs, Args,
-                                     CandidateSet, SuppressUserConversions);
+                                     ExplicitTemplateArgs,
+                                     Args.empty()? QualType():
+                                     Args[0]->getType(),
+                                     Args, CandidateSet, SuppressUserConversions);
     }
   }
 }
@@ -6005,6 +6106,20 @@ Sema::AddMethodCandidate(CXXMethodDecl *Method, DeclAccessPair FoundDecl,
   Candidate.ExplicitCallArguments = Args.size();
 
   unsigned NumParams = Proto->getNumParams();
+
+  // OpenCL C++:
+  //   The following address spaces conversions are not allowed:
+  //   - constant to generic
+  //   - generic to named address spaces (local, global or private)
+  if (getLangOpts().OpenCLCPlusPlus && ObjectType != QualType()) {
+    Qualifiers qualsObject = ObjectType.getQualifiers();
+    Qualifiers qualsMethod = Method->getType().getQualifiers();
+    if(!qualsMethod.isAddressSpaceSupersetOf(qualsObject)) {
+      Candidate.Viable = false;
+      Candidate.FailureKind = ovl_fail_bad_final_conversion;
+      return;
+    }
+  }
 
   // (C++ 13.3.2p2): A candidate function having fewer than m
   // parameters is viable only if it has an ellipsis in its parameter
@@ -6151,6 +6266,7 @@ void
 Sema::AddTemplateOverloadCandidate(FunctionTemplateDecl *FunctionTemplate,
                                    DeclAccessPair FoundDecl,
                                  TemplateArgumentListInfo *ExplicitTemplateArgs,
+                                   QualType ObjectType,
                                    ArrayRef<Expr *> Args,
                                    OverloadCandidateSet& CandidateSet,
                                    bool SuppressUserConversions) {
@@ -6188,7 +6304,7 @@ Sema::AddTemplateOverloadCandidate(FunctionTemplateDecl *FunctionTemplate,
   // deduction as a candidate.
   assert(Specialization && "Missing function template specialization?");
   AddOverloadCandidate(Specialization, FoundDecl, Args, CandidateSet,
-                       SuppressUserConversions);
+                       ObjectType, SuppressUserConversions);
 }
 
 /// Determine whether this is an allowable conversion from the result
@@ -8337,11 +8453,11 @@ Sema::AddArgumentDependentLookupCandidates(DeclarationName Name,
       if (ExplicitTemplateArgs)
         continue;
 
-      AddOverloadCandidate(FD, FoundDecl, Args, CandidateSet, false,
-                           PartialOverloading);
+      AddOverloadCandidate(FD, FoundDecl, Args, CandidateSet, QualType(),
+                           false, PartialOverloading);
     } else
       AddTemplateOverloadCandidate(cast<FunctionTemplateDecl>(*I),
-                                   FoundDecl, ExplicitTemplateArgs,
+                                   FoundDecl, ExplicitTemplateArgs, QualType(),
                                    Args, CandidateSet);
   }
 }
@@ -8451,6 +8567,19 @@ bool clang::isBetterOverloadCandidate(Sema &S, const OverloadCandidate &Cand1,
                                          Cand1.ExplicitCallArguments,
                                          Cand2.ExplicitCallArguments))
       return BetterTemplate == Cand1.Function->getPrimaryTemplate();
+  }
+
+  // OpenCL C++
+  //   If the old candidate is in generic address space and the new one
+  //   is in the named address spaces, it means that the new one is a better
+  //   candidate
+  if (S.getASTContext().getLangOpts().OpenCLCPlusPlus &&
+      Cand1.Function && Cand2.Function) {
+    unsigned int candAS1 = Cand1.Function->getType().getAddressSpace();
+    unsigned int candAS2 = Cand2.Function->getType().getAddressSpace();
+    if ((candAS2 == LangAS::openclcpp_generic || candAS2 == 0) &&
+        (candAS1 != LangAS::openclcpp_generic || candAS1 == 0))
+      return true;
   }
 
   // Check for enable_if value-based overload resolution.
@@ -10414,15 +10543,16 @@ static void AddOverloadedCallCandidate(Sema &S,
       assert(!KnownValid && "Explicit template arguments?");
       return;
     }
-    S.AddOverloadCandidate(Func, FoundDecl, Args, CandidateSet, false,
-                           PartialOverloading);
+    S.AddOverloadCandidate(Func, FoundDecl, Args, CandidateSet, QualType(),
+                           false, PartialOverloading);
     return;
   }
 
   if (FunctionTemplateDecl *FuncTemplate
       = dyn_cast<FunctionTemplateDecl>(Callee)) {
     S.AddTemplateOverloadCandidate(FuncTemplate, FoundDecl,
-                                   ExplicitTemplateArgs, Args, CandidateSet);
+                                   ExplicitTemplateArgs, QualType(),
+                                   Args, CandidateSet);
     return;
   }
 
@@ -11643,21 +11773,28 @@ Sema::BuildCallToMemberFunction(Scope *S, Expr *MemExprE,
       // Microsoft supports direct constructor calls.
       if (getLangOpts().MicrosoftExt && isa<CXXConstructorDecl>(Func)) {
         AddOverloadCandidate(cast<CXXConstructorDecl>(Func), I.getPair(),
-                             Args, CandidateSet);
+                             Args, CandidateSet, UnresExpr->isArrow()?
+                             ObjectType->getPointeeType():
+                             ObjectType);
       } else if ((Method = dyn_cast<CXXMethodDecl>(Func))) {
         // If explicit template arguments were provided, we can't call a
         // non-template member function.
         if (TemplateArgs)
           continue;
 
-        AddMethodCandidate(Method, I.getPair(), ActingDC, ObjectType,
+        AddMethodCandidate(Method, I.getPair(), ActingDC,
+                           UnresExpr->isArrow()?
+                           ObjectType->getPointeeType():
+                           ObjectType,
                            ObjectClassification, Args, CandidateSet,
                            /*SuppressUserConversions=*/false);
       } else {
         AddMethodTemplateCandidate(cast<FunctionTemplateDecl>(Func),
                                    I.getPair(), ActingDC, TemplateArgs,
-                                   ObjectType,  ObjectClassification,
-                                   Args, CandidateSet,
+                                   UnresExpr->isArrow()?
+                                   ObjectType->getPointeeType():
+                                   ObjectType,
+                                   ObjectClassification, Args, CandidateSet,
                                    /*SuppressUsedConversions=*/false);
       }
     }

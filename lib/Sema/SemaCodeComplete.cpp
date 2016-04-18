@@ -3858,7 +3858,7 @@ void Sema::CodeCompleteCall(Scope *S, Expr *FnIn, ArrayRef<Expr *> Args) {
       else
         // FIXME: access?
         AddOverloadCandidate(FDecl, DeclAccessPair::make(FDecl, AS_none), Args,
-                             CandidateSet, false, /*PartialOverloading*/true);
+                             CandidateSet, QualType(), false, /*PartialOverloading*/true);
     }
   }
   

@@ -1496,16 +1496,23 @@ void Qualifiers::print(raw_ostream &OS, const PrintingPolicy& Policy,
     addSpace = true;
     switch (addrspace) {
       case LangAS::opencl_global:
+      case LangAS::openclcpp_global:
         OS << "__global";
         break;
       case LangAS::opencl_local:
+      case LangAS::openclcpp_local:
         OS << "__local";
         break;
       case LangAS::opencl_constant:
+      case LangAS::openclcpp_constant:
         OS << "__constant";
         break;
       case LangAS::opencl_generic:
+      case LangAS::openclcpp_generic:
         OS << "__generic";
+        break;
+      case LangAS::openclcpp_private:
+        OS << "__private";
         break;
       default:
         OS << "__attribute__((address_space(";

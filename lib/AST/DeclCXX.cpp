@@ -1580,6 +1580,8 @@ QualType CXXMethodDecl::getThisType(ASTContext &C) const {
   QualType ClassTy = C.getTypeDeclType(getParent());
   ClassTy = C.getQualifiedType(ClassTy,
                                Qualifiers::fromCVRMask(getTypeQualifiers()));
+  if (C.getLangOpts().OpenCLCPlusPlus)
+    ClassTy = C.getAddrSpaceQualType(ClassTy, getType().getAddressSpace());
   return C.getPointerType(ClassTy);
 }
 

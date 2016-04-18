@@ -153,6 +153,7 @@ LANGOPT(ShortEnums        , 1, 0, "short enum types")
 
 LANGOPT(OpenCL            , 1, 0, "OpenCL")
 LANGOPT(OpenCLVersion     , 32, 0, "OpenCL version")
+LANGOPT(OpenCLCPlusPlus   , 1, 0, "OpenCL C++")
 LANGOPT(NativeHalfType    , 1, 0, "Native half type support")
 LANGOPT(HalfArgsAndReturns, 1, 0, "half args and returns")
 LANGOPT(CUDA              , 1, 0, "CUDA")
@@ -222,6 +223,8 @@ LANGOPT(SanitizeAddressFieldPadding, 2, 0, "controls how aggressive is ASan "
                                            "aggressive, 2: more aggressive)")
 
 LANGOPT(CLEnableHalf            , 1, 0, "cl-enable-half flag used")
+
+LANGOPT(CLFp64Enable            , 1, 0, "cl-fp64-enable flag used")
 LANGOPT(CLKeepSamplerType, 1, 0, "Preserve type of sampler variables in emitted SPIR")
 
 #undef LANGOPT

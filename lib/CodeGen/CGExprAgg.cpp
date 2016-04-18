@@ -1368,7 +1368,8 @@ static void CheckAggExprForMemSetUse(AggValueSlot &Slot, const Expr *E,
 
   llvm::Value *Loc = Slot.getAddr();
   
-  Loc = CGF.Builder.CreateBitCast(Loc, CGF.Int8PtrTy);
+  Loc = CGF.Builder.CreateBitCast(Loc, CGF.Builder.getInt8PtrTy(
+                                    Loc->getType()->getPointerAddressSpace()));
   CGF.Builder.CreateMemSet(Loc, CGF.Builder.getInt8(0), SizeVal, 
                            Align.getQuantity(), false);
   

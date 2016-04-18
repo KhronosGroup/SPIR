@@ -1290,13 +1290,29 @@ static QualType adjustFunctionTypeForInstantiation(ASTContext &Context,
     = D->getType()->castAs<FunctionProtoType>();
   const FunctionProtoType *NewFunc
     = TInfo->getType()->castAs<FunctionProtoType>();
-  if (OrigFunc->getExtInfo() == NewFunc->getExtInfo())
-    return TInfo->getType();
+  if (OrigFunc->getExtInfo() == NewFunc->getExtInfo()) {
+    QualType FnTy = TInfo->getType();
+
+    // OpenCL C++
+    //   Lambda call operator should be qualified with address space.
+    //   If it's not qualified yet, __generic attribute will be added
+    if(Context.getLangOpts().OpenCL && !FnTy.hasAddressSpace())
+      FnTy = Context.getAddrSpaceQualType(FnTy,
+                                          D->getType().getAddressSpace());
+    return FnTy;
+  }
 
   FunctionProtoType::ExtProtoInfo NewEPI = NewFunc->getExtProtoInfo();
   NewEPI.ExtInfo = OrigFunc->getExtInfo();
-  return Context.getFunctionType(NewFunc->getReturnType(),
-                                 NewFunc->getParamTypes(), NewEPI);
+  QualType FnTy = Context.getFunctionType(NewFunc->getReturnType(),
+                                          NewFunc->getParamTypes(), NewEPI);
+
+  // OpenCL C++
+  //   Lambda call operator should be qualified with address space.
+  //   If it's not qualified yet, __generic attribute will be added
+  if(Context.getLangOpts().OpenCL && !FnTy.hasAddressSpace())
+    FnTy = Context.getAddrSpaceQualType(FnTy, D->getType().getAddressSpace());
+  return FnTy;
 }
 
 /// Normal class members are of more specific types and therefore

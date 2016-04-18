@@ -52,6 +52,15 @@ void CodeGenTypes::addRecordTypeName(const RecordDecl *RD,
   llvm::raw_svector_ostream OS(TypeName);
   OS << RD->getKindName() << '.';
   
+  // For OpenCL C++, the mangled type name is attached, so it can be
+  // reflown to proper name later.
+  if (getContext().getLangOpts().OpenCLCPlusPlus) {
+    std::unique_ptr<MangleContext> MC(getContext().createMangleContext());
+    auto RDT = getContext().getRecordType(RD);
+    MC->mangleCXXRTTIName(RDT, OS);
+    OS << ".";
+  }
+
   // Name the codegen type after the typedef name
   // if there is no tag type name available
   if (RD->getIdentifier()) {
@@ -424,6 +433,13 @@ llvm::Type *CodeGenTypes::ConvertType(QualType T) {
     QualType ETy = RTy->getPointeeType();
     llvm::Type *PointeeType = ConvertTypeForMem(ETy);
     unsigned AS = Context.getTargetAddressSpace(ETy);
+
+    // OpenCL C++
+    //   If there is no address space specified, all references should
+    //   point to the generic address space.
+    if (Context.getLangOpts().OpenCLCPlusPlus && !ETy.hasAddressSpace() &&
+        !ETy->isFunctionType())
+      AS = Context.getTargetAddressSpace(LangAS::openclcpp_generic);
     ResultType = llvm::PointerType::get(PointeeType, AS);
     break;
   }
@@ -434,6 +450,13 @@ llvm::Type *CodeGenTypes::ConvertType(QualType T) {
     if (PointeeType->isVoidTy())
       PointeeType = llvm::Type::getInt8Ty(getLLVMContext());
     unsigned AS = Context.getTargetAddressSpace(ETy);
+
+    // OpenCL C++
+    //   If there is no address space specified, all pointers should
+    //   point to the generic address space.
+    if (Context.getLangOpts().OpenCLCPlusPlus && !ETy.hasAddressSpace() &&
+        !ETy->isFunctionType())
+      AS = Context.getTargetAddressSpace(LangAS::openclcpp_generic);
     ResultType = llvm::PointerType::get(PointeeType, AS);
     break;
   }

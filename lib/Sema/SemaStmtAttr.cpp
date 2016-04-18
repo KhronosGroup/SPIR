@@ -190,6 +190,44 @@ CheckForIncompatibleAttributes(Sema &S,
   }
 }
 
+static Attr *handleOpenCLCXXIvdep(Sema &S, Stmt *St, const AttributeList &A,
+                                  SourceRange Range) {
+  assert(A.getKind() == AttributeList::AT_OpenCLCXXIvdep);
+
+  unsigned numArgs = A.getNumArgs();
+
+  if (numArgs > 1) {
+    S.Diag(A.getLoc(), diag::err_attribute_too_many_arguments) << 1;
+    return 0;
+  }
+
+  unsigned safeLen = 0;
+
+  if (numArgs == 1) {
+    Expr *E = A.getArgAsExpr(0);
+    assert(E != NULL);
+    llvm::APSInt ArgVal(32);
+
+    if (E->isTypeDependent() || E->isValueDependent() ||
+        !E->isIntegerConstantExpr(ArgVal, S.Context)) {
+      S.Diag(A.getLoc(), diag::err_attribute_argument_type)
+        << A.getName()->getName() << AANT_ArgumentIntegerConstant << E->getSourceRange();
+      return 0;
+    }
+
+    int64_t val = ArgVal.getSExtValue();
+
+    if (val <= 0) {
+      S.Diag(A.getRange().getBegin(), diag::err_opencl_invalid_attr_arg) << A.getName()->getName();
+      return 0;
+    }
+
+    safeLen = static_cast<unsigned>(val);
+  }
+
+  return OpenCLCXXIvdepAttr::CreateImplicit(S.Context, safeLen);
+}
+
 static Attr *handleOpenCLUnrollHint(Sema &S, Stmt *St, const AttributeList &A,
                                     SourceRange Range) {
   assert(A.getKind() == AttributeList::AT_OpenCLUnrollHint);
@@ -221,13 +259,17 @@ static Attr *handleOpenCLUnrollHint(Sema &S, Stmt *St, const AttributeList &A,
     int64_t val = ArgVal.getSExtValue();
 
     if (val <= 0) {
-      S.Diag(A.getRange().getBegin(), diag::err_opencl_unroll_hint_factor);
+      S.Diag(A.getRange().getBegin(), diag::err_opencl_invalid_attr_arg) << A.getName()->getName();
       return 0;
     }
-    unrollingFactor = val;
+
+    unrollingFactor = static_cast<unsigned>(val);
   }
 
-  return OpenCLUnrollHintAttr::CreateImplicit(S.Context, unrollingFactor);
+  return OpenCLUnrollHintAttr::CreateImplicit(S.Context,
+          A.isCXX11Attribute() ? OpenCLUnrollHintAttr::CXX11_cl_unroll_hint
+            : OpenCLUnrollHintAttr::GNU_opencl_unroll_hint,
+          unrollingFactor);
 }
 
 static Attr *ProcessStmtAttribute(Sema &S, Stmt *St, const AttributeList &A,
@@ -244,6 +286,8 @@ static Attr *ProcessStmtAttribute(Sema &S, Stmt *St, const AttributeList &A,
     return handleLoopHintAttr(S, St, A, Range);
   case AttributeList::AT_OpenCLUnrollHint:
     return handleOpenCLUnrollHint(S, St, A, Range);
+  case AttributeList::AT_OpenCLCXXIvdep:
+    return handleOpenCLCXXIvdep(S, St, A, Range);
   default:
     // if we're here, then we parsed a known attribute, but didn't recognize
     // it as a statement attribute => it is declaration attribute

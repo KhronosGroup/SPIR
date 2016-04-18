@@ -102,14 +102,15 @@ namespace {
     KEYALTIVEC = 0x40,
     KEYNOCXX = 0x80,
     KEYBORLAND = 0x100,
-    KEYOPENCL = 0x200,
+    KEYOPENCLC = 0x200,
     KEYC11 = 0x400,
     KEYARC = 0x800,
     KEYNOMS = 0x01000,
     KEYNOOPENCL = 0x02000,
     WCHARSUPPORT = 0x04000,
     HALFSUPPORT = 0x08000,
-    KEYALL = (0xffff & ~KEYNOMS &
+    KEYOPENCLCXX = 0x10000,
+    KEYALL = (0xfffff & ~KEYNOMS &
               ~KEYNOOPENCL) // KEYNOMS and KEYNOOPENCL are used to exclude.
   };
 
@@ -137,7 +138,8 @@ static KeywordStatus getKeywordStatus(const LangOptions &LangOpts,
   if (LangOpts.Half && (Flags & HALFSUPPORT)) return KS_Enabled;
   if (LangOpts.WChar && (Flags & WCHARSUPPORT)) return KS_Enabled;
   if (LangOpts.AltiVec && (Flags & KEYALTIVEC)) return KS_Enabled;
-  if (LangOpts.OpenCL && (Flags & KEYOPENCL)) return KS_Enabled;
+  if (LangOpts.OpenCL && LangOpts.C99 && (Flags & KEYOPENCLC)) return KS_Enabled;
+  if (LangOpts.OpenCLCPlusPlus && (Flags & KEYOPENCLCXX)) return KS_Enabled;
   if (!LangOpts.CPlusPlus && (Flags & KEYNOCXX)) return KS_Enabled;
   if (LangOpts.C11 && (Flags & KEYC11)) return KS_Enabled;
   // We treat bridge casts as objective-C keywords so we can warn on them

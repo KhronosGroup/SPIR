@@ -538,7 +538,7 @@ ExprResult Sema::DefaultFunctionArrayConversion(Expr *E) {
   if (Ty->isFunctionType()) {
     // If we are here, we are not calling a function but taking
     // its address (which is not allowed in OpenCL v1.0 s6.8.a.3).
-    if (getLangOpts().OpenCL) {
+    if (getLangOpts().OpenCL && !getLangOpts().CPlusPlus) {
       Diag(E->getExprLoc(), diag::err_opencl_taking_function_address);
       return ExprError();
     }
@@ -672,7 +672,7 @@ ExprResult Sema::DefaultLvalueConversion(Expr *E) {
 
   // OpenCL usually rejects direct accesses to values of 'half' type.
   if (getLangOpts().OpenCL && !getOpenCLOptions().cl_khr_fp16 &&
-      T->isHalfType()) {
+      !getLangOpts().OpenCLCPlusPlus && T->isHalfType()) {
     Diag(E->getExprLoc(), diag::err_opencl_half_load_store)
       << 0 << T;
     return ExprError();
@@ -805,6 +805,14 @@ ExprResult Sema::UsualUnaryConversions(Expr *E) {
       E = ImpCastExprToType(E, PT, CK_IntegralCast).get();
       return E;
     }
+  }
+  else if (getLangOpts().OpenCLCPlusPlus &&
+           Ty->isBooleanVecType()) {
+      const ExtVectorType *VecType = Ty->getAs<ExtVectorType>();
+      QualType PT = Context.getPromotedIntegerType(VecType->getElementType());
+      PT = Context.getExtVectorType(PT, VecType->getNumElements());
+      E = ImpCastExprToType(E, PT, CK_IntegralCast).get();
+      return E;
   }
   return E;
 }
@@ -1622,15 +1630,14 @@ Sema::ActOnStringLiteral(ArrayRef<Token> StringToks, Scope *UDLScope) {
                                  llvm::APInt(32, Literal.GetNumStringChars()+1),
                                  ArrayType::Normal, 0);
 
-  // OpenCL v1.2 s6.5.3 p2:
+  // OpenCL v1.2 s6.5.3 p2 and OpenCL v1.1 s6.5.3:
   // All string literal storage shall be in the __constant address space.
-  if (getLangOpts().OpenCL)
+  // OpenCL C++:
+  // All string literals are in the global address space.
+  if (getLangOpts().OpenCL && !getLangOpts().OpenCLCPlusPlus)
     StrTy = Context.getAddrSpaceQualType(StrTy, LangAS::opencl_constant);
-
-  // OpenCL v1.1 s6.5.3: a string literal is in the constant address space.
-  if (getLangOpts().OpenCL) {
-    StrTy = Context.getAddrSpaceQualType(StrTy, LangAS::opencl_constant);
-  }
+  else if (getLangOpts().OpenCLCPlusPlus)
+    StrTy = Context.getAddrSpaceQualType(StrTy, LangAS::openclcpp_global);
 
   // Pass &StringTokLocs[0], StringTokLocs.size() to factory!
   StringLiteral *Lit = StringLiteral::Create(Context, Literal.GetString(),
@@ -1998,11 +2005,11 @@ Sema::DiagnoseEmptyLookup(Scope *S, CXXScopeSpec &SS, LookupResult &R,
                    dyn_cast<FunctionTemplateDecl>(*CD))
             AddTemplateOverloadCandidate(
                 FTD, DeclAccessPair::make(FTD, AS_none), ExplicitTemplateArgs,
-                Args, OCS);
+                QualType(), Args, OCS);
           else if (FunctionDecl *FD = dyn_cast<FunctionDecl>(*CD))
             if (!ExplicitTemplateArgs || ExplicitTemplateArgs->size() == 0)
               AddOverloadCandidate(FD, DeclAccessPair::make(FD, AS_none),
-                                   Args, OCS);
+                                   Args, OCS, QualType());
         }
         switch (OCS.BestViableFunction(*this, R.getNameLoc(), Best)) {
         case OR_Success:
@@ -4335,7 +4342,7 @@ static TypoCorrection TryTypoCorrectionForCall(Sema &S, Expr *Fn,
              CD != CDEnd; ++CD) {
           if (FunctionDecl *FD = dyn_cast<FunctionDecl>(*CD))
             S.AddOverloadCandidate(FD, DeclAccessPair::make(FD, AS_none), Args,
-                                   OCS);
+                                   OCS, QualType());
         }
         switch (OCS.BestViableFunction(S, NameLoc, Best)) {
         case OR_Success:
@@ -4950,7 +4957,8 @@ Sema::BuildResolvedCallExpr(Expr *Fn, NamedDecl *NDecl,
     }
   }
 
-  if (LangOpts.OpenCL && LangOpts.OpenCLVersion >= 200)
+  if (LangOpts.OpenCL && LangOpts.OpenCLVersion >= 200 &&
+      !LangOpts.OpenCLCPlusPlus)
     if (FDecl && FDecl->getName() == "enqueue_kernel")
       if(CheckEnqueueKernel(TheCall, Args, *this))
         return ExprError();
@@ -5473,7 +5481,8 @@ Sema::ActOnCastExpr(Scope *S, SourceLocation LParenLoc,
   // i.e. all the elements are integer constants.
   ParenExpr *PE = dyn_cast<ParenExpr>(CastExpr);
   ParenListExpr *PLE = dyn_cast<ParenListExpr>(CastExpr);
-  if ((getLangOpts().AltiVec || getLangOpts().OpenCL)
+  if ((getLangOpts().AltiVec || (getLangOpts().OpenCL &&
+                                 !getLangOpts().CPlusPlus))
        && castType->isVectorType() && (PE || PLE)) {
     if (PLE && PLE->getNumExprs() == 0) {
       Diag(PLE->getExprLoc(), diag::err_altivec_empty_initializer);
@@ -5766,16 +5775,19 @@ static QualType checkConditionalPointerCompatibility(Sema &S, ExprResult &LHS,
     // to get a consistent AST.
     QualType incompatTy;
     if (S.getLangOpts().OpenCL && S.LangOpts.OpenCLVersion >= 200) {
+      unsigned int genericAS = S.getLangOpts().OpenCLCPlusPlus ?
+                        LangAS::openclcpp_generic:
+                        LangAS::opencl_generic;
       incompatTy = S.Context.getPointerType(S.Context.getAddrSpaceQualType(
-          S.Context.VoidTy, LangAS::opencl_generic));
+          S.Context.VoidTy, genericAS));
       LHS = S.ImpCastExprToType(
           LHS.get(), incompatTy,
-          (lhQual.getAddressSpace() != LangAS::opencl_generic)
+          (lhQual.getAddressSpace() != genericAS)
               ? CK_AddressSpaceConversion
               : CK_BitCast);
       RHS = S.ImpCastExprToType(
           RHS.get(), incompatTy,
-          (rhQual.getAddressSpace() != LangAS::opencl_generic)
+          (rhQual.getAddressSpace() != genericAS)
               ? CK_AddressSpaceConversion
               : CK_BitCast);
     } else {
@@ -6832,8 +6844,15 @@ Sema::CheckAssignmentConstraints(QualType LHSType, ExprResult &RHS,
   // Allow scalar to ExtVector assignments, and assignments of an ExtVector type
   // to the same ExtVector type.
   if (LHSType->isExtVectorType()) {
-    if (RHSType->isExtVectorType())
+    if (RHSType->isExtVectorType()) {
+      if (getLangOpts().OpenCLCPlusPlus &&
+          LHSType->getAs<ExtVectorType>()->isBooleanVecType() &&
+          RHSType->getAs<ExtVectorType>()->isIntegerVecType()) {
+        Kind = CK_IntegralToBoolean;
+        return Compatible;
+      }
       return Incompatible;
+    }
     if (RHSType->isArithmeticType()) {
       // CK_VectorSplat does T -> vector T, so first cast to the
       // element type.
@@ -7240,6 +7259,96 @@ QualType Sema::InvalidOperands(SourceLocation Loc, ExprResult &LHS,
   return QualType();
 }
 
+static void
+diagVectorConvertAndSplatScalarNarrowing(Sema& S, const Expr* Scalar,
+                                         QualType& ScalarTy,
+                                         QualType& VectorEltTy,
+                                         CastKind ScalarCast) {
+
+  assert(S.getLangOpts().CPlusPlus && "Narrowing check requires C++");
+
+  if (Scalar == nullptr)
+    return;
+
+  StandardConversionSequence SCS;
+  SCS.setAsIdentityConversion();
+  switch (ScalarCast) {
+  case CK_IntegralCast:
+    SCS.Second = ICK_Integral_Conversion;
+    break;
+  case CK_IntegralToBoolean:
+    SCS.Second = ICK_Boolean_Conversion;
+    break;
+  case CK_IntegralToFloating:
+  case CK_FloatingToIntegral:
+  case CK_FloatingToBoolean:
+    SCS.Second = ICK_Floating_Integral;
+    break;
+  case CK_FloatingCast:
+    SCS.Second = ICK_Floating_Conversion;
+    break;
+  default:
+    llvm_unreachable("Unexpected scalar cast type");
+  }
+  SCS.setAllToTypes(VectorEltTy);
+  SCS.setFromType(ScalarTy);
+  SCS.setToType(0, ScalarTy);
+
+  APValue ConstantValue;
+  QualType ConstantType;
+  bool IsNarrowing = false;
+  switch (SCS.getNarrowingKind(S.Context, Scalar,
+                               ConstantValue, ConstantType, true)) {
+  case NK_Not_Narrowing:
+    // No narrowing occurred.
+    break;
+
+  case NK_Type_Narrowing:
+    S.Diag(Scalar->getLocStart(),
+           diag::warn_oclcpp_osvc_type_narrowing)
+        << Scalar->getSourceRange()
+        << ScalarTy.getLocalUnqualifiedType()
+        << VectorEltTy.getLocalUnqualifiedType();
+    IsNarrowing = true;
+    break;
+
+  case NK_Constant_Narrowing:
+    // A constant value was narrowed.
+    S.Diag(Scalar->getLocStart(),
+           diag::warn_oclcpp_osvc_constant_narrowing)
+        << Scalar->getSourceRange()
+        << ConstantValue.getAsString(S.getASTContext(), ConstantType)
+        << VectorEltTy.getLocalUnqualifiedType();
+    IsNarrowing = true;
+    break;
+
+  case NK_Variable_Narrowing:
+    // By default all variable conversions from integer types to floating point
+    // types are narrowings. We refine it by simple heuristic based on types'
+    // widths and precisions to eliminate most of false warnings.
+    if (ScalarTy->isIntegralType(S.Context) &&
+        VectorEltTy->isRealFloatingType() &&
+        S.Context.getIntWidth(ScalarTy) < llvm::APFloat::semanticsPrecision(
+                                  S.Context.getFloatTypeSemantics(VectorEltTy)))
+      break;
+
+    // A variable's value may have been narrowed.
+    S.Diag(Scalar->getLocStart(),
+           diag::warn_oclcpp_osvc_variable_narrowing)
+        << Scalar->getSourceRange()
+        << ScalarTy.getLocalUnqualifiedType()
+        << VectorEltTy.getLocalUnqualifiedType();
+    IsNarrowing = true;
+    break;
+  }
+  if (IsNarrowing) {
+    S.Diag(Scalar->getLocStart(),
+           diag::note_oclcpp_osvc_narrowing_silence)
+        << Scalar->getSourceRange()
+        << VectorEltTy.getLocalUnqualifiedType();
+  }
+}
+
 /// Try to convert a value of non-vector type to a vector type by converting
 /// the type to the element type of the vector and then performing a splat.
 /// If the language is OpenCL, we only use conversions that promote scalar
@@ -7258,15 +7367,19 @@ static bool tryVectorConvertAndSplat(Sema &S, ExprResult *scalar,
   CastKind scalarCast = CK_Invalid;
   
   if (vectorEltTy->isIntegralType(S.Context)) {
-    if (!scalarTy->isIntegralType(S.Context))
+    if (scalarTy->isIntegralType(S.Context)) {
+      if (S.getLangOpts().OpenCL && !S.getLangOpts().CPlusPlus &&
+          S.Context.getIntegerTypeOrder(vectorEltTy, scalarTy) < 0)
+        return true;
+      scalarCast = CK_IntegralCast;
+    } else if (S.getLangOpts().OpenCLCPlusPlus &&
+               scalarTy->isRealFloatingType())
+      scalarCast = CK_FloatingToIntegral;
+    else
       return true;
-    if (S.getLangOpts().OpenCL &&
-        S.Context.getIntegerTypeOrder(vectorEltTy, scalarTy) < 0)
-      return true;
-    scalarCast = CK_IntegralCast;
   } else if (vectorEltTy->isRealFloatingType()) {
     if (scalarTy->isRealFloatingType()) {
-      if (S.getLangOpts().OpenCL &&
+      if (S.getLangOpts().OpenCL && !S.getLangOpts().CPlusPlus &&
           S.Context.getFloatingTypeOrder(vectorEltTy, scalarTy) < 0) {
           // OpenCL V2.0 6.2.6.p2:
           // An error shall occur if any scalar operand type has greater rank
@@ -7284,6 +7397,11 @@ static bool tryVectorConvertAndSplat(Sema &S, ExprResult *scalar,
   } else {
     return true;
   }
+
+  if (S.getLangOpts().OpenCLCPlusPlus && scalar)
+    diagVectorConvertAndSplatScalarNarrowing(S, scalar->get(),
+                                              scalarTy, vectorEltTy,
+                                              scalarCast);
 
   // Adjust scalar if desired.
   if (scalar) {
@@ -7304,6 +7422,40 @@ QualType Sema::CheckVectorOperands(ExprResult &LHS, ExprResult &RHS,
   RHS = DefaultFunctionArrayLvalueConversion(RHS.get());
   if (RHS.isInvalid())
     return QualType();
+
+  // For OpenCL C++ we cast vector of booleans to vector of integers.
+  if (getLangOpts().OpenCLCPlusPlus) {
+    const ExtVectorType
+      *LHSVecType = LHS.get()->getType()->getAs<ExtVectorType>(),
+      *RHSVecType = RHS.get()->getType()->getAs<ExtVectorType>();
+
+    if((LHSVecType && LHSVecType->isBooleanVecType()) ||
+       (RHSVecType && RHSVecType->isBooleanVecType())) {
+      if(LHS.get()->getType()->isScalarType()) {
+        LHS = ImpCastExprToType(LHS.get(), Context.BoolTy, CK_IntegralToBoolean);
+        LHS = ImpCastExprToType(LHS.get(), RHS.get()->getType(), CK_VectorSplat);
+      } else if(RHS.get()->getType()->isScalarType()) {
+        RHS = ImpCastExprToType(RHS.get(), Context.BoolTy, CK_IntegralToBoolean);
+        RHS = ImpCastExprToType(RHS.get(), LHS.get()->getType(), CK_VectorSplat);
+      }
+      const ExtVectorType
+        *LHSVecType = LHS.get()->getType()->getAs<ExtVectorType>(),
+        *RHSVecType = RHS.get()->getType()->getAs<ExtVectorType>();
+      if (LHSVecType && LHSVecType->isBooleanVecType() &&
+          RHSVecType && RHSVecType->isBooleanVecType()) {
+        RHS = UsualUnaryConversions(RHS.get()).get();
+        if (RHS.isInvalid())
+          return QualType();
+        if (!IsCompAssign) {
+          LHS = UsualUnaryConversions(LHS.get()).get();
+          if (LHS.isInvalid())
+            return QualType();
+        } else {
+          return RHS.get()->getType().getUnqualifiedType();
+        }
+      }
+    }
+  }
 
   // For conversion purposes, we ignore any qualifiers.
   // For example, "const float" and "float" are equivalent.
@@ -7417,6 +7569,16 @@ QualType Sema::CheckMultiplyDivideOperands(ExprResult &LHS, ExprResult &RHS,
                                            bool IsCompAssign, bool IsDiv) {
   checkArithmeticNull(*this, LHS, RHS, Loc, /*isCompare=*/false);
 
+  // OpenCL C++
+  //   If cl_khr_fp16 extension is not supported, all operations requiring
+  //   data interpretation are not allowed
+  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+      (LHS.get()->getType()->isHalfType() ||
+       RHS.get()->getType()->isHalfType())) {
+    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
+    return QualType();
+  }
+
   if (LHS.get()->getType()->isVectorType() ||
       RHS.get()->getType()->isVectorType())
     return CheckVectorOperands(LHS, RHS, Loc, IsCompAssign);
@@ -7443,6 +7605,16 @@ QualType Sema::CheckMultiplyDivideOperands(ExprResult &LHS, ExprResult &RHS,
 QualType Sema::CheckRemainderOperands(
   ExprResult &LHS, ExprResult &RHS, SourceLocation Loc, bool IsCompAssign) {
   checkArithmeticNull(*this, LHS, RHS, Loc, /*isCompare=*/false);
+
+  // OpenCL C++
+  //   If cl_khr_fp16 extension is not supported, all operations requiring
+  //   data interpretation are not allowed
+  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+      (LHS.get()->getType()->isHalfType() ||
+       RHS.get()->getType()->isHalfType())) {
+    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
+    return QualType();
+  }
 
   if (LHS.get()->getType()->isVectorType() ||
       RHS.get()->getType()->isVectorType()) {
@@ -7725,6 +7897,16 @@ QualType Sema::CheckAdditionOperands( // C99 6.5.6
     QualType* CompLHSTy) {
   checkArithmeticNull(*this, LHS, RHS, Loc, /*isCompare=*/false);
 
+  // OpenCL C++
+  //   If cl_khr_fp16 extension is not supported, all operations requiring
+  //   data interpretation are not allowed
+  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+      (LHS.get()->getType()->isHalfType() ||
+       RHS.get()->getType()->isHalfType())) {
+    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
+    return QualType();
+  }
+
   if (LHS.get()->getType()->isVectorType() ||
       RHS.get()->getType()->isVectorType()) {
     QualType compType = CheckVectorOperands(LHS, RHS, Loc, CompLHSTy);
@@ -7799,6 +7981,16 @@ QualType Sema::CheckSubtractionOperands(ExprResult &LHS, ExprResult &RHS,
                                         SourceLocation Loc,
                                         QualType* CompLHSTy) {
   checkArithmeticNull(*this, LHS, RHS, Loc, /*isCompare=*/false);
+
+  // OpenCL C++
+  //   If cl_khr_fp16 extension is not supported, all operations requiring
+  //   data interpretation are not allowed
+  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+      (LHS.get()->getType()->isHalfType() ||
+       RHS.get()->getType()->isHalfType())) {
+    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
+    return QualType();
+  }
 
   if (LHS.get()->getType()->isVectorType() ||
       RHS.get()->getType()->isVectorType()) {
@@ -8020,7 +8212,11 @@ static QualType checkOpenCLVectorShift(Sema &S,
     RHS = S.ImpCastExprToType(RHS.get(), VecTy, CK_VectorSplat);
   }
 
-  return LHSType;
+  // C99 6.5.7.3 The type of the result is that of the promoted left operand.
+  // In case of compound assignment operator (+=), returned type is
+  // ComputationResultType.
+  return IsCompAssign ? S.UsualUnaryConversions(LHS.get()).get()->getType() :
+                        LHSType;
 }
 
 // C99 6.5.7
@@ -8397,6 +8593,16 @@ QualType Sema::CheckCompareOperands(ExprResult &LHS, ExprResult &RHS,
   checkArithmeticNull(*this, LHS, RHS, Loc, /*isCompare=*/true);
 
   BinaryOperatorKind Opc = (BinaryOperatorKind) OpaqueOpc;
+
+  // OpenCL C++
+  //   If cl_khr_fp16 extension is not supported, all operations requiring
+  //   data interpretation are not allowed
+  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+      (LHS.get()->getType()->isHalfType() ||
+       RHS.get()->getType()->isHalfType())) {
+    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
+    return QualType();
+  }
 
   // Handle vector comparisons separately.
   if (LHS.get()->getType()->isVectorType() ||
@@ -8824,15 +9030,15 @@ QualType Sema::CheckVectorCompareOperands(ExprResult &LHS, ExprResult &RHS,
                                           bool IsRelational) {
   // Check to make sure we're operating on vectors of the same type and width,
   // Allowing one side to be a scalar of element type.
-  QualType vType = CheckVectorOperands(LHS, RHS, Loc, /*isCompAssign*/false);
-  if (vType.isNull())
-    return vType;
+  QualType VType = CheckVectorOperands(LHS, RHS, Loc, /*isCompAssign*/false);
+  if (VType.isNull())
+    return VType;
 
   QualType LHSType = LHS.get()->getType();
 
   // If AltiVec, the comparison results in a numeric type, i.e.
   // bool for C++, int for C
-  if (vType->getAs<VectorType>()->getVectorKind() == VectorType::AltiVecVector)
+  if (VType->getAs<VectorType>()->getVectorKind() == VectorType::AltiVecVector)
     return Context.getLogicalOperationType();
 
   // For non-floating point types, check for self-comparisons of the form
@@ -8858,6 +9064,13 @@ QualType Sema::CheckVectorCompareOperands(ExprResult &LHS, ExprResult &RHS,
     CheckFloatComparison(Loc, LHS.get(), RHS.get());
   }
   
+  // [OCLC++10] Vector comparison returns vector of bool where
+  // each component stores result of comparison of corresponding
+  // LHS and RHS components.
+  if (getLangOpts().OpenCLCPlusPlus) {
+    const VectorType *VVType = VType->getAs<VectorType>();
+    return Context.getExtVectorType(Context.BoolTy, VVType->getNumElements());
+  }
   // Return a signed type for the vector.
   return GetSignedVectorType(LHSType);
 }
@@ -8866,13 +9079,21 @@ QualType Sema::CheckVectorLogicalOperands(ExprResult &LHS, ExprResult &RHS,
                                           SourceLocation Loc) {
   // Ensure that either both operands are of the same vector type, or
   // one operand is of a vector type and the other is of its element type.
-  QualType vType = CheckVectorOperands(LHS, RHS, Loc, false);
-  if (vType.isNull())
+  QualType VType = CheckVectorOperands(LHS, RHS, Loc, false);
+  if (VType.isNull())
     return InvalidOperands(Loc, LHS, RHS);
   if (getLangOpts().OpenCL && getLangOpts().OpenCLVersion < 120 &&
-      vType->hasFloatingRepresentation())
+      VType->hasFloatingRepresentation())
     return InvalidOperands(Loc, LHS, RHS);
   
+  // [OCLC++10] Vector logical operations return vector of bool where
+  // each component stores result of operation on corresponding
+  // LHS and RHS components.
+  if (getLangOpts().OpenCLCPlusPlus) {
+    const VectorType *VVType = VType->getAs<VectorType>();
+    return Context.getExtVectorType(Context.BoolTy, VVType->getNumElements());
+  }
+  // Return a signed type for the vector.
   return GetSignedVectorType(LHS.get()->getType());
 }
 
@@ -8905,6 +9126,16 @@ inline QualType Sema::CheckBitwiseOperands(
 inline QualType Sema::CheckLogicalOperands( // C99 6.5.[13,14]
   ExprResult &LHS, ExprResult &RHS, SourceLocation Loc, unsigned Opc) {
   
+  // OpenCL C++
+  //   If cl_khr_fp16 extension is not supported, all operations requiring
+  //   data interpretation are not allowed
+  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+      (LHS.get()->getType()->isHalfType() ||
+       RHS.get()->getType()->isHalfType())) {
+    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
+    return QualType();
+  }
+
   // Check vector operands differently.
   if (LHS.get()->getType()->isVectorType() || RHS.get()->getType()->isVectorType())
     return CheckVectorLogicalOperands(LHS, RHS, Loc);
@@ -9010,7 +9241,9 @@ static bool IsReadonlyMessage(Expr *E, Sema &S) {
 /// 'const' due to being captured within a block?
 enum NonConstCaptureKind { NCCK_None, NCCK_Block, NCCK_Lambda };
 static NonConstCaptureKind isReferenceToNonConstCapture(Sema &S, Expr *E) {
-  assert(E->isLValue() && E->getType().isConstQualified());
+  assert(E->isLValue() && (E->getType().isConstQualified() ||
+                E->getType().getAddressSpace() == LangAS::opencl_constant ||
+                E->getType().getAddressSpace() == LangAS::openclcpp_constant));
   E = E->IgnoreParens();
 
   // Must be a reference to a declaration from an enclosing scope.
@@ -9321,9 +9554,20 @@ static QualType CheckIncrementDecrementOperand(Sema &S, Expr *Op,
   if (const AtomicType *ResAtomicType = ResType->getAs<AtomicType>())
     ResType = ResAtomicType->getValueType();
 
-  assert(!ResType.isNull() && "no type for increment/decrement expression");
+  // OpenCL C++
+  //   If cl_khr_fp16 extension is not supported, all operations requiring
+  //   data interpretation are not allowed
+  if (S.getLangOpts().OpenCLCPlusPlus && !S.getOpenCLOptions().cl_khr_fp16 &&
+      ResType->isHalfType()) {
+    S.Diag(OpLoc, diag::err_oclcpp_half_operator) << ResType;
+    return QualType();
+  }
 
-  if (S.getLangOpts().CPlusPlus && ResType->isBooleanType()) {
+  assert(!ResType.isNull() && "no type for increment/decrement expression");
+  const bool ResIsVectorOfBool = ResType->isVectorType() &&
+    ResType->getAs<VectorType>()->isBooleanVecType();
+  if (S.getLangOpts().CPlusPlus &&
+      (ResType->isBooleanType() || ResIsVectorOfBool)) {
     // Decrement of bool is not allowed.
     if (!IsInc) {
       S.Diag(OpLoc, diag::err_decrement_bool) << Op->getSourceRange();
@@ -9509,7 +9753,7 @@ QualType Sema::CheckAddressOfOperand(ExprResult &OrigOp, SourceLocation OpLoc) {
   Expr *op = OrigOp.get()->IgnoreParens();
 
   // OpenCL v1.0 s6.8.a.3: Pointers to functions are not allowed.
-  if (LangOpts.OpenCL && op->getType()->isFunctionType()) {
+  if (LangOpts.OpenCL && !LangOpts.CPlusPlus && op->getType()->isFunctionType()) {
     Diag(op->getExprLoc(), diag::err_opencl_taking_function_address);
     return QualType();
   }
@@ -10450,6 +10694,16 @@ ExprResult Sema::CreateBuiltinUnaryOp(SourceLocation OpLoc,
     }
   }
 
+  // OpenCL C++
+  //   If cl_khr_fp16 extension is not supported, all operations requiring
+  //   data interpretation are not allowed
+  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+      (Opc == UO_Minus || Opc == UO_LNot) &&
+       InputExpr->getType()->isHalfType()) {
+    Diag(OpLoc, diag::err_oclcpp_half_operator) << InputExpr->getType();
+    return ExprError();
+  }
+
   ExprResult Input = InputExpr;
   ExprValueKind VK = VK_RValue;
   ExprObjectKind OK = OK_Ordinary;
@@ -10541,6 +10795,17 @@ ExprResult Sema::CreateBuiltinUnaryOp(SourceLocation OpLoc,
     if (resultType->isScalarType() && !isScopedEnumerationType(resultType)) {
       // C99 6.5.3.3p1: ok, fallthrough;
       if (Context.getLangOpts().CPlusPlus) {
+        // OpenCL C++
+        //   Conversion between half and boolean type is not
+        //   allowed if cl_khr_fp16 extension is not supported.
+        //   The built-in functions should be used instead.
+        if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
+            Input.get()->getType()->isHalfType()) {
+          Diag(OpLoc, diag::err_oclcpp_half_conversion)
+            << Input.get()->getType() << Context.BoolTy;
+          return ExprError();
+        }
+
         // C++03 [expr.unary.op]p8, C++0x [expr.unary.op]p9:
         // operand contextually converted to bool.
         Input = ImpCastExprToType(Input.get(), Context.BoolTy,
@@ -10562,6 +10827,16 @@ ExprResult Sema::CreateBuiltinUnaryOp(SourceLocation OpLoc,
         if (!T->isIntegerType())
           return ExprError(Diag(OpLoc, diag::err_typecheck_unary_expr)
                            << resultType << Input.get()->getSourceRange());
+      }
+
+      // [OCLC++10] Vector logical not returns vector of bool where
+      // each component stores result of operation on corresponding
+      // component from operand.
+      if (getLangOpts().OpenCLCPlusPlus) {
+        const VectorType *VVType = resultType->getAs<VectorType>();
+        resultType = Context.getExtVectorType(Context.BoolTy,
+                                              VVType->getNumElements());
+        break;
       }
       // Vector logical not returns the signed variant of the operand type.
       resultType = GetSignedVectorType(resultType);
@@ -12737,7 +13012,7 @@ bool Sema::tryCaptureVariable(VarDecl *Var, SourceLocation ExprLoc,
                               bool BuildAndDiagnose, 
                               QualType &CaptureType,
                               QualType &DeclRefType,
-						                const unsigned *const FunctionScopeIndexToStopAt) {
+                              const unsigned *const FunctionScopeIndexToStopAt) {
   bool Nested = Var->isInitCapture();
   
   DeclContext *DC = CurContext;

@@ -89,6 +89,14 @@ int cc1_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
 
   SP.cl_clang_storage_class_specifiers = 1;
 
+  // In OpenCL C++ we disable cl_khr_fp16/fp64 pragmas by default
+  // Floating point support should be enabled by cl-fp16/fp64-enable flags.
+  if (Clang->getLangOpts().OpenCLCPlusPlus) {
+      SP.cl_khr_fp16 = 0;
+      SP.cl_khr_fp64 = 0;
+  }
+
+
   // Initialize targets first, so that --version shows registered targets.
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();

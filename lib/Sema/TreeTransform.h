@@ -3725,6 +3725,51 @@ TreeTransform<Derived>::TransformQualifiedType(TypeLocBuilder &TLB,
   if (Result.isNull())
     return QualType();
 
+  // OpenCL C++
+  if(SemaRef.Context.getLangOpts().OpenCLCPlusPlus) {
+    // Member functions can be qualified with the address space
+    if(Result->isFunctionType() &&
+       Quals.hasAddressSpace() && !Result.hasAddressSpace()) {
+      Qualifiers ResultQuals = Result.getQualifiers();
+      ResultQuals.setAddressSpace(Quals.getAddressSpace());
+      Result = SemaRef.BuildQualifiedType(Result,
+                                          T.getBeginLoc(),
+                                          ResultQuals);
+      TLB.push<QualifiedTypeLoc>(Result);
+    }
+    else if(Quals.hasAddressSpace()) {
+      const AutoType *AutoTy;
+      if (Result.hasAddressSpace()) {
+        if (const SubstTemplateTypeParmType *SubstTypeParam =
+                                 dyn_cast<SubstTemplateTypeParmType>(Result)) {
+          QualType Replacement = SubstTypeParam->getReplacementType();
+          Qualifiers Qs = Replacement.getQualifiers();
+          Qs.removeAddressSpace();
+          Replacement = SemaRef.Context.getQualifiedType(
+                                              Replacement.getUnqualifiedType(),
+                                              Qs);
+          Result = SemaRef.Context.getSubstTemplateTypeParmType(
+                                        SubstTypeParam->getReplacedParameter(),
+                                        Replacement);
+          TLB.TypeWasModifiedSafely(Result);
+        } else if ((AutoTy = dyn_cast<AutoType>(Result)) &&
+                   AutoTy->isDeduced()) {
+          // 'auto' types behave the same way as template parameters.
+          QualType Deduced = AutoTy->getDeducedType();
+          Qualifiers Qs = Deduced.getQualifiers();
+          Qs.removeAddressSpace();
+          Deduced = SemaRef.Context.getQualifiedType(
+                                                  Deduced.getUnqualifiedType(),
+                                                  Qs);
+          Result = SemaRef.Context.getAutoType(Deduced,
+                                               AutoTy->isDecltypeAuto(),
+                                               AutoTy->isDependentType());
+          TLB.TypeWasModifiedSafely(Result);
+        }
+      }
+    }
+  }
+
   // Silently suppress qualifiers if the result type can't be qualified.
   // FIXME: this is the right thing for template instantiation, but
   // probably not for other clients.
@@ -3774,6 +3819,7 @@ TreeTransform<Derived>::TransformQualifiedType(TypeLocBuilder &TLB,
       }
     }
   }
+
   if (!Quals.empty()) {
     Result = SemaRef.BuildQualifiedType(Result, T.getBeginLoc(), Quals);
     // BuildQualifiedType might not add qualifiers if they are invalid.
@@ -9161,8 +9207,19 @@ TreeTransform<Derived>::TransformLambdaExpr(LambdaExpr *E) {
   TypeSourceInfo *NewCallOpTSI = nullptr;
   {
     TypeSourceInfo *OldCallOpTSI = E->getCallOperator()->getTypeSourceInfo();
+
+    // OpenCL C++
+    //   Lambda call operator can be qualified with the address space
+    //   which is not part of the function prototype. The address space
+    //   must be removed
+    TypeLoc TL = OldCallOpTSI->getTypeLoc();
+    Qualifiers quals = TL.getType().getQualifiers();
+    if (getSema().Context.getLangOpts().OpenCLCPlusPlus &&
+        quals.hasAddressSpace())
+      TL = TL.getUnqualifiedLoc();
+
     FunctionProtoTypeLoc OldCallOpFPTL = 
-        OldCallOpTSI->getTypeLoc().getAs<FunctionProtoTypeLoc>();
+      TL.getAs<FunctionProtoTypeLoc>();
 
     TypeLocBuilder NewCallOpTLBuilder;
     SmallVector<QualType, 4> ExceptionStorage;
@@ -9173,6 +9230,21 @@ TreeTransform<Derived>::TransformLambdaExpr(LambdaExpr *E) {
           return This->TransformExceptionSpec(OldCallOpFPTL.getBeginLoc(), ESI,
                                               ExceptionStorage, Changed);
         });
+
+    // OpenCL C++
+    //   Lambda call operator can be qualified with the address space.
+    //   Adding address space which was set before lambda call operator
+    //   transformation.
+    if (getSema().Context.getLangOpts().OpenCLCPlusPlus &&
+        quals.hasAddressSpace()) {
+      Qualifiers MethodQuals = NewCallOpType.getQualifiers();
+      MethodQuals.setAddressSpace(quals.getAddressSpace());
+      NewCallOpType = getSema().BuildQualifiedType(NewCallOpType,
+                                                   OldCallOpFPTL.getBeginLoc(),
+                                                   MethodQuals);
+      NewCallOpTLBuilder.push<QualifiedTypeLoc>(NewCallOpType);
+    }
+
     if (NewCallOpType.isNull())
       return ExprError();
     NewCallOpTSI = NewCallOpTLBuilder.getTypeSourceInfo(getSema().Context,
@@ -9187,11 +9259,22 @@ TreeTransform<Derived>::TransformLambdaExpr(LambdaExpr *E) {
                                         E->getCaptureDefault());
   getDerived().transformedLocalDecl(E->getLambdaClass(), Class);
 
+  TypeLoc NewTL = NewCallOpTSI->getTypeLoc();
+
+  // OpenCL C++
+  //   Lambda call operator can be qualified with the address space
+  //   which is not part of the function prototype. The address space
+  //   must be removed
+  Qualifiers quals = NewTL.getType().getQualifiers();
+  if (getSema().Context.getLangOpts().OpenCLCPlusPlus &&
+      quals.hasAddressSpace())
+    NewTL = NewTL.getUnqualifiedLoc();
+
   // Build the call operator.
   CXXMethodDecl *NewCallOperator = getSema().startLambdaDefinition(
       Class, E->getIntroducerRange(), NewCallOpTSI,
       E->getCallOperator()->getLocEnd(),
-      NewCallOpTSI->getTypeLoc().castAs<FunctionProtoTypeLoc>().getParams());
+      NewTL.castAs<FunctionProtoTypeLoc>().getParams());
   LSI->CallOperator = NewCallOperator;
 
   getDerived().transformAttrs(E->getCallOperator(), NewCallOperator);

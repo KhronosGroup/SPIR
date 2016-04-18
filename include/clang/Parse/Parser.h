@@ -47,6 +47,8 @@ namespace clang {
   class VersionTuple;
   class OMPClause;
 
+  bool attributeIsTypeArgAttr(const IdentifierInfo &II);
+
 /// Parser - This implements a parser for the C family of languages.  After
 /// parsing units of the grammar, productions are invoked to handle whatever has
 /// been read.
@@ -1570,6 +1572,8 @@ private:
   typedef SmallVector<Expr*, 12> ExprVector;
   /// A SmallVector of types.
   typedef SmallVector<ParsedType, 12> TypeVector;
+
+  bool CheckOpenCLLoopAttrsOnLoop(ParsedAttributesWithRange& Attrs);
 
   StmtResult ParseStatement(SourceLocation *TrailingElseLoc = nullptr);
   StmtResult
