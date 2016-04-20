@@ -749,40 +749,20 @@ namespace clang {
       PREDEF_TYPE_VA_LIST_TAG = 36,
       /// \brief The placeholder type for builtin functions.
       PREDEF_TYPE_BUILTIN_FN = 37,
-      /// \brief OpenCL 1d image type.
-      PREDEF_TYPE_IMAGE1D_ID    = 38,
-      /// \brief OpenCL 1d image array type.
-      PREDEF_TYPE_IMAGE1D_ARR_ID = 39,
-      /// \brief OpenCL 1d image buffer type.
-      PREDEF_TYPE_IMAGE1D_BUFF_ID = 40,
-      /// \brief OpenCL 2d image type.
-      PREDEF_TYPE_IMAGE2D_ID    = 41,
-      /// \brief OpenCL 2d image array type.
-      PREDEF_TYPE_IMAGE2D_ARR_ID = 42,
-      /// \brief OpenCL 3d image type.
-      PREDEF_TYPE_IMAGE3D_ID    = 43,
-      /// \brief OpenCL 2d depth image type.
-      PREDEF_TYPE_IMAGE2DDepth_ID = 44,
-      /// \brief OpenCL 2d msaa image type.
-      PREDEF_TYPE_IMAGE2DMSAA_ID = 45,
-      /// \brief OpenCL 2d msaa depth type.
-      PREDEF_TYPE_IMAGE2DMSAADepth_ID = 46,
-      /// \brief OpenCL 2d array msaa depth type.
-      PREDEF_TYPE_IMAGE2DArrayMSAADepth_ID = 47,
-      /// \brief OpenCL 2d array msaa type.
-      PREDEF_TYPE_IMAGE2DArrayMSAA_ID = 48,
-      /// \brief OpenCL 2d array depth type.
-      PREDEF_TYPE_IMAGE2DArrayDepth_ID = 49,
       /// \brief OpenCL sampler type.
-      PREDEF_TYPE_SAMPLER_ID    = 50,
+      PREDEF_TYPE_SAMPLER_ID    = 38,
       /// \brief OpenCL event type.
-      PREDEF_TYPE_EVENT_ID      = 51,
+      PREDEF_TYPE_EVENT_ID      = 39,
       /// \brief OpenCL queue type.
-      PREDEF_TYPE_QUEUE_ID      = 52,
+      PREDEF_TYPE_QUEUE_ID      = 40,
       /// \brief OpenCL clk_event type.
-      PREDEF_TYPE_CLK_EVENT_ID  = 54,
+      PREDEF_TYPE_CLK_EVENT_ID  = 41,
       /// \brief OpenCL reserve_id type.
-      PREDEF_TYPE_RESERVE_ID_ID  = 55
+      PREDEF_TYPE_RESERVE_ID_ID  = 42,
+      /// \brief OpenCL image types with auto numeration
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) \
+      PREDEF_TYPE_##Id##_ID,
+#include "clang/Basic/OpenCLImageTypes.def"
     };
 
     /// \brief The number of predefined type IDs that are reserved for

@@ -11,7 +11,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "clang/Sema/SemaInternal.h"
 #include "TypeLocBuilder.h"
 #include "clang/AST/ASTConsumer.h"
 #include "clang/AST/ASTContext.h"
@@ -26,13 +25,16 @@
 #include "clang/Basic/PartialDiagnostic.h"
 #include "clang/Basic/TargetInfo.h"
 #include "clang/Parse/ParseDiagnostic.h"
+#include "clang/Lex/Preprocessor.h"
 #include "clang/Sema/DeclSpec.h"
 #include "clang/Sema/DelayedDiagnostic.h"
 #include "clang/Sema/Lookup.h"
 #include "clang/Sema/ScopeInfo.h"
+#include "clang/Sema/SemaInternal.h"
 #include "clang/Sema/Template.h"
 #include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/ADT/SmallString.h"
+#include "llvm/ADT/StringSwitch.h"
 #include "llvm/Support/ErrorHandling.h"
 
 using namespace clang;
@@ -694,6 +696,21 @@ static void maybeSynthesizeBlockSignature(TypeProcessingState &state,
   state.setCurrentChunkIndex(declarator.getNumTypeObjects());
 }
 
+static StringRef getImageAccessAttrStr(AttributeList *attrs) {
+  if (attrs) {
+
+    AttributeList *Next;
+    do {
+      AttributeList &Attr = *attrs;
+      Next = Attr.getNext();
+      if (Attr.getKind() == AttributeList::AT_OpenCLImageAccess) {
+        return Attr.getName()->getName();
+      }
+    } while (Next);
+  }
+  return "";
+}
+
 /// \brief Convert the specified declspec to the appropriate type
 /// object.
 /// \param state Specifies the declarator containing the declaration specifier
@@ -886,6 +903,7 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
     }
     break;
   case DeclSpec::TST_bool: Result = Context.BoolTy; break; // _Bool or bool
+    break;
   case DeclSpec::TST_decimal32:    // _Decimal32
   case DeclSpec::TST_decimal64:    // _Decimal64
   case DeclSpec::TST_decimal128:   // _Decimal128
@@ -1096,54 +1114,6 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
     }
     break;
 
-  case DeclSpec::TST_image1d_t:
-    Result = Context.OCLImage1dTy;
-    break;
-
-  case DeclSpec::TST_image1d_array_t:
-    Result = Context.OCLImage1dArrayTy;
-    break;
-
-  case DeclSpec::TST_image1d_buffer_t:
-    Result = Context.OCLImage1dBufferTy;
-    break;
-
-  case DeclSpec::TST_image2d_t:
-    Result = Context.OCLImage2dTy;
-    break;
-
-  case DeclSpec::TST_image2d_array_t:
-    Result = Context.OCLImage2dArrayTy;
-    break;
-
-  case DeclSpec::TST_image3d_t:
-    Result = Context.OCLImage3dTy;
-    break;
-
-  case DeclSpec::TST_image2d_depth_t:
-    Result = Context.OCLImage2dDepthTy;
-    break;
-
-  case DeclSpec::TST_image2d_msaa_t:
-    Result = Context.OCLImage2dMSAATy;
-    break;
-
-  case DeclSpec::TST_image2d_msaa_depth_t:
-    Result = Context.OCLImage2dMSAADepthTy;
-    break;
-
-  case DeclSpec::TST_image2d_array_msaa_depth_t:
-    Result = Context.OCLImage2dArrayMSAADepthTy;
-    break;
-
-  case DeclSpec::TST_image2d_array_msaa_t:
-    Result = Context.OCLImage2dArrayMSAATy;
-    break;
-
-  case DeclSpec::TST_image2d_array_depth_t:
-    Result = Context.OCLImage2dArrayDepthTy;
-    break;
-
   case DeclSpec::TST_sampler_t:
     Result = Context.OCLSamplerTy;
     break;
@@ -1160,6 +1130,16 @@ static QualType ConvertDeclSpecToType(TypeProcessingState &state) {
   case DeclSpec::TST_reserve_id_t:
     Result = Context.OCLReserveIdTy;
     break;
+
+#define GENERIC_IMAGE_TYPE(ImgType, Id) \
+  case DeclSpec::TST_##ImgType##_t: \
+    Result = llvm::StringSwitch<QualType>( \
+                 getImageAccessAttrStr(DS.getAttributes().getList())) \
+                 .Cases("write_only", "__write_only", Context.Id##WOTy) \
+                 .Cases("read_write", "__read_write", Context.Id##RWTy) \
+                 .Default(Context.Id##ROTy); \
+    break;
+#include "clang/Basic/OpenCLImageTypes.def"
 
   case DeclSpec::TST_error:
     Result = Context.IntTy;

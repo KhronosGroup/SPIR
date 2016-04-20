@@ -1602,23 +1602,11 @@ public:
   bool isNullPtrType() const;                   // C++0x nullptr_t
   bool isAtomicType() const;                    // C11 _Atomic()
 
-  bool isImage1dT() const;                      // OpenCL image1d_t
-  bool isImage1dArrayT() const;                 // OpenCL image1d_array_t
-  bool isImage1dBufferT() const;                // OpenCL image1d_buffer_t
-  bool isImage2dT() const;                      // OpenCL image2d_t
-  bool isImage2dArrayT() const;                 // OpenCL image2d_array_t
-  bool isImage3dT() const;                      // OpenCL image3d_t
-
-  bool isImage2dDepthT() const;
-  bool isImage2dMSAAT() const;
-  bool isImage2dMSAADepthT() const;
-  bool isImage2dArrayMSAADepthT() const;
-  bool isImage2dArrayMSAAT() const;
-  bool isImage2dArrayDepthT() const;
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) \
+  bool is##Id##Type() const;
+#include "clang/Basic/OpenCLImageTypes.def"
 
   bool isImageType() const;                     // Any OpenCL image type
-  bool isImageDepthType() const;                // Any OpenCL depth image type
-  bool isImageMSAAType() const;                 // Any OpenCL msaa image type
 
   bool isSamplerT() const;                      // OpenCL sampler_t
   bool isEventT() const;                        // OpenCL event_t
@@ -1882,6 +1870,10 @@ template <> inline const Class##Type *Type::castAs() const { \
 class BuiltinType : public Type {
 public:
   enum Kind {
+// OpenCL image types
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) Id,
+#include "clang/Basic/OpenCLImageTypes.def"
+// All other builtin types
 #define BUILTIN_TYPE(Id, SingletonId) Id,
 #define LAST_BUILTIN_TYPE(Id) LastKind = Id
 #include "clang/AST/BuiltinTypes.def"
@@ -5107,53 +5099,11 @@ inline bool Type::isObjCBuiltinType() const {
   return isObjCIdType() || isObjCClassType() || isObjCSelType();
 }
 
-inline bool Type::isImage1dT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage1d);
-}
-
-inline bool Type::isImage1dArrayT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage1dArray);
-}
-
-inline bool Type::isImage1dBufferT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage1dBuffer);
-}
-
-inline bool Type::isImage2dT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage2d);
-}
-
-inline bool Type::isImage2dArrayT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage2dArray);
-}
-
-inline bool Type::isImage3dT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage3d);
-}
-
-inline bool Type::isImage2dDepthT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage2dDepth);
-}
-
-inline bool Type::isImage2dMSAAT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage2dMSAA);
-}
-
-inline bool Type::isImage2dMSAADepthT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage2dMSAADepth);
-}
-
-inline bool Type::isImage2dArrayMSAADepthT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage2dArrayMSAADepth);
-}
-
-inline bool Type::isImage2dArrayMSAAT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage2dArrayMSAA);
-}
-
-inline bool Type::isImage2dArrayDepthT() const {
-  return isSpecificBuiltinType(BuiltinType::OCLImage2dArrayDepth);
-}
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) \
+  inline bool Type::is##Id##Type() const { \
+    return isSpecificBuiltinType(BuiltinType::Id); \
+  }
+#include "clang/Basic/OpenCLImageTypes.def"
 
 inline bool Type::isSamplerT() const {
   return isSpecificBuiltinType(BuiltinType::OCLSampler);
@@ -5168,21 +5118,10 @@ inline bool Type::isReserveIdT() const {
 }
 
 inline bool Type::isImageType() const {
-  return isImage3dT() ||
-         isImage2dT() || isImage2dArrayT() ||
-         isImage2dDepthT() || isImage2dArrayDepthT() ||
-         isImage2dMSAAT() || isImage2dArrayMSAAT() ||
-         isImage2dMSAADepthT() || isImage2dArrayMSAADepthT() ||
-         isImage1dT() || isImage1dArrayT() || isImage1dBufferT();
-}
-
-inline bool Type::isImageDepthType() const {
-  return isImage2dDepthT() || isImage2dArrayDepthT();
-}
-
-inline bool Type::isImageMSAAType() const {
-  return isImage2dMSAAT() || isImage2dArrayMSAAT() ||
-         isImage2dMSAADepthT() || isImage2dArrayMSAADepthT();
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) is##Id##Type() ||
+  return
+#include "clang/Basic/OpenCLImageTypes.def"
+      0; // end boolean or operation
 }
 
 inline bool Type::isExecType() const {

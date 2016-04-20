@@ -5962,19 +5962,11 @@ QualType ASTReader::GetType(TypeID ID) {
     case PREDEF_TYPE_OBJC_ID:       T = Context.ObjCBuiltinIdTy;    break;
     case PREDEF_TYPE_OBJC_CLASS:    T = Context.ObjCBuiltinClassTy; break;
     case PREDEF_TYPE_OBJC_SEL:      T = Context.ObjCBuiltinSelTy;   break;
-    case PREDEF_TYPE_IMAGE1D_ID:    T = Context.OCLImage1dTy;       break;
-    case PREDEF_TYPE_IMAGE1D_ARR_ID: T = Context.OCLImage1dArrayTy; break;
-    case PREDEF_TYPE_IMAGE1D_BUFF_ID: T = Context.OCLImage1dBufferTy; break;
-    case PREDEF_TYPE_IMAGE2D_ID:    T = Context.OCLImage2dTy;       break;
-    case PREDEF_TYPE_IMAGE2D_ARR_ID: T = Context.OCLImage2dArrayTy; break;
-    case PREDEF_TYPE_IMAGE3D_ID:    T = Context.OCLImage3dTy;       break;
-    case PREDEF_TYPE_IMAGE2DDepth_ID:          T = Context.OCLImage2dDepthTy; break;
-    case PREDEF_TYPE_IMAGE2DMSAA_ID:           T = Context.OCLImage2dMSAATy; break;
-    case PREDEF_TYPE_IMAGE2DMSAADepth_ID:      T = Context.OCLImage2dMSAADepthTy; break;
-    case PREDEF_TYPE_IMAGE2DArrayMSAADepth_ID: T = Context.OCLImage2dArrayMSAADepthTy; break;
-    case PREDEF_TYPE_IMAGE2DArrayMSAA_ID:      T = Context.OCLImage2dArrayMSAATy; break;
-    case PREDEF_TYPE_IMAGE2DArrayDepth_ID:     T = Context.OCLImage2dArrayDepthTy; break;
-
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) \
+    case PREDEF_TYPE_##Id##_ID: \
+      T = Context.SingletonId; \
+      break;
+#include "clang/Basic/OpenCLImageTypes.def"
     case PREDEF_TYPE_SAMPLER_ID:    T = Context.OCLSamplerTy;       break;
     case PREDEF_TYPE_EVENT_ID:      T = Context.OCLEventTy;         break;
     case PREDEF_TYPE_QUEUE_ID:      T = Context.OCLQueueTy;         break;
