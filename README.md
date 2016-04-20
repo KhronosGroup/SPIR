@@ -14,9 +14,7 @@ SPIR generator/Clang is based on LLVM/Clang version 3.6.
 The LLVM source code with SPIR-V support can be downloaded from <https://github.com/KhronosGroup/SPIRV-LLVM.git>:
 
 ```bash
-  git clone https://github.com/KhronosGroup/SPIRV-LLVM.git llvm
-  cd llvm
-  git checkout --track -b khronos/spirv-3.6.1 remotes/origin/khronos/spirv-3.6.1
+  git clone -b khronos/spirv-3.6.1 https://github.com/KhronosGroup/SPIRV-LLVM.git llvm
 ```
 
 Assuming that the LLVM source code is located at **$LLVM_SRC_ROOT**, then the clang
@@ -27,9 +25,7 @@ LLVM build system to automatically recognize it and build it along with LLVM.
 
 ```bash
   cd $LLVM_SRC_ROOT/tools
-  git clone https://github.com/KhronosGroup/SPIR clang
-  cd clang
-  git checkout --track -b spirv-1.1 remotes/origin/spirv-1.1
+  git clone -b spirv-1.1 https://github.com/KhronosGroup/SPIR clang
 ```
 
 --------------------------------
