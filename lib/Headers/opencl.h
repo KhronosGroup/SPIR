@@ -7151,6 +7151,7 @@ double3 __const_func __attribute__((overloadable)) copysign(double3 x, double3 y
 double4 __const_func __attribute__((overloadable)) copysign(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) copysign(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) copysign(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) copysign( half x, half y );
 half2 __const_func __attribute__((overloadable)) copysign( half2 x, half2 y );
