@@ -685,15 +685,6 @@ void AggExprEmitter::VisitCastExpr(CastExpr *E) {
     Visit(E->getSubExpr());
     break;
 
-  case CK_IntToOCLSampler: {
-    const Expr *SE = cast<CastExpr>(E)->getSubExpr();
-    llvm::APSInt samplerValue;
-    bool IsInt = SE->EvaluateAsInt(samplerValue, CGF.CGM.getContext());
-    assert(IsInt && "expected 32-bit unsigned integer constant");
-    llvm::Value *data = Builder.CreateConstInBoundsGEP2_32(Dest.getAddr(), 0, 0);
-    Builder.CreateStore(Builder.getInt(samplerValue), data);
-    break;
-  }
   case CK_LValueBitCast:
     llvm_unreachable("should not be emitting lvalue bitcast as rvalue");
 
@@ -741,6 +732,7 @@ void AggExprEmitter::VisitCastExpr(CastExpr *E) {
   case CK_ZeroToOCLEvent:
   case CK_ZeroToOCLQueue:
   case CK_AddressSpaceConversion:
+  case CK_IntToOCLSampler:
     llvm_unreachable("cast kind invalid for aggregate types");
   }
 }
@@ -1384,8 +1376,7 @@ static void CheckAggExprForMemSetUse(AggValueSlot &Slot, const Expr *E,
 /// the value of the aggregate expression is not needed.  If VolatileDest is
 /// true, DestPtr cannot be 0.
 void CodeGenFunction::EmitAggExpr(const Expr *E, AggValueSlot Slot) {
-  assert(E && hasAggregateEvaluationKind(E->getType(),
-                                         getLangOpts().CLKeepSamplerType) &&
+  assert(E && hasAggregateEvaluationKind(E->getType()) &&
          "Invalid aggregate expression to emit");
   assert((Slot.getAddr() != nullptr || Slot.isIgnored()) &&
          "slot has bits but no address");
@@ -1464,12 +1455,6 @@ void CodeGenFunction::EmitAggregateCopy(llvm::Value *DestPtr,
   //
   // we need to use a different call here.  We use isVolatile to indicate when
   // either the source or the destination is volatile.
-
-  if(Ty->isSamplerT() && CGM.getLangOpts().CLKeepSamplerType) {
-    llvm::LoadInst *src_smp = Builder.CreateLoad(SrcPtr);
-    Builder.CreateStore(src_smp, DestPtr);
-    return;
-  }
 
   llvm::PointerType *DPT = cast<llvm::PointerType>(DestPtr->getType());
   llvm::Type *DBP =
