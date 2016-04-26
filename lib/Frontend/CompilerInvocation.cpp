@@ -62,8 +62,6 @@ using namespace clang::driver::options;
 static unsigned getOptimizationLevel(ArgList &Args, InputKind IK,
                                      DiagnosticsEngine &Diags) {
   unsigned DefaultOpt = 0;
-  if (IK == IK_OpenCL && !Args.hasArg(OPT_cl_opt_disable))
-    DefaultOpt = 2;
 
   if (Arg *A = Args.getLastArg(options::OPT_O_Group)) {
     if (A->getOption().matches(options::OPT_O0))
@@ -306,11 +304,14 @@ static bool ParseCodeGenArgs(CodeGenOptions &Opts, ArgList &Args, InputKind IK,
   bool Success = true;
 
   unsigned OptLevel = getOptimizationLevel(Args, IK, Diags);
-  if (OptLevel > 3) {
-    Diags.Report(diag::err_drv_invalid_value)
-      << Args.getLastArg(OPT_O)->getAsString(Args) << OptLevel;
-    OptLevel = 3;
-    Success = false;
+  unsigned MaxOptLevel = 3;
+  if (IK == IK_OpenCL){
+    MaxOptLevel = 0;
+  }
+  if (OptLevel > MaxOptLevel) {
+    Diags.Report(diag::warn_drv_optimization_value)
+      << Args.getLastArg(OPT_O)->getAsString(Args) << "-O" << MaxOptLevel;
+    OptLevel = MaxOptLevel;
   }
   Opts.OptimizationLevel = OptLevel;
 

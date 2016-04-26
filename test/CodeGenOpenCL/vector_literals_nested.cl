@@ -1,4 +1,4 @@
-// RUN: %clang_cc1 %s -emit-llvm -O3 -o - | FileCheck %s
+// RUN: %clang_cc1 %s -emit-llvm -o - | FileCheck %s
 
 typedef int int2 __attribute((ext_vector_type(2)));
 typedef int int4 __attribute((ext_vector_type(4)));
@@ -13,7 +13,7 @@ typedef float float4 __attribute((ext_vector_type(4)));
 
 void ftest1(float4 *p) {
   *p = (float4)(1.1f, 1.2f, ((float2)(1.3f, 1.4f)));
-// CHECK: store <4 x float> <float 0x3FF19999A0000000, float 0x3FF3333340000000, float 0x3FF4CCCCC0000000, float 0x3FF6666660000000>
+// CHECK: store <2 x float> <float 0x3FF4CCCCC0000000, float 0x3FF6666660000000>
 }
 
 float4 ftest2(float4 *p) {

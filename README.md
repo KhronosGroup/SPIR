@@ -89,6 +89,7 @@ command lines:
 * `<triple>`: for 32 bit SPIR use spir-unknown-unknown, for 64 bit SPIR use spir64-unknown-unknown.
 * **Note**: `<OpenCL compile options>` appears twice. The command line option `-cl-spir-compile-options "<OpenCL compile options>"` specifies the compile options that occur in the SPIR metadata.
 * <opencl_spir.h>: download opencl_spir.h from https://github.com/KhronosGroup/SPIR-Tools/blob/master/headers/opencl_spir.h
+* -O: -O0 (default) is the only tested option value at the moment. It's assumed by design that all optimizations are executed by SPIR consumer.
 
 ----------------
 Reporting issues
