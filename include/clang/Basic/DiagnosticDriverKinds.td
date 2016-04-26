@@ -144,4 +144,6 @@ def err_analyzer_config_no_value : Error<
   "analyzer-config option '%0' has a key but no value">;
 def err_analyzer_config_multiple_values : Error<
   "analyzer-config option '%0' should contain only one '='">;
+def warn_drv_optimization_value : Warning<"optimization level '%0' is not supported; using '%1%2' instead">,
+  InGroup<IgnoredOptimizationArgument>;
 }
