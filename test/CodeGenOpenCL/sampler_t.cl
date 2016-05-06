@@ -28,16 +28,15 @@ float4 __attribute__((overloadable)) const_func read_imagef(__read_only image2d_
 // CHECK: [[Nearest:0]]
 // CHECK: [[Linear:1]]
 
-// CHECK: TypeSampler [[TypeSampler:[0-9]+]]
-// CHECK TypePointer [[TypeSamplerPtr_Function:[0-9]+]] 7 [[TypeSampler]]
-// CHECK: TypePointer [[TypeSamplerPtr_Constant:[0-9]+]] 0 [[TypeSampler]]
 // CHECK: TypeInt [[TypeInt:[0-9]+]] 32 0
+// CHECK: Constant [[TypeInt]] [[global_constant_int:[0-9]+]] 16
+// CHECK: TypeSampler [[TypeSampler:[0-9]+]]
+// CHECK: TypePointer [[TypeSamplerPtr_Constant:[0-9]+]] 0 [[TypeSampler]]
 // CHECK: TypeImage [[TypeImage:[0-9]+]]
 // CHECK: TypeSampledImage [[TypeSampledImage:[0-9]+]] [[TypeImage]]
 
 // CHECK: ConstantSampler [[TypeSampler]] [[global_const_sampler_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Linear]]
 // CHECK: ConstantSampler [[TypeSampler]] [[global_constant_sampler_INIT:[0-9]+]] [[Repeat]] [[NonNormalized]] [[Linear]]
-// CHECK: Constant [[TypeInt]] [[global_constant_int:[0-9]+]] 16
 
 // CHECK: ConstantSampler [[TypeSampler]] [[read_imagef_literal_arg:[0-9]+]] [[Repeat]] [[NonNormalized]] [[Linear]]
 
