@@ -22,7 +22,7 @@
 #endif //cl_khr_depth_images
 
 #ifndef _HAS_READ_WRITE_IMAGE
-#define _HAS_READ_WITE_IMAGE
+#define _HAS_READ_WRITE_IMAGE
 #endif
 
 #ifndef cl_khr_fp64
