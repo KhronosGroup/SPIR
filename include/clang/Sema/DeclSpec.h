@@ -302,18 +302,9 @@ public:
   static const TST TST_auto = clang::TST_auto;
   static const TST TST_unknown_anytype = clang::TST_unknown_anytype;
   static const TST TST_atomic = clang::TST_atomic;
-  static const TST TST_image1d_t = clang::TST_image1d_t;
-  static const TST TST_image1d_array_t = clang::TST_image1d_array_t;
-  static const TST TST_image1d_buffer_t = clang::TST_image1d_buffer_t;
-  static const TST TST_image2d_t = clang::TST_image2d_t;
-  static const TST TST_image2d_array_t = clang::TST_image2d_array_t;
-  static const TST TST_image2d_depth_t = clang::TST_image2d_depth_t;
-  static const TST TST_image2d_array_depth_t = clang::TST_image2d_array_depth_t;
-  static const TST TST_image2d_msaa_t = clang::TST_image2d_msaa_t;
-  static const TST TST_image2d_array_msaa_t = clang::TST_image2d_array_msaa_t;
-  static const TST TST_image2d_msaa_depth_t = clang::TST_image2d_msaa_depth_t;
-  static const TST TST_image2d_array_msaa_depth_t = clang::TST_image2d_array_msaa_depth_t;
-  static const TST TST_image3d_t = clang::TST_image3d_t;
+#define GENERIC_IMAGE_TYPE(ImgType, Id) \
+  static const TST TST_##ImgType##_t = clang::TST_##ImgType##_t;
+#include "clang/Basic/OpenCLImageTypes.def"
   static const TST TST_sampler_t = clang::TST_sampler_t;
   static const TST TST_event_t = clang::TST_event_t;
   static const TST TST_queue_t = clang::TST_queue_t;

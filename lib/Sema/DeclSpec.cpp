@@ -310,18 +310,8 @@ bool Declarator::isDeclarationOfFunction() const {
     case TST_unspecified:
     case TST_void:
     case TST_wchar:
-    case TST_image1d_t:
-    case TST_image1d_array_t:
-    case TST_image1d_buffer_t:
-    case TST_image2d_t:
-    case TST_image2d_array_t:
-    case TST_image3d_t:
-    case TST_image2d_depth_t:
-    case TST_image2d_msaa_t:
-    case TST_image2d_msaa_depth_t:
-    case TST_image2d_array_msaa_depth_t:
-    case TST_image2d_array_msaa_t:
-    case TST_image2d_array_depth_t:
+#define GENERIC_IMAGE_TYPE(ImgType, Id) case TST_##ImgType##_t:
+#include "clang/Basic/OpenCLImageTypes.def"
     case TST_sampler_t:
     case TST_event_t:
     case TST_queue_t:
@@ -492,18 +482,10 @@ const char *DeclSpec::getSpecifierName(DeclSpec::TST T,
   case DeclSpec::TST_underlyingType: return "__underlying_type";
   case DeclSpec::TST_unknown_anytype: return "__unknown_anytype";
   case DeclSpec::TST_atomic: return "_Atomic";
-  case DeclSpec::TST_image1d_t:   return "image1d_t";
-  case DeclSpec::TST_image1d_array_t: return "image1d_array_t";
-  case DeclSpec::TST_image1d_buffer_t: return "image1d_buffer_t";
-  case DeclSpec::TST_image2d_t:   return "image2d_t";
-  case DeclSpec::TST_image2d_array_t: return "image2d_array_t";
-  case DeclSpec::TST_image3d_t:   return "image3d_t";
-  case DeclSpec::TST_image2d_depth_t: return "image2d_depth_t";
-  case DeclSpec::TST_image2d_msaa_t: return "image2d_msaa_t";
-  case DeclSpec::TST_image2d_msaa_depth_t: return "image2d_msaa_depth_t";
-  case DeclSpec::TST_image2d_array_msaa_depth_t: return "image2d_array_msaa_depth_t";
-  case DeclSpec::TST_image2d_array_msaa_t: return "image2d_array_msaa_t";
-  case DeclSpec::TST_image2d_array_depth_t: return "image2d_array_depth_t";
+#define GENERIC_IMAGE_TYPE(ImgType, Id) \
+  case DeclSpec::TST_##ImgType##_t: \
+    return #ImgType "_t";
+#include "clang/Basic/OpenCLImageTypes.def"
   case DeclSpec::TST_sampler_t:   return "sampler_t";
   case DeclSpec::TST_event_t:     return "event_t";
   case DeclSpec::TST_queue_t:     return "queue_t";

@@ -25,7 +25,11 @@ LLVM build system to automatically recognize it and build it along with LLVM.
 
 ```bash
   cd $LLVM_SRC_ROOT/tools
+<<<<<<< HEAD
   git clone -b spirv-1.1 https://github.com/KhronosGroup/SPIR clang
+=======
+  git clone -b spirv-1.0 https://github.com/KhronosGroup/SPIR clang
+>>>>>>> spirv-1.0
 ```
 
 --------------------------------

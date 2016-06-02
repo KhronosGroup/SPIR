@@ -43,6 +43,7 @@ module Clang_Basic {
   exclude header "Basic/DiagnosticOptions.def"
   exclude header "Basic/LangOptions.def"
   exclude header "Basic/OpenCLExtensions.def"
+  exclude header "Basic/OpenCLImageTypes.def"
   exclude header "Basic/OpenMPKinds.def"
   exclude header "Basic/OperatorKinds.def"
   exclude header "Basic/Sanitizers.def"

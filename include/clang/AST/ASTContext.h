@@ -811,11 +811,9 @@ public:
   CanQualType PseudoObjectTy, ARCUnbridgedCastTy;
   CanQualType ObjCBuiltinIdTy, ObjCBuiltinClassTy, ObjCBuiltinSelTy;
   CanQualType ObjCBuiltinBoolTy;
-  CanQualType OCLImage1dTy, OCLImage1dArrayTy, OCLImage1dBufferTy;
-  CanQualType OCLImage2dTy, OCLImage2dArrayTy;
-  CanQualType OCLImage2dDepthTy, OCLImage2dMSAATy, OCLImage2dMSAADepthTy;
-  CanQualType OCLImage2dArrayMSAADepthTy, OCLImage2dArrayMSAATy, OCLImage2dArrayDepthTy;
-  CanQualType OCLImage3dTy;
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) \
+  CanQualType SingletonId;
+#include "clang/Basic/OpenCLImageTypes.def"
   CanQualType OCLSamplerTy, OCLEventTy;
   CanQualType OCLQueueTy, OCLCLKEventTy, OCLReserveIdTy;
 

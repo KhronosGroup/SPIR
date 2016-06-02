@@ -7251,7 +7251,9 @@ def err_opencl20_global_invalid_addr_space : Error<
 def err_openclcpp_global_invalid_addr_space : Error<
   "program scope variables must reside global, local or constant address space">;
 def err_sampler_initializer_not_integer : Error<
-  "sampler_t initialization requires integer, not %0">;
+  "sampler_t initialization requires 32-bit integer, not %0">;
+def warn_sampler_initializer_invalid_bits : Warning<
+  "Sampler initializer has invalid %0 bits">, InGroup<SpirCompat>;
 def err_event_initialization : Error<
   "cannot initialize event_t">;
 def err_event_argument_not_null : Error<
@@ -7273,6 +7275,8 @@ def err_opencl_invalid_attr_arg : Error<
   "attribute %0 requires a positive integral compile time constant expression">;
 def err_kernel_invalid_arg_type : Error<
   "%0 type cannot be used as the type of a kernel function argument">;
+def err_opencl_unroll_hint_factor : Error<
+  "opencl_unroll_hint requires a positive integral compile time constant expression">;
 def err_static_variables : Error<
   "static storage class can be specified only for global and constant variables">;
 def err_enqueue_kernel_num_args_mismatch : Error<

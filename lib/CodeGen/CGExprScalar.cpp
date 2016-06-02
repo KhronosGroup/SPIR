@@ -1600,10 +1600,20 @@ Value *ScalarExprEmitter::VisitCastExpr(CastExpr *CE) {
 
   case CK_IntToOCLSampler: {
     assert(DestTy->isSamplerT() && "CK_IntToOCLSampler cast to non sampler type");
-    return Visit(E);
+    if (!CGF.CGM.getLangOpts().CLSamplerOpaque)
+      return Visit(E);
+    if (const CastExpr* SCE = dyn_cast<CastExpr>(E)) {
+      if (const DeclRefExpr *DRE = cast<DeclRefExpr>(SCE->getSubExpr())) {
+        if (const VarDecl *VD = cast<VarDecl>(DRE->getDecl())) {
+          assert(VD->getInit() && "Invalid sampler initializer");
+          E = const_cast<Expr*>(VD->getInit());
+        }
+      }
+    }
+    return CGF.CGM.createIntToSamplerConversion(E, &CGF);
   }
 
-  }
+  } // end of switch
 
   llvm_unreachable("unknown scalar cast");
 }

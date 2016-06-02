@@ -8,15 +8,27 @@
 #ifndef _OPENCL_H_
 #define _OPENCL_H_
 
+#if __OPENCL_C_VERSION__ >= CL_VERSION_2_0
+#define _CL20_AND_ABOVE 1
+#endif
+
 #if !defined(__SPIR32__) && !defined(__SPIR64__)
 #error "This header file should be used with SPIR target only."
 #endif
 
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 #ifndef cl_khr_depth_images
 #define cl_khr_depth_images
 #endif //cl_khr_depth_images
-#endif //__OPENCL_C_VERSION__
+
+#ifndef _HAS_READ_WRITE_IMAGE
+#define _HAS_READ_WRITE_IMAGE
+#endif
+
+#ifndef cl_khr_fp64
+#define cl_khr_fp64
+#endif //cl_khr_fp64
+#endif //_CL20_AND_ABOVE
 
 // Optimizations
 
@@ -143,7 +155,7 @@ typedef double double4 __attribute__((ext_vector_type(4)));
 typedef double double8 __attribute__((ext_vector_type(8)));
 typedef double double16 __attribute__((ext_vector_type(16)));
 
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 #define NULL                              0
 #endif
 
@@ -4872,6 +4884,7 @@ float16 __const_func __attribute__((overloadable)) convert_float16(float16);
 
 // Conversions with double data type parameters or return value.
 
+#ifdef cl_khr_fp64
 char __const_func __attribute__((overloadable)) convert_char(double);
 char __const_func __attribute__((overloadable)) convert_char_rte(double);
 char __const_func __attribute__((overloadable)) convert_char_rtn(double);
@@ -4932,7 +4945,9 @@ char16 __const_func __attribute__((overloadable)) convert_char16_sat_rte(double1
 char16 __const_func __attribute__((overloadable)) convert_char16_sat_rtn(double16);
 char16 __const_func __attribute__((overloadable)) convert_char16_sat_rtp(double16);
 char16 __const_func __attribute__((overloadable)) convert_char16_sat_rtz(double16);
+#endif //cl_khr_fp64
 
+#ifdef cl_khr_fp64
 uchar __const_func __attribute__((overloadable)) convert_uchar(double);
 uchar __const_func __attribute__((overloadable)) convert_uchar_rte(double);
 uchar __const_func __attribute__((overloadable)) convert_uchar_rtn(double);
@@ -4993,7 +5008,9 @@ uchar16 __const_func __attribute__((overloadable)) convert_uchar16_sat_rte(doubl
 uchar16 __const_func __attribute__((overloadable)) convert_uchar16_sat_rtn(double16);
 uchar16 __const_func __attribute__((overloadable)) convert_uchar16_sat_rtp(double16);
 uchar16 __const_func __attribute__((overloadable)) convert_uchar16_sat_rtz(double16);
+#endif //cl_khr_fp64
 
+#ifdef cl_khr_fp64
 short __const_func __attribute__((overloadable)) convert_short(double);
 short __const_func __attribute__((overloadable)) convert_short_rte(double);
 short __const_func __attribute__((overloadable)) convert_short_rtn(double);
@@ -5054,7 +5071,9 @@ short16 __const_func __attribute__((overloadable)) convert_short16_sat_rte(doubl
 short16 __const_func __attribute__((overloadable)) convert_short16_sat_rtn(double16);
 short16 __const_func __attribute__((overloadable)) convert_short16_sat_rtp(double16);
 short16 __const_func __attribute__((overloadable)) convert_short16_sat_rtz(double16);
+#endif //cl_khr_fp64
 
+#ifdef cl_khr_fp64
 ushort __const_func __attribute__((overloadable)) convert_ushort(double);
 ushort __const_func __attribute__((overloadable)) convert_ushort_rte(double);
 ushort __const_func __attribute__((overloadable)) convert_ushort_rtn(double);
@@ -5115,7 +5134,9 @@ ushort16 __const_func __attribute__((overloadable)) convert_ushort16_sat_rte(dou
 ushort16 __const_func __attribute__((overloadable)) convert_ushort16_sat_rtn(double16);
 ushort16 __const_func __attribute__((overloadable)) convert_ushort16_sat_rtp(double16);
 ushort16 __const_func __attribute__((overloadable)) convert_ushort16_sat_rtz(double16);
+#endif //cl_khr_fp64
 
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) convert_int(double);
 int __const_func __attribute__((overloadable)) convert_int_rte(double);
 int __const_func __attribute__((overloadable)) convert_int_rtn(double);
@@ -5176,7 +5197,9 @@ int16 __const_func __attribute__((overloadable)) convert_int16_sat_rte(double16)
 int16 __const_func __attribute__((overloadable)) convert_int16_sat_rtn(double16);
 int16 __const_func __attribute__((overloadable)) convert_int16_sat_rtp(double16);
 int16 __const_func __attribute__((overloadable)) convert_int16_sat_rtz(double16);
+#endif //cl_khr_fp64
 
+#ifdef cl_khr_fp64
 uint __const_func __attribute__((overloadable)) convert_uint(double);
 uint __const_func __attribute__((overloadable)) convert_uint_rte(double);
 uint __const_func __attribute__((overloadable)) convert_uint_rtn(double);
@@ -5237,7 +5260,9 @@ uint16 __const_func __attribute__((overloadable)) convert_uint16_sat_rte(double1
 uint16 __const_func __attribute__((overloadable)) convert_uint16_sat_rtn(double16);
 uint16 __const_func __attribute__((overloadable)) convert_uint16_sat_rtp(double16);
 uint16 __const_func __attribute__((overloadable)) convert_uint16_sat_rtz(double16);
+#endif //cl_khr_fp64
 
+#ifdef cl_khr_fp64
 long __const_func __attribute__((overloadable)) convert_long(double);
 long __const_func __attribute__((overloadable)) convert_long_rte(double);
 long __const_func __attribute__((overloadable)) convert_long_rtn(double);
@@ -5298,7 +5323,9 @@ long16 __const_func __attribute__((overloadable)) convert_long16_sat_rte(double1
 long16 __const_func __attribute__((overloadable)) convert_long16_sat_rtn(double16);
 long16 __const_func __attribute__((overloadable)) convert_long16_sat_rtp(double16);
 long16 __const_func __attribute__((overloadable)) convert_long16_sat_rtz(double16);
+#endif //cl_khr_fp64
 
+#ifdef cl_khr_fp64
 ulong __const_func __attribute__((overloadable)) convert_ulong(double);
 ulong __const_func __attribute__((overloadable)) convert_ulong_rte(double);
 ulong __const_func __attribute__((overloadable)) convert_ulong_rtn(double);
@@ -5359,7 +5386,9 @@ ulong16 __const_func __attribute__((overloadable)) convert_ulong16_sat_rte(doubl
 ulong16 __const_func __attribute__((overloadable)) convert_ulong16_sat_rtn(double16);
 ulong16 __const_func __attribute__((overloadable)) convert_ulong16_sat_rtp(double16);
 ulong16 __const_func __attribute__((overloadable)) convert_ulong16_sat_rtz(double16);
+#endif //cl_khr_fp64
 
+#ifdef cl_khr_fp64
 float __const_func __attribute__((overloadable)) convert_float(double);
 float __const_func __attribute__((overloadable)) convert_float_rte(double);
 float __const_func __attribute__((overloadable)) convert_float_rtn(double);
@@ -5390,7 +5419,9 @@ float16 __const_func __attribute__((overloadable)) convert_float16_rte(double16)
 float16 __const_func __attribute__((overloadable)) convert_float16_rtn(double16);
 float16 __const_func __attribute__((overloadable)) convert_float16_rtp(double16);
 float16 __const_func __attribute__((overloadable)) convert_float16_rtz(double16);
+#endif //cl_khr_fp64
 
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) convert_double(char);
 double __const_func __attribute__((overloadable)) convert_double(double);
 double __const_func __attribute__((overloadable)) convert_double(float);
@@ -5691,9 +5722,10 @@ double16 __const_func __attribute__((overloadable)) convert_double16_rtz(uchar16
 double16 __const_func __attribute__((overloadable)) convert_double16_rtz(uint16);
 double16 __const_func __attribute__((overloadable)) convert_double16_rtz(ulong16);
 double16 __const_func __attribute__((overloadable)) convert_double16_rtz(ushort16);
+#endif //cl_khr_fp64
 
-// Conversions with half data type parameters or return value.
 #ifdef cl_khr_fp16
+// Convert half types to non-double types.
 uchar __const_func __attribute__((overloadable)) convert_uchar( half );
 uchar __const_func __attribute__((overloadable)) convert_uchar_rte( half );
 uchar __const_func __attribute__((overloadable)) convert_uchar_rtp( half );
@@ -6204,306 +6236,377 @@ float16 __const_func __attribute__((overloadable)) convert_float16_rte( half16 )
 float16 __const_func __attribute__((overloadable)) convert_float16_rtp( half16 );
 float16 __const_func __attribute__((overloadable)) convert_float16_rtn( half16 );
 float16 __const_func __attribute__((overloadable)) convert_float16_rtz( half16 );
-half __attribute__((overloadable)) convert_half( uchar );
-half __attribute__((overloadable)) convert_half( ushort );
-half __attribute__((overloadable)) convert_half( uint );
-half __attribute__((overloadable)) convert_half( ulong );
-half __attribute__((overloadable)) convert_half( char );
-half __attribute__((overloadable)) convert_half( short );
-half __attribute__((overloadable)) convert_half( int );
-half __attribute__((overloadable)) convert_half( long );
-half __attribute__((overloadable)) convert_half( float );
-half __attribute__((overloadable)) convert_half( half );
-half __attribute__((overloadable)) convert_half_rte( uchar );
-half __attribute__((overloadable)) convert_half_rte( ushort );
-half __attribute__((overloadable)) convert_half_rte( uint );
-half __attribute__((overloadable)) convert_half_rte( ulong );
-half __attribute__((overloadable)) convert_half_rte( char );
-half __attribute__((overloadable)) convert_half_rte( short );
-half __attribute__((overloadable)) convert_half_rte( int );
-half __attribute__((overloadable)) convert_half_rte( long );
-half __attribute__((overloadable)) convert_half_rte( float );
-half __attribute__((overloadable)) convert_half_rte( half );
-half __attribute__((overloadable)) convert_half_rtp( uchar );
-half __attribute__((overloadable)) convert_half_rtp( ushort );
-half __attribute__((overloadable)) convert_half_rtp( uint );
-half __attribute__((overloadable)) convert_half_rtp( ulong );
-half __attribute__((overloadable)) convert_half_rtp( char );
-half __attribute__((overloadable)) convert_half_rtp( short );
-half __attribute__((overloadable)) convert_half_rtp( int );
-half __attribute__((overloadable)) convert_half_rtp( long );
-half __attribute__((overloadable)) convert_half_rtp( float );
-half __attribute__((overloadable)) convert_half_rtp( half );
-half __attribute__((overloadable)) convert_half_rtn( uchar );
-half __attribute__((overloadable)) convert_half_rtn( ushort );
-half __attribute__((overloadable)) convert_half_rtn( uint );
-half __attribute__((overloadable)) convert_half_rtn( ulong );
-half __attribute__((overloadable)) convert_half_rtn( char );
-half __attribute__((overloadable)) convert_half_rtn( short );
-half __attribute__((overloadable)) convert_half_rtn( int );
-half __attribute__((overloadable)) convert_half_rtn( long );
-half __attribute__((overloadable)) convert_half_rtn( float );
-half __attribute__((overloadable)) convert_half_rtn( half );
-half __attribute__((overloadable)) convert_half_rtz( uchar );
-half __attribute__((overloadable)) convert_half_rtz( ushort );
-half __attribute__((overloadable)) convert_half_rtz( uint );
-half __attribute__((overloadable)) convert_half_rtz( ulong );
-half __attribute__((overloadable)) convert_half_rtz( char );
-half __attribute__((overloadable)) convert_half_rtz( short );
-half __attribute__((overloadable)) convert_half_rtz( int );
-half __attribute__((overloadable)) convert_half_rtz( long );
-half __attribute__((overloadable)) convert_half_rtz( float );
-half __attribute__((overloadable)) convert_half_rtz( half );
-half2 __attribute__((overloadable)) convert_half2( char2 );
-half2 __attribute__((overloadable)) convert_half2( uchar2 );
-half2 __attribute__((overloadable)) convert_half2( short2 );
-half2 __attribute__((overloadable)) convert_half2( ushort2 );
-half2 __attribute__((overloadable)) convert_half2( int2 );
-half2 __attribute__((overloadable)) convert_half2( uint2 );
-half2 __attribute__((overloadable)) convert_half2( long2 );
-half2 __attribute__((overloadable)) convert_half2( ulong2 );
-half2 __attribute__((overloadable)) convert_half2( float2 );
-half2 __attribute__((overloadable)) convert_half2( half2 );
-half2 __attribute__((overloadable)) convert_half2_rte( char2 );
-half2 __attribute__((overloadable)) convert_half2_rte( uchar2 );
-half2 __attribute__((overloadable)) convert_half2_rte( short2 );
-half2 __attribute__((overloadable)) convert_half2_rte( ushort2 );
-half2 __attribute__((overloadable)) convert_half2_rte( int2 );
-half2 __attribute__((overloadable)) convert_half2_rte( uint2 );
-half2 __attribute__((overloadable)) convert_half2_rte( long2 );
-half2 __attribute__((overloadable)) convert_half2_rte( ulong2 );
-half2 __attribute__((overloadable)) convert_half2_rte( float2 );
-half2 __attribute__((overloadable)) convert_half2_rte( half2 );
-half2 __attribute__((overloadable)) convert_half2_rtp( char2 );
-half2 __attribute__((overloadable)) convert_half2_rtp( uchar2 );
-half2 __attribute__((overloadable)) convert_half2_rtp( short2 );
-half2 __attribute__((overloadable)) convert_half2_rtp( ushort2 );
-half2 __attribute__((overloadable)) convert_half2_rtp( int2 );
-half2 __attribute__((overloadable)) convert_half2_rtp( uint2 );
-half2 __attribute__((overloadable)) convert_half2_rtp( long2 );
-half2 __attribute__((overloadable)) convert_half2_rtp( ulong2 );
-half2 __attribute__((overloadable)) convert_half2_rtp( float2 );
-half2 __attribute__((overloadable)) convert_half2_rtp( half2 );
-half2 __attribute__((overloadable)) convert_half2_rtn( char2 );
-half2 __attribute__((overloadable)) convert_half2_rtn( uchar2 );
-half2 __attribute__((overloadable)) convert_half2_rtn( short2 );
-half2 __attribute__((overloadable)) convert_half2_rtn( ushort2 );
-half2 __attribute__((overloadable)) convert_half2_rtn( int2 );
-half2 __attribute__((overloadable)) convert_half2_rtn( uint2 );
-half2 __attribute__((overloadable)) convert_half2_rtn( long2 );
-half2 __attribute__((overloadable)) convert_half2_rtn( ulong2 );
-half2 __attribute__((overloadable)) convert_half2_rtn( float2 );
-half2 __attribute__((overloadable)) convert_half2_rtn( half2 );
-half2 __attribute__((overloadable)) convert_half2_rtz( char2 );
-half2 __attribute__((overloadable)) convert_half2_rtz( uchar2 );
-half2 __attribute__((overloadable)) convert_half2_rtz( short2 );
-half2 __attribute__((overloadable)) convert_half2_rtz( ushort2 );
-half2 __attribute__((overloadable)) convert_half2_rtz( int2 );
-half2 __attribute__((overloadable)) convert_half2_rtz( uint2 );
-half2 __attribute__((overloadable)) convert_half2_rtz( long2 );
-half2 __attribute__((overloadable)) convert_half2_rtz( ulong2 );
-half2 __attribute__((overloadable)) convert_half2_rtz( float2 );
-half2 __attribute__((overloadable)) convert_half2_rtz( half2 );
-half3 __attribute__((overloadable)) convert_half3( char3 );
-half3 __attribute__((overloadable)) convert_half3( uchar3 );
-half3 __attribute__((overloadable)) convert_half3( short3 );
-half3 __attribute__((overloadable)) convert_half3( ushort3 );
-half3 __attribute__((overloadable)) convert_half3( int3 );
-half3 __attribute__((overloadable)) convert_half3( uint3 );
-half3 __attribute__((overloadable)) convert_half3( long3 );
-half3 __attribute__((overloadable)) convert_half3( ulong3 );
-half3 __attribute__((overloadable)) convert_half3( float3 );
-half3 __attribute__((overloadable)) convert_half3( half3 );
-half3 __attribute__((overloadable)) convert_half3_rte( char3 );
-half3 __attribute__((overloadable)) convert_half3_rte( uchar3 );
-half3 __attribute__((overloadable)) convert_half3_rte( short3 );
-half3 __attribute__((overloadable)) convert_half3_rte( ushort3 );
-half3 __attribute__((overloadable)) convert_half3_rte( int3 );
-half3 __attribute__((overloadable)) convert_half3_rte( uint3 );
-half3 __attribute__((overloadable)) convert_half3_rte( long3 );
-half3 __attribute__((overloadable)) convert_half3_rte( ulong3 );
-half3 __attribute__((overloadable)) convert_half3_rte( float3 );
-half3 __attribute__((overloadable)) convert_half3_rte( half3 );
-half3 __attribute__((overloadable)) convert_half3_rtp( char3 );
-half3 __attribute__((overloadable)) convert_half3_rtp( uchar3 );
-half3 __attribute__((overloadable)) convert_half3_rtp( short3 );
-half3 __attribute__((overloadable)) convert_half3_rtp( ushort3 );
-half3 __attribute__((overloadable)) convert_half3_rtp( int3 );
-half3 __attribute__((overloadable)) convert_half3_rtp( uint3 );
-half3 __attribute__((overloadable)) convert_half3_rtp( long3 );
-half3 __attribute__((overloadable)) convert_half3_rtp( ulong3 );
-half3 __attribute__((overloadable)) convert_half3_rtp( float3 );
-half3 __attribute__((overloadable)) convert_half3_rtp( half3 );
-half3 __attribute__((overloadable)) convert_half3_rtn( char3 );
-half3 __attribute__((overloadable)) convert_half3_rtn( uchar3 );
-half3 __attribute__((overloadable)) convert_half3_rtn( short3 );
-half3 __attribute__((overloadable)) convert_half3_rtn( ushort3 );
-half3 __attribute__((overloadable)) convert_half3_rtn( int3 );
-half3 __attribute__((overloadable)) convert_half3_rtn( uint3 );
-half3 __attribute__((overloadable)) convert_half3_rtn( long3 );
-half3 __attribute__((overloadable)) convert_half3_rtn( ulong3 );
-half3 __attribute__((overloadable)) convert_half3_rtn( float3 );
-half3 __attribute__((overloadable)) convert_half3_rtn( half3 );
-half3 __attribute__((overloadable)) convert_half3_rtz( char3 );
-half3 __attribute__((overloadable)) convert_half3_rtz( uchar3 );
-half3 __attribute__((overloadable)) convert_half3_rtz( short3 );
-half3 __attribute__((overloadable)) convert_half3_rtz( ushort3 );
-half3 __attribute__((overloadable)) convert_half3_rtz( int3 );
-half3 __attribute__((overloadable)) convert_half3_rtz( uint3 );
-half3 __attribute__((overloadable)) convert_half3_rtz( long3 );
-half3 __attribute__((overloadable)) convert_half3_rtz( ulong3 );
-half3 __attribute__((overloadable)) convert_half3_rtz( float3 );
-half3 __attribute__((overloadable)) convert_half3_rtz( half3 );
-half4 __attribute__((overloadable)) convert_half4( char4 );
-half4 __attribute__((overloadable)) convert_half4( uchar4 );
-half4 __attribute__((overloadable)) convert_half4( short4 );
-half4 __attribute__((overloadable)) convert_half4( ushort4 );
-half4 __attribute__((overloadable)) convert_half4( int4 );
-half4 __attribute__((overloadable)) convert_half4( uint4 );
-half4 __attribute__((overloadable)) convert_half4( long4 );
-half4 __attribute__((overloadable)) convert_half4( ulong4 );
-half4 __attribute__((overloadable)) convert_half4( float4 );
-half4 __attribute__((overloadable)) convert_half4( half4 );
-half4 __attribute__((overloadable)) convert_half4_rte( char4 );
-half4 __attribute__((overloadable)) convert_half4_rte( uchar4 );
-half4 __attribute__((overloadable)) convert_half4_rte( short4 );
-half4 __attribute__((overloadable)) convert_half4_rte( ushort4 );
-half4 __attribute__((overloadable)) convert_half4_rte( int4 );
-half4 __attribute__((overloadable)) convert_half4_rte( uint4 );
-half4 __attribute__((overloadable)) convert_half4_rte( long4 );
-half4 __attribute__((overloadable)) convert_half4_rte( ulong4 );
-half4 __attribute__((overloadable)) convert_half4_rte( float4 );
-half4 __attribute__((overloadable)) convert_half4_rte( half4 );
-half4 __attribute__((overloadable)) convert_half4_rtp( char4 );
-half4 __attribute__((overloadable)) convert_half4_rtp( uchar4 );
-half4 __attribute__((overloadable)) convert_half4_rtp( short4 );
-half4 __attribute__((overloadable)) convert_half4_rtp( ushort4 );
-half4 __attribute__((overloadable)) convert_half4_rtp( int4 );
-half4 __attribute__((overloadable)) convert_half4_rtp( uint4 );
-half4 __attribute__((overloadable)) convert_half4_rtp( long4 );
-half4 __attribute__((overloadable)) convert_half4_rtp( ulong4 );
-half4 __attribute__((overloadable)) convert_half4_rtp( float4 );
-half4 __attribute__((overloadable)) convert_half4_rtp( half4 );
-half4 __attribute__((overloadable)) convert_half4_rtn( char4 );
-half4 __attribute__((overloadable)) convert_half4_rtn( uchar4 );
-half4 __attribute__((overloadable)) convert_half4_rtn( short4 );
-half4 __attribute__((overloadable)) convert_half4_rtn( ushort4 );
-half4 __attribute__((overloadable)) convert_half4_rtn( int4 );
-half4 __attribute__((overloadable)) convert_half4_rtn( uint4 );
-half4 __attribute__((overloadable)) convert_half4_rtn( long4 );
-half4 __attribute__((overloadable)) convert_half4_rtn( ulong4 );
-half4 __attribute__((overloadable)) convert_half4_rtn( float4 );
-half4 __attribute__((overloadable)) convert_half4_rtn( half4 );
-half4 __attribute__((overloadable)) convert_half4_rtz( char4 );
-half4 __attribute__((overloadable)) convert_half4_rtz( uchar4 );
-half4 __attribute__((overloadable)) convert_half4_rtz( short4 );
-half4 __attribute__((overloadable)) convert_half4_rtz( ushort4 );
-half4 __attribute__((overloadable)) convert_half4_rtz( int4 );
-half4 __attribute__((overloadable)) convert_half4_rtz( uint4 );
-half4 __attribute__((overloadable)) convert_half4_rtz( long4 );
-half4 __attribute__((overloadable)) convert_half4_rtz( ulong4 );
-half4 __attribute__((overloadable)) convert_half4_rtz( float4 );
-half4 __attribute__((overloadable)) convert_half4_rtz( half4 );
-half8 __attribute__((overloadable)) convert_half8( char8 );
-half8 __attribute__((overloadable)) convert_half8( uchar8 );
-half8 __attribute__((overloadable)) convert_half8( short8 );
-half8 __attribute__((overloadable)) convert_half8( ushort8 );
-half8 __attribute__((overloadable)) convert_half8( int8 );
-half8 __attribute__((overloadable)) convert_half8( uint8 );
-half8 __attribute__((overloadable)) convert_half8( long8 );
-half8 __attribute__((overloadable)) convert_half8( ulong8 );
-half8 __attribute__((overloadable)) convert_half8( float8 );
-half8 __attribute__((overloadable)) convert_half8( half8 );
-half8 __attribute__((overloadable)) convert_half8_rte( char8 );
-half8 __attribute__((overloadable)) convert_half8_rte( uchar8 );
-half8 __attribute__((overloadable)) convert_half8_rte( short8 );
-half8 __attribute__((overloadable)) convert_half8_rte( ushort8 );
-half8 __attribute__((overloadable)) convert_half8_rte( int8 );
-half8 __attribute__((overloadable)) convert_half8_rte( uint8 );
-half8 __attribute__((overloadable)) convert_half8_rte( long8 );
-half8 __attribute__((overloadable)) convert_half8_rte( ulong8 );
-half8 __attribute__((overloadable)) convert_half8_rte( float8 );
-half8 __attribute__((overloadable)) convert_half8_rte( half8 );
-half8 __attribute__((overloadable)) convert_half8_rtp( char8 );
-half8 __attribute__((overloadable)) convert_half8_rtp( uchar8 );
-half8 __attribute__((overloadable)) convert_half8_rtp( short8 );
-half8 __attribute__((overloadable)) convert_half8_rtp( ushort8 );
-half8 __attribute__((overloadable)) convert_half8_rtp( int8 );
-half8 __attribute__((overloadable)) convert_half8_rtp( uint8 );
-half8 __attribute__((overloadable)) convert_half8_rtp( long8 );
-half8 __attribute__((overloadable)) convert_half8_rtp( ulong8 );
-half8 __attribute__((overloadable)) convert_half8_rtp( float8 );
-half8 __attribute__((overloadable)) convert_half8_rtp( half8 );
-half8 __attribute__((overloadable)) convert_half8_rtn( char8 );
-half8 __attribute__((overloadable)) convert_half8_rtn( uchar8 );
-half8 __attribute__((overloadable)) convert_half8_rtn( short8 );
-half8 __attribute__((overloadable)) convert_half8_rtn( ushort8 );
-half8 __attribute__((overloadable)) convert_half8_rtn( int8 );
-half8 __attribute__((overloadable)) convert_half8_rtn( uint8 );
-half8 __attribute__((overloadable)) convert_half8_rtn( long8 );
-half8 __attribute__((overloadable)) convert_half8_rtn( ulong8 );
-half8 __attribute__((overloadable)) convert_half8_rtn( float8 );
-half8 __attribute__((overloadable)) convert_half8_rtn( half8 );
-half8 __attribute__((overloadable)) convert_half8_rtz( char8 );
-half8 __attribute__((overloadable)) convert_half8_rtz( uchar8 );
-half8 __attribute__((overloadable)) convert_half8_rtz( short8 );
-half8 __attribute__((overloadable)) convert_half8_rtz( ushort8 );
-half8 __attribute__((overloadable)) convert_half8_rtz( int8 );
-half8 __attribute__((overloadable)) convert_half8_rtz( uint8 );
-half8 __attribute__((overloadable)) convert_half8_rtz( long8 );
-half8 __attribute__((overloadable)) convert_half8_rtz( ulong8 );
-half8 __attribute__((overloadable)) convert_half8_rtz( float8 );
-half8 __attribute__((overloadable)) convert_half8_rtz( half8 );
-half16 __attribute__((overloadable)) convert_half16( char16 );
-half16 __attribute__((overloadable)) convert_half16( uchar16 );
-half16 __attribute__((overloadable)) convert_half16( short16 );
-half16 __attribute__((overloadable)) convert_half16( ushort16 );
-half16 __attribute__((overloadable)) convert_half16( int16 );
-half16 __attribute__((overloadable)) convert_half16( uint16 );
-half16 __attribute__((overloadable)) convert_half16( long16 );
-half16 __attribute__((overloadable)) convert_half16( ulong16 );
-half16 __attribute__((overloadable)) convert_half16( float16 );
-half16 __attribute__((overloadable)) convert_half16( half16 );
-half16 __attribute__((overloadable)) convert_half16_rte( char16 );
-half16 __attribute__((overloadable)) convert_half16_rte( uchar16 );
-half16 __attribute__((overloadable)) convert_half16_rte( short16 );
-half16 __attribute__((overloadable)) convert_half16_rte( ushort16 );
-half16 __attribute__((overloadable)) convert_half16_rte( int16 );
-half16 __attribute__((overloadable)) convert_half16_rte( uint16 );
-half16 __attribute__((overloadable)) convert_half16_rte( long16 );
-half16 __attribute__((overloadable)) convert_half16_rte( ulong16 );
-half16 __attribute__((overloadable)) convert_half16_rte( float16 );
-half16 __attribute__((overloadable)) convert_half16_rte( half16 );
-half16 __attribute__((overloadable)) convert_half16_rtp( char16 );
-half16 __attribute__((overloadable)) convert_half16_rtp( uchar16 );
-half16 __attribute__((overloadable)) convert_half16_rtp( short16 );
-half16 __attribute__((overloadable)) convert_half16_rtp( ushort16 );
-half16 __attribute__((overloadable)) convert_half16_rtp( int16 );
-half16 __attribute__((overloadable)) convert_half16_rtp( uint16 );
-half16 __attribute__((overloadable)) convert_half16_rtp( long16 );
-half16 __attribute__((overloadable)) convert_half16_rtp( ulong16 );
-half16 __attribute__((overloadable)) convert_half16_rtp( float16 );
-half16 __attribute__((overloadable)) convert_half16_rtp( half16 );
-half16 __attribute__((overloadable)) convert_half16_rtn( char16 );
-half16 __attribute__((overloadable)) convert_half16_rtn( uchar16 );
-half16 __attribute__((overloadable)) convert_half16_rtn( short16 );
-half16 __attribute__((overloadable)) convert_half16_rtn( ushort16 );
-half16 __attribute__((overloadable)) convert_half16_rtn( int16 );
-half16 __attribute__((overloadable)) convert_half16_rtn( uint16 );
-half16 __attribute__((overloadable)) convert_half16_rtn( long16 );
-half16 __attribute__((overloadable)) convert_half16_rtn( ulong16 );
-half16 __attribute__((overloadable)) convert_half16_rtn( float16 );
-half16 __attribute__((overloadable)) convert_half16_rtn( half16 );
-half16 __attribute__((overloadable)) convert_half16_rtz( char16 );
-half16 __attribute__((overloadable)) convert_half16_rtz( uchar16 );
-half16 __attribute__((overloadable)) convert_half16_rtz( short16 );
-half16 __attribute__((overloadable)) convert_half16_rtz( ushort16 );
-half16 __attribute__((overloadable)) convert_half16_rtz( int16 );
-half16 __attribute__((overloadable)) convert_half16_rtz( uint16 );
-half16 __attribute__((overloadable)) convert_half16_rtz( long16 );
-half16 __attribute__((overloadable)) convert_half16_rtz( ulong16 );
-half16 __attribute__((overloadable)) convert_half16_rtz( float16 );
-half16 __attribute__((overloadable)) convert_half16_rtz( half16 );
+
+// Convert non-double types to half types.
+half __const_func __attribute__((overloadable)) convert_half( uchar );
+half __const_func __attribute__((overloadable)) convert_half( ushort );
+half __const_func __attribute__((overloadable)) convert_half( uint );
+half __const_func __attribute__((overloadable)) convert_half( ulong );
+half __const_func __attribute__((overloadable)) convert_half( char );
+half __const_func __attribute__((overloadable)) convert_half( short );
+half __const_func __attribute__((overloadable)) convert_half( int );
+half __const_func __attribute__((overloadable)) convert_half( long );
+half __const_func __attribute__((overloadable)) convert_half( float );
+half __const_func __attribute__((overloadable)) convert_half( half );
+half __const_func __attribute__((overloadable)) convert_half_rte( uchar );
+half __const_func __attribute__((overloadable)) convert_half_rte( ushort );
+half __const_func __attribute__((overloadable)) convert_half_rte( uint );
+half __const_func __attribute__((overloadable)) convert_half_rte( ulong );
+half __const_func __attribute__((overloadable)) convert_half_rte( char );
+half __const_func __attribute__((overloadable)) convert_half_rte( short );
+half __const_func __attribute__((overloadable)) convert_half_rte( int );
+half __const_func __attribute__((overloadable)) convert_half_rte( long );
+half __const_func __attribute__((overloadable)) convert_half_rte( float );
+half __const_func __attribute__((overloadable)) convert_half_rte( half );
+half __const_func __attribute__((overloadable)) convert_half_rtp( uchar );
+half __const_func __attribute__((overloadable)) convert_half_rtp( ushort );
+half __const_func __attribute__((overloadable)) convert_half_rtp( uint );
+half __const_func __attribute__((overloadable)) convert_half_rtp( ulong );
+half __const_func __attribute__((overloadable)) convert_half_rtp( char );
+half __const_func __attribute__((overloadable)) convert_half_rtp( short );
+half __const_func __attribute__((overloadable)) convert_half_rtp( int );
+half __const_func __attribute__((overloadable)) convert_half_rtp( long );
+half __const_func __attribute__((overloadable)) convert_half_rtp( float );
+half __const_func __attribute__((overloadable)) convert_half_rtp( half );
+half __const_func __attribute__((overloadable)) convert_half_rtn( uchar );
+half __const_func __attribute__((overloadable)) convert_half_rtn( ushort );
+half __const_func __attribute__((overloadable)) convert_half_rtn( uint );
+half __const_func __attribute__((overloadable)) convert_half_rtn( ulong );
+half __const_func __attribute__((overloadable)) convert_half_rtn( char );
+half __const_func __attribute__((overloadable)) convert_half_rtn( short );
+half __const_func __attribute__((overloadable)) convert_half_rtn( int );
+half __const_func __attribute__((overloadable)) convert_half_rtn( long );
+half __const_func __attribute__((overloadable)) convert_half_rtn( float );
+half __const_func __attribute__((overloadable)) convert_half_rtn( half );
+half __const_func __attribute__((overloadable)) convert_half_rtz( uchar );
+half __const_func __attribute__((overloadable)) convert_half_rtz( ushort );
+half __const_func __attribute__((overloadable)) convert_half_rtz( uint );
+half __const_func __attribute__((overloadable)) convert_half_rtz( ulong );
+half __const_func __attribute__((overloadable)) convert_half_rtz( char );
+half __const_func __attribute__((overloadable)) convert_half_rtz( short );
+half __const_func __attribute__((overloadable)) convert_half_rtz( int );
+half __const_func __attribute__((overloadable)) convert_half_rtz( long );
+half __const_func __attribute__((overloadable)) convert_half_rtz( float );
+half __const_func __attribute__((overloadable)) convert_half_rtz( half );
+half2 __const_func __attribute__((overloadable)) convert_half2( char2 );
+half2 __const_func __attribute__((overloadable)) convert_half2( uchar2 );
+half2 __const_func __attribute__((overloadable)) convert_half2( short2 );
+half2 __const_func __attribute__((overloadable)) convert_half2( ushort2 );
+half2 __const_func __attribute__((overloadable)) convert_half2( int2 );
+half2 __const_func __attribute__((overloadable)) convert_half2( uint2 );
+half2 __const_func __attribute__((overloadable)) convert_half2( long2 );
+half2 __const_func __attribute__((overloadable)) convert_half2( ulong2 );
+half2 __const_func __attribute__((overloadable)) convert_half2( float2 );
+half2 __const_func __attribute__((overloadable)) convert_half2( half2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( char2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( uchar2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( short2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( ushort2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( int2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( uint2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( long2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( ulong2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( float2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( half2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( char2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( uchar2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( short2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( ushort2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( int2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( uint2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( long2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( ulong2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( float2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( half2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( char2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( uchar2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( short2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( ushort2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( int2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( uint2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( long2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( ulong2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( float2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( half2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( char2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( uchar2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( short2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( ushort2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( int2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( uint2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( long2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( ulong2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( float2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( half2 );
+half3 __const_func __attribute__((overloadable)) convert_half3( char3 );
+half3 __const_func __attribute__((overloadable)) convert_half3( uchar3 );
+half3 __const_func __attribute__((overloadable)) convert_half3( short3 );
+half3 __const_func __attribute__((overloadable)) convert_half3( ushort3 );
+half3 __const_func __attribute__((overloadable)) convert_half3( int3 );
+half3 __const_func __attribute__((overloadable)) convert_half3( uint3 );
+half3 __const_func __attribute__((overloadable)) convert_half3( long3 );
+half3 __const_func __attribute__((overloadable)) convert_half3( ulong3 );
+half3 __const_func __attribute__((overloadable)) convert_half3( float3 );
+half3 __const_func __attribute__((overloadable)) convert_half3( half3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( char3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( uchar3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( short3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( ushort3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( int3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( uint3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( long3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( ulong3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( float3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( half3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( char3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( uchar3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( short3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( ushort3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( int3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( uint3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( long3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( ulong3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( float3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( half3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( char3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( uchar3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( short3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( ushort3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( int3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( uint3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( long3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( ulong3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( float3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( half3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( char3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( uchar3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( short3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( ushort3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( int3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( uint3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( long3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( ulong3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( float3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( half3 );
+half4 __const_func __attribute__((overloadable)) convert_half4( char4 );
+half4 __const_func __attribute__((overloadable)) convert_half4( uchar4 );
+half4 __const_func __attribute__((overloadable)) convert_half4( short4 );
+half4 __const_func __attribute__((overloadable)) convert_half4( ushort4 );
+half4 __const_func __attribute__((overloadable)) convert_half4( int4 );
+half4 __const_func __attribute__((overloadable)) convert_half4( uint4 );
+half4 __const_func __attribute__((overloadable)) convert_half4( long4 );
+half4 __const_func __attribute__((overloadable)) convert_half4( ulong4 );
+half4 __const_func __attribute__((overloadable)) convert_half4( float4 );
+half4 __const_func __attribute__((overloadable)) convert_half4( half4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( char4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( uchar4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( short4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( ushort4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( int4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( uint4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( long4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( ulong4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( float4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( half4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( char4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( uchar4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( short4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( ushort4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( int4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( uint4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( long4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( ulong4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( float4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( half4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( char4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( uchar4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( short4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( ushort4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( int4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( uint4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( long4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( ulong4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( float4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( half4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( char4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( uchar4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( short4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( ushort4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( int4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( uint4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( long4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( ulong4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( float4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( half4 );
+half8 __const_func __attribute__((overloadable)) convert_half8( char8 );
+half8 __const_func __attribute__((overloadable)) convert_half8( uchar8 );
+half8 __const_func __attribute__((overloadable)) convert_half8( short8 );
+half8 __const_func __attribute__((overloadable)) convert_half8( ushort8 );
+half8 __const_func __attribute__((overloadable)) convert_half8( int8 );
+half8 __const_func __attribute__((overloadable)) convert_half8( uint8 );
+half8 __const_func __attribute__((overloadable)) convert_half8( long8 );
+half8 __const_func __attribute__((overloadable)) convert_half8( ulong8 );
+half8 __const_func __attribute__((overloadable)) convert_half8( float8 );
+half8 __const_func __attribute__((overloadable)) convert_half8( half8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( char8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( uchar8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( short8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( ushort8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( int8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( uint8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( long8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( ulong8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( float8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( half8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( char8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( uchar8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( short8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( ushort8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( int8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( uint8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( long8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( ulong8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( float8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( half8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( char8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( uchar8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( short8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( ushort8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( int8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( uint8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( long8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( ulong8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( float8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( half8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( char8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( uchar8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( short8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( ushort8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( int8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( uint8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( long8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( ulong8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( float8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( half8 );
+half16 __const_func __attribute__((overloadable)) convert_half16( char16 );
+half16 __const_func __attribute__((overloadable)) convert_half16( uchar16 );
+half16 __const_func __attribute__((overloadable)) convert_half16( short16 );
+half16 __const_func __attribute__((overloadable)) convert_half16( ushort16 );
+half16 __const_func __attribute__((overloadable)) convert_half16( int16 );
+half16 __const_func __attribute__((overloadable)) convert_half16( uint16 );
+half16 __const_func __attribute__((overloadable)) convert_half16( long16 );
+half16 __const_func __attribute__((overloadable)) convert_half16( ulong16 );
+half16 __const_func __attribute__((overloadable)) convert_half16( float16 );
+half16 __const_func __attribute__((overloadable)) convert_half16( half16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( char16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( uchar16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( short16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( ushort16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( int16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( uint16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( long16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( ulong16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( float16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( half16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( char16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( uchar16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( short16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( ushort16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( int16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( uint16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( long16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( ulong16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( float16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( half16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( char16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( uchar16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( short16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( ushort16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( int16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( uint16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( long16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( ulong16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( float16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( half16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( char16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( uchar16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( short16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( ushort16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( int16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( uint16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( long16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( ulong16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( float16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( half16 );
+
+// Convert half types to double types.
+#ifdef cl_khr_fp64
+double __const_func __attribute__((overloadable)) convert_double( half );
+double __const_func __attribute__((overloadable)) convert_double_rte( half );
+double __const_func __attribute__((overloadable)) convert_double_rtp( half );
+double __const_func __attribute__((overloadable)) convert_double_rtn( half );
+double __const_func __attribute__((overloadable)) convert_double_rtz( half );
+double2 __const_func __attribute__((overloadable)) convert_double2( half2 );
+double2 __const_func __attribute__((overloadable)) convert_double2_rte( half2 );
+double2 __const_func __attribute__((overloadable)) convert_double2_rtp( half2 );
+double2 __const_func __attribute__((overloadable)) convert_double2_rtn( half2 );
+double2 __const_func __attribute__((overloadable)) convert_double2_rtz( half2 );
+double3 __const_func __attribute__((overloadable)) convert_double3( half3 );
+double3 __const_func __attribute__((overloadable)) convert_double3_rte( half3 );
+double3 __const_func __attribute__((overloadable)) convert_double3_rtp( half3 );
+double3 __const_func __attribute__((overloadable)) convert_double3_rtn( half3 );
+double3 __const_func __attribute__((overloadable)) convert_double3_rtz( half3 );
+double4 __const_func __attribute__((overloadable)) convert_double4( half4 );
+double4 __const_func __attribute__((overloadable)) convert_double4_rte( half4 );
+double4 __const_func __attribute__((overloadable)) convert_double4_rtp( half4 );
+double4 __const_func __attribute__((overloadable)) convert_double4_rtn( half4 );
+double4 __const_func __attribute__((overloadable)) convert_double4_rtz( half4 );
+double8 __const_func __attribute__((overloadable)) convert_double8( half8 );
+double8 __const_func __attribute__((overloadable)) convert_double8_rte( half8 );
+double8 __const_func __attribute__((overloadable)) convert_double8_rtp( half8 );
+double8 __const_func __attribute__((overloadable)) convert_double8_rtn( half8 );
+double8 __const_func __attribute__((overloadable)) convert_double8_rtz( half8 );
+double16 __const_func __attribute__((overloadable)) convert_double16( half16 );
+double16 __const_func __attribute__((overloadable)) convert_double16_rte( half16 );
+double16 __const_func __attribute__((overloadable)) convert_double16_rtp( half16 );
+double16 __const_func __attribute__((overloadable)) convert_double16_rtn( half16 );
+double16 __const_func __attribute__((overloadable)) convert_double16_rtz( half16 );
+#endif //cl_khr_fp64
+
+// Convert double types to half types.
+#ifdef cl_khr_fp64
+half __const_func __attribute__((overloadable)) convert_half( double );
+half __const_func __attribute__((overloadable)) convert_half_rte( double );
+half __const_func __attribute__((overloadable)) convert_half_rtp( double );
+half __const_func __attribute__((overloadable)) convert_half_rtn( double );
+half __const_func __attribute__((overloadable)) convert_half_rtz( double );
+half2 __const_func __attribute__((overloadable)) convert_half2( double2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rte( double2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtp( double2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtn( double2 );
+half2 __const_func __attribute__((overloadable)) convert_half2_rtz( double2 );
+half3 __const_func __attribute__((overloadable)) convert_half3( double3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rte( double3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtp( double3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtn( double3 );
+half3 __const_func __attribute__((overloadable)) convert_half3_rtz( double3 );
+half4 __const_func __attribute__((overloadable)) convert_half4( double4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rte( double4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtp( double4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtn( double4 );
+half4 __const_func __attribute__((overloadable)) convert_half4_rtz( double4 );
+half8 __const_func __attribute__((overloadable)) convert_half8( double8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rte( double8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtp( double8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtn( double8 );
+half8 __const_func __attribute__((overloadable)) convert_half8_rtz( double8 );
+half16 __const_func __attribute__((overloadable)) convert_half16( double16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rte( double16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtp( double16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtn( double16 );
+half16 __const_func __attribute__((overloadable)) convert_half16_rtz( double16 );
+#endif //cl_khr_fp64
+
 #endif // cl_khr_fp16
 
 /**
@@ -6684,11 +6787,11 @@ size_t __const_func __attribute__((overloadable)) get_group_id(uint dimindx);
  */
 size_t __const_func __attribute__((overloadable)) get_global_offset(uint dimindx);
 
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 size_t __attribute__((overloadable)) get_enqueued_local_size(uint dimindx);
 size_t __attribute__((overloadable)) get_global_linear_id(void);
 size_t __attribute__((overloadable)) get_local_linear_id(void);
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 // OpenCL v1.2 s6.12.2, v2.0 s6.13.2 - Math functions
 
@@ -6701,12 +6804,14 @@ float3 __const_func __attribute__((overloadable)) acos(float3);
 float4 __const_func __attribute__((overloadable)) acos(float4);
 float8 __const_func __attribute__((overloadable)) acos(float8);
 float16 __const_func __attribute__((overloadable)) acos(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) acos(double);
 double2 __const_func __attribute__((overloadable)) acos(double2);
 double3 __const_func __attribute__((overloadable)) acos(double3);
 double4 __const_func __attribute__((overloadable)) acos(double4);
 double8 __const_func __attribute__((overloadable)) acos(double8);
 double16 __const_func __attribute__((overloadable)) acos(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) acos(half);
 half2 __const_func __attribute__((overloadable)) acos( half2 );
@@ -6725,12 +6830,14 @@ float3 __const_func __attribute__((overloadable)) acosh(float3);
 float4 __const_func __attribute__((overloadable)) acosh(float4);
 float8 __const_func __attribute__((overloadable)) acosh(float8);
 float16 __const_func __attribute__((overloadable)) acosh(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) acosh(double);
 double2 __const_func __attribute__((overloadable)) acosh(double2);
 double3 __const_func __attribute__((overloadable)) acosh(double3);
 double4 __const_func __attribute__((overloadable)) acosh(double4);
 double8 __const_func __attribute__((overloadable)) acosh(double8);
 double16 __const_func __attribute__((overloadable)) acosh(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) acosh( half );
 half2 __const_func __attribute__((overloadable)) acosh( half2 );
@@ -6749,12 +6856,14 @@ float3 __const_func __attribute__((overloadable)) acospi(float3 x);
 float4 __const_func __attribute__((overloadable)) acospi(float4 x);
 float8 __const_func __attribute__((overloadable)) acospi(float8 x);
 float16 __const_func __attribute__((overloadable)) acospi(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) acospi(double x);
 double2 __const_func __attribute__((overloadable)) acospi(double2 x);
 double3 __const_func __attribute__((overloadable)) acospi(double3 x);
 double4 __const_func __attribute__((overloadable)) acospi(double4 x);
 double8 __const_func __attribute__((overloadable)) acospi(double8 x);
 double16 __const_func __attribute__((overloadable)) acospi(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) acospi( half x );
 half2 __const_func __attribute__((overloadable)) acospi( half2 x );
@@ -6773,12 +6882,14 @@ float3 __const_func __attribute__((overloadable)) asin(float3);
 float4 __const_func __attribute__((overloadable)) asin(float4);
 float8 __const_func __attribute__((overloadable)) asin(float8);
 float16 __const_func __attribute__((overloadable)) asin(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) asin(double);
 double2 __const_func __attribute__((overloadable)) asin(double2);
 double3 __const_func __attribute__((overloadable)) asin(double3);
 double4 __const_func __attribute__((overloadable)) asin(double4);
 double8 __const_func __attribute__((overloadable)) asin(double8);
 double16 __const_func __attribute__((overloadable)) asin(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) asin( half );
 half2 __const_func __attribute__((overloadable)) asin( half2 );
@@ -6797,12 +6908,14 @@ float3 __const_func __attribute__((overloadable)) asinh(float3);
 float4 __const_func __attribute__((overloadable)) asinh(float4);
 float8 __const_func __attribute__((overloadable)) asinh(float8);
 float16 __const_func __attribute__((overloadable)) asinh(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) asinh(double);
 double2 __const_func __attribute__((overloadable)) asinh(double2);
 double3 __const_func __attribute__((overloadable)) asinh(double3);
 double4 __const_func __attribute__((overloadable)) asinh(double4);
 double8 __const_func __attribute__((overloadable)) asinh(double8);
 double16 __const_func __attribute__((overloadable)) asinh(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) asinh( half );
 half2 __const_func __attribute__((overloadable)) asinh( half2 );
@@ -6821,12 +6934,14 @@ float3 __const_func __attribute__((overloadable)) asinpi(float3 x);
 float4 __const_func __attribute__((overloadable)) asinpi(float4 x);
 float8 __const_func __attribute__((overloadable)) asinpi(float8 x);
 float16 __const_func __attribute__((overloadable)) asinpi(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) asinpi(double x);
 double2 __const_func __attribute__((overloadable)) asinpi(double2 x);
 double3 __const_func __attribute__((overloadable)) asinpi(double3 x);
 double4 __const_func __attribute__((overloadable)) asinpi(double4 x);
 double8 __const_func __attribute__((overloadable)) asinpi(double8 x);
 double16 __const_func __attribute__((overloadable)) asinpi(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) asinpi( half x );
 half2 __const_func __attribute__((overloadable)) asinpi( half2 x );
@@ -6845,12 +6960,14 @@ float3 __const_func __attribute__((overloadable)) atan(float3 y_over_x);
 float4 __const_func __attribute__((overloadable)) atan(float4 y_over_x);
 float8 __const_func __attribute__((overloadable)) atan(float8 y_over_x);
 float16 __const_func __attribute__((overloadable)) atan(float16 y_over_x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) atan(double y_over_x);
 double2 __const_func __attribute__((overloadable)) atan(double2 y_over_x);
 double3 __const_func __attribute__((overloadable)) atan(double3 y_over_x);
 double4 __const_func __attribute__((overloadable)) atan(double4 y_over_x);
 double8 __const_func __attribute__((overloadable)) atan(double8 y_over_x);
 double16 __const_func __attribute__((overloadable)) atan(double16 y_over_x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) atan( half y_over_x );
 half2 __const_func __attribute__((overloadable)) atan( half2 y_over_x );
@@ -6869,12 +6986,14 @@ float3 __const_func __attribute__((overloadable)) atan2(float3 y, float3 x);
 float4 __const_func __attribute__((overloadable)) atan2(float4 y, float4 x);
 float8 __const_func __attribute__((overloadable)) atan2(float8 y, float8 x);
 float16 __const_func __attribute__((overloadable)) atan2(float16 y, float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) atan2(double y, double x);
 double2 __const_func __attribute__((overloadable)) atan2(double2 y, double2 x);
 double3 __const_func __attribute__((overloadable)) atan2(double3 y, double3 x);
 double4 __const_func __attribute__((overloadable)) atan2(double4 y, double4 x);
 double8 __const_func __attribute__((overloadable)) atan2(double8 y, double8 x);
 double16 __const_func __attribute__((overloadable)) atan2(double16 y, double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) atan2( half y, half x );
 half2 __const_func __attribute__((overloadable)) atan2( half2 y, half2 x );
@@ -6893,12 +7012,14 @@ float3 __const_func __attribute__((overloadable)) atanh(float3);
 float4 __const_func __attribute__((overloadable)) atanh(float4);
 float8 __const_func __attribute__((overloadable)) atanh(float8);
 float16 __const_func __attribute__((overloadable)) atanh(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) atanh(double);
 double2 __const_func __attribute__((overloadable)) atanh(double2);
 double3 __const_func __attribute__((overloadable)) atanh(double3);
 double4 __const_func __attribute__((overloadable)) atanh(double4);
 double8 __const_func __attribute__((overloadable)) atanh(double8);
 double16 __const_func __attribute__((overloadable)) atanh(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) atanh( half );
 half2 __const_func __attribute__((overloadable)) atanh( half2 );
@@ -6917,12 +7038,14 @@ float3 __const_func __attribute__((overloadable)) atanpi(float3 x);
 float4 __const_func __attribute__((overloadable)) atanpi(float4 x);
 float8 __const_func __attribute__((overloadable)) atanpi(float8 x);
 float16 __const_func __attribute__((overloadable)) atanpi(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) atanpi(double x);
 double2 __const_func __attribute__((overloadable)) atanpi(double2 x);
 double3 __const_func __attribute__((overloadable)) atanpi(double3 x);
 double4 __const_func __attribute__((overloadable)) atanpi(double4 x);
 double8 __const_func __attribute__((overloadable)) atanpi(double8 x);
 double16 __const_func __attribute__((overloadable)) atanpi(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) atanpi( half x );
 half2 __const_func __attribute__((overloadable)) atanpi( half2 x );
@@ -6941,12 +7064,14 @@ float3 __const_func __attribute__((overloadable)) atan2pi(float3 y, float3 x);
 float4 __const_func __attribute__((overloadable)) atan2pi(float4 y, float4 x);
 float8 __const_func __attribute__((overloadable)) atan2pi(float8 y, float8 x);
 float16 __const_func __attribute__((overloadable)) atan2pi(float16 y, float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) atan2pi(double y, double x);
 double2 __const_func __attribute__((overloadable)) atan2pi(double2 y, double2 x);
 double3 __const_func __attribute__((overloadable)) atan2pi(double3 y, double3 x);
 double4 __const_func __attribute__((overloadable)) atan2pi(double4 y, double4 x);
 double8 __const_func __attribute__((overloadable)) atan2pi(double8 y, double8 x);
 double16 __const_func __attribute__((overloadable)) atan2pi(double16 y, double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) atan2pi( half y, half x );
 half2 __const_func __attribute__((overloadable)) atan2pi( half2 y, half2 x );
@@ -6965,12 +7090,14 @@ float3 __const_func __attribute__((overloadable)) cbrt(float3);
 float4 __const_func __attribute__((overloadable)) cbrt(float4);
 float8 __const_func __attribute__((overloadable)) cbrt(float8);
 float16 __const_func __attribute__((overloadable)) cbrt(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) cbrt(double);
 double2 __const_func __attribute__((overloadable)) cbrt(double2);
 double3 __const_func __attribute__((overloadable)) cbrt(double3);
 double4 __const_func __attribute__((overloadable)) cbrt(double4);
 double8 __const_func __attribute__((overloadable)) cbrt(double8);
 double16 __const_func __attribute__((overloadable)) cbrt(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) cbrt( half );
 half2 __const_func __attribute__((overloadable)) cbrt( half2 );
@@ -6990,12 +7117,14 @@ float3 __const_func __attribute__((overloadable)) ceil(float3);
 float4 __const_func __attribute__((overloadable)) ceil(float4);
 float8 __const_func __attribute__((overloadable)) ceil(float8);
 float16 __const_func __attribute__((overloadable)) ceil(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) ceil(double);
 double2 __const_func __attribute__((overloadable)) ceil(double2);
 double3 __const_func __attribute__((overloadable)) ceil(double3);
 double4 __const_func __attribute__((overloadable)) ceil(double4);
 double8 __const_func __attribute__((overloadable)) ceil(double8);
 double16 __const_func __attribute__((overloadable)) ceil(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) ceil( half );
 half2 __const_func __attribute__((overloadable)) ceil( half2 );
@@ -7015,12 +7144,14 @@ float3 __const_func __attribute__((overloadable)) copysign(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) copysign(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) copysign(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) copysign(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) copysign(double x, double y);
 double2 __const_func __attribute__((overloadable)) copysign(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) copysign(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) copysign(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) copysign(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) copysign(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) copysign( half x, half y );
 half2 __const_func __attribute__((overloadable)) copysign( half2 x, half2 y );
@@ -7039,12 +7170,14 @@ float3 __const_func __attribute__((overloadable)) cos(float3);
 float4 __const_func __attribute__((overloadable)) cos(float4);
 float8 __const_func __attribute__((overloadable)) cos(float8);
 float16 __const_func __attribute__((overloadable)) cos(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) cos(double);
 double2 __const_func __attribute__((overloadable)) cos(double2);
 double3 __const_func __attribute__((overloadable)) cos(double3);
 double4 __const_func __attribute__((overloadable)) cos(double4);
 double8 __const_func __attribute__((overloadable)) cos(double8);
 double16 __const_func __attribute__((overloadable)) cos(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) cos( half );
 half2 __const_func __attribute__((overloadable)) cos( half2 );
@@ -7063,12 +7196,14 @@ float3 __const_func __attribute__((overloadable)) cosh(float3);
 float4 __const_func __attribute__((overloadable)) cosh(float4);
 float8 __const_func __attribute__((overloadable)) cosh(float8);
 float16 __const_func __attribute__((overloadable)) cosh(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) cosh(double);
 double2 __const_func __attribute__((overloadable)) cosh(double2);
 double3 __const_func __attribute__((overloadable)) cosh(double3);
 double4 __const_func __attribute__((overloadable)) cosh(double4);
 double8 __const_func __attribute__((overloadable)) cosh(double8);
 double16 __const_func __attribute__((overloadable)) cosh(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) cosh( half );
 half2 __const_func __attribute__((overloadable)) cosh( half2 );
@@ -7087,12 +7222,14 @@ float3 __const_func __attribute__((overloadable)) cospi(float3 x);
 float4 __const_func __attribute__((overloadable)) cospi(float4 x);
 float8 __const_func __attribute__((overloadable)) cospi(float8 x);
 float16 __const_func __attribute__((overloadable)) cospi(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) cospi(double x);
 double2 __const_func __attribute__((overloadable)) cospi(double2 x);
 double3 __const_func __attribute__((overloadable)) cospi(double3 x);
 double4 __const_func __attribute__((overloadable)) cospi(double4 x);
 double8 __const_func __attribute__((overloadable)) cospi(double8 x);
 double16 __const_func __attribute__((overloadable)) cospi(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) cospi( half x );
 half2 __const_func __attribute__((overloadable)) cospi( half2 x );
@@ -7111,12 +7248,14 @@ float3 __const_func __attribute__((overloadable)) erfc(float3);
 float4 __const_func __attribute__((overloadable)) erfc(float4);
 float8 __const_func __attribute__((overloadable)) erfc(float8);
 float16 __const_func __attribute__((overloadable)) erfc(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) erfc(double);
 double2 __const_func __attribute__((overloadable)) erfc(double2);
 double3 __const_func __attribute__((overloadable)) erfc(double3);
 double4 __const_func __attribute__((overloadable)) erfc(double4);
 double8 __const_func __attribute__((overloadable)) erfc(double8);
 double16 __const_func __attribute__((overloadable)) erfc(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) erfc( half );
 half2 __const_func __attribute__((overloadable)) erfc( half2 );
@@ -7136,12 +7275,14 @@ float3 __const_func __attribute__((overloadable)) erf(float3);
 float4 __const_func __attribute__((overloadable)) erf(float4);
 float8 __const_func __attribute__((overloadable)) erf(float8);
 float16 __const_func __attribute__((overloadable)) erf(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) erf(double);
 double2 __const_func __attribute__((overloadable)) erf(double2);
 double3 __const_func __attribute__((overloadable)) erf(double3);
 double4 __const_func __attribute__((overloadable)) erf(double4);
 double8 __const_func __attribute__((overloadable)) erf(double8);
 double16 __const_func __attribute__((overloadable)) erf(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) erf( half );
 half2 __const_func __attribute__((overloadable)) erf( half2 );
@@ -7160,12 +7301,14 @@ float3 __const_func __attribute__((overloadable)) exp(float3 x);
 float4 __const_func __attribute__((overloadable)) exp(float4 x);
 float8 __const_func __attribute__((overloadable)) exp(float8 x);
 float16 __const_func __attribute__((overloadable)) exp(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) exp(double x);
 double2 __const_func __attribute__((overloadable)) exp(double2 x);
 double3 __const_func __attribute__((overloadable)) exp(double3 x);
 double4 __const_func __attribute__((overloadable)) exp(double4 x);
 double8 __const_func __attribute__((overloadable)) exp(double8 x);
 double16 __const_func __attribute__((overloadable)) exp(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) exp( half x );
 half2 __const_func __attribute__((overloadable)) exp( half2 x );
@@ -7184,12 +7327,14 @@ float3 __const_func __attribute__((overloadable)) exp2(float3);
 float4 __const_func __attribute__((overloadable)) exp2(float4);
 float8 __const_func __attribute__((overloadable)) exp2(float8);
 float16 __const_func __attribute__((overloadable)) exp2(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) exp2(double);
 double2 __const_func __attribute__((overloadable)) exp2(double2);
 double3 __const_func __attribute__((overloadable)) exp2(double3);
 double4 __const_func __attribute__((overloadable)) exp2(double4);
 double8 __const_func __attribute__((overloadable)) exp2(double8);
 double16 __const_func __attribute__((overloadable)) exp2(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) exp2( half );
 half2 __const_func __attribute__((overloadable)) exp2( half2 );
@@ -7208,12 +7353,14 @@ float3 __const_func __attribute__((overloadable)) exp10(float3);
 float4 __const_func __attribute__((overloadable)) exp10(float4);
 float8 __const_func __attribute__((overloadable)) exp10(float8);
 float16 __const_func __attribute__((overloadable)) exp10(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) exp10(double);
 double2 __const_func __attribute__((overloadable)) exp10(double2);
 double3 __const_func __attribute__((overloadable)) exp10(double3);
 double4 __const_func __attribute__((overloadable)) exp10(double4);
 double8 __const_func __attribute__((overloadable)) exp10(double8);
 double16 __const_func __attribute__((overloadable)) exp10(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) exp10( half );
 half2 __const_func __attribute__((overloadable)) exp10( half2 );
@@ -7232,12 +7379,14 @@ float3 __const_func __attribute__((overloadable)) expm1(float3 x);
 float4 __const_func __attribute__((overloadable)) expm1(float4 x);
 float8 __const_func __attribute__((overloadable)) expm1(float8 x);
 float16 __const_func __attribute__((overloadable)) expm1(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) expm1(double x);
 double2 __const_func __attribute__((overloadable)) expm1(double2 x);
 double3 __const_func __attribute__((overloadable)) expm1(double3 x);
 double4 __const_func __attribute__((overloadable)) expm1(double4 x);
 double8 __const_func __attribute__((overloadable)) expm1(double8 x);
 double16 __const_func __attribute__((overloadable)) expm1(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) expm1( half x );
 half2 __const_func __attribute__((overloadable)) expm1( half2 x );
@@ -7256,12 +7405,14 @@ float3 __const_func __attribute__((overloadable)) fabs(float3);
 float4 __const_func __attribute__((overloadable)) fabs(float4);
 float8 __const_func __attribute__((overloadable)) fabs(float8);
 float16 __const_func __attribute__((overloadable)) fabs(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) fabs(double);
 double2 __const_func __attribute__((overloadable)) fabs(double2);
 double3 __const_func __attribute__((overloadable)) fabs(double3);
 double4 __const_func __attribute__((overloadable)) fabs(double4);
 double8 __const_func __attribute__((overloadable)) fabs(double8);
 double16 __const_func __attribute__((overloadable)) fabs(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) fabs( half );
 half2 __const_func __attribute__((overloadable)) fabs( half2 );
@@ -7280,12 +7431,14 @@ float3 __const_func __attribute__((overloadable)) fdim(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) fdim(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) fdim(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) fdim(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) fdim(double x, double y);
 double2 __const_func __attribute__((overloadable)) fdim(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) fdim(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) fdim(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) fdim(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) fdim(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) fdim( half x, half y );
 half2 __const_func __attribute__((overloadable)) fdim( half2 x, half2 y );
@@ -7305,12 +7458,14 @@ float3 __const_func __attribute__((overloadable)) floor(float3);
 float4 __const_func __attribute__((overloadable)) floor(float4);
 float8 __const_func __attribute__((overloadable)) floor(float8);
 float16 __const_func __attribute__((overloadable)) floor(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) floor(double);
 double2 __const_func __attribute__((overloadable)) floor(double2);
 double3 __const_func __attribute__((overloadable)) floor(double3);
 double4 __const_func __attribute__((overloadable)) floor(double4);
 double8 __const_func __attribute__((overloadable)) floor(double8);
 double16 __const_func __attribute__((overloadable)) floor(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) floor( half );
 half2 __const_func __attribute__((overloadable)) floor( half2 );
@@ -7333,12 +7488,14 @@ float3 __const_func __attribute__((overloadable)) fma(float3 a, float3 b, float3
 float4 __const_func __attribute__((overloadable)) fma(float4 a, float4 b, float4 c);
 float8 __const_func __attribute__((overloadable)) fma(float8 a, float8 b, float8 c);
 float16 __const_func __attribute__((overloadable)) fma(float16 a, float16 b, float16 c);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) fma(double a, double b, double c);
 double2 __const_func __attribute__((overloadable)) fma(double2 a, double2 b, double2 c);
 double3 __const_func __attribute__((overloadable)) fma(double3 a, double3 b, double3 c);
 double4 __const_func __attribute__((overloadable)) fma(double4 a, double4 b, double4 c);
 double8 __const_func __attribute__((overloadable)) fma(double8 a, double8 b, double8 c);
 double16 __const_func __attribute__((overloadable)) fma(double16 a, double16 b, double16 c);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) fma( half a, half b, half c );
 half2 __const_func __attribute__((overloadable)) fma( half2 a, half2 b, half2 c );
@@ -7365,6 +7522,7 @@ float3 __const_func __attribute__((overloadable)) fmax(float3 x, float y);
 float4 __const_func __attribute__((overloadable)) fmax(float4 x, float y);
 float8 __const_func __attribute__((overloadable)) fmax(float8 x, float y);
 float16 __const_func __attribute__((overloadable)) fmax(float16 x, float y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) fmax(double x, double y);
 double2 __const_func __attribute__((overloadable)) fmax(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) fmax(double3 x, double3 y);
@@ -7376,6 +7534,7 @@ double3 __const_func __attribute__((overloadable)) fmax(double3 x, double y);
 double4 __const_func __attribute__((overloadable)) fmax(double4 x, double y);
 double8 __const_func __attribute__((overloadable)) fmax(double8 x, double y);
 double16 __const_func __attribute__((overloadable)) fmax(double16 x, double y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) fmax( half x, half y );
 half2 __const_func __attribute__((overloadable)) fmax( half2 x, half2 y );
@@ -7407,6 +7566,7 @@ float3 __const_func __attribute__((overloadable)) fmin(float3 x, float y);
 float4 __const_func __attribute__((overloadable)) fmin(float4 x, float y);
 float8 __const_func __attribute__((overloadable)) fmin(float8 x, float y);
 float16 __const_func __attribute__((overloadable)) fmin(float16 x, float y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) fmin(double x, double y);
 double2 __const_func __attribute__((overloadable)) fmin(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) fmin(double3 x, double3 y);
@@ -7418,6 +7578,7 @@ double3 __const_func __attribute__((overloadable)) fmin(double3 x, double y);
 double4 __const_func __attribute__((overloadable)) fmin(double4 x, double y);
 double8 __const_func __attribute__((overloadable)) fmin(double8 x, double y);
 double16 __const_func __attribute__((overloadable)) fmin(double16 x, double y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) fmin( half x, half y );
 half2 __const_func __attribute__((overloadable)) fmin( half2 x, half2 y );
@@ -7441,12 +7602,14 @@ float3 __const_func __attribute__((overloadable)) fmod(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) fmod(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) fmod(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) fmod(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) fmod(double x, double y);
 double2 __const_func __attribute__((overloadable)) fmod(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) fmod(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) fmod(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) fmod(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) fmod(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) fmod( half x, half y );
 half2 __const_func __attribute__((overloadable)) fmod( half2 x, half2 y );
@@ -7460,19 +7623,21 @@ half16 __const_func __attribute__((overloadable)) fmod( half16 x, half16 y );
  * Returns fmin( x - floor (x), 0x1.fffffep-1f ).
  * floor(x) is returned in iptr.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 float __attribute__((overloadable)) fract(float x, float *iptr);
 float2 __attribute__((overloadable)) fract(float2 x, float2 *iptr);
 float3 __attribute__((overloadable)) fract(float3 x, float3 *iptr);
 float4 __attribute__((overloadable)) fract(float4 x, float4 *iptr);
 float8 __attribute__((overloadable)) fract(float8 x, float8 *iptr);
 float16 __attribute__((overloadable)) fract(float16 x, float16 *iptr);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) fract(double x, double *iptr);
 double2 __attribute__((overloadable)) fract(double2 x, double2 *iptr);
 double3 __attribute__((overloadable)) fract(double3 x, double3 *iptr);
 double4 __attribute__((overloadable)) fract(double4 x, double4 *iptr);
 double8 __attribute__((overloadable)) fract(double8 x, double8 *iptr);
 double16 __attribute__((overloadable)) fract(double16 x, double16 *iptr);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) fract(half x, half *iptr);
 half2 __attribute__((overloadable)) fract(half2 x, half2 *iptr);
@@ -7500,6 +7665,7 @@ float3 __attribute__((overloadable)) fract(float3 x, __private float3 *iptr);
 float4 __attribute__((overloadable)) fract(float4 x, __private float4 *iptr);
 float8 __attribute__((overloadable)) fract(float8 x, __private float8 *iptr);
 float16 __attribute__((overloadable)) fract(float16 x, __private float16 *iptr);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) fract(double x, __global double *iptr);
 double2 __attribute__((overloadable)) fract(double2 x, __global double2 *iptr);
 double3 __attribute__((overloadable)) fract(double3 x, __global double3 *iptr);
@@ -7518,6 +7684,7 @@ double3 __attribute__((overloadable)) fract(double3 x, __private double3 *iptr);
 double4 __attribute__((overloadable)) fract(double4 x, __private double4 *iptr);
 double8 __attribute__((overloadable)) fract(double8 x, __private double8 *iptr);
 double16 __attribute__((overloadable)) fract(double16 x, __private double16 *iptr);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) fract(half x, __global half *iptr);
 half2 __attribute__((overloadable)) fract(half2 x, __global half2 *iptr);
@@ -7538,7 +7705,7 @@ half4 __attribute__((overloadable)) fract(half4 x, __private half4 *iptr);
 half8 __attribute__((overloadable)) fract(half8 x, __private half8 *iptr);
 half16 __attribute__((overloadable)) fract(half16 x, __private half16 *iptr);
 #endif //cl_khr_fp16
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * Extract mantissa and exponent from x. For each
@@ -7546,19 +7713,21 @@ half16 __attribute__((overloadable)) fract(half16 x, __private half16 *iptr);
  * magnitude in the interval [1/2, 1) or 0. Each
  * component of x equals mantissa returned * 2^exp.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 float __attribute__((overloadable)) frexp(float x, int *exp);
 float2 __attribute__((overloadable)) frexp(float2 x, int2 *exp);
 float3 __attribute__((overloadable)) frexp(float3 x, int3 *exp);
 float4 __attribute__((overloadable)) frexp(float4 x, int4 *exp);
 float8 __attribute__((overloadable)) frexp(float8 x, int8 *exp);
 float16 __attribute__((overloadable)) frexp(float16 x, int16 *exp);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) frexp(double x, int *exp);
 double2 __attribute__((overloadable)) frexp(double2 x, int2 *exp);
 double3 __attribute__((overloadable)) frexp(double3 x, int3 *exp);
 double4 __attribute__((overloadable)) frexp(double4 x, int4 *exp);
 double8 __attribute__((overloadable)) frexp(double8 x, int8 *exp);
 double16 __attribute__((overloadable)) frexp(double16 x, int16 *exp);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) frexp(half x, int *exp);
 half2 __attribute__((overloadable)) frexp(half2 x, int2 *exp);
@@ -7586,6 +7755,7 @@ float3 __attribute__((overloadable)) frexp(float3 x, __private int3 *exp);
 float4 __attribute__((overloadable)) frexp(float4 x, __private int4 *exp);
 float8 __attribute__((overloadable)) frexp(float8 x, __private int8 *exp);
 float16 __attribute__((overloadable)) frexp(float16 x, __private int16 *exp);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) frexp(double x, __global int *exp);
 double2 __attribute__((overloadable)) frexp(double2 x, __global int2 *exp);
 double3 __attribute__((overloadable)) frexp(double3 x, __global int3 *exp);
@@ -7604,6 +7774,7 @@ double3 __attribute__((overloadable)) frexp(double3 x, __private int3 *exp);
 double4 __attribute__((overloadable)) frexp(double4 x, __private int4 *exp);
 double8 __attribute__((overloadable)) frexp(double8 x, __private int8 *exp);
 double16 __attribute__((overloadable)) frexp(double16 x, __private int16 *exp);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) frexp(half x, __global int *exp);
 half2 __attribute__((overloadable)) frexp(half2 x, __global int2 *exp);
@@ -7624,7 +7795,7 @@ half4 __attribute__((overloadable)) frexp(half4 x, __private int4 *exp);
 half8 __attribute__((overloadable)) frexp(half8 x, __private int8 *exp);
 half16 __attribute__((overloadable)) frexp(half16 x, __private int16 *exp);
 #endif //cl_khr_fp16
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * Compute the value of the square root of x^2+ y^2
@@ -7636,12 +7807,14 @@ float3 __const_func __attribute__((overloadable)) hypot(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) hypot(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) hypot(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) hypot(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) hypot(double x, double y);
 double2 __const_func __attribute__((overloadable)) hypot(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) hypot(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) hypot(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) hypot(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) hypot(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) hypot( half x, half y );
 half2 __const_func __attribute__((overloadable)) hypot( half2 x, half2 y );
@@ -7660,12 +7833,14 @@ int3 __const_func __attribute__((overloadable)) ilogb(float3 x);
 int4 __const_func __attribute__((overloadable)) ilogb(float4 x);
 int8 __const_func __attribute__((overloadable)) ilogb(float8 x);
 int16 __const_func __attribute__((overloadable)) ilogb(float16 x);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) ilogb(double x);
 int2 __const_func __attribute__((overloadable)) ilogb(double2 x);
 int3 __const_func __attribute__((overloadable)) ilogb(double3 x);
 int4 __const_func __attribute__((overloadable)) ilogb(double4 x);
 int8 __const_func __attribute__((overloadable)) ilogb(double8 x);
 int16 __const_func __attribute__((overloadable)) ilogb(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) ilogb( half x );
 int2 __const_func __attribute__((overloadable)) ilogb( half2 x );
@@ -7689,6 +7864,7 @@ float3 __const_func __attribute__((overloadable)) ldexp(float3 x, int n);
 float4 __const_func __attribute__((overloadable)) ldexp(float4 x, int n);
 float8 __const_func __attribute__((overloadable)) ldexp(float8 x, int n);
 float16 __const_func __attribute__((overloadable)) ldexp(float16 x, int n);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) ldexp(double x, int n);
 double2 __const_func __attribute__((overloadable)) ldexp(double2 x, int2 n);
 double3 __const_func __attribute__((overloadable)) ldexp(double3 x, int3 n);
@@ -7700,6 +7876,7 @@ double3 __const_func __attribute__((overloadable)) ldexp(double3 x, int n);
 double4 __const_func __attribute__((overloadable)) ldexp(double4 x, int n);
 double8 __const_func __attribute__((overloadable)) ldexp(double8 x, int n);
 double16 __const_func __attribute__((overloadable)) ldexp(double16 x, int n);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) ldexp( half x, int n );
 half2 __const_func __attribute__((overloadable)) ldexp( half2 x, int2 n );
@@ -7726,12 +7903,14 @@ float3 __const_func __attribute__((overloadable)) lgamma(float3 x);
 float4 __const_func __attribute__((overloadable)) lgamma(float4 x);
 float8 __const_func __attribute__((overloadable)) lgamma(float8 x);
 float16 __const_func __attribute__((overloadable)) lgamma(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) lgamma(double x);
 double2 __const_func __attribute__((overloadable)) lgamma(double2 x);
 double3 __const_func __attribute__((overloadable)) lgamma(double3 x);
 double4 __const_func __attribute__((overloadable)) lgamma(double4 x);
 double8 __const_func __attribute__((overloadable)) lgamma(double8 x);
 double16 __const_func __attribute__((overloadable)) lgamma(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) lgamma( half x );
 half2 __const_func __attribute__((overloadable)) lgamma( half2 x );
@@ -7741,19 +7920,21 @@ half8 __const_func __attribute__((overloadable)) lgamma( half8 x );
 half16 __const_func __attribute__((overloadable)) lgamma( half16 x );
 #endif //cl_khr_fp16
 
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 float __attribute__((overloadable)) lgamma_r(float x, int *signp);
 float2 __attribute__((overloadable)) lgamma_r(float2 x, int2 *signp);
 float3 __attribute__((overloadable)) lgamma_r(float3 x, int3 *signp);
 float4 __attribute__((overloadable)) lgamma_r(float4 x, int4 *signp);
 float8 __attribute__((overloadable)) lgamma_r(float8 x, int8 *signp);
 float16 __attribute__((overloadable)) lgamma_r(float16 x, int16 *signp);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) lgamma_r(double x, int *signp);
 double2 __attribute__((overloadable)) lgamma_r(double2 x, int2 *signp);
 double3 __attribute__((overloadable)) lgamma_r(double3 x, int3 *signp);
 double4 __attribute__((overloadable)) lgamma_r(double4 x, int4 *signp);
 double8 __attribute__((overloadable)) lgamma_r(double8 x, int8 *signp);
 double16 __attribute__((overloadable)) lgamma_r(double16 x, int16 *signp);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) lgamma_r(half x, int *signp);
 half2 __attribute__((overloadable)) lgamma_r(half2 x, int2 *signp);
@@ -7781,6 +7962,7 @@ float3 __attribute__((overloadable)) lgamma_r(float3 x, __private int3 *signp);
 float4 __attribute__((overloadable)) lgamma_r(float4 x, __private int4 *signp);
 float8 __attribute__((overloadable)) lgamma_r(float8 x, __private int8 *signp);
 float16 __attribute__((overloadable)) lgamma_r(float16 x, __private int16 *signp);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) lgamma_r(double x, __global int *signp);
 double2 __attribute__((overloadable)) lgamma_r(double2 x, __global int2 *signp);
 double3 __attribute__((overloadable)) lgamma_r(double3 x, __global int3 *signp);
@@ -7799,6 +7981,7 @@ double3 __attribute__((overloadable)) lgamma_r(double3 x, __private int3 *signp)
 double4 __attribute__((overloadable)) lgamma_r(double4 x, __private int4 *signp);
 double8 __attribute__((overloadable)) lgamma_r(double8 x, __private int8 *signp);
 double16 __attribute__((overloadable)) lgamma_r(double16 x, __private int16 *signp);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) lgamma_r(half x, __global int *signp);
 half2 __attribute__((overloadable)) lgamma_r(half2 x, __global int2 *signp);
@@ -7819,7 +8002,7 @@ half4 __attribute__((overloadable)) lgamma_r(half4 x, __private int4 *signp);
 half8 __attribute__((overloadable)) lgamma_r(half8 x, __private int8 *signp);
 half16 __attribute__((overloadable)) lgamma_r(half16 x, __private int16 *signp);
 #endif //cl_khr_fp16
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * Compute natural logarithm.
@@ -7830,12 +8013,14 @@ float3 __const_func __attribute__((overloadable)) log(float3);
 float4 __const_func __attribute__((overloadable)) log(float4);
 float8 __const_func __attribute__((overloadable)) log(float8);
 float16 __const_func __attribute__((overloadable)) log(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) log(double);
 double2 __const_func __attribute__((overloadable)) log(double2);
 double3 __const_func __attribute__((overloadable)) log(double3);
 double4 __const_func __attribute__((overloadable)) log(double4);
 double8 __const_func __attribute__((overloadable)) log(double8);
 double16 __const_func __attribute__((overloadable)) log(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) log( half );
 half2 __const_func __attribute__((overloadable)) log( half2 );
@@ -7854,12 +8039,14 @@ float3 __const_func __attribute__((overloadable)) log2(float3);
 float4 __const_func __attribute__((overloadable)) log2(float4);
 float8 __const_func __attribute__((overloadable)) log2(float8);
 float16 __const_func __attribute__((overloadable)) log2(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) log2(double);
 double2 __const_func __attribute__((overloadable)) log2(double2);
 double3 __const_func __attribute__((overloadable)) log2(double3);
 double4 __const_func __attribute__((overloadable)) log2(double4);
 double8 __const_func __attribute__((overloadable)) log2(double8);
 double16 __const_func __attribute__((overloadable)) log2(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) log2( half );
 half2 __const_func __attribute__((overloadable)) log2( half2 );
@@ -7878,12 +8065,14 @@ float3 __const_func __attribute__((overloadable)) log10(float3);
 float4 __const_func __attribute__((overloadable)) log10(float4);
 float8 __const_func __attribute__((overloadable)) log10(float8);
 float16 __const_func __attribute__((overloadable)) log10(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) log10(double);
 double2 __const_func __attribute__((overloadable)) log10(double2);
 double3 __const_func __attribute__((overloadable)) log10(double3);
 double4 __const_func __attribute__((overloadable)) log10(double4);
 double8 __const_func __attribute__((overloadable)) log10(double8);
 double16 __const_func __attribute__((overloadable)) log10(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) log10( half );
 half2 __const_func __attribute__((overloadable)) log10( half2 );
@@ -7902,12 +8091,14 @@ float3 __const_func __attribute__((overloadable)) log1p(float3 x);
 float4 __const_func __attribute__((overloadable)) log1p(float4 x);
 float8 __const_func __attribute__((overloadable)) log1p(float8 x);
 float16 __const_func __attribute__((overloadable)) log1p(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) log1p(double x);
 double2 __const_func __attribute__((overloadable)) log1p(double2 x);
 double3 __const_func __attribute__((overloadable)) log1p(double3 x);
 double4 __const_func __attribute__((overloadable)) log1p(double4 x);
 double8 __const_func __attribute__((overloadable)) log1p(double8 x);
 double16 __const_func __attribute__((overloadable)) log1p(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) log1p( half x );
 half2 __const_func __attribute__((overloadable)) log1p( half2 x );
@@ -7927,12 +8118,14 @@ float3 __const_func __attribute__((overloadable)) logb(float3 x);
 float4 __const_func __attribute__((overloadable)) logb(float4 x);
 float8 __const_func __attribute__((overloadable)) logb(float8 x);
 float16 __const_func __attribute__((overloadable)) logb(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) logb(double x);
 double2 __const_func __attribute__((overloadable)) logb(double2 x);
 double3 __const_func __attribute__((overloadable)) logb(double3 x);
 double4 __const_func __attribute__((overloadable)) logb(double4 x);
 double8 __const_func __attribute__((overloadable)) logb(double8 x);
 double16 __const_func __attribute__((overloadable)) logb(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) logb( half x );
 half2 __const_func __attribute__((overloadable)) logb( half2 x );
@@ -7955,12 +8148,14 @@ float3 __const_func __attribute__((overloadable)) mad(float3 a, float3 b, float3
 float4 __const_func __attribute__((overloadable)) mad(float4 a, float4 b, float4 c);
 float8 __const_func __attribute__((overloadable)) mad(float8 a, float8 b, float8 c);
 float16 __const_func __attribute__((overloadable)) mad(float16 a, float16 b, float16 c);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) mad(double a, double b, double c);
 double2 __const_func __attribute__((overloadable)) mad(double2 a, double2 b, double2 c);
 double3 __const_func __attribute__((overloadable)) mad(double3 a, double3 b, double3 c);
 double4 __const_func __attribute__((overloadable)) mad(double4 a, double4 b, double4 c);
 double8 __const_func __attribute__((overloadable)) mad(double8 a, double8 b, double8 c);
 double16 __const_func __attribute__((overloadable)) mad(double16 a, double16 b, double16 c);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) mad( half a, half b, half c );
 half2 __const_func __attribute__((overloadable)) mad( half2 a, half2 b, half2 c );
@@ -7980,12 +8175,14 @@ float3 __const_func __attribute__((overloadable)) maxmag(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) maxmag(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) maxmag(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) maxmag(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) maxmag(double x, double y);
 double2 __const_func __attribute__((overloadable)) maxmag(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) maxmag(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) maxmag(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) maxmag(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) maxmag(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) maxmag( half x, half y );
 half2 __const_func __attribute__((overloadable)) maxmag( half2 x, half2 y );
@@ -8005,12 +8202,14 @@ float3 __const_func __attribute__((overloadable)) minmag(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) minmag(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) minmag(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) minmag(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) minmag(double x, double y);
 double2 __const_func __attribute__((overloadable)) minmag(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) minmag(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) minmag(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) minmag(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) minmag(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) minmag( half x, half y );
 half2 __const_func __attribute__((overloadable)) minmag( half2 x, half2 y );
@@ -8027,19 +8226,21 @@ half16 __const_func __attribute__((overloadable)) minmag( half16 x, half16 y );
  * the argument. It stores the integral part in the object
  * pointed to by iptr.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 float __attribute__((overloadable)) modf(float x, float *iptr);
 float2 __attribute__((overloadable)) modf(float2 x, float2 *iptr);
 float3 __attribute__((overloadable)) modf(float3 x, float3 *iptr);
 float4 __attribute__((overloadable)) modf(float4 x, float4 *iptr);
 float8 __attribute__((overloadable)) modf(float8 x, float8 *iptr);
 float16 __attribute__((overloadable)) modf(float16 x, float16 *iptr);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) modf(double x, double *iptr);
 double2 __attribute__((overloadable)) modf(double2 x, double2 *iptr);
 double3 __attribute__((overloadable)) modf(double3 x, double3 *iptr);
 double4 __attribute__((overloadable)) modf(double4 x, double4 *iptr);
 double8 __attribute__((overloadable)) modf(double8 x, double8 *iptr);
 double16 __attribute__((overloadable)) modf(double16 x, double16 *iptr);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) modf( half x, half *iptr );
 half2 __attribute__((overloadable)) modf( half2 x, half2 *iptr );
@@ -8067,6 +8268,7 @@ float3 __attribute__((overloadable)) modf(float3 x, __private float3 *iptr);
 float4 __attribute__((overloadable)) modf(float4 x, __private float4 *iptr);
 float8 __attribute__((overloadable)) modf(float8 x, __private float8 *iptr);
 float16 __attribute__((overloadable)) modf(float16 x, __private float16 *iptr);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) modf(double x, __global double *iptr);
 double2 __attribute__((overloadable)) modf(double2 x, __global double2 *iptr);
 double3 __attribute__((overloadable)) modf(double3 x, __global double3 *iptr);
@@ -8085,6 +8287,7 @@ double3 __attribute__((overloadable)) modf(double3 x, __private double3 *iptr);
 double4 __attribute__((overloadable)) modf(double4 x, __private double4 *iptr);
 double8 __attribute__((overloadable)) modf(double8 x, __private double8 *iptr);
 double16 __attribute__((overloadable)) modf(double16 x, __private double16 *iptr);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) modf( half x, __global half *iptr );
 half2 __attribute__((overloadable)) modf( half2 x, __global half2 *iptr );
@@ -8105,7 +8308,7 @@ half4 __attribute__((overloadable)) modf( half4 x, __private half4 *iptr );
 half8 __attribute__((overloadable)) modf( half8 x, __private half8 *iptr );
 half16 __attribute__((overloadable)) modf( half16 x, __private half16 *iptr );
 #endif //cl_khr_fp16
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * Returns a quiet NaN. The nancode may be placed
@@ -8117,12 +8320,14 @@ float3 __const_func __attribute__((overloadable)) nan(uint3 nancode);
 float4 __const_func __attribute__((overloadable)) nan(uint4 nancode);
 float8 __const_func __attribute__((overloadable)) nan(uint8 nancode);
 float16 __const_func __attribute__((overloadable)) nan(uint16 nancode);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) nan(ulong nancode);
 double2 __const_func __attribute__((overloadable)) nan(ulong2 nancode);
 double3 __const_func __attribute__((overloadable)) nan(ulong3 nancode);
 double4 __const_func __attribute__((overloadable)) nan(ulong4 nancode);
 double8 __const_func __attribute__((overloadable)) nan(ulong8 nancode);
 double16 __const_func __attribute__((overloadable)) nan(ulong16 nancode);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) nan( ushort nancode );
 half2 __const_func __attribute__((overloadable)) nan( ushort2 nancode );
@@ -8145,12 +8350,14 @@ float3 __const_func __attribute__((overloadable)) nextafter(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) nextafter(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) nextafter(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) nextafter(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) nextafter(double x, double y);
 double2 __const_func __attribute__((overloadable)) nextafter(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) nextafter(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) nextafter(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) nextafter(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) nextafter(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) nextafter( half x, half y );
 half2 __const_func __attribute__((overloadable)) nextafter( half2 x, half2 y );
@@ -8169,12 +8376,14 @@ float3 __const_func __attribute__((overloadable)) pow(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) pow(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) pow(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) pow(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) pow(double x, double y);
 double2 __const_func __attribute__((overloadable)) pow(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) pow(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) pow(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) pow(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) pow(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) pow( half x, half y );
 half2 __const_func __attribute__((overloadable)) pow( half2 x, half2 y );
@@ -8193,12 +8402,14 @@ float3 __const_func __attribute__((overloadable)) pown(float3 x, int3 y);
 float4 __const_func __attribute__((overloadable)) pown(float4 x, int4 y);
 float8 __const_func __attribute__((overloadable)) pown(float8 x, int8 y);
 float16 __const_func __attribute__((overloadable)) pown(float16 x, int16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) pown(double x, int y);
 double2 __const_func __attribute__((overloadable)) pown(double2 x, int2 y);
 double3 __const_func __attribute__((overloadable)) pown(double3 x, int3 y);
 double4 __const_func __attribute__((overloadable)) pown(double4 x, int4 y);
 double8 __const_func __attribute__((overloadable)) pown(double8 x, int8 y);
 double16 __const_func __attribute__((overloadable)) pown(double16 x, int16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) pown( half x, int y );
 half2 __const_func __attribute__((overloadable)) pown( half2 x, int2 y );
@@ -8217,12 +8428,14 @@ float3 __const_func __attribute__((overloadable)) powr(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) powr(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) powr(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) powr(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) powr(double x, double y);
 double2 __const_func __attribute__((overloadable)) powr(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) powr(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) powr(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) powr(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) powr(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) powr( half x, half y );
 half2 __const_func __attribute__((overloadable)) powr( half2 x, half2 y );
@@ -8244,12 +8457,14 @@ float3 __const_func __attribute__((overloadable)) remainder(float3 x, float3 y);
 float4 __const_func __attribute__((overloadable)) remainder(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) remainder(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) remainder(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) remainder(double x, double y);
 double2 __const_func __attribute__((overloadable)) remainder(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) remainder(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) remainder(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) remainder(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) remainder(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) remainder( half x, half y );
 half2 __const_func __attribute__((overloadable)) remainder( half2 x, half2 y );
@@ -8271,19 +8486,21 @@ half16 __const_func __attribute__((overloadable)) remainder( half16 x, half16 y 
  * sign as x/y. It stores this signed value in the object
  * pointed to by quo.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 float __attribute__((overloadable)) remquo(float x, float y, int *quo);
 float2 __attribute__((overloadable)) remquo(float2 x, float2 y, int2 *quo);
 float3 __attribute__((overloadable)) remquo(float3 x, float3 y, int3 *quo);
 float4 __attribute__((overloadable)) remquo(float4 x, float4 y, int4 *quo);
 float8 __attribute__((overloadable)) remquo(float8 x, float8 y, int8 *quo);
 float16 __attribute__((overloadable)) remquo(float16 x, float16 y, int16 *quo);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) remquo(double x, double y, int *quo);
 double2 __attribute__((overloadable)) remquo(double2 x, double2 y, int2 *quo);
 double3 __attribute__((overloadable)) remquo(double3 x, double3 y, int3 *quo);
 double4 __attribute__((overloadable)) remquo(double4 x, double4 y, int4 *quo);
 double8 __attribute__((overloadable)) remquo(double8 x, double8 y, int8 *quo);
 double16 __attribute__((overloadable)) remquo(double16 x, double16 y, int16 *quo);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) remquo(half x, half y, int *quo);
 half2 __attribute__((overloadable)) remquo(half2 x, half2 y, int2 *quo);
@@ -8312,6 +8529,7 @@ float3 __attribute__((overloadable)) remquo(float3 x, float3 y, __private int3 *
 float4 __attribute__((overloadable)) remquo(float4 x, float4 y, __private int4 *quo);
 float8 __attribute__((overloadable)) remquo(float8 x, float8 y, __private int8 *quo);
 float16 __attribute__((overloadable)) remquo(float16 x, float16 y, __private int16 *quo);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) remquo(double x, double y, __global int *quo);
 double2 __attribute__((overloadable)) remquo(double2 x, double2 y, __global int2 *quo);
 double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __global int3 *quo);
@@ -8330,6 +8548,7 @@ double3 __attribute__((overloadable)) remquo(double3 x, double3 y, __private int
 double4 __attribute__((overloadable)) remquo(double4 x, double4 y, __private int4 *quo);
 double8 __attribute__((overloadable)) remquo(double8 x, double8 y, __private int8 *quo);
 double16 __attribute__((overloadable)) remquo(double16 x, double16 y, __private int16 *quo);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) remquo(half x, half y, __global int *quo);
 half2 __attribute__((overloadable)) remquo(half2 x, half2 y, __global int2 *quo);
@@ -8350,7 +8569,7 @@ half4 __attribute__((overloadable)) remquo(half4 x, half4 y, __private int4 *quo
 half8 __attribute__((overloadable)) remquo(half8 x, half8 y, __private int8 *quo);
 half16 __attribute__((overloadable)) remquo(half16 x, half16 y, __private int16 *quo);
 #endif //cl_khr_fp16
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 /**
  * Round to integral value (using round to nearest
  * even rounding mode) in floating-point format.
@@ -8363,12 +8582,14 @@ float3 __const_func __attribute__((overloadable)) rint(float3);
 float4 __const_func __attribute__((overloadable)) rint(float4);
 float8 __const_func __attribute__((overloadable)) rint(float8);
 float16 __const_func __attribute__((overloadable)) rint(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) rint(double);
 double2 __const_func __attribute__((overloadable)) rint(double2);
 double3 __const_func __attribute__((overloadable)) rint(double3);
 double4 __const_func __attribute__((overloadable)) rint(double4);
 double8 __const_func __attribute__((overloadable)) rint(double8);
 double16 __const_func __attribute__((overloadable)) rint(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) rint( half );
 half2 __const_func __attribute__((overloadable)) rint( half2 );
@@ -8387,12 +8608,14 @@ float3 __const_func __attribute__((overloadable)) rootn(float3 x, int3 y);
 float4 __const_func __attribute__((overloadable)) rootn(float4 x, int4 y);
 float8 __const_func __attribute__((overloadable)) rootn(float8 x, int8 y);
 float16 __const_func __attribute__((overloadable)) rootn(float16 x, int16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) rootn(double x, int y);
 double2 __const_func __attribute__((overloadable)) rootn(double2 x, int2 y);
 double3 __const_func __attribute__((overloadable)) rootn(double3 x, int3 y);
 double4 __const_func __attribute__((overloadable)) rootn(double4 x, int4 y);
 double8 __const_func __attribute__((overloadable)) rootn(double8 x, int8 y);
 double16 __const_func __attribute__((overloadable)) rootn(double16 x, int16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) rootn( half x, int y );
 half2 __const_func __attribute__((overloadable)) rootn( half2 x, int2 y );
@@ -8413,12 +8636,14 @@ float3 __const_func __attribute__((overloadable)) round(float3 x);
 float4 __const_func __attribute__((overloadable)) round(float4 x);
 float8 __const_func __attribute__((overloadable)) round(float8 x);
 float16 __const_func __attribute__((overloadable)) round(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) round(double x);
 double2 __const_func __attribute__((overloadable)) round(double2 x);
 double3 __const_func __attribute__((overloadable)) round(double3 x);
 double4 __const_func __attribute__((overloadable)) round(double4 x);
 double8 __const_func __attribute__((overloadable)) round(double8 x);
 double16 __const_func __attribute__((overloadable)) round(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) round( half x );
 half2 __const_func __attribute__((overloadable)) round( half2 x );
@@ -8437,12 +8662,14 @@ float3 __const_func __attribute__((overloadable)) rsqrt(float3);
 float4 __const_func __attribute__((overloadable)) rsqrt(float4);
 float8 __const_func __attribute__((overloadable)) rsqrt(float8);
 float16 __const_func __attribute__((overloadable)) rsqrt(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) rsqrt(double);
 double2 __const_func __attribute__((overloadable)) rsqrt(double2);
 double3 __const_func __attribute__((overloadable)) rsqrt(double3);
 double4 __const_func __attribute__((overloadable)) rsqrt(double4);
 double8 __const_func __attribute__((overloadable)) rsqrt(double8);
 double16 __const_func __attribute__((overloadable)) rsqrt(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) rsqrt( half );
 half2 __const_func __attribute__((overloadable)) rsqrt( half2 );
@@ -8461,12 +8688,14 @@ float3 __const_func __attribute__((overloadable)) sin(float3);
 float4 __const_func __attribute__((overloadable)) sin(float4);
 float8 __const_func __attribute__((overloadable)) sin(float8);
 float16 __const_func __attribute__((overloadable)) sin(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) sin(double);
 double2 __const_func __attribute__((overloadable)) sin(double2);
 double3 __const_func __attribute__((overloadable)) sin(double3);
 double4 __const_func __attribute__((overloadable)) sin(double4);
 double8 __const_func __attribute__((overloadable)) sin(double8);
 double16 __const_func __attribute__((overloadable)) sin(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) sin( half );
 half2 __const_func __attribute__((overloadable)) sin( half2 );
@@ -8481,19 +8710,21 @@ half16 __const_func __attribute__((overloadable)) sin( half16 );
  * is the return value and computed cosine is returned
  * in cosval.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 float __attribute__((overloadable)) sincos(float x, float *cosval);
 float2 __attribute__((overloadable)) sincos(float2 x, float2 *cosval);
 float3 __attribute__((overloadable)) sincos(float3 x, float3 *cosval);
 float4 __attribute__((overloadable)) sincos(float4 x, float4 *cosval);
 float8 __attribute__((overloadable)) sincos(float8 x, float8 *cosval);
 float16 __attribute__((overloadable)) sincos(float16 x, float16 *cosval);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) sincos(double x, double *cosval);
 double2 __attribute__((overloadable)) sincos(double2 x, double2 *cosval);
 double3 __attribute__((overloadable)) sincos(double3 x, double3 *cosval);
 double4 __attribute__((overloadable)) sincos(double4 x, double4 *cosval);
 double8 __attribute__((overloadable)) sincos(double8 x, double8 *cosval);
 double16 __attribute__((overloadable)) sincos(double16 x, double16 *cosval);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) sincos(half x, half *cosval);
 half2 __attribute__((overloadable)) sincos(half2 x, half2 *cosval);
@@ -8521,6 +8752,7 @@ float3 __attribute__((overloadable)) sincos(float3 x, __private float3 *cosval);
 float4 __attribute__((overloadable)) sincos(float4 x, __private float4 *cosval);
 float8 __attribute__((overloadable)) sincos(float8 x, __private float8 *cosval);
 float16 __attribute__((overloadable)) sincos(float16 x, __private float16 *cosval);
+#ifdef cl_khr_fp64
 double __attribute__((overloadable)) sincos(double x, __global double *cosval);
 double2 __attribute__((overloadable)) sincos(double2 x, __global double2 *cosval);
 double3 __attribute__((overloadable)) sincos(double3 x, __global double3 *cosval);
@@ -8539,6 +8771,7 @@ double3 __attribute__((overloadable)) sincos(double3 x, __private double3 *cosva
 double4 __attribute__((overloadable)) sincos(double4 x, __private double4 *cosval);
 double8 __attribute__((overloadable)) sincos(double8 x, __private double8 *cosval);
 double16 __attribute__((overloadable)) sincos(double16 x, __private double16 *cosval);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) sincos(half x, __global half *cosval);
 half2 __attribute__((overloadable)) sincos(half2 x, __global half2 *cosval);
@@ -8559,7 +8792,7 @@ half4 __attribute__((overloadable)) sincos(half4 x, __private half4 *cosval);
 half8 __attribute__((overloadable)) sincos(half8 x, __private half8 *cosval);
 half16 __attribute__((overloadable)) sincos(half16 x, __private half16 *cosval);
 #endif //cl_khr_fp16
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * Compute hyperbolic sine.
@@ -8570,12 +8803,14 @@ float3 __const_func __attribute__((overloadable)) sinh(float3);
 float4 __const_func __attribute__((overloadable)) sinh(float4);
 float8 __const_func __attribute__((overloadable)) sinh(float8);
 float16 __const_func __attribute__((overloadable)) sinh(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) sinh(double);
 double2 __const_func __attribute__((overloadable)) sinh(double2);
 double3 __const_func __attribute__((overloadable)) sinh(double3);
 double4 __const_func __attribute__((overloadable)) sinh(double4);
 double8 __const_func __attribute__((overloadable)) sinh(double8);
 double16 __const_func __attribute__((overloadable)) sinh(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) sinh( half );
 half2 __const_func __attribute__((overloadable)) sinh( half2 );
@@ -8594,12 +8829,14 @@ float3 __const_func __attribute__((overloadable)) sinpi(float3 x);
 float4 __const_func __attribute__((overloadable)) sinpi(float4 x);
 float8 __const_func __attribute__((overloadable)) sinpi(float8 x);
 float16 __const_func __attribute__((overloadable)) sinpi(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) sinpi(double x);
 double2 __const_func __attribute__((overloadable)) sinpi(double2 x);
 double3 __const_func __attribute__((overloadable)) sinpi(double3 x);
 double4 __const_func __attribute__((overloadable)) sinpi(double4 x);
 double8 __const_func __attribute__((overloadable)) sinpi(double8 x);
 double16 __const_func __attribute__((overloadable)) sinpi(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) sinpi( half x );
 half2 __const_func __attribute__((overloadable)) sinpi( half2 x );
@@ -8618,12 +8855,14 @@ float3 __const_func __attribute__((overloadable)) sqrt(float3);
 float4 __const_func __attribute__((overloadable)) sqrt(float4);
 float8 __const_func __attribute__((overloadable)) sqrt(float8);
 float16 __const_func __attribute__((overloadable)) sqrt(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) sqrt(double);
 double2 __const_func __attribute__((overloadable)) sqrt(double2);
 double3 __const_func __attribute__((overloadable)) sqrt(double3);
 double4 __const_func __attribute__((overloadable)) sqrt(double4);
 double8 __const_func __attribute__((overloadable)) sqrt(double8);
 double16 __const_func __attribute__((overloadable)) sqrt(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) sqrt( half );
 half2 __const_func __attribute__((overloadable)) sqrt( half2 );
@@ -8642,12 +8881,14 @@ float3 __const_func __attribute__((overloadable)) tan(float3);
 float4 __const_func __attribute__((overloadable)) tan(float4);
 float8 __const_func __attribute__((overloadable)) tan(float8);
 float16 __const_func __attribute__((overloadable)) tan(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) tan(double);
 double2 __const_func __attribute__((overloadable)) tan(double2);
 double3 __const_func __attribute__((overloadable)) tan(double3);
 double4 __const_func __attribute__((overloadable)) tan(double4);
 double8 __const_func __attribute__((overloadable)) tan(double8);
 double16 __const_func __attribute__((overloadable)) tan(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) tan( half );
 half2 __const_func __attribute__((overloadable)) tan( half2 );
@@ -8666,12 +8907,14 @@ float3 __const_func __attribute__((overloadable)) tanh(float3);
 float4 __const_func __attribute__((overloadable)) tanh(float4);
 float8 __const_func __attribute__((overloadable)) tanh(float8);
 float16 __const_func __attribute__((overloadable)) tanh(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) tanh(double);
 double2 __const_func __attribute__((overloadable)) tanh(double2);
 double3 __const_func __attribute__((overloadable)) tanh(double3);
 double4 __const_func __attribute__((overloadable)) tanh(double4);
 double8 __const_func __attribute__((overloadable)) tanh(double8);
 double16 __const_func __attribute__((overloadable)) tanh(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) tanh( half );
 half2 __const_func __attribute__((overloadable)) tanh( half2 );
@@ -8690,12 +8933,14 @@ float3 __const_func __attribute__((overloadable)) tanpi(float3 x);
 float4 __const_func __attribute__((overloadable)) tanpi(float4 x);
 float8 __const_func __attribute__((overloadable)) tanpi(float8 x);
 float16 __const_func __attribute__((overloadable)) tanpi(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) tanpi(double x);
 double2 __const_func __attribute__((overloadable)) tanpi(double2 x);
 double3 __const_func __attribute__((overloadable)) tanpi(double3 x);
 double4 __const_func __attribute__((overloadable)) tanpi(double4 x);
 double8 __const_func __attribute__((overloadable)) tanpi(double8 x);
 double16 __const_func __attribute__((overloadable)) tanpi(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) tanpi( half x );
 half2 __const_func __attribute__((overloadable)) tanpi( half2 x );
@@ -8714,12 +8959,14 @@ float3 __const_func __attribute__((overloadable)) tgamma(float3);
 float4 __const_func __attribute__((overloadable)) tgamma(float4);
 float8 __const_func __attribute__((overloadable)) tgamma(float8);
 float16 __const_func __attribute__((overloadable)) tgamma(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) tgamma(double);
 double2 __const_func __attribute__((overloadable)) tgamma(double2);
 double3 __const_func __attribute__((overloadable)) tgamma(double3);
 double4 __const_func __attribute__((overloadable)) tgamma(double4);
 double8 __const_func __attribute__((overloadable)) tgamma(double8);
 double16 __const_func __attribute__((overloadable)) tgamma(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) tgamma( half );
 half2 __const_func __attribute__((overloadable)) tgamma( half2 );
@@ -8739,12 +8986,14 @@ float3 __const_func __attribute__((overloadable)) trunc(float3);
 float4 __const_func __attribute__((overloadable)) trunc(float4);
 float8 __const_func __attribute__((overloadable)) trunc(float8);
 float16 __const_func __attribute__((overloadable)) trunc(float16);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) trunc(double);
 double2 __const_func __attribute__((overloadable)) trunc(double2);
 double3 __const_func __attribute__((overloadable)) trunc(double3);
 double4 __const_func __attribute__((overloadable)) trunc(double4);
 double8 __const_func __attribute__((overloadable)) trunc(double8);
 double16 __const_func __attribute__((overloadable)) trunc(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) trunc( half );
 half2 __const_func __attribute__((overloadable)) trunc( half2 );
@@ -8904,12 +9153,14 @@ float3 __const_func __attribute__((overloadable)) native_cos(float3 x);
 float4 __const_func __attribute__((overloadable)) native_cos(float4 x);
 float8 __const_func __attribute__((overloadable)) native_cos(float8 x);
 float16 __const_func __attribute__((overloadable)) native_cos(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_cos(double x);
 double2 __const_func __attribute__((overloadable)) native_cos(double2 x);
 double3 __const_func __attribute__((overloadable)) native_cos(double3 x);
 double4 __const_func __attribute__((overloadable)) native_cos(double4 x);
 double8 __const_func __attribute__((overloadable)) native_cos(double8 x);
 double16 __const_func __attribute__((overloadable)) native_cos(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute x / y over an implementation-defined range.
@@ -8921,12 +9172,14 @@ float3 __const_func __attribute__((overloadable)) native_divide(float3 x, float3
 float4 __const_func __attribute__((overloadable)) native_divide(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) native_divide(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) native_divide(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_divide(double x, double y);
 double2 __const_func __attribute__((overloadable)) native_divide(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) native_divide(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) native_divide(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) native_divide(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) native_divide(double16 x, double16 y);
+#endif //cl_khr_fp64
 
 /**
  * Compute the base- e exponential of x over an
@@ -8939,12 +9192,14 @@ float3 __const_func __attribute__((overloadable)) native_exp(float3 x);
 float4 __const_func __attribute__((overloadable)) native_exp(float4 x);
 float8 __const_func __attribute__((overloadable)) native_exp(float8 x);
 float16 __const_func __attribute__((overloadable)) native_exp(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_exp(double x);
 double2 __const_func __attribute__((overloadable)) native_exp(double2 x);
 double3 __const_func __attribute__((overloadable)) native_exp(double3 x);
 double4 __const_func __attribute__((overloadable)) native_exp(double4 x);
 double8 __const_func __attribute__((overloadable)) native_exp(double8 x);
 double16 __const_func __attribute__((overloadable)) native_exp(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute the base- 2 exponential of x over an
@@ -8957,12 +9212,14 @@ float3 __const_func __attribute__((overloadable)) native_exp2(float3 x);
 float4 __const_func __attribute__((overloadable)) native_exp2(float4 x);
 float8 __const_func __attribute__((overloadable)) native_exp2(float8 x);
 float16 __const_func __attribute__((overloadable)) native_exp2(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_exp2(double x);
 double2 __const_func __attribute__((overloadable)) native_exp2(double2 x);
 double3 __const_func __attribute__((overloadable)) native_exp2(double3 x);
 double4 __const_func __attribute__((overloadable)) native_exp2(double4 x);
 double8 __const_func __attribute__((overloadable)) native_exp2(double8 x);
 double16 __const_func __attribute__((overloadable)) native_exp2(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute the base- 10 exponential of x over an
@@ -8975,12 +9232,14 @@ float3 __const_func __attribute__((overloadable)) native_exp10(float3 x);
 float4 __const_func __attribute__((overloadable)) native_exp10(float4 x);
 float8 __const_func __attribute__((overloadable)) native_exp10(float8 x);
 float16 __const_func __attribute__((overloadable)) native_exp10(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_exp10(double x);
 double2 __const_func __attribute__((overloadable)) native_exp10(double2 x);
 double3 __const_func __attribute__((overloadable)) native_exp10(double3 x);
 double4 __const_func __attribute__((overloadable)) native_exp10(double4 x);
 double8 __const_func __attribute__((overloadable)) native_exp10(double8 x);
 double16 __const_func __attribute__((overloadable)) native_exp10(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute natural logarithm over an implementationdefined
@@ -8993,12 +9252,14 @@ float3 __const_func __attribute__((overloadable)) native_log(float3 x);
 float4 __const_func __attribute__((overloadable)) native_log(float4 x);
 float8 __const_func __attribute__((overloadable)) native_log(float8 x);
 float16 __const_func __attribute__((overloadable)) native_log(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_log(double x);
 double2 __const_func __attribute__((overloadable)) native_log(double2 x);
 double3 __const_func __attribute__((overloadable)) native_log(double3 x);
 double4 __const_func __attribute__((overloadable)) native_log(double4 x);
 double8 __const_func __attribute__((overloadable)) native_log(double8 x);
 double16 __const_func __attribute__((overloadable)) native_log(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute a base 2 logarithm over an implementationdefined
@@ -9010,12 +9271,14 @@ float3 __const_func __attribute__((overloadable)) native_log2(float3 x);
 float4 __const_func __attribute__((overloadable)) native_log2(float4 x);
 float8 __const_func __attribute__((overloadable)) native_log2(float8 x);
 float16 __const_func __attribute__((overloadable)) native_log2(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_log2(double x);
 double2 __const_func __attribute__((overloadable)) native_log2(double2 x);
 double3 __const_func __attribute__((overloadable)) native_log2(double3 x);
 double4 __const_func __attribute__((overloadable)) native_log2(double4 x);
 double8 __const_func __attribute__((overloadable)) native_log2(double8 x);
 double16 __const_func __attribute__((overloadable)) native_log2(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute a base 10 logarithm over an implementationdefined
@@ -9027,12 +9290,14 @@ float3 __const_func __attribute__((overloadable)) native_log10(float3 x);
 float4 __const_func __attribute__((overloadable)) native_log10(float4 x);
 float8 __const_func __attribute__((overloadable)) native_log10(float8 x);
 float16 __const_func __attribute__((overloadable)) native_log10(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_log10(double x);
 double2 __const_func __attribute__((overloadable)) native_log10(double2 x);
 double3 __const_func __attribute__((overloadable)) native_log10(double3 x);
 double4 __const_func __attribute__((overloadable)) native_log10(double4 x);
 double8 __const_func __attribute__((overloadable)) native_log10(double8 x);
 double16 __const_func __attribute__((overloadable)) native_log10(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute x to the power y, where x is >= 0. The range of
@@ -9045,12 +9310,14 @@ float3 __const_func __attribute__((overloadable)) native_powr(float3 x, float3 y
 float4 __const_func __attribute__((overloadable)) native_powr(float4 x, float4 y);
 float8 __const_func __attribute__((overloadable)) native_powr(float8 x, float8 y);
 float16 __const_func __attribute__((overloadable)) native_powr(float16 x, float16 y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_powr(double x, double y);
 double2 __const_func __attribute__((overloadable)) native_powr(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) native_powr(double3 x, double3 y);
 double4 __const_func __attribute__((overloadable)) native_powr(double4 x, double4 y);
 double8 __const_func __attribute__((overloadable)) native_powr(double8 x, double8 y);
 double16 __const_func __attribute__((overloadable)) native_powr(double16 x, double16 y);
+#endif //cl_khr_fp64
 
 /**
  * Compute reciprocal over an implementation-defined
@@ -9062,12 +9329,14 @@ float3 __const_func __attribute__((overloadable)) native_recip(float3 x);
 float4 __const_func __attribute__((overloadable)) native_recip(float4 x);
 float8 __const_func __attribute__((overloadable)) native_recip(float8 x);
 float16 __const_func __attribute__((overloadable)) native_recip(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_recip(double x);
 double2 __const_func __attribute__((overloadable)) native_recip(double2 x);
 double3 __const_func __attribute__((overloadable)) native_recip(double3 x);
 double4 __const_func __attribute__((overloadable)) native_recip(double4 x);
 double8 __const_func __attribute__((overloadable)) native_recip(double8 x);
 double16 __const_func __attribute__((overloadable)) native_recip(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute inverse square root over an implementationdefined
@@ -9079,12 +9348,14 @@ float3 __const_func __attribute__((overloadable)) native_rsqrt(float3 x);
 float4 __const_func __attribute__((overloadable)) native_rsqrt(float4 x);
 float8 __const_func __attribute__((overloadable)) native_rsqrt(float8 x);
 float16 __const_func __attribute__((overloadable)) native_rsqrt(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_rsqrt(double x);
 double2 __const_func __attribute__((overloadable)) native_rsqrt(double2 x);
 double3 __const_func __attribute__((overloadable)) native_rsqrt(double3 x);
 double4 __const_func __attribute__((overloadable)) native_rsqrt(double4 x);
 double8 __const_func __attribute__((overloadable)) native_rsqrt(double8 x);
 double16 __const_func __attribute__((overloadable)) native_rsqrt(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute sine over an implementation-defined range.
@@ -9096,12 +9367,14 @@ float3 __const_func __attribute__((overloadable)) native_sin(float3 x);
 float4 __const_func __attribute__((overloadable)) native_sin(float4 x);
 float8 __const_func __attribute__((overloadable)) native_sin(float8 x);
 float16 __const_func __attribute__((overloadable)) native_sin(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_sin(double x);
 double2 __const_func __attribute__((overloadable)) native_sin(double2 x);
 double3 __const_func __attribute__((overloadable)) native_sin(double3 x);
 double4 __const_func __attribute__((overloadable)) native_sin(double4 x);
 double8 __const_func __attribute__((overloadable)) native_sin(double8 x);
 double16 __const_func __attribute__((overloadable)) native_sin(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute square root over an implementation-defined
@@ -9113,12 +9386,14 @@ float3 __const_func __attribute__((overloadable)) native_sqrt(float3 x);
 float4 __const_func __attribute__((overloadable)) native_sqrt(float4 x);
 float8 __const_func __attribute__((overloadable)) native_sqrt(float8 x);
 float16 __const_func __attribute__((overloadable)) native_sqrt(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_sqrt(double x);
 double2 __const_func __attribute__((overloadable)) native_sqrt(double2 x);
 double3 __const_func __attribute__((overloadable)) native_sqrt(double3 x);
 double4 __const_func __attribute__((overloadable)) native_sqrt(double4 x);
 double8 __const_func __attribute__((overloadable)) native_sqrt(double8 x);
 double16 __const_func __attribute__((overloadable)) native_sqrt(double16 x);
+#endif //cl_khr_fp64
 
 /**
  * Compute tangent over an implementation-defined range.
@@ -9130,12 +9405,14 @@ float3 __const_func __attribute__((overloadable)) native_tan(float3 x);
 float4 __const_func __attribute__((overloadable)) native_tan(float4 x);
 float8 __const_func __attribute__((overloadable)) native_tan(float8 x);
 float16 __const_func __attribute__((overloadable)) native_tan(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) native_tan(double x);
 double2 __const_func __attribute__((overloadable)) native_tan(double2 x);
 double3 __const_func __attribute__((overloadable)) native_tan(double3 x);
 double4 __const_func __attribute__((overloadable)) native_tan(double4 x);
 double8 __const_func __attribute__((overloadable)) native_tan(double8 x);
 double16 __const_func __attribute__((overloadable)) native_tan(double16 x);
+#endif //cl_khr_fp64
 
 // OpenCL v1.2 s6.12.3, v2.0 s6.13.3 - Integer Functions
 
@@ -9560,7 +9837,7 @@ ulong16 __const_func __attribute__((overloadable)) clz(ulong16 x);
  * returns the size in bits of the type of x or
  * component type of x, if x is a vector.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 char __attribute__((overloadable)) ctz(char x);
 uchar __attribute__((overloadable)) ctz(uchar x);
 char2 __attribute__((overloadable)) ctz(char2 x);
@@ -9609,7 +9886,7 @@ long8 __attribute__((overloadable)) ctz(long8 x);
 ulong8 __attribute__((overloadable)) ctz(ulong8 x);
 long16 __attribute__((overloadable)) ctz(long16 x);
 ulong16 __attribute__((overloadable)) ctz(ulong16 x);
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * Returns mul_hi(a, b) + c.
@@ -10238,6 +10515,7 @@ float3 __const_func __attribute__((overloadable)) clamp(float3 x, float minval, 
 float4 __const_func __attribute__((overloadable)) clamp(float4 x, float minval, float maxval);
 float8 __const_func __attribute__((overloadable)) clamp(float8 x, float minval, float maxval);
 float16 __const_func __attribute__((overloadable)) clamp(float16 x, float minval, float maxval);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) clamp(double x, double minval, double maxval);
 double2 __const_func __attribute__((overloadable)) clamp(double2 x, double2 minval, double2 maxval);
 double3 __const_func __attribute__((overloadable)) clamp(double3 x, double3 minval, double3 maxval);
@@ -10249,6 +10527,7 @@ double3 __const_func __attribute__((overloadable)) clamp(double3 x, double minva
 double4 __const_func __attribute__((overloadable)) clamp(double4 x, double minval, double maxval);
 double8 __const_func __attribute__((overloadable)) clamp(double8 x, double minval, double maxval);
 double16 __const_func __attribute__((overloadable)) clamp(double16 x, double minval, double maxval);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) clamp( half x, half minval, half maxval );
 half2 __const_func __attribute__((overloadable)) clamp( half2 x, half2 minval, half2 maxval );
@@ -10273,12 +10552,14 @@ float3 __const_func __attribute__((overloadable)) degrees(float3 radians);
 float4 __const_func __attribute__((overloadable)) degrees(float4 radians);
 float8 __const_func __attribute__((overloadable)) degrees(float8 radians);
 float16 __const_func __attribute__((overloadable)) degrees(float16 radians);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) degrees(double radians);
 double2 __const_func __attribute__((overloadable)) degrees(double2 radians);
 double3 __const_func __attribute__((overloadable)) degrees(double3 radians);
 double4 __const_func __attribute__((overloadable)) degrees(double4 radians);
 double8 __const_func __attribute__((overloadable)) degrees(double8 radians);
 double16 __const_func __attribute__((overloadable)) degrees(double16 radians);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) degrees( half radians );
 half2 __const_func __attribute__((overloadable)) degrees( half2 radians );
@@ -10303,6 +10584,7 @@ float3 __const_func __attribute__((overloadable)) max(float3 x, float y);
 float4 __const_func __attribute__((overloadable)) max(float4 x, float y);
 float8 __const_func __attribute__((overloadable)) max(float8 x, float y);
 float16 __const_func __attribute__((overloadable)) max(float16 x, float y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) max(double x, double y);
 double2 __const_func __attribute__((overloadable)) max(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) max(double3 x, double3 y);
@@ -10314,6 +10596,7 @@ double3 __const_func __attribute__((overloadable)) max(double3 x, double y);
 double4 __const_func __attribute__((overloadable)) max(double4 x, double y);
 double8 __const_func __attribute__((overloadable)) max(double8 x, double y);
 double16 __const_func __attribute__((overloadable)) max(double16 x, double y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) max( half x, half y );
 half2 __const_func __attribute__((overloadable)) max( half2 x, half2 y );
@@ -10343,6 +10626,7 @@ float3 __const_func __attribute__((overloadable)) min(float3 x, float y);
 float4 __const_func __attribute__((overloadable)) min(float4 x, float y);
 float8 __const_func __attribute__((overloadable)) min(float8 x, float y);
 float16 __const_func __attribute__((overloadable)) min(float16 x, float y);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) min(double x, double y);
 double2 __const_func __attribute__((overloadable)) min(double2 x, double2 y);
 double3 __const_func __attribute__((overloadable)) min(double3 x, double3 y);
@@ -10354,6 +10638,7 @@ double3 __const_func __attribute__((overloadable)) min(double3 x, double y);
 double4 __const_func __attribute__((overloadable)) min(double4 x, double y);
 double8 __const_func __attribute__((overloadable)) min(double8 x, double y);
 double16 __const_func __attribute__((overloadable)) min(double16 x, double y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) min( half x, half y );
 half2 __const_func __attribute__((overloadable)) min( half2 x, half2 y );
@@ -10386,6 +10671,7 @@ float3 __const_func __attribute__((overloadable)) mix(float3 x, float3 y, float 
 float4 __const_func __attribute__((overloadable)) mix(float4 x, float4 y, float a);
 float8 __const_func __attribute__((overloadable)) mix(float8 x, float8 y, float a);
 float16 __const_func __attribute__((overloadable)) mix(float16 x, float16 y, float a);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) mix(double x, double y, double a);
 double2 __const_func __attribute__((overloadable)) mix(double2 x, double2 y, double2 a);
 double3 __const_func __attribute__((overloadable)) mix(double3 x, double3 y, double3 a);
@@ -10397,6 +10683,7 @@ double3 __const_func __attribute__((overloadable)) mix(double3 x, double3 y, dou
 double4 __const_func __attribute__((overloadable)) mix(double4 x, double4 y, double a);
 double8 __const_func __attribute__((overloadable)) mix(double8 x, double8 y, double a);
 double16 __const_func __attribute__((overloadable)) mix(double16 x, double16 y, double a);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) mix( half x, half y, half a );
 half2 __const_func __attribute__((overloadable)) mix( half2 x, half2 y, half2 a );
@@ -10421,12 +10708,14 @@ float3 __const_func __attribute__((overloadable)) radians(float3 degrees);
 float4 __const_func __attribute__((overloadable)) radians(float4 degrees);
 float8 __const_func __attribute__((overloadable)) radians(float8 degrees);
 float16 __const_func __attribute__((overloadable)) radians(float16 degrees);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) radians(double degrees);
 double2 __const_func __attribute__((overloadable)) radians(double2 degrees);
 double3 __const_func __attribute__((overloadable)) radians(double3 degrees);
 double4 __const_func __attribute__((overloadable)) radians(double4 degrees);
 double8 __const_func __attribute__((overloadable)) radians(double8 degrees);
 double16 __const_func __attribute__((overloadable)) radians(double16 degrees);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) radians( half degrees );
 half2 __const_func __attribute__((overloadable)) radians( half2 degrees );
@@ -10450,6 +10739,7 @@ float3 __const_func __attribute__((overloadable)) step(float edge, float3 x);
 float4 __const_func __attribute__((overloadable)) step(float edge, float4 x);
 float8 __const_func __attribute__((overloadable)) step(float edge, float8 x);
 float16 __const_func __attribute__((overloadable)) step(float edge, float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) step(double edge, double x);
 double2 __const_func __attribute__((overloadable)) step(double2 edge, double2 x);
 double3 __const_func __attribute__((overloadable)) step(double3 edge, double3 x);
@@ -10461,6 +10751,7 @@ double3 __const_func __attribute__((overloadable)) step(double edge, double3 x);
 double4 __const_func __attribute__((overloadable)) step(double edge, double4 x);
 double8 __const_func __attribute__((overloadable)) step(double edge, double8 x);
 double16 __const_func __attribute__((overloadable)) step(double edge, double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) step( half edge, half x );
 half2 __const_func __attribute__((overloadable)) step( half2 edge, half2 x );
@@ -10500,6 +10791,7 @@ float3 __const_func __attribute__((overloadable)) smoothstep(float edge0, float 
 float4 __const_func __attribute__((overloadable)) smoothstep(float edge0, float edge1, float4 x);
 float8 __const_func __attribute__((overloadable)) smoothstep(float edge0, float edge1, float8 x);
 float16 __const_func __attribute__((overloadable)) smoothstep(float edge0, float edge1, float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double x);
 double2 __const_func __attribute__((overloadable)) smoothstep(double2 edge0, double2 edge1, double2 x);
 double3 __const_func __attribute__((overloadable)) smoothstep(double3 edge0, double3 edge1, double3 x);
@@ -10511,6 +10803,7 @@ double3 __const_func __attribute__((overloadable)) smoothstep(double edge0, doub
 double4 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double4 x);
 double8 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double8 x);
 double16 __const_func __attribute__((overloadable)) smoothstep(double edge0, double edge1, double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) smoothstep( half edge0, half edge1, half x );
 half2 __const_func __attribute__((overloadable)) smoothstep( half2 edge0, half2 edge1, half2 x );
@@ -10536,12 +10829,14 @@ float3 __const_func __attribute__((overloadable)) sign(float3 x);
 float4 __const_func __attribute__((overloadable)) sign(float4 x);
 float8 __const_func __attribute__((overloadable)) sign(float8 x);
 float16 __const_func __attribute__((overloadable)) sign(float16 x);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) sign(double x);
 double2 __const_func __attribute__((overloadable)) sign(double2 x);
 double3 __const_func __attribute__((overloadable)) sign(double3 x);
 double4 __const_func __attribute__((overloadable)) sign(double4 x);
 double8 __const_func __attribute__((overloadable)) sign(double8 x);
 double16 __const_func __attribute__((overloadable)) sign(double16 x);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) sign( half x );
 half2 __const_func __attribute__((overloadable)) sign( half2 x );
@@ -10559,8 +10854,10 @@ half16 __const_func __attribute__((overloadable)) sign( half16 x );
  */
 float4 __const_func __attribute__((overloadable)) cross(float4 p0, float4 p1);
 float3 __const_func __attribute__((overloadable)) cross(float3 p0, float3 p1);
+#ifdef cl_khr_fp64
 double4 __const_func __attribute__((overloadable)) cross(double4 p0, double4 p1);
 double3 __const_func __attribute__((overloadable)) cross(double3 p0, double3 p1);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half4 __const_func __attribute__((overloadable)) cross( half4 p0, half4 p1 );
 half3 __const_func __attribute__((overloadable)) cross( half3 p0, half3 p1 );
@@ -10573,10 +10870,12 @@ float __const_func __attribute__((overloadable)) dot(float p0, float p1);
 float __const_func __attribute__((overloadable)) dot(float2 p0, float2 p1);
 float __const_func __attribute__((overloadable)) dot(float3 p0, float3 p1);
 float __const_func __attribute__((overloadable)) dot(float4 p0, float4 p1);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) dot(double p0, double p1);
 double __const_func __attribute__((overloadable)) dot(double2 p0, double2 p1);
 double __const_func __attribute__((overloadable)) dot(double3 p0, double3 p1);
 double __const_func __attribute__((overloadable)) dot(double4 p0, double4 p1);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) dot( half p0, half p1 );
 half __const_func __attribute__((overloadable)) dot( half2 p0, half2 p1 );
@@ -10592,10 +10891,12 @@ float __const_func __attribute__((overloadable)) distance(float p0, float p1);
 float __const_func __attribute__((overloadable)) distance(float2 p0, float2 p1);
 float __const_func __attribute__((overloadable)) distance(float3 p0, float3 p1);
 float __const_func __attribute__((overloadable)) distance(float4 p0, float4 p1);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) distance(double p0, double p1);
 double __const_func __attribute__((overloadable)) distance(double2 p0, double2 p1);
 double __const_func __attribute__((overloadable)) distance(double3 p0, double3 p1);
 double __const_func __attribute__((overloadable)) distance(double4 p0, double4 p1);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) distance( half p0, half p1 );
 half __const_func __attribute__((overloadable)) distance( half2 p0, half2 p1 );
@@ -10611,10 +10912,12 @@ float __const_func __attribute__((overloadable)) length(float p);
 float __const_func __attribute__((overloadable)) length(float2 p);
 float __const_func __attribute__((overloadable)) length(float3 p);
 float __const_func __attribute__((overloadable)) length(float4 p);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) length(double p);
 double __const_func __attribute__((overloadable)) length(double2 p);
 double __const_func __attribute__((overloadable)) length(double3 p);
 double __const_func __attribute__((overloadable)) length(double4 p);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) length( half p );
 half __const_func __attribute__((overloadable)) length( half2 p );
@@ -10630,10 +10933,12 @@ float __const_func __attribute__((overloadable)) normalize(float p);
 float2 __const_func __attribute__((overloadable)) normalize(float2 p);
 float3 __const_func __attribute__((overloadable)) normalize(float3 p);
 float4 __const_func __attribute__((overloadable)) normalize(float4 p);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) normalize(double p);
 double2 __const_func __attribute__((overloadable)) normalize(double2 p);
 double3 __const_func __attribute__((overloadable)) normalize(double3 p);
 double4 __const_func __attribute__((overloadable)) normalize(double4 p);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) normalize( half p );
 half2 __const_func __attribute__((overloadable)) normalize( half2 p );
@@ -10714,12 +11019,14 @@ int3 __const_func __attribute__((overloadable)) isequal(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isequal(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isequal(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isequal(float16 x, float16 y);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isequal(double x, double y);
 long2 __const_func __attribute__((overloadable)) isequal(double2 x, double2 y);
 long3 __const_func __attribute__((overloadable)) isequal(double3 x, double3 y);
 long4 __const_func __attribute__((overloadable)) isequal(double4 x, double4 y);
 long8 __const_func __attribute__((overloadable)) isequal(double8 x, double8 y);
 long16 __const_func __attribute__((overloadable)) isequal(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isequal( half x, half y );
 short2 __const_func __attribute__((overloadable)) isequal( half2 x, half2 y );
@@ -10738,12 +11045,14 @@ int3 __const_func __attribute__((overloadable)) isnotequal(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isnotequal(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isnotequal(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isnotequal(float16 x, float16 y);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isnotequal(double x, double y);
 long2 __const_func __attribute__((overloadable)) isnotequal(double2 x, double2 y);
 long3 __const_func __attribute__((overloadable)) isnotequal(double3 x, double3 y);
 long4 __const_func __attribute__((overloadable)) isnotequal(double4 x, double4 y);
 long8 __const_func __attribute__((overloadable)) isnotequal(double8 x, double8 y);
 long16 __const_func __attribute__((overloadable)) isnotequal(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isnotequal( half x, half y );
 short2 __const_func __attribute__((overloadable)) isnotequal( half2 x, half2 y );
@@ -10762,12 +11071,14 @@ int3 __const_func __attribute__((overloadable)) isgreater(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isgreater(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isgreater(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isgreater(float16 x, float16 y);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isgreater(double x, double y);
 long2 __const_func __attribute__((overloadable)) isgreater(double2 x, double2 y);
 long3 __const_func __attribute__((overloadable)) isgreater(double3 x, double3 y);
 long4 __const_func __attribute__((overloadable)) isgreater(double4 x, double4 y);
 long8 __const_func __attribute__((overloadable)) isgreater(double8 x, double8 y);
 long16 __const_func __attribute__((overloadable)) isgreater(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isgreater( half x, half y );
 short2 __const_func __attribute__((overloadable)) isgreater( half2 x, half2 y );
@@ -10786,12 +11097,14 @@ int3 __const_func __attribute__((overloadable)) isgreaterequal(float3 x, float3 
 int4 __const_func __attribute__((overloadable)) isgreaterequal(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isgreaterequal(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isgreaterequal(float16 x, float16 y);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isgreaterequal(double x, double y);
 long2 __const_func __attribute__((overloadable)) isgreaterequal(double2 x, double2 y);
 long3 __const_func __attribute__((overloadable)) isgreaterequal(double3 x, double3 y);
 long4 __const_func __attribute__((overloadable)) isgreaterequal(double4 x, double4 y);
 long8 __const_func __attribute__((overloadable)) isgreaterequal(double8 x, double8 y);
 long16 __const_func __attribute__((overloadable)) isgreaterequal(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isgreaterequal( half x, half y );
 short2 __const_func __attribute__((overloadable)) isgreaterequal( half2 x, half2 y );
@@ -10810,12 +11123,14 @@ int3 __const_func __attribute__((overloadable)) isless(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isless(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isless(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isless(float16 x, float16 y);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isless(double x, double y);
 long2 __const_func __attribute__((overloadable)) isless(double2 x, double2 y);
 long3 __const_func __attribute__((overloadable)) isless(double3 x, double3 y);
 long4 __const_func __attribute__((overloadable)) isless(double4 x, double4 y);
 long8 __const_func __attribute__((overloadable)) isless(double8 x, double8 y);
 long16 __const_func __attribute__((overloadable)) isless(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isless( half x, half y );
 short2 __const_func __attribute__((overloadable)) isless( half2 x, half2 y );
@@ -10834,12 +11149,14 @@ int3 __const_func __attribute__((overloadable)) islessequal(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) islessequal(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) islessequal(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) islessequal(float16 x, float16 y);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) islessequal(double x, double y);
 long2 __const_func __attribute__((overloadable)) islessequal(double2 x, double2 y);
 long3 __const_func __attribute__((overloadable)) islessequal(double3 x, double3 y);
 long4 __const_func __attribute__((overloadable)) islessequal(double4 x, double4 y);
 long8 __const_func __attribute__((overloadable)) islessequal(double8 x, double8 y);
 long16 __const_func __attribute__((overloadable)) islessequal(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) islessequal( half x, half y );
 short2 __const_func __attribute__((overloadable)) islessequal( half2 x, half2 y );
@@ -10859,12 +11176,14 @@ int3 __const_func __attribute__((overloadable)) islessgreater(float3 x, float3 y
 int4 __const_func __attribute__((overloadable)) islessgreater(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) islessgreater(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) islessgreater(float16 x, float16 y);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) islessgreater(double x, double y);
 long2 __const_func __attribute__((overloadable)) islessgreater(double2 x, double2 y);
 long3 __const_func __attribute__((overloadable)) islessgreater(double3 x, double3 y);
 long4 __const_func __attribute__((overloadable)) islessgreater(double4 x, double4 y);
 long8 __const_func __attribute__((overloadable)) islessgreater(double8 x, double8 y);
 long16 __const_func __attribute__((overloadable)) islessgreater(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) islessgreater( half x, half y );
 short2 __const_func __attribute__((overloadable)) islessgreater( half2 x, half2 y );
@@ -10883,12 +11202,14 @@ int3 __const_func __attribute__((overloadable)) isfinite(float3);
 int4 __const_func __attribute__((overloadable)) isfinite(float4);
 int8 __const_func __attribute__((overloadable)) isfinite(float8);
 int16 __const_func __attribute__((overloadable)) isfinite(float16);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isfinite(double);
 long2 __const_func __attribute__((overloadable)) isfinite(double2);
 long3 __const_func __attribute__((overloadable)) isfinite(double3);
 long4 __const_func __attribute__((overloadable)) isfinite(double4);
 long8 __const_func __attribute__((overloadable)) isfinite(double8);
 long16 __const_func __attribute__((overloadable)) isfinite(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isfinite( half );
 short2 __const_func __attribute__((overloadable)) isfinite( half2 );
@@ -10907,12 +11228,14 @@ int3 __const_func __attribute__((overloadable)) isinf(float3);
 int4 __const_func __attribute__((overloadable)) isinf(float4);
 int8 __const_func __attribute__((overloadable)) isinf(float8);
 int16 __const_func __attribute__((overloadable)) isinf(float16);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isinf(double);
 long2 __const_func __attribute__((overloadable)) isinf(double2);
 long3 __const_func __attribute__((overloadable)) isinf(double3);
 long4 __const_func __attribute__((overloadable)) isinf(double4);
 long8 __const_func __attribute__((overloadable)) isinf(double8);
 long16 __const_func __attribute__((overloadable)) isinf(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isinf( half );
 short2 __const_func __attribute__((overloadable)) isinf( half2 );
@@ -10931,12 +11254,14 @@ int3 __const_func __attribute__((overloadable)) isnan(float3);
 int4 __const_func __attribute__((overloadable)) isnan(float4);
 int8 __const_func __attribute__((overloadable)) isnan(float8);
 int16 __const_func __attribute__((overloadable)) isnan(float16);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isnan(double);
 long2 __const_func __attribute__((overloadable)) isnan(double2);
 long3 __const_func __attribute__((overloadable)) isnan(double3);
 long4 __const_func __attribute__((overloadable)) isnan(double4);
 long8 __const_func __attribute__((overloadable)) isnan(double8);
 long16 __const_func __attribute__((overloadable)) isnan(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isnan( half );
 short2 __const_func __attribute__((overloadable)) isnan( half2 );
@@ -10955,12 +11280,14 @@ int3 __const_func __attribute__((overloadable)) isnormal(float3);
 int4 __const_func __attribute__((overloadable)) isnormal(float4);
 int8 __const_func __attribute__((overloadable)) isnormal(float8);
 int16 __const_func __attribute__((overloadable)) isnormal(float16);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isnormal(double);
 long2 __const_func __attribute__((overloadable)) isnormal(double2);
 long3 __const_func __attribute__((overloadable)) isnormal(double3);
 long4 __const_func __attribute__((overloadable)) isnormal(double4);
 long8 __const_func __attribute__((overloadable)) isnormal(double8);
 long16 __const_func __attribute__((overloadable)) isnormal(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isnormal( half );
 short2 __const_func __attribute__((overloadable)) isnormal( half2 );
@@ -10981,12 +11308,14 @@ int3 __const_func __attribute__((overloadable)) isordered(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isordered(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isordered(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isordered(float16 x, float16 y);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isordered(double x, double y);
 long2 __const_func __attribute__((overloadable)) isordered(double2 x, double2 y);
 long3 __const_func __attribute__((overloadable)) isordered(double3 x, double3 y);
 long4 __const_func __attribute__((overloadable)) isordered(double4 x, double4 y);
 long8 __const_func __attribute__((overloadable)) isordered(double8 x, double8 y);
 long16 __const_func __attribute__((overloadable)) isordered(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isordered( half x, half y );
 short2 __const_func __attribute__((overloadable)) isordered( half2 x, half2 y );
@@ -11007,12 +11336,14 @@ int3 __const_func __attribute__((overloadable)) isunordered(float3 x, float3 y);
 int4 __const_func __attribute__((overloadable)) isunordered(float4 x, float4 y);
 int8 __const_func __attribute__((overloadable)) isunordered(float8 x, float8 y);
 int16 __const_func __attribute__((overloadable)) isunordered(float16 x, float16 y);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) isunordered(double x, double y);
 long2 __const_func __attribute__((overloadable)) isunordered(double2 x, double2 y);
 long3 __const_func __attribute__((overloadable)) isunordered(double3 x, double3 y);
 long4 __const_func __attribute__((overloadable)) isunordered(double4 x, double4 y);
 long8 __const_func __attribute__((overloadable)) isunordered(double8 x, double8 y);
 long16 __const_func __attribute__((overloadable)) isunordered(double16 x, double16 y);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) isunordered( half x, half y );
 short2 __const_func __attribute__((overloadable)) isunordered( half2 x, half2 y );
@@ -11035,12 +11366,14 @@ int3 __const_func __attribute__((overloadable)) signbit(float3);
 int4 __const_func __attribute__((overloadable)) signbit(float4);
 int8 __const_func __attribute__((overloadable)) signbit(float8);
 int16 __const_func __attribute__((overloadable)) signbit(float16);
+#ifdef cl_khr_fp64
 int __const_func __attribute__((overloadable)) signbit(double);
 long2 __const_func __attribute__((overloadable)) signbit(double2);
 long3 __const_func __attribute__((overloadable)) signbit(double3);
 long4 __const_func __attribute__((overloadable)) signbit(double4);
 long8 __const_func __attribute__((overloadable)) signbit(double8);
 long16 __const_func __attribute__((overloadable)) signbit(double16);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 int __const_func __attribute__((overloadable)) signbit( half );
 short2 __const_func __attribute__((overloadable)) signbit( half2 );
@@ -11167,12 +11500,14 @@ float3 __const_func __attribute__((overloadable)) bitselect(float3 a, float3 b, 
 float4 __const_func __attribute__((overloadable)) bitselect(float4 a, float4 b, float4 c);
 float8 __const_func __attribute__((overloadable)) bitselect(float8 a, float8 b, float8 c);
 float16 __const_func __attribute__((overloadable)) bitselect(float16 a, float16 b, float16 c);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) bitselect(double a, double b, double c);
 double2 __const_func __attribute__((overloadable)) bitselect(double2 a, double2 b, double2 c);
 double3 __const_func __attribute__((overloadable)) bitselect(double3 a, double3 b, double3 c);
 double4 __const_func __attribute__((overloadable)) bitselect(double4 a, double4 b, double4 c);
 double8 __const_func __attribute__((overloadable)) bitselect(double8 a, double8 b, double8 c);
 double16 __const_func __attribute__((overloadable)) bitselect(double16 a, double16 b, double16 c);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) bitselect( half a, half b, half c );
 half2 __const_func __attribute__((overloadable)) bitselect( half2 a, half2 b, half2 c );
@@ -11619,6 +11954,7 @@ float3 __const_func __attribute__((overloadable)) select(float3 a, float3 b, ulo
 float4 __const_func __attribute__((overloadable)) select(float4 a, float4 b, ulong4 c);
 float8 __const_func __attribute__((overloadable)) select(float8 a, float8 b, ulong8 c);
 float16 __const_func __attribute__((overloadable)) select(float16 a, float16 b, ulong16 c);
+#ifdef cl_khr_fp64
 double __const_func __attribute__((overloadable)) select(double a, double b, long c);
 double2 __const_func __attribute__((overloadable)) select(double2 a, double2 b, long2 c);
 double3 __const_func __attribute__((overloadable)) select(double3 a, double3 b, long3 c);
@@ -11631,6 +11967,7 @@ double3 __const_func __attribute__((overloadable)) select(double3 a, double3 b, 
 double4 __const_func __attribute__((overloadable)) select(double4 a, double4 b, ulong4 c);
 double8 __const_func __attribute__((overloadable)) select(double8 a, double8 b, ulong8 c);
 double16 __const_func __attribute__((overloadable)) select(double16 a, double16 b, ulong16 c);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 half __const_func __attribute__((overloadable)) select( half a, half b, short c );
 half2 __const_func __attribute__((overloadable)) select( half2 a, half2 b, short2 c );
@@ -11657,7 +11994,70 @@ half16 __const_func __attribute__((overloadable)) select( half16 a, half16 b, us
  * aligned if gentype is int, uint, float; 64-bit
  * aligned if gentype is long, ulong.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+
+char2 __attribute__((overloadable)) vload2(size_t offset, const __constant char *p);
+uchar2 __attribute__((overloadable)) vload2(size_t offset, const __constant uchar *p);
+short2 __attribute__((overloadable)) vload2(size_t offset, const __constant short *p);
+ushort2 __attribute__((overloadable)) vload2(size_t offset, const __constant ushort *p);
+int2 __attribute__((overloadable)) vload2(size_t offset, const __constant int *p);
+uint2 __attribute__((overloadable)) vload2(size_t offset, const __constant uint *p);
+long2 __attribute__((overloadable)) vload2(size_t offset, const __constant long *p);
+ulong2 __attribute__((overloadable)) vload2(size_t offset, const __constant ulong *p);
+float2 __attribute__((overloadable)) vload2(size_t offset, const __constant float *p);
+char3 __attribute__((overloadable)) vload3(size_t offset, const __constant char *p);
+uchar3 __attribute__((overloadable)) vload3(size_t offset, const __constant uchar *p);
+short3 __attribute__((overloadable)) vload3(size_t offset, const __constant short *p);
+ushort3 __attribute__((overloadable)) vload3(size_t offset, const __constant ushort *p);
+int3 __attribute__((overloadable)) vload3(size_t offset, const __constant int *p);
+uint3 __attribute__((overloadable)) vload3(size_t offset, const __constant uint *p);
+long3 __attribute__((overloadable)) vload3(size_t offset, const __constant long *p);
+ulong3 __attribute__((overloadable)) vload3(size_t offset, const __constant ulong *p);
+float3 __attribute__((overloadable)) vload3(size_t offset, const __constant float *p);
+char4 __attribute__((overloadable)) vload4(size_t offset, const __constant char *p);
+uchar4 __attribute__((overloadable)) vload4(size_t offset, const __constant uchar *p);
+short4 __attribute__((overloadable)) vload4(size_t offset, const __constant short *p);
+ushort4 __attribute__((overloadable)) vload4(size_t offset, const __constant ushort *p);
+int4 __attribute__((overloadable)) vload4(size_t offset, const __constant int *p);
+uint4 __attribute__((overloadable)) vload4(size_t offset, const __constant uint *p);
+long4 __attribute__((overloadable)) vload4(size_t offset, const __constant long *p);
+ulong4 __attribute__((overloadable)) vload4(size_t offset, const __constant ulong *p);
+float4 __attribute__((overloadable)) vload4(size_t offset, const __constant float *p);
+char8 __attribute__((overloadable)) vload8(size_t offset, const __constant char *p);
+uchar8 __attribute__((overloadable)) vload8(size_t offset, const __constant uchar *p);
+short8 __attribute__((overloadable)) vload8(size_t offset, const __constant short *p);
+ushort8 __attribute__((overloadable)) vload8(size_t offset, const __constant ushort *p);
+int8 __attribute__((overloadable)) vload8(size_t offset, const __constant int *p);
+uint8 __attribute__((overloadable)) vload8(size_t offset, const __constant uint *p);
+long8 __attribute__((overloadable)) vload8(size_t offset, const __constant long *p);
+ulong8 __attribute__((overloadable)) vload8(size_t offset, const __constant ulong *p);
+float8 __attribute__((overloadable)) vload8(size_t offset, const __constant float *p);
+char16 __attribute__((overloadable)) vload16(size_t offset, const __constant char *p);
+uchar16 __attribute__((overloadable)) vload16(size_t offset, const __constant uchar *p);
+short16 __attribute__((overloadable)) vload16(size_t offset, const __constant short *p);
+ushort16 __attribute__((overloadable)) vload16(size_t offset, const __constant ushort *p);
+int16 __attribute__((overloadable)) vload16(size_t offset, const __constant int *p);
+uint16 __attribute__((overloadable)) vload16(size_t offset, const __constant uint *p);
+long16 __attribute__((overloadable)) vload16(size_t offset, const __constant long *p);
+ulong16 __attribute__((overloadable)) vload16(size_t offset, const __constant ulong *p);
+float16 __attribute__((overloadable)) vload16(size_t offset, const __constant float *p);
+#ifdef cl_khr_fp64
+double2 __attribute__((overloadable)) vload2(size_t offset, const __constant double *p);
+double3 __attribute__((overloadable)) vload3(size_t offset, const __constant double *p);
+double4 __attribute__((overloadable)) vload4(size_t offset, const __constant double *p);
+double8 __attribute__((overloadable)) vload8(size_t offset, const __constant double *p);
+double16 __attribute__((overloadable)) vload16(size_t offset, const __constant double *p);
+#endif //cl_khr_fp64
+
+#ifdef cl_khr_fp16
+half __attribute__((overloadable)) vload(size_t offset, const __constant half *p);
+half2 __attribute__((overloadable)) vload2(size_t offset, const __constant half *p);
+half3 __attribute__((overloadable)) vload3(size_t offset, const __constant half *p);
+half4 __attribute__((overloadable)) vload4(size_t offset, const __constant half *p);
+half8 __attribute__((overloadable)) vload8(size_t offset, const __constant half *p);
+half16 __attribute__((overloadable)) vload16(size_t offset, const __constant half *p);
+#endif //cl_khr_fp16
+
+#ifdef _CL20_AND_ABOVE
 char2 __attribute__((overloadable)) vload2(size_t offset, const char *p);
 uchar2 __attribute__((overloadable)) vload2(size_t offset, const uchar *p);
 short2 __attribute__((overloadable)) vload2(size_t offset, const short *p);
@@ -11704,12 +12104,13 @@ long16 __attribute__((overloadable)) vload16(size_t offset, const long *p);
 ulong16 __attribute__((overloadable)) vload16(size_t offset, const ulong *p);
 float16 __attribute__((overloadable)) vload16(size_t offset, const float *p);
 
+#ifdef cl_khr_fp64
 double2 __attribute__((overloadable)) vload2(size_t offset, const double *p);
 double3 __attribute__((overloadable)) vload3(size_t offset, const double *p);
 double4 __attribute__((overloadable)) vload4(size_t offset, const double *p);
 double8 __attribute__((overloadable)) vload8(size_t offset, const double *p);
 double16 __attribute__((overloadable)) vload16(size_t offset, const double *p);
-
+#endif //cl_khr_fp64
 
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) vload(size_t offset, const half *p);
@@ -11856,6 +12257,7 @@ long16 __attribute__((overloadable)) vload16(size_t offset, const __private long
 ulong16 __attribute__((overloadable)) vload16(size_t offset, const __private ulong *p);
 float16 __attribute__((overloadable)) vload16(size_t offset, const __private float *p);
 
+#ifdef cl_khr_fp64
 double2 __attribute__((overloadable)) vload2(size_t offset, const __global double *p);
 double3 __attribute__((overloadable)) vload3(size_t offset, const __global double *p);
 double4 __attribute__((overloadable)) vload4(size_t offset, const __global double *p);
@@ -11871,57 +12273,7 @@ double3 __attribute__((overloadable)) vload3(size_t offset, const __private doub
 double4 __attribute__((overloadable)) vload4(size_t offset, const __private double *p);
 double8 __attribute__((overloadable)) vload8(size_t offset, const __private double *p);
 double16 __attribute__((overloadable)) vload16(size_t offset, const __private double *p);
-
-char2 __attribute__((overloadable)) vload2(size_t offset, const __constant char *p);
-uchar2 __attribute__((overloadable)) vload2(size_t offset, const __constant uchar *p);
-short2 __attribute__((overloadable)) vload2(size_t offset, const __constant short *p);
-ushort2 __attribute__((overloadable)) vload2(size_t offset, const __constant ushort *p);
-int2 __attribute__((overloadable)) vload2(size_t offset, const __constant int *p);
-uint2 __attribute__((overloadable)) vload2(size_t offset, const __constant uint *p);
-long2 __attribute__((overloadable)) vload2(size_t offset, const __constant long *p);
-ulong2 __attribute__((overloadable)) vload2(size_t offset, const __constant ulong *p);
-float2 __attribute__((overloadable)) vload2(size_t offset, const __constant float *p);
-char3 __attribute__((overloadable)) vload3(size_t offset, const __constant char *p);
-uchar3 __attribute__((overloadable)) vload3(size_t offset, const __constant uchar *p);
-short3 __attribute__((overloadable)) vload3(size_t offset, const __constant short *p);
-ushort3 __attribute__((overloadable)) vload3(size_t offset, const __constant ushort *p);
-int3 __attribute__((overloadable)) vload3(size_t offset, const __constant int *p);
-uint3 __attribute__((overloadable)) vload3(size_t offset, const __constant uint *p);
-long3 __attribute__((overloadable)) vload3(size_t offset, const __constant long *p);
-ulong3 __attribute__((overloadable)) vload3(size_t offset, const __constant ulong *p);
-float3 __attribute__((overloadable)) vload3(size_t offset, const __constant float *p);
-char4 __attribute__((overloadable)) vload4(size_t offset, const __constant char *p);
-uchar4 __attribute__((overloadable)) vload4(size_t offset, const __constant uchar *p);
-short4 __attribute__((overloadable)) vload4(size_t offset, const __constant short *p);
-ushort4 __attribute__((overloadable)) vload4(size_t offset, const __constant ushort *p);
-int4 __attribute__((overloadable)) vload4(size_t offset, const __constant int *p);
-uint4 __attribute__((overloadable)) vload4(size_t offset, const __constant uint *p);
-long4 __attribute__((overloadable)) vload4(size_t offset, const __constant long *p);
-ulong4 __attribute__((overloadable)) vload4(size_t offset, const __constant ulong *p);
-float4 __attribute__((overloadable)) vload4(size_t offset, const __constant float *p);
-char8 __attribute__((overloadable)) vload8(size_t offset, const __constant char *p);
-uchar8 __attribute__((overloadable)) vload8(size_t offset, const __constant uchar *p);
-short8 __attribute__((overloadable)) vload8(size_t offset, const __constant short *p);
-ushort8 __attribute__((overloadable)) vload8(size_t offset, const __constant ushort *p);
-int8 __attribute__((overloadable)) vload8(size_t offset, const __constant int *p);
-uint8 __attribute__((overloadable)) vload8(size_t offset, const __constant uint *p);
-long8 __attribute__((overloadable)) vload8(size_t offset, const __constant long *p);
-ulong8 __attribute__((overloadable)) vload8(size_t offset, const __constant ulong *p);
-float8 __attribute__((overloadable)) vload8(size_t offset, const __constant float *p);
-char16 __attribute__((overloadable)) vload16(size_t offset, const __constant char *p);
-uchar16 __attribute__((overloadable)) vload16(size_t offset, const __constant uchar *p);
-short16 __attribute__((overloadable)) vload16(size_t offset, const __constant short *p);
-ushort16 __attribute__((overloadable)) vload16(size_t offset, const __constant ushort *p);
-int16 __attribute__((overloadable)) vload16(size_t offset, const __constant int *p);
-uint16 __attribute__((overloadable)) vload16(size_t offset, const __constant uint *p);
-long16 __attribute__((overloadable)) vload16(size_t offset, const __constant long *p);
-ulong16 __attribute__((overloadable)) vload16(size_t offset, const __constant ulong *p);
-float16 __attribute__((overloadable)) vload16(size_t offset, const __constant float *p);
-double2 __attribute__((overloadable)) vload2(size_t offset, const __constant double *p);
-double3 __attribute__((overloadable)) vload3(size_t offset, const __constant double *p);
-double4 __attribute__((overloadable)) vload4(size_t offset, const __constant double *p);
-double8 __attribute__((overloadable)) vload8(size_t offset, const __constant double *p);
-double16 __attribute__((overloadable)) vload16(size_t offset, const __constant double *p);
+#endif //cl_khr_fp64
 
 #ifdef cl_khr_fp16
 half __attribute__((overloadable)) vload(size_t offset, const __global half *p);
@@ -11942,14 +12294,8 @@ half3 __attribute__((overloadable)) vload3(size_t offset, const __private half *
 half4 __attribute__((overloadable)) vload4(size_t offset, const __private half *p);
 half8 __attribute__((overloadable)) vload8(size_t offset, const __private half *p);
 half16 __attribute__((overloadable)) vload16(size_t offset, const __private half *p);
-half __attribute__((overloadable)) vload(size_t offset, const __constant half *p);
-half2 __attribute__((overloadable)) vload2(size_t offset, const __constant half *p);
-half3 __attribute__((overloadable)) vload3(size_t offset, const __constant half *p);
-half4 __attribute__((overloadable)) vload4(size_t offset, const __constant half *p);
-half8 __attribute__((overloadable)) vload8(size_t offset, const __constant half *p);
-half16 __attribute__((overloadable)) vload16(size_t offset, const __constant half *p);
 #endif //cl_khr_fp16
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * Write sizeof (gentypen) bytes given by data
@@ -11960,7 +12306,7 @@ half16 __attribute__((overloadable)) vload16(size_t offset, const __constant hal
  * aligned if gentype is int, uint, float; 64-bit
  * aligned if gentype is long, ulong.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 void __attribute__((overloadable)) vstore2(char2 data, size_t offset, char *p);
 void __attribute__((overloadable)) vstore2(uchar2 data, size_t offset, uchar *p);
 void __attribute__((overloadable)) vstore2(short2 data, size_t offset, short *p);
@@ -12006,11 +12352,13 @@ void __attribute__((overloadable)) vstore16(uint16 data, size_t offset, uint *p)
 void __attribute__((overloadable)) vstore16(long16 data, size_t offset, long *p);
 void __attribute__((overloadable)) vstore16(ulong16 data, size_t offset, ulong *p);
 void __attribute__((overloadable)) vstore16(float16 data, size_t offset, float *p);
+#ifdef cl_khr_fp64
 void __attribute__((overloadable)) vstore2(double2 data, size_t offset, double *p);
 void __attribute__((overloadable)) vstore3(double3 data, size_t offset, double *p);
 void __attribute__((overloadable)) vstore4(double4 data, size_t offset, double *p);
 void __attribute__((overloadable)) vstore8(double8 data, size_t offset, double *p);
 void __attribute__((overloadable)) vstore16(double16 data, size_t offset, double *p);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 void __attribute__((overloadable)) vstore(half data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore2(half2 data, size_t offset, half *p);
@@ -12155,6 +12503,7 @@ void __attribute__((overloadable)) vstore16(uint16 data, size_t offset, __privat
 void __attribute__((overloadable)) vstore16(long16 data, size_t offset, __private long *p);
 void __attribute__((overloadable)) vstore16(ulong16 data, size_t offset, __private ulong *p);
 void __attribute__((overloadable)) vstore16(float16 data, size_t offset, __private float *p);
+#ifdef cl_khr_fp64
 void __attribute__((overloadable)) vstore2(double2 data, size_t offset, __global double *p);
 void __attribute__((overloadable)) vstore3(double3 data, size_t offset, __global double *p);
 void __attribute__((overloadable)) vstore4(double4 data, size_t offset, __global double *p);
@@ -12170,6 +12519,7 @@ void __attribute__((overloadable)) vstore3(double3 data, size_t offset, __privat
 void __attribute__((overloadable)) vstore4(double4 data, size_t offset, __private double *p);
 void __attribute__((overloadable)) vstore8(double8 data, size_t offset, __private double *p);
 void __attribute__((overloadable)) vstore16(double16 data, size_t offset, __private double *p);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 void __attribute__((overloadable)) vstore(half data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore2(half2 data, size_t offset, __global half *p);
@@ -12190,7 +12540,7 @@ void __attribute__((overloadable)) vstore4(half4 data, size_t offset, __private 
 void __attribute__((overloadable)) vstore8(half8 data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __private half *p);
 #endif //cl_khr_fp16
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * Read sizeof (half) bytes of data from address
@@ -12200,14 +12550,14 @@ void __attribute__((overloadable)) vstore16(half16 data, size_t offset, __privat
  * The read address computed as (p + offset)
  * must be 16-bit aligned.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+float __attribute__((overloadable)) vload_half(size_t offset, const __constant half *p);
+#ifdef _CL20_AND_ABOVE
 float __attribute__((overloadable)) vload_half(size_t offset, const half *p);
 #else
 float __attribute__((overloadable)) vload_half(size_t offset, const __global half *p);
 float __attribute__((overloadable)) vload_half(size_t offset, const __local half *p);
 float __attribute__((overloadable)) vload_half(size_t offset, const __private half *p);
-float __attribute__((overloadable)) vload_half(size_t offset, const __constant half *p);
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * Read sizeof (halfn) bytes of data from address
@@ -12217,7 +12567,12 @@ float __attribute__((overloadable)) vload_half(size_t offset, const __constant h
  * value is returned. The read address computed
  * as (p + (offset * n)) must be 16-bit aligned.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+float2 __attribute__((overloadable)) vload_half2(size_t offset, const __constant half *p);
+float3 __attribute__((overloadable)) vload_half3(size_t offset, const __constant half *p);
+float4 __attribute__((overloadable)) vload_half4(size_t offset, const __constant half *p);
+float8 __attribute__((overloadable)) vload_half8(size_t offset, const __constant half *p);
+float16 __attribute__((overloadable)) vload_half16(size_t offset, const __constant half *p);
+#ifdef _CL20_AND_ABOVE
 float2 __attribute__((overloadable)) vload_half2(size_t offset, const half *p);
 float3 __attribute__((overloadable)) vload_half3(size_t offset, const half *p);
 float4 __attribute__((overloadable)) vload_half4(size_t offset, const half *p);
@@ -12239,12 +12594,7 @@ float3 __attribute__((overloadable)) vload_half3(size_t offset, const __private 
 float4 __attribute__((overloadable)) vload_half4(size_t offset, const __private half *p);
 float8 __attribute__((overloadable)) vload_half8(size_t offset, const __private half *p);
 float16 __attribute__((overloadable)) vload_half16(size_t offset, const __private half *p);
-float2 __attribute__((overloadable)) vload_half2(size_t offset, const __constant half *p);
-float3 __attribute__((overloadable)) vload_half3(size_t offset, const __constant half *p);
-float4 __attribute__((overloadable)) vload_half4(size_t offset, const __constant half *p);
-float8 __attribute__((overloadable)) vload_half8(size_t offset, const __constant half *p);
-float16 __attribute__((overloadable)) vload_half16(size_t offset, const __constant half *p);
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * The float value given by data is first
@@ -12257,17 +12607,19 @@ float16 __attribute__((overloadable)) vload_half16(size_t offset, const __consta
  * The default current rounding mode is round to
  * nearest even.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 void __attribute__((overloadable)) vstore_half(float data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half_rte(float data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half_rtz(float data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half_rtp(float data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half_rtn(float data, size_t offset, half *p);
+#ifdef cl_khr_fp64
 void __attribute__((overloadable)) vstore_half(double data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half_rte(double data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half_rtz(double data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half_rtp(double data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half_rtn(double data, size_t offset, half *p);
+#endif //cl_khr_fp64
 #else
 void __attribute__((overloadable)) vstore_half(float data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore_half_rte(float data, size_t offset, __global half *p);
@@ -12284,6 +12636,7 @@ void __attribute__((overloadable)) vstore_half_rte(float data, size_t offset, __
 void __attribute__((overloadable)) vstore_half_rtz(float data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore_half_rtp(float data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore_half_rtn(float data, size_t offset, __private half *p);
+#ifdef cl_khr_fp64
 void __attribute__((overloadable)) vstore_half(double data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore_half_rte(double data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore_half_rtz(double data, size_t offset, __global half *p);
@@ -12299,7 +12652,8 @@ void __attribute__((overloadable)) vstore_half_rte(double data, size_t offset, _
 void __attribute__((overloadable)) vstore_half_rtz(double data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore_half_rtp(double data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore_half_rtn(double data, size_t offset, __private half *p);
-#endif //__OPENCL_C_VERSION__
+#endif //cl_khr_fp64
+#endif //_CL20_AND_ABOVE
 
 /**
  * The floatn value given by data is converted to
@@ -12312,7 +12666,7 @@ void __attribute__((overloadable)) vstore_half_rtn(double data, size_t offset, _
  * The default current rounding mode is round to
  * nearest even.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 void __attribute__((overloadable)) vstore_half2(float2 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half3(float3 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half4(float4 data, size_t offset, half *p);
@@ -12338,6 +12692,7 @@ void __attribute__((overloadable)) vstore_half3_rtn(float3 data, size_t offset, 
 void __attribute__((overloadable)) vstore_half4_rtn(float4 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half8_rtn(float8 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half16_rtn(float16 data, size_t offset, half *p);
+#ifdef cl_khr_fp64
 void __attribute__((overloadable)) vstore_half2(double2 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half3(double3 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half4(double4 data, size_t offset, half *p);
@@ -12363,6 +12718,7 @@ void __attribute__((overloadable)) vstore_half3_rtn(double3 data, size_t offset,
 void __attribute__((overloadable)) vstore_half4_rtn(double4 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half8_rtn(double8 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstore_half16_rtn(double16 data, size_t offset, half *p);
+#endif //cl_khr_fp64
 #else
 void __attribute__((overloadable)) vstore_half2(float2 data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore_half3(float3 data, size_t offset, __global half *p);
@@ -12439,6 +12795,7 @@ void __attribute__((overloadable)) vstore_half3_rtn(float3 data, size_t offset, 
 void __attribute__((overloadable)) vstore_half4_rtn(float4 data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore_half8_rtn(float8 data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore_half16_rtn(float16 data, size_t offset, __private half *p);
+#ifdef cl_khr_fp64
 void __attribute__((overloadable)) vstore_half2(double2 data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore_half3(double3 data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstore_half4(double4 data, size_t offset, __global half *p);
@@ -12514,7 +12871,8 @@ void __attribute__((overloadable)) vstore_half3_rtn(double3 data, size_t offset,
 void __attribute__((overloadable)) vstore_half4_rtn(double4 data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore_half8_rtn(double8 data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstore_half16_rtn(double16 data, size_t offset, __private half *p);
-#endif //__OPENCL_C_VERSION__
+#endif //cl_khr_fp64
+#endif //_CL20_AND_ABOVE
 
 /**
  * For n = 1, 2, 4, 8 and 16 read sizeof (halfn)
@@ -12529,7 +12887,13 @@ void __attribute__((overloadable)) vstore_half16_rtn(double16 data, size_t offse
  * The address computed as (p + (offset * 4))
  * must be aligned to sizeof (half) * 4 bytes.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+float __attribute__((overloadable)) vloada_half(size_t offset, const __constant half *p);
+float2 __attribute__((overloadable)) vloada_half2(size_t offset, const __constant half *p);
+float3 __attribute__((overloadable)) vloada_half3(size_t offset, const __constant half *p);
+float4 __attribute__((overloadable)) vloada_half4(size_t offset, const __constant half *p);
+float8 __attribute__((overloadable)) vloada_half8(size_t offset, const __constant half *p);
+float16 __attribute__((overloadable)) vloada_half16(size_t offset, const __constant half *p);
+#ifdef _CL20_AND_ABOVE
 float __attribute__((overloadable)) vloada_half(size_t offset, const half *p);
 float2 __attribute__((overloadable)) vloada_half2(size_t offset, const half *p);
 float3 __attribute__((overloadable)) vloada_half3(size_t offset, const half *p);
@@ -12555,13 +12919,7 @@ float3 __attribute__((overloadable)) vloada_half3(size_t offset, const __private
 float4 __attribute__((overloadable)) vloada_half4(size_t offset, const __private half *p);
 float8 __attribute__((overloadable)) vloada_half8(size_t offset, const __private half *p);
 float16 __attribute__((overloadable)) vloada_half16(size_t offset, const __private half *p);
-float __attribute__((overloadable)) vloada_half(size_t offset, const __constant half *p);
-float2 __attribute__((overloadable)) vloada_half2(size_t offset, const __constant half *p);
-float3 __attribute__((overloadable)) vloada_half3(size_t offset, const __constant half *p);
-float4 __attribute__((overloadable)) vloada_half4(size_t offset, const __constant half *p);
-float8 __attribute__((overloadable)) vloada_half8(size_t offset, const __constant half *p);
-float16 __attribute__((overloadable)) vloada_half16(size_t offset, const __constant half *p);
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 /**
  * The floatn value given by data is converted to
@@ -12579,7 +12937,7 @@ float16 __attribute__((overloadable)) vloada_half16(size_t offset, const __const
  * mode. The default current rounding mode is
  * round to nearest even.
  */
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 void __attribute__((overloadable)) vstorea_half(float data, size_t offset, half *p);
 void __attribute__((overloadable)) vstorea_half2(float2 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstorea_half3(float3 data, size_t offset, half *p);
@@ -12615,6 +12973,7 @@ void __attribute__((overloadable)) vstorea_half4_rtn(float4 data, size_t offset,
 void __attribute__((overloadable)) vstorea_half8_rtn(float8 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstorea_half16_rtn(float16 data, size_t offset, half *p);
 
+#ifdef cl_khr_fp64
 void __attribute__((overloadable)) vstorea_half(double data, size_t offset, half *p);
 void __attribute__((overloadable)) vstorea_half2(double2 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstorea_half3(double3 data, size_t offset, half *p);
@@ -12649,6 +13008,7 @@ void __attribute__((overloadable)) vstorea_half3_rtn(double3 data, size_t offset
 void __attribute__((overloadable)) vstorea_half4_rtn(double4 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstorea_half8_rtn(double8 data, size_t offset, half *p);
 void __attribute__((overloadable)) vstorea_half16_rtn(double16 data, size_t offset, half *p);
+#endif //cl_khr_fp64
 
 #else
 void __attribute__((overloadable)) vstorea_half(float data, size_t offset, __global half *p);
@@ -12756,6 +13116,7 @@ void __attribute__((overloadable)) vstorea_half4_rtn(float4 data, size_t offset,
 void __attribute__((overloadable)) vstorea_half8_rtn(float8 data, size_t offset, __private half *p);
 void __attribute__((overloadable)) vstorea_half16_rtn(float16 data, size_t offset, __private half *p);
 
+#ifdef cl_khr_fp64
 void __attribute__((overloadable)) vstorea_half(double data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstorea_half2(double2 data, size_t offset, __global half *p);
 void __attribute__((overloadable)) vstorea_half3(double3 data, size_t offset, __global half *p);
@@ -12860,7 +13221,8 @@ void __attribute__((overloadable)) vstorea_half3_rtn(double3 data,size_t offset,
 void __attribute__((overloadable)) vstorea_half4_rtn(double4 data,size_t offset, __private half *p);
 void __attribute__((overloadable)) vstorea_half8_rtn(double8 data,size_t offset, __private half *p);
 void __attribute__((overloadable)) vstorea_half16_rtn(double16 data,size_t offset, __private half *p);
-#endif //__OPENCL_C_VERSION__
+#endif //cl_khr_fp64
+#endif //_CL20_AND_ABOVE
 
 // OpenCL v1.2 s6.12.8, v2.0 s6.13.8 - Synchronization Functions
 
@@ -12955,7 +13317,7 @@ void __attribute__((overloadable)) write_mem_fence(cl_mem_fence_flags flags);
 
 // OpenCL v2.0 s6.13.9 - Address Space Qualifier Functions
 
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 cl_mem_fence_flags __attribute__((overloadable)) get_fence(const void *ptr);
 cl_mem_fence_flags __attribute__((overloadable)) get_fence(void *ptr);
 
@@ -12967,7 +13329,7 @@ __private void* __attribute__((overloadable)) to_private(void*);
 __global  const void* __attribute__((overloadable)) to_global(const void*);
 __local   const void* __attribute__((overloadable)) to_local(const void*);
 __private const void* __attribute__((overloadable)) to_private(const void*);
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 // OpenCL v1.2 s6.12.10, v2.0 s6.13.10 - Async Copies from Global to Local Memory, Local to Global Memory, and Prefetch
 
@@ -13106,6 +13468,7 @@ event_t __attribute__((overloadable)) async_work_group_copy(__global uint16 *dst
 event_t __attribute__((overloadable)) async_work_group_copy(__global long16 *dst, const __local long16 *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__global ulong16 *dst, const __local ulong16 *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__global float16 *dst, const __local float16 *src, size_t num_elements, event_t event);
+#ifdef cl_khr_fp64
 event_t __attribute__((overloadable)) async_work_group_copy(__local double *dst, const __global double *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__local double2 *dst, const __global double2 *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__local double3 *dst, const __global double3 *src, size_t num_elements, event_t event);
@@ -13118,6 +13481,7 @@ event_t __attribute__((overloadable)) async_work_group_copy(__global double3 *ds
 event_t __attribute__((overloadable)) async_work_group_copy(__global double4 *dst, const __local double4 *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__global double8 *dst, const __local double8 *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__global double16 *dst, const __local double16 *src, size_t num_elements, event_t event);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 event_t __attribute__((overloadable)) async_work_group_copy(__local half *dst, const __global half *src, size_t num_elements, event_t event);
 event_t __attribute__((overloadable)) async_work_group_copy(__local half2 *dst, const __global half2 *src, size_t num_elements, event_t event);
@@ -13267,6 +13631,7 @@ event_t __attribute__((overloadable)) async_work_group_strided_copy(__global uin
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global long16 *dst, const __local long16 *src, size_t num_elements, size_t dst_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global ulong16 *dst, const __local ulong16 *src, size_t num_elements, size_t dst_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global float16 *dst, const __local float16 *src, size_t num_elements, size_t dst_stride, event_t event);
+#ifdef cl_khr_fp64
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double *dst, const __global double *src, size_t num_elements, size_t src_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double2 *dst, const __global double2 *src, size_t num_elements, size_t src_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local double3 *dst, const __global double3 *src, size_t num_elements, size_t src_stride, event_t event);
@@ -13279,6 +13644,7 @@ event_t __attribute__((overloadable)) async_work_group_strided_copy(__global dou
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double4 *dst, const __local double4 *src, size_t num_elements, size_t dst_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double8 *dst, const __local double8 *src, size_t num_elements, size_t dst_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__global double16 *dst, const __local double16 *src, size_t num_elements, size_t dst_stride, event_t event);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local half *dst, const __global half *src, size_t num_elements, size_t src_stride, event_t event);
 event_t __attribute__((overloadable)) async_work_group_strided_copy(__local half2 *dst, const __global half2 *src, size_t num_elements, size_t src_stride, event_t event);
@@ -13368,12 +13734,14 @@ void __attribute__((overloadable)) prefetch(const __global uint16 *p, size_t num
 void __attribute__((overloadable)) prefetch(const __global long16 *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global ulong16 *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global float16 *p, size_t num_elements);
+#ifdef cl_khr_fp64
 void __attribute__((overloadable)) prefetch(const __global double *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global double2 *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global double3 *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global double4 *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global double8 *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global double16 *p, size_t num_elements);
+#endif //cl_khr_fp64
 #ifdef cl_khr_fp16
 void __attribute__((overloadable)) prefetch(const __global half *p, size_t num_elements);
 void __attribute__((overloadable)) prefetch(const __global half2 *p, size_t num_elements);
@@ -13689,10 +14057,9 @@ unsigned int __attribute__((overloadable)) atom_xor(volatile __local unsigned in
 #pragma OPENCL EXTENSION cl_khr_int64_extended_atomics : disable
 #endif
 
-
 // OpenCL v2.0 s6.13.11 - Atomics Functions
 
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 #define ATOMIC_VAR_INIT(x) (x)
 
 #define ATOMIC_FLAG_INIT 0
@@ -13716,10 +14083,10 @@ typedef enum memory_scope
   memory_scope_sub_group
 } memory_scope;
 
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags, memory_scope scope);
 void __attribute__((overloadable)) work_group_barrier(cl_mem_fence_flags flags);
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 // double atomics support requires extensions cl_khr_int64_base_atomics and cl_khr_int64_extended_atomics
 #if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
@@ -13740,9 +14107,10 @@ atomic_init_prototype(float)
 #if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
 atomic_init_prototype(long)
 atomic_init_prototype(ulong)
+#ifdef cl_khr_fp64
 atomic_init_prototype(double)
+#endif //cl_khr_fp64
 #endif
-
 /**
  * Queue a memory fence to ensure correct ordering of memory
  * operations between work-items of a work-group to
@@ -13830,7 +14198,9 @@ atomic_store_prototype(int)
 atomic_store_prototype(uint)
 atomic_store_prototype(float)
 #if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#ifdef cl_khr_fp64
 atomic_store_prototype(double)
+#endif //cl_khr_fp64
 atomic_store_prototype(long)
 atomic_store_prototype(ulong)
 #endif
@@ -13848,7 +14218,9 @@ atomic_load_prototype(int)
 atomic_load_prototype(uint)
 atomic_load_prototype(float)
 #if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#ifdef cl_khr_fp64
 atomic_load_prototype(double)
+#endif //cl_khr_fp64
 atomic_load_prototype(long)
 atomic_load_prototype(ulong)
 #endif
@@ -13867,7 +14239,9 @@ atomic_exchange_prototype(int)
 atomic_exchange_prototype(uint)
 atomic_exchange_prototype(float)
 #if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#ifdef cl_khr_fp64
 atomic_exchange_prototype(double)
+#endif //cl_khr_fp64
 atomic_exchange_prototype(long)
 atomic_exchange_prototype(ulong)
 #endif
@@ -13891,8 +14265,10 @@ atomic_compare_exchange_strength_prototype(uint, weak)
 atomic_compare_exchange_strength_prototype(float, strong)
 atomic_compare_exchange_strength_prototype(float, weak)
 #if defined(cl_khr_int64_base_atomics) && defined(cl_khr_int64_extended_atomics)
+#ifdef cl_khr_fp64
 atomic_compare_exchange_strength_prototype(double, strong)
 atomic_compare_exchange_strength_prototype(double, weak)
+#endif //cl_khr_fp64
 atomic_compare_exchange_strength_prototype(long, strong)
 atomic_compare_exchange_strength_prototype(long, weak)
 atomic_compare_exchange_strength_prototype(ulong, strong)
@@ -13928,7 +14304,7 @@ atomic_flag_prototype(clear, void)
 #undef atomic_init_prototype
 #undef atomic_init_prototype_addrspace
 
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 // OpenCL v1.2 s6.12.12, v2.0 s6.13.12 - Miscellaneous Vector Functions
 
@@ -14154,6 +14530,7 @@ float16 __const_func __attribute__((overloadable)) shuffle(float4 x, uint16 mask
 float16 __const_func __attribute__((overloadable)) shuffle(float8 x, uint16 mask);
 float16 __const_func __attribute__((overloadable)) shuffle(float16 x, uint16 mask);
 
+#ifdef cl_khr_fp64
 double2 __const_func __attribute__((overloadable)) shuffle(double2 x, ulong2 mask);
 double2 __const_func __attribute__((overloadable)) shuffle(double4 x, ulong2 mask);
 double2 __const_func __attribute__((overloadable)) shuffle(double8 x, ulong2 mask);
@@ -14173,6 +14550,7 @@ double16 __const_func __attribute__((overloadable)) shuffle(double2 x, ulong16 m
 double16 __const_func __attribute__((overloadable)) shuffle(double4 x, ulong16 mask);
 double16 __const_func __attribute__((overloadable)) shuffle(double8 x, ulong16 mask);
 double16 __const_func __attribute__((overloadable)) shuffle(double16 x, ulong16 mask);
+#endif //cl_khr_fp64
 
 #ifdef cl_khr_fp16
 half2 __const_func __attribute__((overloadable)) shuffle( half2 x, ushort2 mask );
@@ -14376,6 +14754,7 @@ float16 __const_func __attribute__((overloadable)) shuffle2(float4 x, float4 y, 
 float16 __const_func __attribute__((overloadable)) shuffle2(float8 x, float8 y, uint16 mask);
 float16 __const_func __attribute__((overloadable)) shuffle2(float16 x, float16 y, uint16 mask);
 
+#ifdef cl_khr_fp64
 double2 __const_func __attribute__((overloadable)) shuffle2(double2 x, double2 y, ulong2 mask);
 double2 __const_func __attribute__((overloadable)) shuffle2(double4 x, double4 y, ulong2 mask);
 double2 __const_func __attribute__((overloadable)) shuffle2(double8 x, double8 y, ulong2 mask);
@@ -14395,6 +14774,7 @@ double16 __const_func __attribute__((overloadable)) shuffle2(double2 x, double2 
 double16 __const_func __attribute__((overloadable)) shuffle2(double4 x, double4 y, ulong16 mask);
 double16 __const_func __attribute__((overloadable)) shuffle2(double8 x, double8 y, ulong16 mask);
 double16 __const_func __attribute__((overloadable)) shuffle2(double16 x, double16 y, ulong16 mask);
+#endif //cl_khr_fp64
 
 #ifdef cl_khr_fp16
 half2 __const_func __attribute__((overloadable)) shuffle2( half2 x, half2 y, ushort2 mask );
@@ -14474,8 +14854,8 @@ int printf(__constant const char* st, ...);
  * in the description above are undefined.
  */
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_t image, sampler_t sampler, int2 coord);
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_t image, sampler_t sampler, float2 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_t image, sampler_t sampler, int2 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_t image, sampler_t sampler, float2 coord);
 
 /**
  * Use the coordinate (x, y) to do an element lookup in
@@ -14515,10 +14895,10 @@ float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_
  * CLK_ADDRESS_CLAMP or CLK_ADDRESS_NONE;
  * otherwise the values returned are undefined.
  */
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image2d_t image, sampler_t sampler, int2 coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image2d_t image, sampler_t sampler, float2 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_t image, sampler_t sampler, int2 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_t image, sampler_t sampler, float2 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_t image, sampler_t sampler, int2 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_t image, sampler_t sampler, float2 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_t image, sampler_t sampler, int2 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_t image, sampler_t sampler, float2 coord);
 
 /**
  * Use the coordinate (coord.x, coord.y, coord.z) to do
@@ -14548,8 +14928,8 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_
  * with image_channel_data_type values not specified
  * in the description are undefined.
  */
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image3d_t image, sampler_t sampler, int4 coord);
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image3d_t image, sampler_t sampler, float4 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image3d_t image, sampler_t sampler, int4 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image3d_t image, sampler_t sampler, float4 coord);
 
 /**
  * Use the coordinate (coord.x, coord.y, coord.z) to do
@@ -14590,10 +14970,10 @@ float4 __const_func __attribute__((overloadable)) read_imagef(read_only image3d_
  * CLK_ADDRESS_CLAMP or CLK_ADDRESS_NONE;
  * otherwise the values returned are undefined.
  */
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image3d_t image, sampler_t sampler, int4 coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image3d_t image, sampler_t sampler, float4 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image3d_t image, sampler_t sampler, int4 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image3d_t image, sampler_t sampler, float4 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image3d_t image, sampler_t sampler, int4 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image3d_t image, sampler_t sampler, float4 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image3d_t image, sampler_t sampler, int4 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image3d_t image, sampler_t sampler, float4 coord);
 
 /*
  * Use the coordinate (coord.z) to index into the
@@ -14626,8 +15006,8 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image3d_
  */
 
 // 2D image arrays
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_array_t image_array, sampler_t sampler, int4 coord);
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_array_t image_array, sampler_t sampler, float4 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_array_t image_array, sampler_t sampler, int4 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_array_t image_array, sampler_t sampler, float4 coord);
 
 /**
  * Use the coordinate (coord.z) to index into the
@@ -14670,10 +15050,10 @@ float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_
  */
 
 //2D image arrays
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image2d_array_t image_array, sampler_t sampler, int4 coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image2d_array_t image_array, sampler_t sampler, float4 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_array_t image_array, sampler_t sampler, int4 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_array_t image_array, sampler_t sampler, float4 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_array_t image_array, sampler_t sampler, int4 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_array_t image_array, sampler_t sampler, float4 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_array_t image_array, sampler_t sampler, int4 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_array_t image_array, sampler_t sampler, float4 coord);
 
 /**
  * Use the coordinate (x) to do an element lookup in
@@ -14703,8 +15083,8 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_
  * in the description above are undefined.
  */
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_t image, sampler_t sampler, int coord);
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_t image, sampler_t sampler, float coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image1d_t image, sampler_t sampler, int coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image1d_t image, sampler_t sampler, float coord);
 
 /**
  * Use the coordinate (x) to do an element lookup in
@@ -14745,10 +15125,10 @@ float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_
  * otherwise the values returned are undefined.
  */
 
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image1d_t image, sampler_t sampler, int coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image1d_t image, sampler_t sampler, float coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_t image, sampler_t sampler, int coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_t image, sampler_t sampler, float coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image1d_t image, sampler_t sampler, int coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image1d_t image, sampler_t sampler, float coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image1d_t image, sampler_t sampler, int coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image1d_t image, sampler_t sampler, float coord);
 
 /**
  * Use the coordinate (coord.y) to index into the
@@ -14781,8 +15161,8 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_
  */
 
 // 1D image arrays
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_array_t image_array, sampler_t sampler, int2 coord);
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_array_t image_array, sampler_t sampler, float2 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image1d_array_t image_array, sampler_t sampler, int2 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image1d_array_t image_array, sampler_t sampler, float2 coord);
 
 /**
  * Use the coordinate (coord.y) to index into the
@@ -14825,10 +15205,10 @@ float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_
  */
 
 //1D image arrays
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image1d_array_t image_array, sampler_t sampler, int2 coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image1d_array_t image_array, sampler_t sampler, float2 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_array_t image_array, sampler_t sampler, int2 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_array_t image_array, sampler_t sampler, float2 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image1d_array_t image_array, sampler_t sampler, int2 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image1d_array_t image_array, sampler_t sampler, float2 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image1d_array_t image_array, sampler_t sampler, int2 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image1d_array_t image_array, sampler_t sampler, float2 coord);
 
 /**
  * Use the coordinate (cood.xy) to do an element
@@ -14858,8 +15238,8 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_
  * in the description above are undefined.
  */
 #ifdef cl_khr_depth_images
-float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, sampler_t sampler, float2 coord);
-float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, sampler_t sampler, int2 coord);
+float __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, sampler_t sampler, float2 coord);
+float __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, sampler_t sampler, int2 coord);
 #endif //cl_khr_depth_images
 
 /**
@@ -14893,42 +15273,42 @@ float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_d
 
 // 2D depth image arrays
 #ifdef cl_khr_depth_images
-float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_array_depth_t image, sampler_t sampler, float4 coord);
-float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_array_depth_t image, sampler_t sampler, int4 coord);
+float __attribute__((overloadable)) read_imagef(read_only image2d_array_depth_t image, sampler_t sampler, float4 coord);
+float __attribute__((overloadable)) read_imagef(read_only image2d_array_depth_t image, sampler_t sampler, int4 coord);
 #endif //cl_khr_depth_images
 
 /**
 * Sampler-less Image Access
 */
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_t image, int coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image1d_t image, int coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_t image, int coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image1d_t image, int coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image1d_t image, int coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image1d_t image, int coord);
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_buffer_t image, int coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image1d_buffer_t image, int coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_buffer_t image, int coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image1d_buffer_t image, int coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image1d_buffer_t image, int coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image1d_buffer_t image, int coord);
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_array_t image, int2 coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image1d_array_t image, int2 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_array_t image, int2 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image1d_array_t image, int2 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image1d_array_t image, int2 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image1d_array_t image, int2 coord);
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_t image, int2 coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image2d_t image, int2 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_t image, int2 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_t image, int2 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_t image, int2 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_t image, int2 coord);
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_array_t image, int4 coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image2d_array_t image, int4 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_array_t image, int4 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_array_t image, int4 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_array_t image, int4 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_array_t image, int4 coord);
 
 #ifdef cl_khr_depth_images
-float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, int2 coord);
-float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_array_depth_t image, int4 coord);
+float __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, int2 coord);
+float __attribute__((overloadable)) read_imagef(read_only image2d_array_depth_t image, int4 coord);
 #endif //cl_khr_depth_images
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image3d_t image, int4 coord);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image3d_t image, int4 coord);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image3d_t image, int4 coord);
+float4 __attribute__((overloadable)) read_imagef(read_only image3d_t image, int4 coord);
+int4 __attribute__((overloadable)) read_imagei(read_only image3d_t image, int4 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_only image3d_t image, int4 coord);
 
 // Image Read Functions Returning half4 Type
 #ifdef cl_khr_fp16
@@ -14949,6 +15329,47 @@ half4 __attribute__((overloadable)) read_imageh(read_only image1d_array_t image,
 half4 __attribute__((overloadable)) read_imageh(read_only image2d_array_t image, int4 coord );
 half4 __attribute__((overloadable)) read_imageh(read_only image1d_buffer_t image, int coord );
 #endif //cl_khr_fp16
+
+#ifdef _HAS_READ_WRITE_IMAGE
+float4 __attribute__((overloadable)) read_imagef(read_write image1d_t image, int coord);
+int4 __attribute__((overloadable)) read_imagei(read_write image1d_t image, int coord);
+uint4 __attribute__((overloadable)) read_imageui(read_write image1d_t image, int coord);
+
+float4 __attribute__((overloadable)) read_imagef(read_write image1d_buffer_t image, int coord);
+int4 __attribute__((overloadable)) read_imagei(read_write image1d_buffer_t image, int coord);
+uint4 __attribute__((overloadable)) read_imageui(read_write image1d_buffer_t image, int coord);
+
+float4 __attribute__((overloadable)) read_imagef(read_write image1d_array_t image, int2 coord);
+int4 __attribute__((overloadable)) read_imagei(read_write image1d_array_t image, int2 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_write image1d_array_t image, int2 coord);
+
+float4 __attribute__((overloadable)) read_imagef(read_write image2d_t image, int2 coord);
+int4 __attribute__((overloadable)) read_imagei(read_write image2d_t image, int2 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_write image2d_t image, int2 coord);
+
+float4 __attribute__((overloadable)) read_imagef(read_write image2d_array_t image, int4 coord);
+int4 __attribute__((overloadable)) read_imagei(read_write image2d_array_t image, int4 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_write image2d_array_t image, int4 coord);
+
+#ifdef cl_khr_depth_images
+float __attribute__((overloadable)) read_imagef(read_write image2d_depth_t image, int2 coord);
+float __attribute__((overloadable)) read_imagef(read_write image2d_array_depth_t image, int4 coord);
+#endif //cl_khr_depth_images
+
+float4 __attribute__((overloadable)) read_imagef(read_write image3d_t image, int4 coord);
+int4 __attribute__((overloadable)) read_imagei(read_write image3d_t image, int4 coord);
+uint4 __attribute__((overloadable)) read_imageui(read_write image3d_t image, int4 coord);
+
+// Image Read Functions Returning half4 Type
+#ifdef cl_khr_fp16
+half4 __attribute__((overloadable)) read_imageh(read_write image1d_t image, int coord );
+half4 __attribute__((overloadable)) read_imageh(read_write image2d_t image, int2 coord );
+half4 __attribute__((overloadable)) read_imageh(read_write image3d_t image, int4 coord );
+half4 __attribute__((overloadable)) read_imageh(read_write image1d_array_t image, int2 coord );
+half4 __attribute__((overloadable)) read_imageh(read_write image2d_array_t image, int4 coord );
+half4 __attribute__((overloadable)) read_imageh(read_write image1d_buffer_t image, int coord );
+#endif //cl_khr_fp16
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Write color value to location specified by coordinate
@@ -14990,6 +15411,11 @@ void __attribute__((overloadable)) write_imagef(write_only image2d_t image, int2
 void __attribute__((overloadable)) write_imagei(write_only image2d_t image, int2 coord, int4 color);
 void __attribute__((overloadable)) write_imageui(write_only image2d_t image, int2 coord, uint4 color);
 
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable)) write_imagef(read_write image2d_t image, int2 coord, float4 color);
+void __attribute__((overloadable)) write_imagei(read_write image2d_t image, int2 coord, int4 color);
+void __attribute__((overloadable)) write_imageui(read_write image2d_t image, int2 coord, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Write color value to location specified by coordinate
@@ -15033,6 +15459,12 @@ void __attribute__((overloadable)) write_imagef(write_only image2d_array_t image
 void __attribute__((overloadable)) write_imagei(write_only image2d_array_t image_array, int4 coord, int4 color);
 void __attribute__((overloadable)) write_imageui(write_only image2d_array_t image_array, int4 coord, uint4 color);
 
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable)) write_imagef(read_write image2d_array_t image_array, int4 coord, float4 color);
+void __attribute__((overloadable)) write_imagei(read_write image2d_array_t image_array, int4 coord, int4 color);
+void __attribute__((overloadable)) write_imageui(read_write image2d_array_t image_array, int4 coord, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
+
 /**
  * Write color value to location specified by coordinate
  * (x) in the 1D image object specified by image.
@@ -15072,6 +15504,12 @@ void __attribute__((overloadable)) write_imagef(write_only image1d_t image, int 
 void __attribute__((overloadable)) write_imagei(write_only image1d_t image, int coord, int4 color);
 void __attribute__((overloadable)) write_imageui(write_only image1d_t image, int coord, uint4 color);
 
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable)) write_imagef(read_write image1d_t image, int coord, float4 color);
+void __attribute__((overloadable)) write_imagei(read_write image1d_t image, int coord, int4 color);
+void __attribute__((overloadable)) write_imageui(read_write image1d_t image, int coord, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
+
 /**
  * Write color value to location specified by coordinate
  * (x) in the 1D image buffer object specified by image
@@ -15110,6 +15548,12 @@ void __attribute__((overloadable)) write_imageui(write_only image1d_t image, int
 void __attribute__((overloadable)) write_imagef(write_only image1d_buffer_t image, int coord, float4 color);
 void __attribute__((overloadable)) write_imagei(write_only image1d_buffer_t image, int coord, int4 color);
 void __attribute__((overloadable)) write_imageui(write_only image1d_buffer_t image, int coord, uint4 color);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable)) write_imagef(read_write image1d_buffer_t image, int coord, float4 color);
+void __attribute__((overloadable)) write_imagei(read_write image1d_buffer_t image, int coord, int4 color);
+void __attribute__((overloadable)) write_imageui(read_write image1d_buffer_t image, int coord, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Write color value to location specified by coordinate
@@ -15153,6 +15597,12 @@ void __attribute__((overloadable)) write_imagef(write_only image1d_array_t image
 void __attribute__((overloadable)) write_imagei(write_only image1d_array_t image_array, int2 coord, int4 color);
 void __attribute__((overloadable)) write_imageui(write_only image1d_array_t image_array, int2 coord, uint4 color);
 
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable)) write_imagef(read_write image1d_array_t image_array, int2 coord, float4 color);
+void __attribute__((overloadable)) write_imagei(read_write image1d_array_t image_array, int2 coord, int4 color);
+void __attribute__((overloadable)) write_imageui(read_write image1d_array_t image_array, int2 coord, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
+
 /**
  * Write color value to location specified by coordinate
  * (x, y, z) in the 3D image object specified by image.
@@ -15192,6 +15642,12 @@ void __attribute__((overloadable)) write_imageui(write_only image1d_array_t imag
 void __attribute__((overloadable)) write_imagef(write_only image3d_t image, int4 coord, float4 color);
 void __attribute__((overloadable)) write_imagei(write_only image3d_t image, int4 coord, int4 color);
 void __attribute__((overloadable)) write_imageui(write_only image3d_t image, int4 coord, uint4 color);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable)) write_imagef(read_write image3d_t image, int4 coord, float4 color);
+void __attribute__((overloadable)) write_imagei(read_write image3d_t image, int4 coord, int4 color);
+void __attribute__((overloadable)) write_imageui(read_write image3d_t image, int4 coord, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Write color value to location specified by coordinate
@@ -15244,6 +15700,23 @@ void __attribute__((overloadable)) write_imageh(write_only image2d_array_t image
 void __attribute__((overloadable)) write_imageh(write_only image1d_buffer_t image, int coord, half4 color );
 #endif //cl_khr_fp16
 
+#ifdef _HAS_READ_WRITE_IMAGE
+#ifdef cl_khr_depth_images
+void __attribute__((overloadable)) write_imagef(read_write image2d_depth_t image, int2 coord, float color);
+void __attribute__((overloadable)) write_imagef(read_write image2d_array_depth_t image, int4 coord, float color);
+#endif //cl_khr_depth_images
+
+// Image Write Functions Returning half4 Type
+#ifdef cl_khr_fp16
+void __attribute__((overloadable)) write_imageh(read_write image1d_t image, int coord, half4 color );
+void __attribute__((overloadable)) write_imageh(read_write image2d_t image, int2 coord, half4 color );
+void __attribute__((overloadable)) write_imageh(read_write image3d_t image, int4 coord, half4 color );
+void __attribute__((overloadable)) write_imageh(read_write image1d_array_t image, int2 coord, half4 color );
+void __attribute__((overloadable)) write_imageh(read_write image2d_array_t image, int4 coord, half4 color );
+void __attribute__((overloadable)) write_imageh(read_write image1d_buffer_t image, int coord, half4 color );
+#endif //cl_khr_fp16
+#endif //_HAS_READ_WRITE_IMAGE
+
 #if defined(cl_khr_gl_msaa_sharing)
 /**
  * Use the coordinate (cood.xy) and sample to do an
@@ -15273,9 +15746,15 @@ void __attribute__((overloadable)) write_imageh(write_only image1d_buffer_t imag
  * with image_channel_data_type values not specified
  * in the description above are undefined.
  */
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_msaa_t image, int2 coord, int sample);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image2d_msaa_t image, int2 coord, int sample);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_msaa_t image, int2 coord, int sample);
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_msaa_t image, int2 coord, int sample);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_msaa_t image, int2 coord, int sample);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_msaa_t image, int2 coord, int sample);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+float4 __attribute__((overloadable)) read_imagef(read_write image2d_msaa_t image, int2 coord, int sample);
+int4 __attribute__((overloadable)) read_imagei(read_write image2d_msaa_t image, int2 coord, int sample);
+uint4 __attribute__((overloadable)) read_imageui(read_write image2d_msaa_t image, int2 coord, int sample);
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Use the coordinate (cood.xy) and sample to do an
@@ -15305,7 +15784,11 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_
  * with image_channel_data_type values not specified
  * in the description above are undefined.
  */
-float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_msaa_depth_t image, int2 coord, int sample);
+float __attribute__((overloadable)) read_imagef(read_only image2d_msaa_depth_t image, int2 coord, int sample);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+float __attribute__((overloadable)) read_imagef(read_write image2d_msaa_depth_t image, int2 coord, int sample);
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Use coord.xy and sample to do an element
@@ -15338,9 +15821,15 @@ float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_m
  */
 
 // 2D multisample image arrays
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_array_msaa_t image, int4 coord, int sample);
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image2d_array_msaa_t image, int4 coord, int sample);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_array_msaa_t image, int4 coord, int sample);
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_array_msaa_t image, int4 coord, int sample);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_array_msaa_t image, int4 coord, int sample);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_array_msaa_t image, int4 coord, int sample);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+float4 __attribute__((overloadable)) read_imagef(read_write image2d_array_msaa_t image, int4 coord, int sample);
+int4 __attribute__((overloadable)) read_imagei(read_write image2d_array_msaa_t image, int4 coord, int sample);
+uint4 __attribute__((overloadable)) read_imageui(read_write image2d_array_msaa_t image, int4 coord, int sample);
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Use coord.xy and sample to do an element
@@ -15371,50 +15860,131 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_
  * with image_channel_data_type values not specified
  * in the description above are undefined.
  */
-float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_array_msaa_depth_t image, int4 coord, int sample);
+float __attribute__((overloadable)) read_imagef(read_only image2d_array_msaa_depth_t image, int4 coord, int sample);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+float __attribute__((overloadable)) read_imagef(read_write image2d_array_msaa_depth_t image, int4 coord, int sample);
+#endif //_HAS_READ_WRITE_IMAGE
 #endif
+
+// Note: In OpenCL v1.0/1.1/1.2, image argument of image query builtin functions does not have
+// access qualifier, which by default assume read_only access qualifier. Image query builtin
+// functions with write_only image argument should also be declared.
 
 /**
  * Return the image width in pixels.
- */
-int __const_func __attribute__((overloadable)) get_image_width(image1d_t image);
-int __const_func __attribute__((overloadable)) get_image_width(image1d_buffer_t image);
-int __const_func __attribute__((overloadable)) get_image_width(image2d_t image);
-int __const_func __attribute__((overloadable)) get_image_width(image3d_t image);
-int __const_func __attribute__((overloadable)) get_image_width(image1d_array_t image);
-int __const_func __attribute__((overloadable)) get_image_width(image2d_array_t image);
+ *
+  */
+int __const_func __attribute__((overloadable)) get_image_width(read_only image1d_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image1d_buffer_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image1d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image2d_array_t image);
 #ifdef cl_khr_depth_images
-int __const_func __attribute__((overloadable)) get_image_width(image2d_depth_t image);
-int __const_func __attribute__((overloadable)) get_image_width(image2d_array_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image2d_array_depth_t image);
 #endif //cl_khr_depth_images
 #if defined(cl_khr_gl_msaa_sharing)
-int __const_func __attribute__((overloadable)) get_image_width(image2d_msaa_t image);
-int __const_func __attribute__((overloadable)) get_image_width(image2d_msaa_depth_t image);
-int __const_func __attribute__((overloadable)) get_image_width(image2d_array_msaa_t image);
-int __const_func __attribute__((overloadable)) get_image_width(image2d_array_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_only image2d_array_msaa_depth_t image);
 #endif //cl_khr_gl_msaa_sharing
+
+int __const_func __attribute__((overloadable)) get_image_width(write_only image1d_t image);
+int __const_func __attribute__((overloadable)) get_image_width(write_only image1d_buffer_t image);
+int __const_func __attribute__((overloadable)) get_image_width(write_only image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_width(write_only image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_width(write_only image1d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_width(write_only image2d_array_t image);
+#ifdef cl_khr_depth_images
+int __const_func __attribute__((overloadable)) get_image_width(write_only image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_width(write_only image2d_array_depth_t image);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+int __const_func __attribute__((overloadable)) get_image_width(write_only image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_width(write_only image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_width(write_only image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_width(write_only image2d_array_msaa_depth_t image);
+#endif //cl_khr_gl_msaa_sharing
+
+#ifdef _HAS_READ_WRITE_IMAGE
+int __const_func __attribute__((overloadable)) get_image_width(read_write image1d_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_write image1d_buffer_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_write image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_write image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_write image1d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_write image2d_array_t image);
+#ifdef cl_khr_depth_images
+int __const_func __attribute__((overloadable)) get_image_width(read_write image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_write image2d_array_depth_t image);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+int __const_func __attribute__((overloadable)) get_image_width(read_write image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_write image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_write image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_width(read_write image2d_array_msaa_depth_t image);
+#endif //cl_khr_gl_msaa_sharing
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Return the image height in pixels.
  */
-int __const_func __attribute__((overloadable)) get_image_height(image2d_t image);
-int __const_func __attribute__((overloadable)) get_image_height(image3d_t image);
-int __const_func __attribute__((overloadable)) get_image_height(image2d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_only image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_only image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_only image2d_array_t image);
 #ifdef cl_khr_depth_images
-int __const_func __attribute__((overloadable)) get_image_height(image2d_depth_t image);
-int __const_func __attribute__((overloadable)) get_image_height(image2d_array_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_only image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_only image2d_array_depth_t image);
 #endif //cl_khr_depth_images
 #if defined(cl_khr_gl_msaa_sharing)
-int __const_func __attribute__((overloadable)) get_image_height(image2d_msaa_t image);
-int __const_func __attribute__((overloadable)) get_image_height(image2d_msaa_depth_t image);
-int __const_func __attribute__((overloadable)) get_image_height(image2d_array_msaa_t image);
-int __const_func __attribute__((overloadable)) get_image_height(image2d_array_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_only image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_only image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_only image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_only image2d_array_msaa_depth_t image);
 #endif //cl_khr_gl_msaa_sharing
+
+int __const_func __attribute__((overloadable)) get_image_height(write_only image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_height(write_only image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_height(write_only image2d_array_t image);
+#ifdef cl_khr_depth_images
+int __const_func __attribute__((overloadable)) get_image_height(write_only image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_height(write_only image2d_array_depth_t image);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+int __const_func __attribute__((overloadable)) get_image_height(write_only image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_height(write_only image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_height(write_only image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_height(write_only image2d_array_msaa_depth_t image);
+#endif //cl_khr_gl_msaa_sharing
+
+#ifdef _HAS_READ_WRITE_IMAGE
+int __const_func __attribute__((overloadable)) get_image_height(read_write image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_write image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_write image2d_array_t image);
+#ifdef cl_khr_depth_images
+int __const_func __attribute__((overloadable)) get_image_height(read_write image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_write image2d_array_depth_t image);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+int __const_func __attribute__((overloadable)) get_image_height(read_write image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_write image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_write image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_height(read_write image2d_array_msaa_depth_t image);
+#endif //cl_khr_gl_msaa_sharing
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Return the image depth in pixels.
  */
-int __const_func __attribute__((overloadable)) get_image_depth(image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_depth(read_only image3d_t image);
+
+int __const_func __attribute__((overloadable)) get_image_depth(write_only image3d_t image);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+int __const_func __attribute__((overloadable)) get_image_depth(read_write image3d_t image);
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Return the channel data type. Valid values are:
@@ -15455,22 +16025,58 @@ int __const_func __attribute__((overloadable)) get_image_depth(image3d_t image);
 #define CLK_FLOAT             0x10DE
 #define CLK_UNORM_INT24       0x10DF
 
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image1d_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image1d_buffer_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image2d_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image3d_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image1d_array_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image2d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image1d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image1d_buffer_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image1d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image2d_array_t image);
 #ifdef cl_khr_depth_images
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image2d_depth_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image2d_array_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image2d_array_depth_t image);
 #endif //cl_khr_depth_images
 #if defined(cl_khr_gl_msaa_sharing)
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image2d_msaa_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image2d_msaa_depth_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image2d_array_msaa_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_data_type(image2d_array_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_only image2d_array_msaa_depth_t image);
 #endif //cl_khr_gl_msaa_sharing
+
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image1d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image1d_buffer_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image1d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image2d_array_t image);
+#ifdef cl_khr_depth_images
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image2d_array_depth_t image);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(write_only image2d_array_msaa_depth_t image);
+#endif //cl_khr_gl_msaa_sharing
+
+#ifdef _HAS_READ_WRITE_IMAGE
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image1d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image1d_buffer_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image1d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image2d_array_t image);
+#ifdef cl_khr_depth_images
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image2d_array_depth_t image);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_data_type(read_write image2d_array_msaa_depth_t image);
+#endif //cl_khr_gl_msaa_sharing
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Return the image channel order. Valid values are:
@@ -15505,47 +16111,111 @@ int __const_func __attribute__((overloadable)) get_image_channel_data_type(image
 #define CLK_RGBx              0x10BC
 #define CLK_DEPTH             0x10BD
 #define CLK_DEPTH_STENCIL     0x10BE
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 #define CLK_sRGB              0x10BF
 #define CLK_sRGBA             0x10C1
 #define CLK_sRGBx             0x10C0
 #define CLK_sBGRA             0x10C2
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
-int __const_func __attribute__((overloadable)) get_image_channel_order(image1d_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_order(image1d_buffer_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_order(image2d_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_order(image3d_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_order(image1d_array_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_order(image2d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image1d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image1d_buffer_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image1d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image2d_array_t image);
 #ifdef cl_khr_depth_images
-int __const_func __attribute__((overloadable)) get_image_channel_order(image2d_depth_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_order(image2d_array_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image2d_array_depth_t image);
 #endif //cl_khr_depth_images
 #if defined(cl_khr_gl_msaa_sharing)
-int __const_func __attribute__((overloadable)) get_image_channel_order(image2d_msaa_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_order(image2d_msaa_depth_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_order(image2d_array_msaa_t image);
-int __const_func __attribute__((overloadable)) get_image_channel_order(image2d_array_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_only image2d_array_msaa_depth_t image);
 #endif //cl_khr_gl_msaa_sharing
+
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image1d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image1d_buffer_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image1d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image2d_array_t image);
+#ifdef cl_khr_depth_images
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image2d_array_depth_t image);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(write_only image2d_array_msaa_depth_t image);
+#endif //cl_khr_gl_msaa_sharing
+
+#ifdef _HAS_READ_WRITE_IMAGE
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image1d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image1d_buffer_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image2d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image3d_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image1d_array_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image2d_array_t image);
+#ifdef cl_khr_depth_images
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image2d_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image2d_array_depth_t image);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image2d_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image2d_msaa_depth_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image2d_array_msaa_t image);
+int __const_func __attribute__((overloadable)) get_image_channel_order(read_write image2d_array_msaa_depth_t image);
+#endif //cl_khr_gl_msaa_sharing
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Return the 2D image width and height as an int2
  * type. The width is returned in the x component, and
  * the height in the y component.
  */
-int2 __const_func __attribute__((overloadable)) get_image_dim(image2d_t image);
-int2 __const_func __attribute__((overloadable)) get_image_dim(image2d_array_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_only image2d_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_only image2d_array_t image);
 #ifdef cl_khr_depth_images
-int2 __const_func __attribute__((overloadable)) get_image_dim(image2d_array_depth_t image);
-int2 __const_func __attribute__((overloadable)) get_image_dim(image2d_depth_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_only image2d_array_depth_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_only image2d_depth_t image);
 #endif //cl_khr_depth_images
 #if defined(cl_khr_gl_msaa_sharing)
-int2 __const_func __attribute__((overloadable)) get_image_dim(image2d_msaa_t image);
-int2 __const_func __attribute__((overloadable)) get_image_dim(image2d_msaa_depth_t image);
-int2 __const_func __attribute__((overloadable)) get_image_dim(image2d_array_msaa_t image);
-int2 __const_func __attribute__((overloadable)) get_image_dim(image2d_array_msaa_depth_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_only image2d_msaa_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_only image2d_msaa_depth_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_only image2d_array_msaa_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_only image2d_array_msaa_depth_t image);
 #endif //cl_khr_gl_msaa_sharing
+
+int2 __const_func __attribute__((overloadable)) get_image_dim(write_only image2d_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(write_only image2d_array_t image);
+#ifdef cl_khr_depth_images
+int2 __const_func __attribute__((overloadable)) get_image_dim(write_only image2d_array_depth_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(write_only image2d_depth_t image);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+int2 __const_func __attribute__((overloadable)) get_image_dim(write_only image2d_msaa_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(write_only image2d_msaa_depth_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(write_only image2d_array_msaa_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(write_only image2d_array_msaa_depth_t image);
+#endif //cl_khr_gl_msaa_sharing
+
+#ifdef _HAS_READ_WRITE_IMAGE
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_write image2d_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_write image2d_array_t image);
+#ifdef cl_khr_depth_images
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_write image2d_array_depth_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_write image2d_depth_t image);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_write image2d_msaa_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_write image2d_msaa_depth_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_write image2d_array_msaa_t image);
+int2 __const_func __attribute__((overloadable)) get_image_dim(read_write image2d_array_msaa_depth_t image);
+#endif //cl_khr_gl_msaa_sharing
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Return the 3D image width, height, and depth as an
@@ -15553,36 +16223,76 @@ int2 __const_func __attribute__((overloadable)) get_image_dim(image2d_array_msaa
  * component, height in the y component, depth in the z
  * component and the w component is 0.
  */
-int4 __const_func __attribute__((overloadable)) get_image_dim(image3d_t image);
+int4 __const_func __attribute__((overloadable)) get_image_dim(read_only image3d_t image);
+int4 __const_func __attribute__((overloadable)) get_image_dim(write_only image3d_t image);
+#ifdef _HAS_READ_WRITE_IMAGE
+int4 __const_func __attribute__((overloadable)) get_image_dim(read_write image3d_t image);
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Return the image array size.
  */
 
-size_t __const_func __attribute__((overloadable)) get_image_array_size(image1d_array_t image_array);
-size_t __const_func __attribute__((overloadable)) get_image_array_size(image2d_array_t image_array);
+size_t __const_func __attribute__((overloadable)) get_image_array_size(read_only image1d_array_t image_array);
+size_t __const_func __attribute__((overloadable)) get_image_array_size(read_only image2d_array_t image_array);
 #ifdef cl_khr_depth_images
-size_t __const_func __attribute__((overloadable)) get_image_array_size(image2d_array_depth_t image_array);
+size_t __const_func __attribute__((overloadable)) get_image_array_size(read_only image2d_array_depth_t image_array);
 #endif //cl_khr_depth_images
 #if defined(cl_khr_gl_msaa_sharing)
-size_t __const_func __attribute__((overloadable)) get_image_array_size(image2d_array_msaa_t image_array);
-size_t __const_func __attribute__((overloadable)) get_image_array_size(image2d_array_msaa_depth_t image_array);
+size_t __const_func __attribute__((overloadable)) get_image_array_size(read_only image2d_array_msaa_t image_array);
+size_t __const_func __attribute__((overloadable)) get_image_array_size(read_only image2d_array_msaa_depth_t image_array);
 #endif //cl_khr_gl_msaa_sharing
+
+size_t __const_func __attribute__((overloadable)) get_image_array_size(write_only image1d_array_t image_array);
+size_t __const_func __attribute__((overloadable)) get_image_array_size(write_only image2d_array_t image_array);
+#ifdef cl_khr_depth_images
+size_t __const_func __attribute__((overloadable)) get_image_array_size(write_only image2d_array_depth_t image_array);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+size_t __const_func __attribute__((overloadable)) get_image_array_size(write_only image2d_array_msaa_t image_array);
+size_t __const_func __attribute__((overloadable)) get_image_array_size(write_only image2d_array_msaa_depth_t image_array);
+#endif //cl_khr_gl_msaa_sharing
+
+#ifdef _HAS_READ_WRITE_IMAGE
+size_t __const_func __attribute__((overloadable)) get_image_array_size(read_write image1d_array_t image_array);
+size_t __const_func __attribute__((overloadable)) get_image_array_size(read_write image2d_array_t image_array);
+#ifdef cl_khr_depth_images
+size_t __const_func __attribute__((overloadable)) get_image_array_size(read_write image2d_array_depth_t image_array);
+#endif //cl_khr_depth_images
+#if defined(cl_khr_gl_msaa_sharing)
+size_t __const_func __attribute__((overloadable)) get_image_array_size(read_write image2d_array_msaa_t image_array);
+size_t __const_func __attribute__((overloadable)) get_image_array_size(read_write image2d_array_msaa_depth_t image_array);
+#endif //cl_khr_gl_msaa_sharing
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
 * Return the number of samples associated with image
 */
 #if defined(cl_khr_gl_msaa_sharing)
-int __attribute__((overloadable)) get_image_num_samples(image2d_msaa_t image);
-int __attribute__((overloadable)) get_image_num_samples(image2d_msaa_depth_t image);
-int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_depth_t image);
-int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_t image);
-int __attribute__((overloadable)) get_image_num_samples(image2d_array_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_num_samples(read_only image2d_msaa_t image);
+int __attribute__((overloadable)) get_image_num_samples(read_only image2d_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_num_samples(read_only image2d_array_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_num_samples(read_only image2d_array_msaa_t image);
+int __attribute__((overloadable)) get_image_num_samples(read_only image2d_array_msaa_depth_t image);
+
+int __attribute__((overloadable)) get_image_num_samples(write_only image2d_msaa_t image);
+int __attribute__((overloadable)) get_image_num_samples(write_only image2d_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_num_samples(write_only image2d_array_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_num_samples(write_only image2d_array_msaa_t image);
+int __attribute__((overloadable)) get_image_num_samples(write_only image2d_array_msaa_depth_t image);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+int __attribute__((overloadable)) get_image_num_samples(read_write image2d_msaa_t image);
+int __attribute__((overloadable)) get_image_num_samples(read_write image2d_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_num_samples(read_write image2d_array_msaa_depth_t image);
+int __attribute__((overloadable)) get_image_num_samples(read_write image2d_array_msaa_t image);
+int __attribute__((overloadable)) get_image_num_samples(read_write image2d_array_msaa_depth_t image);
+#endif //_HAS_READ_WRITE_IMAGE
 #endif
 
 // OpenCL v2.0 s6.13.15 - Work-group Functions
 
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 int __attribute__((overloadable)) work_group_all(int predicate);
 int __attribute__((overloadable)) work_group_any(int predicate);
 
@@ -15606,7 +16316,9 @@ WG_BROADCAST_ALL_DECL(uint)
 WG_BROADCAST_ALL_DECL(long)
 WG_BROADCAST_ALL_DECL(ulong)
 WG_BROADCAST_ALL_DECL(float)
+#ifdef cl_khr_fp64
 WG_BROADCAST_ALL_DECL(double)
+#endif //cl_khr_fp64
 
 #define DECL_WORK_GROUP_REDUCE_OP(type, op_name) \
 type __attribute__((overloadable)) work_group_reduce_##op_name(type x);
@@ -15650,22 +16362,24 @@ DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(ulong)
 DECL_WORK_GROUP_REDUCE_ALL(float)
 DECL_WORK_GROUP_SCAN_EXCLUSIVE_ALL(float)
 DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(float)
+#ifdef cl_khr_fp64
 DECL_WORK_GROUP_REDUCE_ALL(double)
 DECL_WORK_GROUP_SCAN_EXCLUSIVE_ALL(double)
 DECL_WORK_GROUP_SCAN_INCLUSIVE_ALL(double)
+#endif //cl_khr_fp64
 
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 // OpenCL v2.0 s6.13.16 - Pipe Functions
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 #define PIPE_RESERVE_ID_VALID_BIT (1U << 30)
 #define CLK_NULL_RESERVE_ID (__builtin_astype(((void*)(~PIPE_RESERVE_ID_VALID_BIT)), reserve_id_t))
 bool __attribute__((overloadable)) is_valid_reserve_id(reserve_id_t reserve_id);
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 
 // OpenCL v2.0 s6.13.17 - Enqueue Kernels
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 
 #define CL_COMPLETE                                 0x0
 #define CL_RUNNING                                  0x1
@@ -15759,7 +16473,7 @@ bool is_valid_event (clk_event_t event);
 void __attribute__((overloadable)) capture_event_profiling_info(clk_event_t, clk_profiling_info, __global void* value);
 
 queue_t __attribute__((overloadable)) get_default_queue(void);
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 // OpenCL Extension v2.0 s9.17 - Sub-groups
 
@@ -15768,16 +16482,16 @@ queue_t __attribute__((overloadable)) get_default_queue(void);
 uint    __attribute__((overloadable)) get_sub_group_size( void );
 uint    __attribute__((overloadable)) get_max_sub_group_size( void );
 uint    __attribute__((overloadable)) get_num_sub_groups( void );
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 uint    __attribute__((overloadable)) get_enqueued_num_sub_groups( void );
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 uint    __attribute__((overloadable)) get_sub_group_id( void );
 uint    __attribute__((overloadable)) get_sub_group_local_id( void );
 
 void    __attribute__((overloadable)) sub_group_barrier( cl_mem_fence_flags flags );
-#if defined(__OPENCL_C_VERSION__) && __OPENCL_C_VERSION__ >= 200
+#ifdef _CL20_AND_ABOVE
 void    __attribute__((overloadable)) sub_group_barrier( cl_mem_fence_flags flags, memory_scope scope );
-#endif //__OPENCL_C_VERSION__
+#endif //_CL20_AND_ABOVE
 
 int     __attribute__((overloadable)) sub_group_all( int predicate );
 int     __attribute__((overloadable)) sub_group_any( int predicate );
@@ -15849,6 +16563,7 @@ half    __attribute__((overloadable)) sub_group_scan_inclusive_min( half x );
 half    __attribute__((overloadable)) sub_group_scan_inclusive_max( half x );
 #endif //cl_khr_fp16
 
+#ifdef cl_khr_fp64
 double  __attribute__((overloadable)) sub_group_broadcast( double x, uint sub_group_local_id );
 double  __attribute__((overloadable)) sub_group_reduce_add( double x );
 double  __attribute__((overloadable)) sub_group_reduce_min( double x );
@@ -15859,6 +16574,7 @@ double  __attribute__((overloadable)) sub_group_scan_exclusive_max( double x );
 double  __attribute__((overloadable)) sub_group_scan_inclusive_add( double x );
 double  __attribute__((overloadable)) sub_group_scan_inclusive_min( double x );
 double  __attribute__((overloadable)) sub_group_scan_inclusive_max( double x );
+#endif //cl_khr_fp64
 
 #endif //cl_khr_subgroups cl_intel_subgroups
 
@@ -15894,7 +16610,7 @@ double  __attribute__((overloadable)) sub_group_scan_inclusive_max( double x );
  * in the description above are undefined.
  */
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_t image, sampler_t sampler, float coord, float lod);
+float4 __attribute__((overloadable)) read_imagef(read_only image1d_t image, sampler_t sampler, float coord, float lod);
 
 /**
  * Use the coordinate (x) to do an element lookup in
@@ -15936,8 +16652,8 @@ float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_
  * otherwise the values returned are undefined.
  */
 
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image1d_t image, sampler_t sampler, float coord, float lod);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_t image, sampler_t sampler, float coord, float lod);
+int4 __attribute__((overloadable)) read_imagei(read_only image1d_t image, sampler_t sampler, float coord, float lod);
+uint4 __attribute__((overloadable)) read_imageui(read_only image1d_t image, sampler_t sampler, float coord, float lod);
 
 /**
  * Use the coordinate (coord.y) to index into the
@@ -15971,7 +16687,7 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_
  */
 
 // 1D image arrays
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_array_t image_array, sampler_t sampler, float2 coord, float lod);
+float4 __attribute__((overloadable)) read_imagef(read_only image1d_array_t image_array, sampler_t sampler, float2 coord, float lod);
 
 /**
  * Use the coordinate (coord.y) to index into the
@@ -16016,8 +16732,8 @@ float4 __const_func __attribute__((overloadable)) read_imagef(read_only image1d_
 
 //1D image arrays
 
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image1d_array_t image_array, sampler_t sampler, float2 coord, float lod);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_array_t image_array, sampler_t sampler, float2 coord, float lod);
+int4 __attribute__((overloadable)) read_imagei(read_only image1d_array_t image_array, sampler_t sampler, float2 coord, float lod);
+uint4 __attribute__((overloadable)) read_imageui(read_only image1d_array_t image_array, sampler_t sampler, float2 coord, float lod);
 
 /**
  * Use the coordinate (x, y) to do an element lookup in
@@ -16048,7 +16764,7 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image1d_
  * in the description above are undefined.
  */
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_t image, sampler_t sampler, float2 coord, float lod);
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_t image, sampler_t sampler, float2 coord, float lod);
 
 /**
  * Use the coordinate (x, y) to do an element lookup in
@@ -16090,8 +16806,8 @@ float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_
  * otherwise the values returned are undefined.
  */
 
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image2d_t image, sampler_t sampler, float2 coord, float lod);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_t image, sampler_t sampler, float2 coord, float lod);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_t image, sampler_t sampler, float2 coord, float lod);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_t image, sampler_t sampler, float2 coord, float lod);
 
 /**
  * Use the coordinate (cood.xy) to do an element
@@ -16121,7 +16837,7 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_
  * with image_channel_data_type values not specified
  * in the description above are undefined.
  */
-float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, sampler_t sampler, float2 coord, float lod);
+float __attribute__((overloadable)) read_imagef(read_only image2d_depth_t image, sampler_t sampler, float2 coord, float lod);
 
 /**
  * Use the coordinate (coord.z) and the mip-level
@@ -16155,7 +16871,7 @@ float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_d
  */
 
 // 2D image arrays
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_array_t image_array, sampler_t sampler, float4 coord, float lod);
+float4 __attribute__((overloadable)) read_imagef(read_only image2d_array_t image_array, sampler_t sampler, float4 coord, float lod);
 
 /**
  * Use the coordinate (coord.z) and the mip-level
@@ -16200,11 +16916,11 @@ float4 __const_func __attribute__((overloadable)) read_imagef(read_only image2d_
  */
 
 //2D image arrays
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image2d_array_t image_array, sampler_t sampler, float4 coord, float lod);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_array_t image_array, sampler_t sampler, float4 coord, float lod);
+int4 __attribute__((overloadable)) read_imagei(read_only image2d_array_t image_array, sampler_t sampler, float4 coord, float lod);
+uint4 __attribute__((overloadable)) read_imageui(read_only image2d_array_t image_array, sampler_t sampler, float4 coord, float lod);
 
-  /**
-  * Use the coordinate (coord.z) and the mip-level
+/**
+ * Use the coordinate (coord.z) and the mip-level
  * specified by lod to index into the 2D image
  * array object specified by image_array
  * and (coord.x, coord.y) to do an element lookup in
@@ -16235,7 +16951,7 @@ uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image2d_
  */
 
 // 2D depth image arrays
-float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_array_depth_t image, sampler_t sampler, float4 coord, float lod);
+float __attribute__((overloadable)) read_imagef(read_only image2d_array_depth_t image, sampler_t sampler, float4 coord, float lod);
 
 /**
  * Use the coordinate (coord.x, coord.y, coord.z) to do
@@ -16267,7 +16983,7 @@ float __const_func __attribute__((overloadable)) read_imagef(read_only image2d_a
  * in the description are undefined.
  */
 
-float4 __const_func __attribute__((overloadable)) read_imagef(read_only image3d_t image, sampler_t sampler, float4 coord, float lod);
+float4 __attribute__((overloadable)) read_imagef(read_only image3d_t image, sampler_t sampler, float4 coord, float lod);
 
 /**
  * Use the coordinate (coord.x, coord.y, coord.z) to do
@@ -16310,44 +17026,44 @@ float4 __const_func __attribute__((overloadable)) read_imagef(read_only image3d_
  * otherwise the values returned are undefined.
  */
 
-int4 __const_func __attribute__((overloadable)) read_imagei(read_only image3d_t image, sampler_t sampler, float4 coord, float lod);
-uint4 __const_func __attribute__((overloadable)) read_imageui(read_only image3d_t image, sampler_t sampler, float4 coord, float lod);
+int4 __attribute__((overloadable)) read_imagei(read_only image3d_t image, sampler_t sampler, float4 coord, float lod);
+uint4 __attribute__((overloadable)) read_imageui(read_only image3d_t image, sampler_t sampler, float4 coord, float lod);
 
 /**
-  * Read Image support for mipmaps using gradients for
-  * LOD computation
-  */
+ * Read Image support for mipmaps using gradients for
+ * LOD computation
+ */
 
 /**
-  * Use gradients to compute the LOD Read Image support
-  * for mipmaps using gradients for LOD computation
-  * and coordinate (x) to do an element lookup in
-  * the mip-level specified by the lod
-  * in the 1D image object specified by image.
-  * read_imagef returns floating-point values in the
-  * range [0.0 ... 1.0] for image objects created with
-  * image_channel_data_type set to one of the predefined
-  * packed formats or CL_UNORM_INT8, or
-  * CL_UNORM_INT16.
-  * read_imagef returns floating-point values in the
-  * range [-1.0 ... 1.0] for image objects created with
-  * image_channel_data_type set to CL_SNORM_INT8,
-  * or CL_SNORM_INT16.
-  * read_imagef returns floating-point values for image
-  * objects created with image_channel_data_type set to
-  * CL_HALF_FLOAT or CL_FLOAT.
-  * The read_imagef calls that take integer coordinates
-  * must use a sampler with filter mode set to
-  * CLK_FILTER_NEAREST, normalized coordinates set
-  * to CLK_NORMALIZED_COORDS_FALSE and
-  * addressing mode set to
-  * CLK_ADDRESS_CLAMP_TO_EDGE,
-  * CLK_ADDRESS_CLAMP or CLK_ADDRESS_NONE;
-  * otherwise the values returned are undefined.
-  * Values returned by read_imagef for image objects
-  * with image_channel_data_type values not specified
-  * in the description above are undefined.
-  */
+ * Use gradients to compute the LOD Read Image support
+ * for mipmaps using gradients for LOD computation
+ * and coordinate (x) to do an element lookup in
+ * the mip-level specified by the lod
+ * in the 1D image object specified by image.
+ * read_imagef returns floating-point values in the
+ * range [0.0 ... 1.0] for image objects created with
+ * image_channel_data_type set to one of the predefined
+ * packed formats or CL_UNORM_INT8, or
+ * CL_UNORM_INT16.
+ * read_imagef returns floating-point values in the
+ * range [-1.0 ... 1.0] for image objects created with
+ * image_channel_data_type set to CL_SNORM_INT8,
+ * or CL_SNORM_INT16.
+ * read_imagef returns floating-point values for image
+ * objects created with image_channel_data_type set to
+ * CL_HALF_FLOAT or CL_FLOAT.
+ * The read_imagef calls that take integer coordinates
+ * must use a sampler with filter mode set to
+ * CLK_FILTER_NEAREST, normalized coordinates set
+ * to CLK_NORMALIZED_COORDS_FALSE and
+ * addressing mode set to
+ * CLK_ADDRESS_CLAMP_TO_EDGE,
+ * CLK_ADDRESS_CLAMP or CLK_ADDRESS_NONE;
+ * otherwise the values returned are undefined.
+ * Values returned by read_imagef for image objects
+ * with image_channel_data_type values not specified
+ * in the description above are undefined.
+ */
 
 float4 __attribute__((overloadable))
 read_imagef(read_only image1d_t image, sampler_t sampler, float coord, float gradientX,
@@ -17342,6 +18058,15 @@ write_imagei(write_only image1d_t image, int coord, int lod, int4 color);
 void __attribute__((overloadable))
 write_imageui(write_only image1d_t image, int coord, int lod, uint4 color);
 
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable))
+write_imagef(read_write image1d_t image, int coord, int lod, float4 color);
+void __attribute__((overloadable))
+write_imagei(read_write image1d_t image, int coord, int lod, int4 color);
+void __attribute__((overloadable))
+write_imageui(read_write image1d_t image, int coord, int lod, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
+
 /**
  * Write color value to location specified by coord.x in
  * the 1D image identified by coord.y and mip-level
@@ -17389,6 +18114,15 @@ write_imagei(write_only image1d_array_t image_array, int2 coord, int lod, int4 c
 void __attribute__((overloadable))
 write_imageui(write_only image1d_array_t image_array, int2 coord, int lod, uint4 color);
 
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable))
+write_imagef(read_write image1d_array_t image_array, int2 coord, int lod, float4 color);
+void __attribute__((overloadable))
+write_imagei(read_write image1d_array_t image_array, int2 coord, int lod, int4 color);
+void __attribute__((overloadable))
+write_imageui(read_write image1d_array_t image_array, int2 coord, int lod, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
+
 // 2D writes with mipmap support
 /**
  * Write color value to location specified by coordinate
@@ -17434,6 +18168,15 @@ void __attribute__((overloadable))
 write_imagei(write_only image2d_t image, int2 coord, int lod, int4 color);
 void __attribute__((overloadable))
 write_imageui(write_only image2d_t image, int2 coord, int lod, uint4 color);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable))
+write_imagef(read_write image2d_t image, int2 coord, int lod, float4 color);
+void __attribute__((overloadable))
+write_imagei(read_write image2d_t image, int2 coord, int lod, int4 color);
+void __attribute__((overloadable))
+write_imageui(read_write image2d_t image, int2 coord, int lod, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
 
 /**
  * Write color value to location specified by coordinate
@@ -17482,6 +18225,15 @@ write_imagei(write_only image2d_array_t image_array, int4 coord, int lod, int4 c
 void __attribute__((overloadable))
 write_imageui(write_only image2d_array_t image_array, int4 coord, int lod, uint4 color);
 
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable))
+write_imagef(read_write image2d_array_t image_array, int4 coord, int lod, float4 color);
+void __attribute__((overloadable))
+write_imagei(read_write image2d_array_t image_array, int4 coord, int lod, int4 color);
+void __attribute__((overloadable))
+write_imageui(read_write image2d_array_t image_array, int4 coord, int lod, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
+
 /**
  * Write color value to location specified by coordinate
  * (x, y) in the mip-level specified by lod 2D image
@@ -17524,6 +18276,13 @@ void __attribute__((overloadable))
 write_imagef(write_only image2d_depth_t image, int2 coord, int lod, float color);
 void __attribute__((overloadable))
 write_imagef(write_only image2d_array_depth_t image, int4 coord, int lod, float color);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable))
+write_imagef(read_write image2d_depth_t image, int2 coord, int lod, float color);
+void __attribute__((overloadable))
+write_imagef(read_write image2d_array_depth_t image, int4 coord, int lod, float color);
+#endif //_HAS_READ_WRITE_IMAGE
 
 // 3D image write support with mipmaps
 /**
@@ -17571,13 +18330,32 @@ write_imagei(write_only image3d_t image, int4 coord, int lod, int4 color);
 void __attribute__((overloadable))
 write_imageui(write_only image3d_t image, int4 coord, int lod, uint4 color);
 
+#ifdef _HAS_READ_WRITE_IMAGE
+void __attribute__((overloadable))
+write_imagef(read_write image3d_t image, int4 coord, int lod, float4 color);
+void __attribute__((overloadable))
+write_imagei(read_write image3d_t image, int4 coord, int lod, int4 color);
+void __attribute__((overloadable))
+write_imageui(read_write image3d_t image, int4 coord, int lod, uint4 color);
+#endif //_HAS_READ_WRITE_IMAGE
+
 /**
  * Return the image miplevels.
  */
 
-int __attribute__((overloadable)) get_image_num_mip_levels(image1d_t image);
-int __attribute__((overloadable)) get_image_num_mip_levels(image2d_t image);
-int __attribute__((overloadable)) get_image_num_mip_levels(image3d_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_only image1d_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_only image2d_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_only image3d_t image);
+
+int __attribute__((overloadable)) get_image_num_mip_levels(write_only image1d_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(write_only image2d_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(write_only image3d_t image);
+
+#ifdef _HAS_READ_WRITE_IMAGE
+int __attribute__((overloadable)) get_image_num_mip_levels(read_write image1d_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_write image2d_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_write image3d_t image);
+#endif //_HAS_READ_WRITE_IMAGE
 
 int __attribute__((overloadable))
 get_image_num_mip_levels(image1d_array_t image);
