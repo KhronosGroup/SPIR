@@ -1350,9 +1350,8 @@ static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
             << A->getAsString(Args) << "C++/ObjC++";
         break;
       case IK_OpenCL:
-        if (!Std.isC99())
-          Diags.Report(diag::err_drv_argument_not_allowed_with)
-            << A->getAsString(Args) << "OpenCL";
+        Diags.Report(diag::err_drv_argument_not_allowed_with)
+          << A->getAsString(Args) << "OpenCL";
         break;
       case IK_CUDA:
         if (!Std.isCPlusPlus())
@@ -1689,7 +1688,17 @@ static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
   Opts.SanitizeAddressFieldPadding =
       getLastArgIntValue(Args, OPT_fsanitize_address_field_padding, 0, Diags);
   Opts.SanitizerBlacklistFile = Args.getLastArgValue(OPT_fsanitize_blacklist);
-  Opts.CLKeepSamplerType = Args.hasArg(OPT_cl_keep_sampler_type);
+  if(const Arg* A = Args.getLastArg(OPT_cl_sampler_type)) {
+      Opts.CLSamplerOpaque  = llvm::StringSwitch<int>(A->getValue())
+        .Case("i32", 0)
+        .Case("opaque", 1)
+        .Default(-1);
+      if(Opts.CLSamplerOpaque == -1)
+        Diags.Report(diag::err_drv_invalid_value) << A->getAsString(Args)
+                                                  << A->getValue();
+  } else
+    Opts.CLSamplerOpaque = 1;
+
 }
 
 static void ParsePreprocessorArgs(PreprocessorOptions &Opts, ArgList &Args,

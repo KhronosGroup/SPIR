@@ -609,8 +609,9 @@ def cl_fp64_enable : Flag<["-"], "cl-fp64-enable">,
 // SPIR generator options
 def cl_spir_compile_options : Separate<["-"], "cl-spir-compile-options">,
   HelpText<"SPIR compilation options to record in metadata">;
-def cl_keep_sampler_type : Flag<["-"], "cl-keep-sampler-type">,
-  HelpText<"OpenCL only. Preserve type of sampler variables in emitted IR">;
+def cl_sampler_type : Separate<["-"], "cl-sampler-type">,
+  HelpText<"OpenCL only. Specify type of sampler to emit. Valid values: \"opaque\"(default), \"i32\"">;
+
 //===----------------------------------------------------------------------===//
 // CUDA Options
 //===----------------------------------------------------------------------===//

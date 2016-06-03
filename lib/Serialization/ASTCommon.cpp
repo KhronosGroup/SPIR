@@ -62,18 +62,11 @@ serialization::TypeIdxFromBuiltin(const BuiltinType *BT) {
   case BuiltinType::ObjCId:     ID = PREDEF_TYPE_OBJC_ID;       break;
   case BuiltinType::ObjCClass:  ID = PREDEF_TYPE_OBJC_CLASS;    break;
   case BuiltinType::ObjCSel:    ID = PREDEF_TYPE_OBJC_SEL;      break;
-  case BuiltinType::OCLImage1d:       ID = PREDEF_TYPE_IMAGE1D_ID;      break;
-  case BuiltinType::OCLImage1dArray:  ID = PREDEF_TYPE_IMAGE1D_ARR_ID;  break;
-  case BuiltinType::OCLImage1dBuffer: ID = PREDEF_TYPE_IMAGE1D_BUFF_ID; break;
-  case BuiltinType::OCLImage2d:       ID = PREDEF_TYPE_IMAGE2D_ID;      break;
-  case BuiltinType::OCLImage2dArray:  ID = PREDEF_TYPE_IMAGE2D_ARR_ID;  break;
-  case BuiltinType::OCLImage3d:       ID = PREDEF_TYPE_IMAGE3D_ID;      break;
-  case BuiltinType::OCLImage2dDepth:  ID = PREDEF_TYPE_IMAGE2DDepth_ID; break;
-  case BuiltinType::OCLImage2dMSAA:   ID = PREDEF_TYPE_IMAGE2DMSAA_ID;  break;
-  case BuiltinType::OCLImage2dMSAADepth: ID = PREDEF_TYPE_IMAGE2DMSAADepth_ID; break;
-  case BuiltinType::OCLImage2dArrayMSAADepth: ID = PREDEF_TYPE_IMAGE2DArrayMSAADepth_ID; break;
-  case BuiltinType::OCLImage2dArrayMSAA: ID = PREDEF_TYPE_IMAGE2DArrayMSAA_ID; break;
-  case BuiltinType::OCLImage2dArrayDepth: ID = PREDEF_TYPE_IMAGE2DArrayDepth_ID; break;
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) \
+  case BuiltinType::Id: \
+    ID = PREDEF_TYPE_##Id##_ID; \
+    break;
+#include "clang/Basic/OpenCLImageTypes.def"
   case BuiltinType::OCLSampler:       ID = PREDEF_TYPE_SAMPLER_ID;      break;
   case BuiltinType::OCLEvent:         ID = PREDEF_TYPE_EVENT_ID;        break;
   case BuiltinType::OCLQueue:         ID = PREDEF_TYPE_QUEUE_ID;        break;

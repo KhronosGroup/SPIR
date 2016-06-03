@@ -42,8 +42,8 @@ static void AssignToArrayRange(CodeGen::CGBuilderTy &Builder,
   }
 }
 
-static bool isAggregateTypeForABI(QualType T, bool keepSamplerType = false) {
-  return !CodeGenFunction::hasScalarEvaluationKind(T, keepSamplerType) ||
+static bool isAggregateTypeForABI(QualType T) {
+  return !CodeGenFunction::hasScalarEvaluationKind(T) ||
          T->isMemberFunctionPointerType();
 }
 
@@ -424,7 +424,7 @@ ABIArgInfo DefaultABIInfo::classifyArgumentType(QualType Ty) const {
       return ABIArgInfo::getDirect(CGT.ConvertType(QualType(T, 0)));
   }
 
-  if (isAggregateTypeForABI(Ty, getContext().getLangOpts().CLKeepSamplerType))
+  if (isAggregateTypeForABI(Ty))
     return ABIArgInfo::getIndirect(0);
 
   // Treat an enum type as its underlying type.

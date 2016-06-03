@@ -206,12 +206,6 @@ void Sema::Initialize() {
 
   // Initialize predefined OpenCL types.
   if (PP.getLangOpts().OpenCL && !PP.getLangOpts().CPlusPlus) {
-    addImplicitTypedef("image1d_t", Context.OCLImage1dTy);
-    addImplicitTypedef("image1d_array_t", Context.OCLImage1dArrayTy);
-    addImplicitTypedef("image1d_buffer_t", Context.OCLImage1dBufferTy);
-    addImplicitTypedef("image2d_t", Context.OCLImage2dTy);
-    addImplicitTypedef("image2d_array_t", Context.OCLImage2dArrayTy);
-    addImplicitTypedef("image3d_t", Context.OCLImage3dTy);
     addImplicitTypedef("sampler_t", Context.OCLSamplerTy);
     addImplicitTypedef("event_t", Context.OCLEventTy);
     if (getLangOpts().OpenCLVersion >= 200) {

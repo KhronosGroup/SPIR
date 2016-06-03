@@ -660,16 +660,10 @@ public:
       return C;
 
     case CK_IntToOCLSampler: {
-      if (!CGM.getLangOpts().CLKeepSamplerType)
+      if (!CGM.getLangOpts().CLSamplerOpaque)
         return C;
-      llvm::StructType* STy = CGM.getModule().getTypeByName("opencl.sampler_t");
-      if(STy == nullptr) {
-        STy = llvm::StructType::create(CGM.getLLVMContext(), C->getType(),
-                                       "opencl.sampler_t");
-      }
-      return llvm::ConstantStruct::get(STy, C);
+      return CGM.createIntToSamplerConversion(subExpr, CGF);
     }
-
 
     case CK_Dependent: llvm_unreachable("saw dependent cast!");
 

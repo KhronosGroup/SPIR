@@ -68,26 +68,16 @@ namespace clang {
     TST_decltype_auto,    // C++1y decltype(auto)
     TST_unknown_anytype,  // __unknown_anytype extension
     TST_atomic,           // C11 _Atomic
-    TST_image1d_t,        // OpenCL image1d_t
-    TST_image1d_array_t,  // OpenCL image1d_array_t
-    TST_image1d_buffer_t, // OpenCL image1d_buffer_t
-    TST_image2d_t,        // OpenCL image2d_t
-    TST_image2d_array_t,  // OpenCL image2d_array_t
-    TST_image3d_t,        // OpenCL image3d_t
-    TST_image2d_depth_t,  // OpenCL image2d_depth_t
-    TST_image2d_msaa_t,   // OpenCL image2d_msaa_t
-    TST_image2d_msaa_depth_t, // OpenCL image2d_msaa_depth_t
-    TST_image2d_array_msaa_depth_t, // OpenCL image2d_array_msaa_depth_t
-    TST_image2d_array_msaa_t, // OpenCL image2d_array_msaa_t
-    TST_image2d_array_depth_t, // OpenCL image2d_array_depth_t
+#define GENERIC_IMAGE_TYPE(ImgType, Id) TST_##ImgType##_t, // OpenCL image types
+#include "clang/Basic/OpenCLImageTypes.def"
     TST_sampler_t,        // OpenCL sampler_t
     TST_event_t,          // OpenCL event_t
     TST_queue_t,          // OpenCL queue_t
     TST_clk_event_t,      // OpenCL clk_event_t
     TST_reserve_id_t,     // OpenCL reserve_id_t
-    TST_error         // erroneous type
+    TST_error // erroneous type
   };
-  
+
   /// \brief Structure that packs information about the type specifiers that
   /// were written in a particular type specifier sequence.
   struct WrittenBuiltinSpecs {

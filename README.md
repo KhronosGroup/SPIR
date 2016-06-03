@@ -79,7 +79,8 @@ To create a SPIR-V binary from a valid OpenCL-C++ file (.cl), use the following
 command lines:
 
 ```bash
-  clang -cc1 -emit-spirv -triple <triple> -cl-std=c++ -I <libclcxx dir> -x cl -o <output> <input>
+  clang -cc1 -emit-spirv -triple <triple> -cl-std=c++ -I <libclcxx dir> -x cl -o <output> <input> #For OpenCL C++
+  clang -cc1 -emit-spirv -triple <triple> -cl-std=<CLversion> -include opencl.h -x cl -o <output> <input> #For OpenCL C
 ```
 
 Notes:
@@ -93,7 +94,8 @@ Notes:
 .
 
 ```bash
-  clang -cc1 -emit-spirv -triple=spir-unknown-unknown -cl-std=c++ -I include kernel.cl -o kernel.spir
+  clang -cc1 -emit-spirv -triple=spir-unknown-unknown -cl-std=c++ -I include kernel.cl -o kernel.spv #For OpenCL C++
+  clang -cc1 -emit-spirv -triple=spir-unknown-unknown -cl-std=CL2.0 -include opencl.h kernel.cl -o kernel.spv #For OpenCL C
 ```
 
 ----------------

@@ -1114,6 +1114,12 @@ public:
   /// \param D Threadprivate declaration.
   void EmitOMPThreadPrivateDecl(const OMPThreadPrivateDecl *D);
 
+  llvm::Constant*
+  createIntToSamplerConversion(const Expr *E,
+                               CodeGenFunction *CGF,
+                               llvm::GlobalVariable *InsertBefore = nullptr,
+                               StringRef Name = "");
+
 private:
   llvm::Constant *
   GetOrCreateLLVMFunction(StringRef MangledName, llvm::Type *Ty, GlobalDecl D,

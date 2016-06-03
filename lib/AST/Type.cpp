@@ -1583,18 +1583,10 @@ StringRef BuiltinType::getName(const PrintingPolicy &Policy) const {
   case ObjCId:            return "id";
   case ObjCClass:         return "Class";
   case ObjCSel:           return "SEL";
-  case OCLImage1d:        return "image1d_t";
-  case OCLImage1dArray:   return "image1d_array_t";
-  case OCLImage1dBuffer:  return "image1d_buffer_t";
-  case OCLImage2d:        return "image2d_t";
-  case OCLImage2dArray:   return "image2d_array_t";
-  case OCLImage3d:        return "image3d_t";
-  case OCLImage2dDepth:   return "image2d_depth_t";
-  case OCLImage2dMSAA:    return "image2d_msaa_t";
-  case OCLImage2dMSAADepth: return "image2d_msaa_depth_t";
-  case OCLImage2dArrayMSAADepth: return "image2d_array_msaa_depth_t";
-  case OCLImage2dArrayMSAA: return "image2d_array_msaa_t";
-  case OCLImage2dArrayDepth: return "image2d_array_depth_t";
+#define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix) \
+  case Id: \
+    return "__" #Access " " #ImgType "_t";
+#include "clang/Basic/OpenCLImageTypes.def"
   case OCLSampler:        return "sampler_t";
   case OCLEvent:          return "event_t";
   case OCLQueue:          return "queue_t";
