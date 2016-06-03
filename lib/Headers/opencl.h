@@ -18342,29 +18342,32 @@ write_imageui(read_write image3d_t image, int4 coord, int lod, uint4 color);
 /**
  * Return the image miplevels.
  */
-
 int __attribute__((overloadable)) get_image_num_mip_levels(read_only image1d_t image);
 int __attribute__((overloadable)) get_image_num_mip_levels(read_only image2d_t image);
 int __attribute__((overloadable)) get_image_num_mip_levels(read_only image3d_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_only image1d_array_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_only image2d_array_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_only image2d_depth_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_only image2d_array_depth_t image);
 
 int __attribute__((overloadable)) get_image_num_mip_levels(write_only image1d_t image);
 int __attribute__((overloadable)) get_image_num_mip_levels(write_only image2d_t image);
 int __attribute__((overloadable)) get_image_num_mip_levels(write_only image3d_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(write_only image1d_array_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(write_only image2d_array_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(write_only image2d_depth_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(write_only image2d_array_depth_t image);
 
 #ifdef _HAS_READ_WRITE_IMAGE
 int __attribute__((overloadable)) get_image_num_mip_levels(read_write image1d_t image);
 int __attribute__((overloadable)) get_image_num_mip_levels(read_write image2d_t image);
 int __attribute__((overloadable)) get_image_num_mip_levels(read_write image3d_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_write image1d_array_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_write image2d_array_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_write image2d_depth_t image);
+int __attribute__((overloadable)) get_image_num_mip_levels(read_write image2d_array_depth_t image);
 #endif //_HAS_READ_WRITE_IMAGE
 
-int __attribute__((overloadable))
-get_image_num_mip_levels(image1d_array_t image);
-int __attribute__((overloadable))
-get_image_num_mip_levels(image2d_array_t image);
-int __attribute__((overloadable))
-get_image_num_mip_levels(image2d_array_depth_t image);
-int __attribute__((overloadable))
-get_image_num_mip_levels(image2d_depth_t image);
 #endif //cl_khr_mipmap_image
 
 // Disable any extensions we may have enabled previously.
