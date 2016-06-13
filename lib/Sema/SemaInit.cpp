@@ -735,7 +735,8 @@ void InitListChecker::CheckImplicitInitList(const InitializedEntity &Entity,
     unsigned EndIndex = (Index == StartIndex? StartIndex : Index - 1);
     // Update the structured sub-object initializer so that it's ending
     // range corresponds with the end of the last initializer it used.
-    if (EndIndex < ParentIList->getNumInits()) {
+    if (EndIndex < ParentIList->getNumInits() &&
+        ParentIList->getInit(EndIndex) != nullptr) {
       SourceLocation EndLoc
         = ParentIList->getInit(EndIndex)->getSourceRange().getEnd();
       StructuredSubobjectInitList->setRBraceLoc(EndLoc);
@@ -3970,7 +3971,9 @@ static void TryReferenceInitializationCore(Sema &S,
   Expr::Classification InitCategory = Initializer->Classify(S.Context);
   Sema::ReferenceCompareResult RefRelationship
     = S.CompareReferenceRelationship(DeclLoc, cv1T1, cv2T2, DerivedToBase,
-                                     ObjCConversion, ObjCLifetimeConversion);
+                                     ObjCConversion, ObjCLifetimeConversion,
+                                     S.getLangOpts().OpenCLCPlusPlus &&
+                                         InitCategory.isPRValue());
 
   // C++0x [dcl.init.ref]p5:
   //   A reference to type "cv1 T1" is initialized by an expression of type
@@ -4055,7 +4058,8 @@ static void TryReferenceInitializationCore(Sema &S,
 
   // OpenCL C++
   //   Error if the address spaces are not compatible
-  if (isLValueRef && !T1Quals.isAddressSpaceSupersetOf(T2Quals)) {
+  if (isLValueRef && !T1Quals.isAddressSpaceSupersetOf(
+        T2Quals, S.getLangOpts().OpenCLCPlusPlus && InitCategory.isPRValue())) {
     Sequence.SetFailed(InitializationSequence::FK_ReferenceInitDropsQualifiers);
     return;
   }
@@ -4664,7 +4668,7 @@ static bool TryOCLSamplerInitialization(Sema &S,
       if (const CastExpr* Init = dyn_cast_or_null<CastExpr>(VD->getInit()))
         Initializer = const_cast<Expr*>(Init->getSubExpr());
 
-  if (!S.getLangOpts().OpenCL || !DestType->isSamplerT() ||
+if (!S.getLangOpts().OpenCL || !DestType->isSamplerT() ||
     !Initializer->isIntegerConstantExpr(S.getASTContext()))
     return false;
 
@@ -5875,6 +5879,89 @@ static void DiagnoseNarrowingInInitList(Sema &S,
                                         QualType EntityType,
                                         const Expr *PostInit);
 
+/// \brief Checks address-space restrictions for materialized temporary
+///        expressions.
+/// Checks address-space restrictions for temporaries. If temporary does not
+/// meet them, the error is reported to diagnostic engine and function returns
+/// true. If all restructions are met, the function returns false.
+///
+/// \param S    Current semantic engine.
+/// \param MTE  Checked expression (temporary created by it is actually
+///             checked for corectness).
+/// \param Init Initializer expression for meterialized temporary.
+///
+/// \return Value indicating that ERROR OCCURRED. true IF there is an error;
+///         OTHERWISE, false.
+static bool checkAddressSpaceRestrictions(Sema &S,
+                                          MaterializeTemporaryExpr *MTE,
+                                          Expr *Init) {
+  SourceLocation Loc = MTE->getExtendingDecl()
+                         ? MTE->getExtendingDecl()->getLocation()
+                         : MTE->GetTemporaryExpr()->getExprLoc();
+
+  // Estimate address space of materialized temporary:
+  // If we're not materializing a subobject of the temporary, keep the
+  // cv-qualifiers from the type of the MaterializeTemporaryExpr.
+  QualType MTy = Init->getType();
+  if (Init == MTE->GetTemporaryExpr())
+    MTy = MTE->getType();
+  // Propagate address space to temporary (if necessary).
+  // NOTE: We can assume that if temporary expr does not have address space
+  //       information it will be binded to reference referring to generic
+  //       address space, so we generate temporary inside default address space
+  //       in program scope (global) or kernel/function scope (private).
+  unsigned MAS = MTE->getType().getAddressSpace();
+  unsigned MDAS = MTE->getStorageDuration() == SD_Static ||
+                  MTE->getStorageDuration() == SD_Thread
+                    ? LangAS::openclcpp_global
+                    : LangAS::openclcpp_private;
+  if (!MTy.hasAddressSpace()) {
+    MTy = S.Context.getAddrSpaceQualType(MTy, MAS != 0
+                                                ? MAS
+                                                : LangAS::openclcpp_global);
+  }
+
+  // [OCLC++10] Program-scope variable declaration or static data member
+  //            declaration with local memory storage must be
+  //            default-initialized and, if default constructor is called during
+  //            initialization, the constructor must be trivial (so no actual
+  //            initialization of memory is performed).
+  if (MTy.getAddressSpace() == LangAS::openclcpp_local) {
+    auto RecTy = MTy->getBaseElementTypeUnsafe();
+    if (RecTy->isRecordType()) {
+      bool HasError = false;
+
+      const auto RD = RecTy->getAsCXXRecordDecl();
+      if (!RD->hasTrivialDefaultConstructor() || !isa<CXXConstructExpr>(Init)) {
+        S.Diag(Loc, diag::err_oclcpp_nonkernel_local_var_ctor)
+            << MTy->isArrayType() << 2;
+        HasError = true;
+      }
+
+      if (!HasError) {
+        const auto CD = cast<CXXConstructExpr>(Init)->getConstructor();
+        if (!CD->isTrivial() || !CD->isDefaultConstructor()) {
+          S.Diag(Loc, diag::err_oclcpp_nonkernel_local_var_ctor)
+              << MTy->isArrayType() << 2;
+          HasError = true;
+        }
+      }
+
+      if (!RD->hasTrivialDestructor()) {
+        S.Diag(Loc, diag::err_oclcpp_nonkernel_local_var_dtor)
+            << MTy->isArrayType() << 2;
+        HasError = true;
+      }
+
+      return HasError;
+    }
+
+    S.Diag(Loc, diag::err_oclcpp_nonkernel_local_var_init) << 2;
+    return true;
+  }
+  return false;
+}
+
 ExprResult
 InitializationSequence::Perform(Sema &S,
                                 const InitializedEntity &Entity,
@@ -6170,6 +6257,10 @@ InitializationSequence::Perform(Sema &S,
           (MTE->getStorageDuration() == SD_Automatic &&
            MTE->getType().isDestructedType()))
         S.ExprNeedsCleanups = true;
+
+      if (S.getLangOpts().OpenCLCPlusPlus &&
+          checkAddressSpaceRestrictions(S, MTE, CurInit.get()))
+        return ExprError();
 
       CurInit = MTE;
       break;
@@ -6574,6 +6665,10 @@ InitializationSequence::Perform(Sema &S,
           warnOnLifetimeExtension(S, Entity, CurInit.get(),
                                   /*IsInitializerList=*/true,
                                   ExtendingEntity->getDecl());
+
+      if (S.getLangOpts().OpenCLCPlusPlus &&
+          checkAddressSpaceRestrictions(S, MTE, CurInit.get()))
+        return ExprError();
 
       // Wrap it in a construction of a std::initializer_list<T>.
       CurInit = new (S.Context) CXXStdInitializerListExpr(Step->Type, MTE);

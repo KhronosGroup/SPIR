@@ -83,6 +83,7 @@ class CodeGenTBAA;
 class CGCXXABI;
 class CGDebugInfo;
 class CGObjCRuntime;
+class CGOpenCLCPlusPlusRuntime;
 class CGOpenCLRuntime;
 class CGOpenMPRuntime;
 class CGCUDARuntime;
@@ -299,6 +300,7 @@ private:
   CodeGenVTables VTables;
 
   CGObjCRuntime* ObjCRuntime;
+  CGOpenCLCPlusPlusRuntime *OpenCLCPlusPlusRuntime;
   CGOpenCLRuntime* OpenCLRuntime;
   CGOpenMPRuntime* OpenMPRuntime;
   CGCUDARuntime* CUDARuntime;
@@ -448,6 +450,7 @@ private:
   /// Lazily create the Objective-C runtime
   void createObjCRuntime();
 
+  void createOpenCLCPlusPlusRuntime();
   void createOpenCLRuntime();
   void createOpenMPRuntime();
   void createCUDARuntime();
@@ -509,6 +512,25 @@ public:
 
   /// Return true iff an Objective-C runtime has been configured.
   bool hasObjCRuntime() { return !!ObjCRuntime; }
+
+
+  /// Gets a reference to configured code generation runtime for OpenCL C++.
+  ///
+  /// Asserts if runtime is not configured or available.
+  ///
+  /// \return Reference (modifiable) to CG runtime.
+  CGOpenCLCPlusPlusRuntime &getOpenCLCPlusPlusRuntime() {
+    assert(OpenCLCPlusPlusRuntime != nullptr &&
+           "CG runtime for OpenCL C++ is not configured.");
+    return *OpenCLCPlusPlusRuntime;
+  }
+
+  /// Gets value indicating that current module has CG runtime for OpenCL C++.
+  ///
+  /// \return true if runtime is available and configured; otherwise, false.
+  bool hasOpenCLCPlusPlusRuntime() const {
+    return OpenCLCPlusPlusRuntime != nullptr;
+  }
 
   /// Return a reference to the configured OpenCL runtime.
   CGOpenCLRuntime &getOpenCLRuntime() {
@@ -702,7 +724,7 @@ public:
   /// determined by its declaration. Normally this is the same as the address
   /// space of D's type, but in CUDA, address spaces are associated with
   /// declarations, not types.
-  unsigned GetGlobalVarAddressSpace(const VarDecl *D, unsigned AddrSpace);
+  unsigned GetGlobalVarAddressSpace(const VarDecl *D, unsigned AddrSpace) const;
 
   /// Return the llvm::Constant for the address of the given global variable.
   /// If Ty is non-null and if the global doesn't exist, then it will be greated

@@ -13,6 +13,7 @@
 
 #include "CodeGenFunction.h"
 #include "CGDebugInfo.h"
+#include "CGOpenCLCPlusPlusRuntime.h"
 #include "CGOpenCLRuntime.h"
 #include "CodeGenModule.h"
 #include "clang/AST/ASTContext.h"
@@ -132,6 +133,10 @@ void CodeGenFunction::EmitVarDecl(const VarDecl &D) {
     // some variables even if we can constant-evaluate them because
     // we can't guarantee every translation unit will constant-evaluate them.
 
+    if (CGM.hasOpenCLCPlusPlusRuntime()) {
+      return CGM.getOpenCLCPlusPlusRuntime().emitLocalScopeStaticVarDecl(
+               *this, D, Linkage);
+    }
     return EmitStaticVarDecl(D, Linkage);
   }
 
@@ -139,9 +144,17 @@ void CodeGenFunction::EmitVarDecl(const VarDecl &D) {
     // Don't emit it now, allow it to be emitted lazily on its first use.
     return;
 
-  if ((D.getStorageClass() == SC_OpenCLWorkGroupLocal) ||
-      (D.getStorageClass() == SC_OpenCLConstant))
+  if (D.getStorageClass() == SC_OpenCLWorkGroupLocal ||
+      D.getStorageClass() == SC_OpenCLConstant) {
+    if (CGM.hasOpenCLCPlusPlusRuntime()) {
+      return CGM.getOpenCLCPlusPlusRuntime().emitLocalScopeStaticVarDecl(
+               *this, D);
+    }
+
+    assert(CGM.getContext().getLangOpts().OpenCL &&
+           "Variable with OpenCL-specific storage class used in non-OCL code.");
     return CGM.getOpenCLRuntime().EmitWorkGroupLocalVarDecl(*this, D);
+  }
 
   assert(D.hasLocalStorage());
   return EmitAutoVarDecl(D);
@@ -274,8 +287,14 @@ static bool hasNontrivialDestruction(QualType T) {
 llvm::GlobalVariable *
 CodeGenFunction::AddInitializerToStaticVarDecl(const VarDecl &D,
                                                llvm::GlobalVariable *GV) {
-  llvm::Constant *Init = nullptr;
-    Init = CGM.EmitConstantInit(D, this);
+  // Try to emit constant initializer
+  // [OCLC++10] Omit this step, if variable always requires non-constant
+  //            initializer (initialization function) to be generated.
+  llvm::Constant *Init =
+      CGM.hasOpenCLCPlusPlusRuntime() &&
+      CGM.getOpenCLCPlusPlusRuntime().isVarInitFuncRequired(&D, D.getInit())
+        ? nullptr
+        : CGM.EmitConstantInit(D, this);
 
   // If constant emission failed, then this should be a C++ static
   // initializer.
@@ -358,7 +377,8 @@ void CodeGenFunction::EmitStaticVarDecl(const VarDecl &D,
   llvm::GlobalVariable *var =
     cast<llvm::GlobalVariable>(addr->stripPointerCasts());
   // If this value has an initializer, emit it.
-  if (D.getInit())
+  if (D.getInit() || (CGM.hasOpenCLCPlusPlusRuntime() &&
+                     CGM.getOpenCLCPlusPlusRuntime().isVarZeroInitRequired(&D)))
     var = AddInitializerToStaticVarDecl(D, var);
 
   var->setAlignment(getContext().getDeclAlign(&D).getQuantity());
@@ -603,7 +623,8 @@ void CodeGenFunction::EmitScalarInit(const Expr *init, const ValueDecl *D,
                                      LValue lvalue, bool capturedByInit) {
   Qualifiers::ObjCLifetime lifetime = lvalue.getObjCLifetime();
   if (!lifetime) {
-    llvm::Value *value = EmitScalarExpr(init);
+    llvm::Value *value = init != nullptr ? EmitScalarExpr(init)
+                                         : CGM.EmitNullConstant(D->getType());
     if (capturedByInit)
       drillIntoBlockVariable(*this, lvalue, cast<VarDecl>(D));
     EmitStoreThroughLValue(RValue::get(value), lvalue, true);

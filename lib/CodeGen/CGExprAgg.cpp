@@ -1388,6 +1388,43 @@ void CodeGenFunction::EmitAggExpr(const Expr *E, AggValueSlot Slot) {
   AggExprEmitter(*this, Slot).Visit(const_cast<Expr*>(E));
 }
 
+/// EmitAggExprIntoLValue - Emit the computation of the specified expression
+/// of aggregate type into lvalue slot.  The result is computed into DestPtr.
+/// Note that if DestPtr is null, the value of the aggregate expression is not
+/// needed.
+/// If VolatileDest is true, DestPtr cannot be 0.
+/// If expression E is null, emits zero-initialization into specified lvalue.
+/// lvalue and slot for it should be created from the same value.
+/// If ForceZeroPreinit is true, the emitted aggregate will be pre-initialized
+/// using zero-initialization.
+void CodeGenFunction::EmitAggExprIntoLValue(const Expr *E,
+                                            AggValueSlot Slot,
+                                            LValue LV,
+                                            bool ForceZeroPreinit) {
+  assert(Slot.getAddr() == LV.getAddress() &&
+         "Slot was not created from selected lvalue.");
+  assert((Slot.getAddr() != nullptr || Slot.isIgnored()) &&
+         "Slot has bits but no address.");
+
+  if (E != nullptr) {
+    if (ForceZeroPreinit)
+      AggExprEmitter(*this, Slot).EmitNullInitializationToLValue(LV);
+    EmitAggExpr(E, Slot);
+  }
+  else {
+    // Value of aggregate expression is not needed, compute to temporary lvalue.
+    if (LV.getAddress() == nullptr) {
+      llvm::Value *Temp = CreateMemTemp(LV.getType());
+      LV = MakeAddrLValue(Temp, LV.getType());
+      Slot = AggValueSlot::forLValue(LV, AggValueSlot::IsNotDestructed,
+                                     AggValueSlot::DoesNotNeedGCBarriers,
+                                     AggValueSlot::IsNotAliased);
+    }
+
+    AggExprEmitter(*this, Slot).EmitNullInitializationToLValue(LV);
+  }
+}
+
 LValue CodeGenFunction::EmitAggExprToLValue(const Expr *E) {
   assert(hasAggregateEvaluationKind(E->getType()) && "Invalid argument!");
   llvm::Value *Temp = CreateMemTemp(E->getType());

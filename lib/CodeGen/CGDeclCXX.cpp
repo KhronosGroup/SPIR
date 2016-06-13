@@ -14,6 +14,7 @@
 #include "CodeGenFunction.h"
 #include "CGCXXABI.h"
 #include "CGObjCRuntime.h"
+#include "CGOpenCLCPlusPlusRuntime.h"
 #include "CGOpenMPRuntime.h"
 #include "clang/Frontend/CodeGenOptions.h"
 #include "llvm/ADT/StringExtras.h"
@@ -52,11 +53,20 @@ static void EmitDeclInit(CodeGenFunction &CGF, const VarDecl &D,
   case TEK_Complex:
     CGF.EmitComplexExprIntoLValue(Init, lv, /*isInit*/ true);
     return;
-  case TEK_Aggregate:
-    CGF.EmitAggExpr(Init, AggValueSlot::forLValue(lv,AggValueSlot::IsDestructed,
-                                          AggValueSlot::DoesNotNeedGCBarriers,
-                                                  AggValueSlot::IsNotAliased));
+  case TEK_Aggregate: {
+    CodeGenModule &CGM = CGF.CGM;
+    auto Slot = AggValueSlot::forLValue(lv, AggValueSlot::IsDestructed,
+                                        AggValueSlot::DoesNotNeedGCBarriers,
+                                        AggValueSlot::IsNotAliased);
+
+    bool ForceZeroPreinit = false;
+    if (CGM.hasOpenCLCPlusPlusRuntime()) {
+      ForceZeroPreinit = CGM.getOpenCLCPlusPlusRuntime()
+                            .isVarZeroInitRequired(&D);
+    }
+    CGF.EmitAggExprIntoLValue(Init, Slot, lv, ForceZeroPreinit);
     return;
+  }
   }
   llvm_unreachable("bad evaluation kind");
 }
@@ -98,7 +108,25 @@ static void EmitDeclDestroy(CodeGenFunction &CGF, const VarDecl &D,
     CXXDestructorDecl *dtor = record->getDestructor();
 
     function = CGM.getAddrOfCXXStructor(dtor, StructorType::Complete);
-    if (type.hasAddressSpace()) {
+    // OpenCL C++
+    //   Try to convert address of "this" to pointer of type required by
+    //   destructor, but taking into consideration address spaces.
+    if (CGM.getLangOpts().OpenCLCPlusPlus) {
+      unsigned dtorFnAS = CGM.getContext().getTargetAddressSpace(
+          LangAS::opencl_generic);
+
+      if(auto fn = llvm::dyn_cast<llvm::Function>(function)) {
+        auto fnTy = fn->getFunctionType();
+        if (fnTy->getNumParams() > 0 && fnTy->getParamType(0)->isPointerTy())
+          dtorFnAS = fnTy->getParamType(0)->getPointerAddressSpace();
+      }
+
+      // The code is after verification and these address spaces should be
+      // convertible (this -> dtor AS).
+      argument = llvm::ConstantExpr::getPointerBitCastOrAddrSpaceCast(
+        addr, CGF.getTypes().ConvertType(type)->getPointerTo(dtorFnAS));
+    }
+    else if (type.hasAddressSpace()) {
       argument = llvm::ConstantExpr::getAddrSpaceCast(
         addr, CGF.getTypes().ConvertType(type)->getPointerTo());
     }
@@ -307,6 +335,9 @@ CodeGenModule::EmitCXXGlobalVarDeclInitFunc(const VarDecl *D,
   CodeGenFunction(*this).GenerateCXXGlobalVarDeclInitFunc(Fn, D, Addr,
                                                           PerformInit);
 
+  if (hasOpenCLCPlusPlusRuntime())
+    getOpenCLCPlusPlusRuntime().registerVarGlobalInitFunc(*D, Fn);
+
   llvm::GlobalVariable *COMDATKey =
       supportsCOMDAT() && D->isExternallyVisible() ? Addr : nullptr;
 
@@ -340,12 +371,24 @@ CodeGenModule::EmitCXXGlobalVarDeclInitFunc(const VarDecl *D,
     // minor startup time optimization.  In the MS C++ ABI, there are no guard
     // variables, so this COMDAT key is required for correctness.
     AddGlobalCtor(Fn, 65535, COMDATKey);
+    if (hasOpenCLCPlusPlusRuntime()) {
+      auto DtorFn = getOpenCLCPlusPlusRuntime().createCorrespondingDtorFunc(
+          Fn, "<null>");
+      if (DtorFn != nullptr)
+        AddGlobalDtor(DtorFn, 65535);
+    }
     DelayedCXXInitPosition.erase(D);
   } else if (D->hasAttr<SelectAnyAttr>()) {
     // SelectAny globals will be comdat-folded. Put the initializer into a
     // COMDAT group associated with the global, so the initializers get folded
     // too.
     AddGlobalCtor(Fn, 65535, COMDATKey);
+    if (hasOpenCLCPlusPlusRuntime()) {
+      auto DtorFn = getOpenCLCPlusPlusRuntime().createCorrespondingDtorFunc(
+          Fn, "<null>");
+      if (DtorFn != nullptr)
+        AddGlobalDtor(DtorFn, 65535);
+    }
     DelayedCXXInitPosition.erase(D);
   } else {
     llvm::DenseMap<const Decl *, unsigned>::iterator I =
@@ -409,6 +452,15 @@ CodeGenModule::EmitCXXGlobalInitFunc() {
 
       CodeGenFunction(*this).GenerateCXXGlobalInitFunc(Fn, LocalCXXGlobalInits);
       AddGlobalCtor(Fn, Priority);
+
+      if (hasOpenCLCPlusPlusRuntime()) {
+        getOpenCLCPlusPlusRuntime().registerVarGlobalInitFunc(
+            Fn, LocalCXXGlobalInits);
+        auto DtorFn = getOpenCLCPlusPlusRuntime().createCorrespondingDtorFunc(
+            Fn, "_GLOBAL__D_" + PrioritySuffix);
+        if (DtorFn != nullptr)
+          AddGlobalDtor(DtorFn, Priority);
+      }
     }
   }
 
@@ -435,6 +487,14 @@ CodeGenModule::EmitCXXGlobalInitFunc() {
 
   CodeGenFunction(*this).GenerateCXXGlobalInitFunc(Fn, CXXGlobalInits);
   AddGlobalCtor(Fn);
+
+  if (hasOpenCLCPlusPlusRuntime()) {
+    getOpenCLCPlusPlusRuntime().registerVarGlobalInitFunc(Fn, CXXGlobalInits);
+    auto DtorFn = getOpenCLCPlusPlusRuntime().createCorrespondingDtorFunc(
+        Fn, llvm::Twine("_GLOBAL__sub_D_", FileName));
+    if (DtorFn != nullptr)
+      AddGlobalDtor(DtorFn);
+  }
 
   CXXGlobalInits.clear();
   PrioritizedCXXGlobalInits.clear();
@@ -467,7 +527,8 @@ void CodeGenFunction::GenerateCXXGlobalVarDeclInitFunc(llvm::Function *Fn,
   StartFunction(GlobalDecl(D), getContext().VoidTy, Fn,
                 getTypes().arrangeNullaryFunction(),
                 FunctionArgList(), D->getLocation(),
-                D->getInit()->getExprLoc());
+                D->getInit() != nullptr ? D->getInit()->getExprLoc()
+                                        : SourceLocation());
 
   // Use guarded initialization if the global variable is weak. This
   // occurs for, e.g., instantiated static data members and

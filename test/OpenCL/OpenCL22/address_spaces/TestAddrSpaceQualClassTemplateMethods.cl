@@ -11,9 +11,10 @@ class data
 public:
   data(): _data(0) { }
   data(T rhs): _data(rhs) { }
-  data(T rhs) __constant: _data(rhs) { }
+  constexpr data(T rhs) __global: _data(rhs) { }
+  constexpr data(T rhs) __constant: _data(rhs) { }
 
-  data(const data& rhs) __constant = default;
+  constexpr data(const data& rhs) __constant = default;
   data(const data& rhs) = default;
 
   data(__constant data&& rhs) __constant = default;
@@ -50,13 +51,14 @@ public:
   data_generic() __constant = default;
 
   data_generic(T rhs): _data(rhs) { }
-  data_generic(T rhs) __constant: _data(rhs) { }
+  constexpr data_generic(T rhs) __global: _data(rhs) { }
+  constexpr data_generic(T rhs) __constant: _data(rhs) { }
 
   data_generic(const data_generic& rhs) = default;
-  data_generic(const data_generic& rhs) __constant = default;
+  constexpr data_generic(const data_generic& rhs) __constant = default;
 
   data_generic(data_generic&& rhs) = default;
-  data_generic(__constant data_generic&& rhs) __constant = default;
+  constexpr data_generic(__constant data_generic&& rhs) __constant = default;
 
   T *get() { return &_data; }
   __constant T *get() __constant { return &_data; }
@@ -77,10 +79,6 @@ volatile __global data<int> g02;
 data<int> g10;
 const data<int> g11;
 volatile data<int> g12;
-
-__local data<int> g20;
-const __local data<int> g21;
-volatile __local data<int> g22;
 
 __constant data<int> g30 = 30;
 const __constant data<int> g31 = 31;
@@ -103,7 +101,7 @@ const __constant data_generic<int> g71 = 71;
 volatile __constant data_generic<int> g72 = 72;
 
 kernel void test1() {
-  static __global data<int> l00;
+  static __global data<int> l00 = 0;
   int *l00_ptr0 = l00.get();
   __global int *l00_ptr1 = l00.get();
 
@@ -111,7 +109,7 @@ kernel void test1() {
   const int *l01_ptr0 = l01.get();
   __global const int *l01_ptr1 = l01.get();
 
-  static volatile __global data<int> l02;
+  static volatile __global data<int> l02 = 2;
   volatile int *l02_ptr0 = l02.get();
   __global volatile int *l02_ptr1 = l02.get();
 
@@ -166,8 +164,8 @@ kernel void test1() {
   __local data_generic<int> l60;
   int *l60_ptr0 = l60.get();
 
-  //const __local data_generic<int> l61; //const objects must be initialized, but local memory can't be initialized
-  //const int *l61_ptr0 = l61.get();
+  const __local data_generic<int> l61{};
+  const int *l61_ptr0 = l61.get();
 
   volatile __local data_generic<int> l62;
   volatile int *l62_ptr0 = l62.get();

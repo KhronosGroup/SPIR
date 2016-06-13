@@ -9,7 +9,7 @@ struct foo
 };
 
 int foo::m1 = 10;
-__local int foo::m3 = 10;
+__local int foo::m3;
 
 foo a;
 

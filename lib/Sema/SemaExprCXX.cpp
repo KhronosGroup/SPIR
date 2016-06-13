@@ -2894,17 +2894,6 @@ Sema::PerformImplicitConversion(Expr *From, QualType ToType,
 
   case ICK_Floating_Promotion:
   case ICK_Floating_Conversion:
-    // OpenCL C++
-    //   Conversion between half and floating point types is not
-    //   allowed if cl_khr_fp16 extension is not supported.
-    //   The built-in functions should be used instead.
-    if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-        (From->getType()->isHalfType() || ToType->isHalfType())) {
-      Diag(From->getLocStart(), diag::err_oclcpp_half_conversion)
-        << From->getType() << ToType;
-      return ExprError();
-    }
-
     From = ImpCastExprToType(From, ToType, CK_FloatingCast, 
                              VK_RValue, /*BasePath=*/nullptr, CCK).get();
     break;
@@ -2930,16 +2919,6 @@ Sema::PerformImplicitConversion(Expr *From, QualType ToType,
   }
 
   case ICK_Floating_Integral:
-    // OpenCL C++
-    //   Conversion between half and integer types is not allowed
-    //   if cl_khr_fp16 extension is not supported.
-    if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-        (From->getType()->isHalfType() || ToType->isHalfType())) {
-      Diag(From->getLocStart(), diag::err_oclcpp_half_conversion)
-        << From->getType() << ToType;
-      return ExprError();
-    }
-
     if (ToType->isRealFloatingType())
       From = ImpCastExprToType(From, ToType, CK_IntegralToFloating, 
                                VK_RValue, /*BasePath=*/nullptr, CCK).get();
@@ -3025,16 +3004,6 @@ Sema::PerformImplicitConversion(Expr *From, QualType ToType,
   }
 
   case ICK_Boolean_Conversion:
-    // OpenCL C++
-    //   Conversion between half and bool type is not allowed
-    //   if cl_khr_fp16 extension is not supported.
-    if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-        (From->getType()->isHalfType() || ToType->isHalfType())) {
-      Diag(From->getLocStart(), diag::err_oclcpp_half_conversion)
-        << From->getType() << ToType;
-      return ExprError();
-    }
-
     // Perform half-to-boolean conversion via float.
     if (From->getType()->isHalfType()) {
       From = ImpCastExprToType(From, Context.FloatTy, CK_FloatingCast).get();

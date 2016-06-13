@@ -75,9 +75,9 @@ namespace clang {
     TST_queue_t,          // OpenCL queue_t
     TST_clk_event_t,      // OpenCL clk_event_t
     TST_reserve_id_t,     // OpenCL reserve_id_t
-    TST_error // erroneous type
+    TST_error         // erroneous type
   };
-
+  
   /// \brief Structure that packs information about the type specifiers that
   /// were written in a particular type specifier sequence.
   struct WrittenBuiltinSpecs {
@@ -188,6 +188,7 @@ namespace clang {
 
     // These are only legal on variables.
     SC_OpenCLWorkGroupLocal,
+    SC_OpenCLWorkGroupLocalExtern,
     SC_OpenCLConstant,
     SC_OpenCLConstantExtern,
     SC_Auto,

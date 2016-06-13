@@ -225,6 +225,21 @@ LANGOPT(CLEnableHalf            , 1, 0, "cl-enable-half flag used")
 LANGOPT(CLSamplerOpaque, 1, 0, "Emit sampler as a pointer to opaque structure")
 LANGOPT(CLFp64Enable            , 1, 0, "cl-fp64-enable flag used")
 LANGOPT(CLKeepSamplerType, 1, 0, "Preserve type of sampler variables in emitted SPIR")
+LANGOPT(CLZeroInitLocalMemVars, 1, 0,
+        "Performs software zero-initialization of variables located in local "
+        "memory (local address space) which do not have own initializer. The "
+        "option simulates behavior of initialization of thread_local- and "
+        "static-storage-duration variables, but adds performance penalty. "
+        "Currenly only supported for local-scope variables.")
+
+VALUE_LANGOPT(SPIRVCompatibilityVersion, 32, 0,
+              "SPIR-V version for OpenCL SPIR-V compatibility mode "
+              "(in form: <major> * 100000 + <minor> * 1000 + <revision>; "
+              "0 - compatibility mode disabled).")
+LANGOPT(SPIRVInitDtorKernelEnable, 1, 0,
+        "Use initializer/finalizer kernels in OpenCL C++ to implement global "
+        "construction/initialization/destruction support (for program-scope "
+        "variables in global memory).")
 
 #undef LANGOPT
 #undef COMPATIBLE_LANGOPT

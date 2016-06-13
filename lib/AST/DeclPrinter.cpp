@@ -407,7 +407,8 @@ void DeclPrinter::VisitFunctionDecl(FunctionDecl *D) {
     case SC_Extern: Out << "extern "; break;
     case SC_Static: Out << "static "; break;
     case SC_PrivateExtern: Out << "__private_extern__ "; break;
-    case SC_Auto: case SC_Register: case SC_OpenCLWorkGroupLocal:
+    case SC_Auto: case SC_Register:
+    case SC_OpenCLWorkGroupLocal: case SC_OpenCLWorkGroupLocalExtern:
     case SC_OpenCLConstant: case SC_OpenCLConstantExtern:
       llvm_unreachable("invalid for functions");
     }

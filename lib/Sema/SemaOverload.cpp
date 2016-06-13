@@ -4024,7 +4024,8 @@ Sema::CompareReferenceRelationship(SourceLocation Loc,
                                    QualType OrigT1, QualType OrigT2,
                                    bool &DerivedToBase,
                                    bool &ObjCConversion,
-                                   bool &ObjCLifetimeConversion) {
+                                   bool &ObjCLifetimeConversion,
+                                   bool AllowNoASSupersets) {
   assert(!OrigT1->isReferenceType() &&
     "T1 must be the pointee type of the reference type");
   assert(!OrigT2->isReferenceType() && "T2 cannot be a reference type");
@@ -4088,7 +4089,7 @@ Sema::CompareReferenceRelationship(SourceLocation Loc,
     
   if (T1Quals == T2Quals)
     return Ref_Compatible;
-  else if (T1Quals.compatiblyIncludes(T2Quals))
+  else if (T1Quals.compatiblyIncludes(T2Quals, AllowNoASSupersets))
     return Ref_Compatible_With_Added_Qualification;
   else
     return Ref_Related;
@@ -5752,9 +5753,9 @@ Sema::AddOverloadCandidate(FunctionDecl *Function,
   // OpenCL
   // A candidate function that uses extentions that are not enabled or
   // supported is not viable.
-  bool hasHalf = (getOpenCLOptions().cl_khr_fp16 &&
-                 PP.getSupportedPragmas().cl_khr_fp16) ||
-                 getLangOpts().OpenCLCPlusPlus;
+  bool hasHalf = getOpenCLOptions().cl_khr_fp16 &&
+                 (PP.getSupportedPragmas().cl_khr_fp16 ||
+                  getLangOpts().OpenCLCPlusPlus);
   bool hasDouble = PP.getSupportedPragmas().cl_khr_fp64;
 
   if (getLangOpts().OpenCL) {

@@ -862,6 +862,7 @@ public:
   /// storage.
   bool hasExternalStorage() const {
     return getStorageClass() == SC_Extern ||
+           getStorageClass() == SC_OpenCLWorkGroupLocalExtern ||
            getStorageClass() == SC_OpenCLConstantExtern ||
            getStorageClass() == SC_PrivateExtern;
   }

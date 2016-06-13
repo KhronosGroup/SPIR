@@ -7,7 +7,8 @@ class data
 public:
   data(): _data(0) { }
   data(int rhs): _data(rhs) { }
-  data(int rhs) __constant: _data(rhs) { }
+  constexpr data(int rhs) __global: _data(rhs) { }
+  constexpr data(int rhs) __constant: _data(rhs) { }
 
   data(const data& rhs) __constant = default;
   data(const data& rhs) = default;
@@ -45,13 +46,14 @@ public:
   data_generic() __constant = default;
 
   data_generic(int rhs): _data(rhs) { }
-  data_generic(int rhs) __constant: _data(rhs) { }
+  constexpr data_generic(int rhs) __global: _data(rhs) { }
+  constexpr data_generic(int rhs) __constant: _data(rhs) { }
 
   data_generic(const data_generic& rhs) = default;
-  data_generic(const data_generic& rhs) __constant = default;
+  constexpr data_generic(const data_generic& rhs) __constant = default;
 
   data_generic(data_generic&& rhs) = default;
-  data_generic(__constant data_generic&& rhs) __constant = default;
+  constexpr data_generic(__constant data_generic&& rhs) __constant = default;
 
   int *get() { return &_data; }
   __constant int *get() __constant { return &_data; }
@@ -72,10 +74,6 @@ volatile __global data g02;
 data g10;
 const data g11;
 volatile data g12;
-
-__local data g20;
-const __local data g21;
-volatile __local data g22;
 
 __constant data g30 = 30;
 const __constant data g31 = 31;
@@ -98,7 +96,7 @@ const __constant data_generic g71 = 71;
 volatile __constant data_generic g72 = 72;
 
 kernel void worker() {
-  static __global data l00;
+  static __global data l00 = 0;
   int *l00_ptr0 = l00.get();
   __global int *l00_ptr1 = l00.get();
 
@@ -106,7 +104,7 @@ kernel void worker() {
   const int *l01_ptr0 = l01.get();
   __global const int *l01_ptr1 = l01.get();
 
-  static volatile __global data l02;
+  static volatile __global data l02 = 2;
   volatile int *l02_ptr0 = l02.get();
   __global volatile int *l02_ptr1 = l02.get();
 
@@ -161,8 +159,8 @@ kernel void worker() {
   __local data_generic l60;
   int *l60_ptr0 = l60.get();
 
-  //const __local data_generic l61; //const objects must be initialized, but local memory can't be initialized
-  //const int *l61_ptr0 = l61.get();
+  const __local data_generic l61{};
+  const int *l61_ptr0 = l61.get();
 
   volatile __local data_generic l62;
   volatile int *l62_ptr0 = l62.get();
@@ -183,9 +181,9 @@ public:
   Test13(const Test13 &rhs) = default;
   Test13(Test13 &&rhs) = default;
 
-  Test13(int rhs) __constant: _m(rhs) { }
-  Test13(const Test13 &rhs) __constant = default;
-  Test13(Test13 &&rhs) __constant = default;
+  constexpr Test13(int rhs) __constant: _m(rhs) { }
+  constexpr Test13(const Test13 &rhs) __constant = default;
+  constexpr Test13(Test13 &&rhs) __constant = default;
   
   __constant int &dataget() __constant { return _m; }
   __constant const int &dataget() __constant const { return _m; }
@@ -229,9 +227,9 @@ kernel void test13() {
 
 class TestClass15 {
 public:
-  TestClass15(int rhs) __constant: _m(rhs) { }
+  constexpr TestClass15(int rhs) __constant: _m(rhs) { }
   TestClass15(int rhs): _m(rhs) { }
-  TestClass15(__constant const TestClass15 &rhs) __constant: _m(rhs._m) { }
+  constexpr TestClass15(__constant const TestClass15 &rhs) __constant: _m(rhs._m) { }
   TestClass15(const TestClass15 &rhs): _m(rhs._m) { }
   int &get() { return _m; }
   const int &get() const { return _m; }
@@ -250,9 +248,9 @@ kernel void test14() {
 
 class TestClass16 {
 public:
-  TestClass16(int rhs) __constant: _m(rhs) { }
+  constexpr TestClass16(int rhs) __constant: _m(rhs) { }
   TestClass16(int rhs): _m(rhs) { }
-  TestClass16(__constant const TestClass16 &rhs) __constant: _m(rhs._m) { }
+  constexpr TestClass16(__constant const TestClass16 &rhs) __constant: _m(rhs._m) { }
   TestClass16(const TestClass16 &rhs): _m(rhs._m) { }
   int &get() { return _m; }
   //const int &get() const { return _m; }
@@ -263,14 +261,14 @@ public:
 template <class T>
 class TestWrapperClass16 {
 public:
-  TestWrapperClass16(T &rhs) __constant: _m(rhs) { }
+  constexpr TestWrapperClass16(T &rhs) __constant: _m(rhs) { }
   TestWrapperClass16(T &rhs): _m(rhs) { }
 
-  TestWrapperClass16() __constant = default;
+  constexpr TestWrapperClass16() __constant = default;
   TestWrapperClass16() = default;
-  TestWrapperClass16(const TestWrapperClass16 &rhs) __constant = default;
+  constexpr TestWrapperClass16(const TestWrapperClass16 &rhs) __constant = default;
   TestWrapperClass16(const TestWrapperClass16 &rhs) = default;
-  TestWrapperClass16(__constant const TestWrapperClass16 &rhs) __constant = default;
+  constexpr TestWrapperClass16(__constant const TestWrapperClass16 &rhs) __constant = default;
 
   __constant T &data() __constant { return _m; }
   T &data() { return _m; }
@@ -281,8 +279,4 @@ public:
 kernel void test16() {
   __constant TestClass16 obj0(1);
   int a = obj0.get();
-
-  __constant TestWrapperClass16<__constant TestClass16> var(obj0);
-  __constant TestClass16 &varRef = var.data();
-  int b = varRef.get();
 }

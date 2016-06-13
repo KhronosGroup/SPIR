@@ -672,7 +672,7 @@ ExprResult Sema::DefaultLvalueConversion(Expr *E) {
 
   // OpenCL usually rejects direct accesses to values of 'half' type.
   if (getLangOpts().OpenCL && !getOpenCLOptions().cl_khr_fp16 &&
-      !getLangOpts().OpenCLCPlusPlus && T->isHalfType()) {
+      T->isHalfType()) {
     Diag(E->getExprLoc(), diag::err_opencl_half_load_store)
       << 0 << T;
     return ExprError();
@@ -7572,16 +7572,6 @@ QualType Sema::CheckMultiplyDivideOperands(ExprResult &LHS, ExprResult &RHS,
                                            bool IsCompAssign, bool IsDiv) {
   checkArithmeticNull(*this, LHS, RHS, Loc, /*isCompare=*/false);
 
-  // OpenCL C++
-  //   If cl_khr_fp16 extension is not supported, all operations requiring
-  //   data interpretation are not allowed
-  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-      (LHS.get()->getType()->isHalfType() ||
-       RHS.get()->getType()->isHalfType())) {
-    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
-    return QualType();
-  }
-
   if (LHS.get()->getType()->isVectorType() ||
       RHS.get()->getType()->isVectorType())
     return CheckVectorOperands(LHS, RHS, Loc, IsCompAssign);
@@ -7608,16 +7598,6 @@ QualType Sema::CheckMultiplyDivideOperands(ExprResult &LHS, ExprResult &RHS,
 QualType Sema::CheckRemainderOperands(
   ExprResult &LHS, ExprResult &RHS, SourceLocation Loc, bool IsCompAssign) {
   checkArithmeticNull(*this, LHS, RHS, Loc, /*isCompare=*/false);
-
-  // OpenCL C++
-  //   If cl_khr_fp16 extension is not supported, all operations requiring
-  //   data interpretation are not allowed
-  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-      (LHS.get()->getType()->isHalfType() ||
-       RHS.get()->getType()->isHalfType())) {
-    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
-    return QualType();
-  }
 
   if (LHS.get()->getType()->isVectorType() ||
       RHS.get()->getType()->isVectorType()) {
@@ -7900,16 +7880,6 @@ QualType Sema::CheckAdditionOperands( // C99 6.5.6
     QualType* CompLHSTy) {
   checkArithmeticNull(*this, LHS, RHS, Loc, /*isCompare=*/false);
 
-  // OpenCL C++
-  //   If cl_khr_fp16 extension is not supported, all operations requiring
-  //   data interpretation are not allowed
-  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-      (LHS.get()->getType()->isHalfType() ||
-       RHS.get()->getType()->isHalfType())) {
-    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
-    return QualType();
-  }
-
   if (LHS.get()->getType()->isVectorType() ||
       RHS.get()->getType()->isVectorType()) {
     QualType compType = CheckVectorOperands(LHS, RHS, Loc, CompLHSTy);
@@ -7984,16 +7954,6 @@ QualType Sema::CheckSubtractionOperands(ExprResult &LHS, ExprResult &RHS,
                                         SourceLocation Loc,
                                         QualType* CompLHSTy) {
   checkArithmeticNull(*this, LHS, RHS, Loc, /*isCompare=*/false);
-
-  // OpenCL C++
-  //   If cl_khr_fp16 extension is not supported, all operations requiring
-  //   data interpretation are not allowed
-  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-      (LHS.get()->getType()->isHalfType() ||
-       RHS.get()->getType()->isHalfType())) {
-    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
-    return QualType();
-  }
 
   if (LHS.get()->getType()->isVectorType() ||
       RHS.get()->getType()->isVectorType()) {
@@ -8597,16 +8557,6 @@ QualType Sema::CheckCompareOperands(ExprResult &LHS, ExprResult &RHS,
 
   BinaryOperatorKind Opc = (BinaryOperatorKind) OpaqueOpc;
 
-  // OpenCL C++
-  //   If cl_khr_fp16 extension is not supported, all operations requiring
-  //   data interpretation are not allowed
-  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-      (LHS.get()->getType()->isHalfType() ||
-       RHS.get()->getType()->isHalfType())) {
-    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
-    return QualType();
-  }
-
   // Handle vector comparisons separately.
   if (LHS.get()->getType()->isVectorType() ||
       RHS.get()->getType()->isVectorType())
@@ -9129,16 +9079,6 @@ inline QualType Sema::CheckBitwiseOperands(
 inline QualType Sema::CheckLogicalOperands( // C99 6.5.[13,14]
   ExprResult &LHS, ExprResult &RHS, SourceLocation Loc, unsigned Opc) {
   
-  // OpenCL C++
-  //   If cl_khr_fp16 extension is not supported, all operations requiring
-  //   data interpretation are not allowed
-  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-      (LHS.get()->getType()->isHalfType() ||
-       RHS.get()->getType()->isHalfType())) {
-    Diag(Loc, diag::err_oclcpp_half_operator) << LHS.get()->getType();
-    return QualType();
-  }
-
   // Check vector operands differently.
   if (LHS.get()->getType()->isVectorType() || RHS.get()->getType()->isVectorType())
     return CheckVectorLogicalOperands(LHS, RHS, Loc);
@@ -9556,15 +9496,6 @@ static QualType CheckIncrementDecrementOperand(Sema &S, Expr *Op,
   // checking.
   if (const AtomicType *ResAtomicType = ResType->getAs<AtomicType>())
     ResType = ResAtomicType->getValueType();
-
-  // OpenCL C++
-  //   If cl_khr_fp16 extension is not supported, all operations requiring
-  //   data interpretation are not allowed
-  if (S.getLangOpts().OpenCLCPlusPlus && !S.getOpenCLOptions().cl_khr_fp16 &&
-      ResType->isHalfType()) {
-    S.Diag(OpLoc, diag::err_oclcpp_half_operator) << ResType;
-    return QualType();
-  }
 
   assert(!ResType.isNull() && "no type for increment/decrement expression");
   const bool ResIsVectorOfBool = ResType->isVectorType() &&
@@ -10697,16 +10628,6 @@ ExprResult Sema::CreateBuiltinUnaryOp(SourceLocation OpLoc,
     }
   }
 
-  // OpenCL C++
-  //   If cl_khr_fp16 extension is not supported, all operations requiring
-  //   data interpretation are not allowed
-  if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-      (Opc == UO_Minus || Opc == UO_LNot) &&
-       InputExpr->getType()->isHalfType()) {
-    Diag(OpLoc, diag::err_oclcpp_half_operator) << InputExpr->getType();
-    return ExprError();
-  }
-
   ExprResult Input = InputExpr;
   ExprValueKind VK = VK_RValue;
   ExprObjectKind OK = OK_Ordinary;
@@ -10798,17 +10719,6 @@ ExprResult Sema::CreateBuiltinUnaryOp(SourceLocation OpLoc,
     if (resultType->isScalarType() && !isScopedEnumerationType(resultType)) {
       // C99 6.5.3.3p1: ok, fallthrough;
       if (Context.getLangOpts().CPlusPlus) {
-        // OpenCL C++
-        //   Conversion between half and boolean type is not
-        //   allowed if cl_khr_fp16 extension is not supported.
-        //   The built-in functions should be used instead.
-        if (getLangOpts().OpenCLCPlusPlus && !getOpenCLOptions().cl_khr_fp16 &&
-            Input.get()->getType()->isHalfType()) {
-          Diag(OpLoc, diag::err_oclcpp_half_conversion)
-            << Input.get()->getType() << Context.BoolTy;
-          return ExprError();
-        }
-
         // C++03 [expr.unary.op]p8, C++0x [expr.unary.op]p9:
         // operand contextually converted to bool.
         Input = ImpCastExprToType(Input.get(), Context.BoolTy,

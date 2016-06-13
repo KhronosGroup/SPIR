@@ -1702,15 +1702,16 @@ QualifierInfo::setTemplateParameterListsInfo(ASTContext &Context,
 
 const char *VarDecl::getStorageClassSpecifierString(StorageClass SC) {
   switch (SC) {
-  case SC_None:                 break;
-  case SC_Auto:                 return "auto";
-  case SC_Extern:               return "extern";
-  case SC_OpenCLWorkGroupLocal: return "<<work-group-local>>";
-  case SC_OpenCLConstantExtern: return "<<opencl-constant-extern>>";
-  case SC_OpenCLConstant:       return "<<opencl-constant>>";
-  case SC_PrivateExtern:        return "__private_extern__";
-  case SC_Register:             return "register";
-  case SC_Static:               return "static";
+  case SC_None:                       break;
+  case SC_Auto:                       return "auto";
+  case SC_Extern:                     return "extern";
+  case SC_OpenCLWorkGroupLocal:       return "<<work-group-local>>";
+  case SC_OpenCLWorkGroupLocalExtern: return "<<work-group-local-extern>>";
+  case SC_OpenCLConstantExtern:       return "<<opencl-constant-extern>>";
+  case SC_OpenCLConstant:             return "<<opencl-constant>>";
+  case SC_PrivateExtern:              return "__private_extern__";
+  case SC_Register:                   return "register";
+  case SC_Static:                     return "static";
   }
 
   llvm_unreachable("Invalid storage class");

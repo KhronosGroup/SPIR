@@ -327,6 +327,20 @@ pushTemporaryCleanup(CodeGenFunction &CGF, const MaterializeTemporaryExpr *M,
 static llvm::Value *
 createReferenceTemporary(CodeGenFunction &CGF,
                          const MaterializeTemporaryExpr *M, const Expr *Inner) {
+  // In OpenCL C++, storage duration of some temporaries can be affected by
+  // address space where temporary should reside in.
+  // global, local and constant address spaces always refer to program scope
+  // objects; private to function/kernel scope; generic (and no address space
+  // information usually is deduced by checking classical C++ storage duration.
+  switch (CGF.getContext().getBaseElementType(M->getType()).getAddressSpace()) {
+  case LangAS::openclcpp_global:
+  case LangAS::openclcpp_local:
+  case LangAS::openclcpp_constant:
+    return CGF.CGM.GetAddrOfGlobalTemporary(M, Inner);
+  case LangAS::openclcpp_private:
+    return CGF.CreateMemTemp(Inner->getType(), "ref.tmp");
+  }
+
   switch (M->getStorageDuration()) {
   case SD_FullExpression:
   case SD_Automatic:

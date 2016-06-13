@@ -1040,10 +1040,19 @@ ComplexPairTy CodeGenFunction::EmitComplexExpr(const Expr *E, bool IgnoreReal,
 
 void CodeGenFunction::EmitComplexExprIntoLValue(const Expr *E, LValue dest,
                                                 bool isInit) {
-  assert(E && getComplexType(E->getType()) &&
+  assert((E == nullptr || getComplexType(E->getType())) &&
          "Invalid complex expression to emit");
+
   ComplexExprEmitter Emitter(*this);
-  ComplexPairTy Val = Emitter.Visit(const_cast<Expr*>(E));
+  ComplexPairTy Val;
+  if (E != nullptr)
+    Val = Emitter.Visit(const_cast<Expr*>(E));
+  else {
+    auto ElemTy = getComplexType(dest.getType())->getElementType();
+    auto NullElem  = CGM.EmitNullConstant(ElemTy);
+    Val.first = NullElem;
+    Val.second = NullElem;
+  }
   Emitter.EmitStoreOfComplex(Val, dest, isInit);
 }
 

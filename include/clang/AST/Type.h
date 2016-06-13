@@ -408,7 +408,13 @@ public:
   ///   every address space is a superset of itself.
   /// CL2.0 adds:
   ///   __generic is a superset of any address space except for __constant.
-  bool isAddressSpaceSupersetOf(Qualifiers other) const {
+  ///
+  /// \param other              Tested qualifiers (with address space info).
+  /// \param allowNoASSupersets Indicates that any address space is treated
+  ///                           as superset of other if other has no address
+  ///                           space (information).
+  bool isAddressSpaceSupersetOf(Qualifiers other,
+                                bool allowNoASSupersets = false) const {
     return
         // Address spaces must match exactly.
         getAddressSpace() == other.getAddressSpace() ||
@@ -420,18 +426,25 @@ public:
         // for __constant can be used as __generic or 0.
         ((getAddressSpace() == LangAS::openclcpp_generic ||
           getAddressSpace() == 0) &&
-        (other.getAddressSpace() == LangAS::openclcpp_private ||
-         other.getAddressSpace() == LangAS::openclcpp_local ||
-         other.getAddressSpace() == LangAS::openclcpp_global ||
-         other.getAddressSpace() == LangAS::openclcpp_generic ||
-         other.getAddressSpace() == 0));
+         (other.getAddressSpace() == LangAS::openclcpp_private ||
+          other.getAddressSpace() == LangAS::openclcpp_local ||
+          other.getAddressSpace() == LangAS::openclcpp_global ||
+          other.getAddressSpace() == LangAS::openclcpp_generic ||
+          other.getAddressSpace() == 0)) ||
+        (allowNoASSupersets && other.getAddressSpace() == 0);
   }
 
   /// \brief Determines if these qualifiers compatibly include another set.
   /// Generally this answers the question of whether an object with the other
   /// qualifiers can be safely used as an object with these qualifiers.
-  bool compatiblyIncludes(Qualifiers other) const {
-    return isAddressSpaceSupersetOf(other) &&
+  ///
+  /// \param other              Tested qualifiers.
+  /// \param allowNoASSupersets Indicates that any address space is treated
+  ///                           as superset of other if other has no address
+  ///                           space (information).
+  bool compatiblyIncludes(Qualifiers other,
+                          bool allowNoASSupersets = false) const {
+    return isAddressSpaceSupersetOf(other, allowNoASSupersets) &&
            // ObjC GC qualifiers can match, be added, or be removed, but can't
            // be changed.
            (getObjCGCAttr() == other.getObjCGCAttr() || !hasObjCGCAttr() ||
