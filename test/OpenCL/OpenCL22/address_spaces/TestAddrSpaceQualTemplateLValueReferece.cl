@@ -8,7 +8,7 @@ void X0(T p) { }
 
 int a;
 __constant int f = 1;
-void fun()
+kernel void k_test1()
 {
   __private int b;
   int &c = b;
@@ -46,7 +46,7 @@ void X0(const T p) { }
 
 int a;
 __constant int f = 1;
-void fun()
+kernel void k_test2()
 {
   __private int b;
   int &c = b;
@@ -84,7 +84,7 @@ void X0(T& p) { }
 
 int a;
 __constant int f = 1;
-void fun()
+kernel void k_test3()
 {
   __private int b;
   int &c = b;
@@ -118,7 +118,7 @@ void X0(const T& p) { }
 
 int a;
 __constant int f = 1;
-void fun()
+kernel void k_test4()
 {
   __private int b;
   int &c = b;
@@ -186,7 +186,7 @@ void X0(__generic T& p) { }
 
 int a;
 __constant int f = 1;
-void fun()
+kernel void k_test7()
 {
   int b;
   int &c = b;
@@ -219,7 +219,7 @@ void X0(const __generic T& p) { }
 
 int a;
 __constant int f = 1;
-void fun()
+kernel void k_test8()
 {
   int b;
   int &c = b;
@@ -339,7 +339,7 @@ T func2(T *v)
 int gvar;
 auto a = gvar;
 
-kernel void k()
+kernel void k_test13()
 {
    func2(&gvar);  //expected-note {{in instantiation of function template specialization 'test13::func2<__global int>' requested here}}
 }

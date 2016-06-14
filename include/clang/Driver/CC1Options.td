@@ -605,6 +605,18 @@ def : Flag<["-"], "cl-fp16-enable">, Alias<cl_enable_half>,
   HelpText<"OpenCL only. This option enables full half data type support">;
 def cl_fp64_enable : Flag<["-"], "cl-fp64-enable">,
   HelpText<"OpenCL only. This option enables double data type support">;
+def cl_zeroinit_lm_vars : Flag<["-"], "cl-zero-init-local-mem-vars">,
+  HelpText<"OpenCL only. This option enables zero-initialization of variables "
+           "located in local memory (address space) which do not have their "
+           "own initializer (software emulation, impedes performance). "
+           "Currenly only supported for local-scope variables.">;
+def cl_spirv_compat_mode : Separate<["-"], "cl-spirv-compat-mode">,
+  MetaVarName<"<spirv_major>.<spirv_minor>">,
+  HelpText<"OpenCL only. This option enables compatibility mode with specific "
+           "version of SPIR-V (disables unsupported features).">;
+def cl_spirv_compat_mode_EQ : Joined<["-"], "cl-spirv-compat-mode=">,
+  Alias<cl_spirv_compat_mode>;
+
 
 // SPIR generator options
 def cl_spir_compile_options : Separate<["-"], "cl-spir-compile-options">,

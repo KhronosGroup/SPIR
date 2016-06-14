@@ -8,9 +8,15 @@ struct A {
   int m;
 };
 
-__local A globalVar1;
-static __local A globalVar2;
-__local int globalVar3 = 777;
+struct B {
+  B() = default;
+  ~B() = default;
+  int m;
+};
+
+__local B globalVar1;
+static __local B globalVar2;
+__local int globalVar3;
 
 kernel void worker() {
   __local A localVar1;

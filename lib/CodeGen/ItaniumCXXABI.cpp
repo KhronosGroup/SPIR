@@ -19,6 +19,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "CGCXXABI.h"
+#include "CGOpenCLCPlusPlusRuntime.h"
 #include "CGRecordLayout.h"
 #include "CGVTables.h"
 #include "CodeGenFunction.h"
@@ -319,6 +320,22 @@ public:
   // ARM64 libraries are prepared for non-unique RTTI.
   bool shouldRTTIBeUnique() const override { return false; }
 };
+
+
+class OpenCLCPlusPlusCXXABI : public ItaniumCXXABI {
+public:
+  OpenCLCPlusPlusCXXABI(CodeGen::CodeGenModule &CGM)
+    : ItaniumCXXABI(CGM) {}
+
+  void EmitGuardedInit(CodeGenFunction &CGF,
+                       const VarDecl &D,
+                       llvm::GlobalVariable *Var,
+                       bool ShouldPerformInit) override;
+  void registerGlobalDtor(CodeGenFunction &CGF,
+                          const VarDecl &D,
+                          llvm::Constant *Dtor,
+                          llvm::Constant *Addr) override;
+};
 }
 
 CodeGen::CGCXXABI *CodeGen::CreateItaniumCXXABI(CodeGenModule &CGM) {
@@ -347,6 +364,9 @@ CodeGen::CGCXXABI *CodeGen::CreateItaniumCXXABI(CodeGenModule &CGM) {
       // pointers.
       return new ItaniumCXXABI(CGM, /* UseARMMethodPtrABI = */ true,
                                /* UseARMGuardVarABI = */ false);
+    }
+    if (CGM.getContext().getLangOpts().OpenCLCPlusPlus) {
+      return new OpenCLCPlusPlusCXXABI(CGM);
     }
     return new ItaniumCXXABI(CGM);
 
@@ -1610,6 +1630,53 @@ llvm::Value *ARMCXXABI::readArrayCookieImpl(CodeGenFunction &CGF,
   numElementsPtr = 
     CGF.Builder.CreateBitCast(numElementsPtr, CGF.SizeTy->getPointerTo(AS));
   return CGF.Builder.CreateLoad(numElementsPtr);
+}
+
+void OpenCLCPlusPlusCXXABI::EmitGuardedInit(CodeGenFunction &CGF,
+                                            const VarDecl &D,
+                                            llvm::GlobalVariable *Var,
+                                            bool ShouldPerformInit) {
+  auto &CGR = CGF.CGM.getOpenCLCPlusPlusRuntime();
+
+  if (ShouldPerformInit && CGR.isLocalMemLocalVar(&D)) {
+    auto &Emitter = CGR.getLocalMemEmitter(CGF);
+    Emitter.emit(D, Var);
+    return;
+  }
+
+  // Global-memory program-scope variables do not need guards.
+  // Registation for destruction is done differently in OpenCL C++ and it
+  // does not require guards as well (no exceptions, compile-time resolved).
+  CGF.EmitCXXGlobalVarDeclInit(D, Var, ShouldPerformInit);
+}
+
+void OpenCLCPlusPlusCXXABI::registerGlobalDtor(CodeGenFunction &CGF,
+                                               const VarDecl &D,
+                                               llvm::Constant *Dtor,
+                                               llvm::Constant *Addr) {
+  auto &CGR = CGF.CGM.getOpenCLCPlusPlusRuntime();
+
+  if (D.getTLSKind() != VarDecl::TLS_None)
+    CGF.CGM.ErrorUnsupported(&D, "thread_local object destruction");
+
+  // Create function which calls destructor and will be added to finializer
+  // kernel.
+  auto DtorArg = Addr;
+  if (auto DtorFn = llvm::dyn_cast_or_null<llvm::Function>(Dtor)) {
+    auto DtorTy = DtorFn->getFunctionType();
+    if (DtorTy->getNumParams() > 0 && DtorTy->getParamType(0)->isPointerTy()) {
+      DtorArg = llvm::ConstantExpr::getPointerBitCastOrAddrSpaceCast(
+                  Addr, DtorTy->getParamType(0));
+    }
+  }
+
+  auto *DtorStub = llvm::dyn_cast_or_null<llvm::Function>(
+                       CGF.createAtExitStub(D, Dtor, DtorArg));
+  // Re-route global destructor stub to its proper lifetime scope.
+  if (CGR.isLocalMemLocalVar(&D))
+    CGR.getLocalMemEmitter(CGF).registerDtorStub(DtorStub);
+  else
+    CGR.registerVarGlobalDtorStub(D, DtorStub);
 }
 
 /*********************** Static local initialization **************************/

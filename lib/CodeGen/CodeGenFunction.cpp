@@ -16,6 +16,7 @@
 #include "CGCXXABI.h"
 #include "CGDebugInfo.h"
 #include "CGOpenMPRuntime.h"
+#include "CGOpenCLCPlusPlusRuntime.h"
 #include "CodeGenModule.h"
 #include "CodeGenPGO.h"
 #include "TargetInfo.h"
@@ -258,6 +259,9 @@ void CodeGenFunction::FinishFunction(SourceLocation EndLoc) {
 
   // Emit function epilog (to return).
   llvm::DebugLoc Loc = EmitReturnBlock();
+
+  if (CGM.hasOpenCLCPlusPlusRuntime())
+    CGM.getOpenCLCPlusPlusRuntime().finalizeLocalMemEmitter(*this);
 
   if (ShouldInstrumentFunction())
     EmitFunctionInstrumentation("__cyg_profile_func_exit");
@@ -768,7 +772,10 @@ void CodeGenFunction::StartFunction(GlobalDecl GD,
   if (getLangOpts().OpenCL) {
     // Add metadata for a kernel function.
     if (const FunctionDecl *FD = dyn_cast_or_null<FunctionDecl>(D))
-      EmitOpenCLKernelMetadata(FD, Fn);
+      if (CGM.hasOpenCLCPlusPlusRuntime())
+        CGM.getOpenCLCPlusPlusRuntime().emitKernelMetadata(FD, Fn);
+      else
+        EmitOpenCLKernelMetadata(FD, Fn);
   }
 
   // If we are checking function types, emit a function type signature as

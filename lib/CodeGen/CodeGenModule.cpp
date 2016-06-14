@@ -17,6 +17,7 @@
 #include "CGCall.h"
 #include "CGDebugInfo.h"
 #include "CGObjCRuntime.h"
+#include "CGOpenCLCPlusPlusRuntime.h"
 #include "CGOpenCLRuntime.h"
 #include "CGSPIRMetadataAdder.h"
 #include "CGOpenMPRuntime.h"
@@ -82,7 +83,8 @@ CodeGenModule::CodeGenModule(ASTContext &C, const CodeGenOptions &CGO,
       Diags(diags), TheDataLayout(TD), Target(C.getTargetInfo()),
       ABI(createCXXABI(*this)), VMContext(M.getContext()), TBAA(nullptr),
       TheTargetCodeGenInfo(nullptr), Types(*this), VTables(*this),
-      ObjCRuntime(nullptr), OpenCLRuntime(nullptr), OpenMPRuntime(nullptr),
+      ObjCRuntime(nullptr), OpenCLCPlusPlusRuntime(nullptr),
+      OpenCLRuntime(nullptr), OpenMPRuntime(nullptr),
       CUDARuntime(nullptr), DebugInfo(nullptr), ARCData(nullptr),
       NoObjCARCExceptionsMetadata(nullptr), RRData(nullptr), PGOReader(nullptr),
       CFConstantStringClassRef(nullptr), ConstantStringClassRef(nullptr),
@@ -114,7 +116,15 @@ CodeGenModule::CodeGenModule(ASTContext &C, const CodeGenOptions &CGO,
 
   if (LangOpts.ObjC1)
     createObjCRuntime();
-  if (LangOpts.OpenCL)
+  if (LangOpts.OpenCLCPlusPlus) {
+    // NOTE: Default calling convention for OpenCL C++ is spir_func, not C.
+    // FIXME: This is WA. The value should be set by entire new
+    // TargetCodeGenInfo and its new ABIInfo (a lot of code to replace
+    // line below).
+    RuntimeCC = llvm::CallingConv::SPIR_FUNC;
+    createOpenCLCPlusPlusRuntime();
+  }
+  else if (LangOpts.OpenCL)
     createOpenCLRuntime();
   if (LangOpts.OpenMP)
     createOpenMPRuntime();
@@ -157,6 +167,7 @@ CodeGenModule::CodeGenModule(ASTContext &C, const CodeGenOptions &CGO,
 
 CodeGenModule::~CodeGenModule() {
   delete ObjCRuntime;
+  delete OpenCLCPlusPlusRuntime;
   delete OpenCLRuntime;
   delete OpenMPRuntime;
   delete CUDARuntime;
@@ -184,6 +195,10 @@ void CodeGenModule::createObjCRuntime() {
     return;
   }
   llvm_unreachable("bad runtime kind");
+}
+
+void CodeGenModule::createOpenCLCPlusPlusRuntime() {
+  OpenCLCPlusPlusRuntime = new CGOpenCLCPlusPlusRuntime(*this);
 }
 
 void CodeGenModule::createOpenCLRuntime() {
@@ -348,8 +363,14 @@ void CodeGenModule::Release() {
       AddGlobalCtor(ObjCInitFunction);
   if (PGOReader && PGOStats.hasDiagnostics())
     PGOStats.reportDiagnostics(getDiags(), getCodeGenOpts().MainFileName);
-  EmitCtorList(GlobalCtors, "llvm.global_ctors");
-  EmitCtorList(GlobalDtors, "llvm.global_dtors");
+  if (hasOpenCLCPlusPlusRuntime()) {
+    getOpenCLCPlusPlusRuntime().emitInitKernel(GlobalCtors);
+    getOpenCLCPlusPlusRuntime().emitDtorKernel(GlobalDtors);
+  }
+  else {
+    EmitCtorList(GlobalCtors, "llvm.global_ctors");
+    EmitCtorList(GlobalDtors, "llvm.global_dtors");
+  }
   EmitGlobalAnnotations();
   EmitStaticExternCAliases();
   EmitDeferredUnusedCoverageMappings();
@@ -1236,6 +1257,20 @@ llvm::SmallVector<llvm::Metadata *, 5> CodeGenModule::getBuildOptions() {
     BuildOption.push_back(llvm::MDString::get(
     VMContext, llvm::StringRef("-cl-std=CL2.0")));
 
+  if (getLangOpts().OpenCLCPlusPlus)
+  {
+    BuildOption.push_back(llvm::MDString::get(
+    VMContext, llvm::StringRef("-cl-std=c++")));
+
+    if (getLangOpts().CLEnableHalf)
+      BuildOption.push_back(llvm::MDString::get(
+      VMContext, llvm::StringRef("-cl-fp16-enable")));
+
+    if (getLangOpts().CLFp64Enable)
+      BuildOption.push_back(llvm::MDString::get(
+      VMContext, llvm::StringRef("-cl-fp64-enable")));
+  }
+
   // Options for Querying Kernel Argument Information
   if(getCodeGenOpts().EmitOpenCLArgMetadata)
     BuildOption.push_back(llvm::MDString::get(
@@ -2005,7 +2040,7 @@ CharUnits CodeGenModule::GetTargetTypeStoreSize(llvm::Type *Ty) const {
 }
 
 unsigned CodeGenModule::GetGlobalVarAddressSpace(const VarDecl *D,
-                                                 unsigned AddrSpace) {
+                                                 unsigned AddrSpace) const {
   if (LangOpts.CUDA && CodeGenOpts.CUDAIsDevice) {
     if (D->hasAttr<CUDAConstantAttr>())
       AddrSpace = getContext().getTargetAddressSpace(LangAS::cuda_constant);
@@ -3080,8 +3115,15 @@ llvm::GlobalVariable *CodeGenModule::GetAddrOfConstantCString(
 
 llvm::Constant *CodeGenModule::GetAddrOfGlobalTemporary(
     const MaterializeTemporaryExpr *E, const Expr *Init) {
+  unsigned MaterializedAS =
+      getContext().getBaseElementType(E->getType()).getAddressSpace();
   assert((E->getStorageDuration() == SD_Static ||
-          E->getStorageDuration() == SD_Thread) && "not a global temporary");
+          E->getStorageDuration() == SD_Thread ||
+          MaterializedAS == LangAS::openclcpp_global ||
+          MaterializedAS == LangAS::openclcpp_local ||
+          MaterializedAS == LangAS::openclcpp_constant) &&
+         "not a global scope temporary");
+
   const auto *VD = cast<VarDecl>(E->getExtendingDecl());
 
   // If we're not materializing a subobject of the temporary, keep the
@@ -3089,6 +3131,16 @@ llvm::Constant *CodeGenModule::GetAddrOfGlobalTemporary(
   QualType MaterializedType = Init->getType();
   if (Init == E->GetTemporaryExpr())
     MaterializedType = E->getType();
+  // Propagate address space to temporary (if necessary).
+  // NOTE: We can assume that if temporary expr does not have address space
+  //       information it will be binded to reference referring to generic
+  //       address space, so we generate temporary inside default address space
+  //       in program scope (global).
+  if (getLangOpts().OpenCLCPlusPlus && !MaterializedType.hasAddressSpace()) {
+    MaterializedType = getContext().getAddrSpaceQualType(
+        MaterializedType, MaterializedAS != 0 ? MaterializedAS
+                                              : LangAS::openclcpp_global);
+  }
 
   llvm::Constant *&Slot = MaterializedGlobalTemporaryMap[E];
   if (Slot)

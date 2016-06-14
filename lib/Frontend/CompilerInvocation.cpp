@@ -1315,6 +1315,45 @@ static unsigned parseMSCVersion(ArgList &Args, DiagnosticsEngine &Diags) {
   return VC[0] * 10000000 + VC[1] * 100000 + VC[2];
 }
 
+static unsigned parseSPIRVVersion(ArgList &Args, DiagnosticsEngine &Diags) {
+  auto Arg = Args.getLastArg(OPT_cl_spirv_compat_mode);
+  if (!Arg)
+    return 0;
+
+  // The SPIR-V versioning scheme involves three versioning components:
+  //  - Major    (mandatory, 1-99)
+  //  - Minor    (mandatory, 0-99)
+  //  - Revision (optional,  0-999)
+
+  const unsigned VCMin[] = {1, 0, 0};
+  const unsigned VCMax[] = {99, 99, 999};
+  unsigned VC[3] = {};
+
+  StringRef Value = Arg->getValue();
+  SmallVector<StringRef, 4> Components;
+
+  Value.split(Components, ".", llvm::array_lengthof(VC));
+
+  if (Components.size() < 2) {
+    Diags.Report(diag::err_drv_invalid_value)
+      << Arg->getAsString(Args) << Value;
+    return 0;
+  }
+
+  for (unsigned CI = 0,
+                CE = std::min(Components.size(), llvm::array_lengthof(VC));
+       CI < CE; ++CI) {
+    if (Components[CI].getAsInteger(10, VC[CI]) ||
+        VC[CI] < VCMin[CI] || VC[CI] > VCMax[CI]) {
+      Diags.Report(diag::err_drv_invalid_value)
+        << Arg->getAsString(Args) << Value;
+      return 0;
+    }
+  }
+
+  return VC[0] * 100000 + VC[1] * 1000 + VC[2];
+}
+
 static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
                           DiagnosticsEngine &Diags) {
   // FIXME: Cleanup per-file based stuff.
@@ -1668,6 +1707,13 @@ static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
 
   Opts.CLEnableHalf = Args.hasArg(OPT_cl_enable_half);
   Opts.CLFp64Enable = Args.hasArg(OPT_cl_fp64_enable);
+  Opts.CLZeroInitLocalMemVars = Args.hasArg(OPT_cl_zeroinit_lm_vars);
+
+  Opts.SPIRVCompatibilityVersion = parseSPIRVVersion(Args, Diags);
+  if (Opts.OpenCLCPlusPlus && (Opts.SPIRVCompatibilityVersion == 0 ||
+                               Opts.SPIRVCompatibilityVersion >= 101000)) {
+    Opts.SPIRVInitDtorKernelEnable = true;
+  }
 
   unsigned SSP = getLastArgIntValue(Args, OPT_stack_protector, 0, Diags);
   switch (SSP) {

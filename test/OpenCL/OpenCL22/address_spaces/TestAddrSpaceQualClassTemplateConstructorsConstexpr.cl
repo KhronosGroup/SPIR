@@ -27,6 +27,7 @@ public:
   constexpr data(__local const data& rhs) __global: _data(rhs._data) { }
   constexpr data(const data& rhs) __generic:_data(rhs._data) { }
   constexpr data(const data& rhs) __local: _data(rhs._data) { }
+  constexpr data(__constant const data& rhs) __local: _data(rhs._data) { }
 
   constexpr data(__constant data&& rhs) __constant = default;
   constexpr data(__private data&& rhs) __private = default;
@@ -68,33 +69,42 @@ public:
 };
 
 __global data<int> g0;
-__local data<int> g1;
-__constant data<int> g2 = 1;
-__constant data<int> g21(1);
-data<int> g3;
+__constant data<int> g1 = 1;
+__constant data<int> g1_1(1);
+data<int> g2;
 
 
 kernel void worker1() {
   __constant data<int> a0 = 1;
   __constant data<int> a01(1);
+  constexpr __constant data<int> a02(1);
   __private data<int> a1;
   __private data<int> a11 = 1;
   __private data<int> a12(1);
+  constexpr __private data<int> a13(1);
   static __global data<int> a2;
   static __global data<int> a21 = 1;
   static __global data<int> a22(1);
+  static constexpr __global data<int> a23(1);
   __local data<int> a3;
+  static __local data<int> a31 = 1;
+  __local data<int> a32(1);
+  static constexpr __local data<int> a33(1);
   data<int> a4;
   data<int> a41 = 1;
   data<int> a42(1);
+  constexpr data<int> a43(1);
 
-  __constant data<int> b0 = a0;
   __private data<int> b1 = a1;
-  static __global data<int> b2 = a2;
-  static __global data<int> b20 = a0;
-  static __global data<int> b21 = a1;
-  static __global data<int> b23 = a3;
-  static __global data<int> b24 = a4;
-  //__local data<int> b3 = a3; //TODO: __local variable cannot have an initialzer
+  static __global data<int> b2 = a23;
+  static __global data<int> b20 = a02;
+  static __global data<int> b21 = a13;
+  static __global data<int> b23 = a33;
+  static __global data<int> b24 = a43;
+  __local data<int> b3 = a3;
+  static __local data<int> b30 = a0;
+  __local data<int> b31 = a1;
+  static __local data<int> b32 = a2;
+  __local data<int> b34 = a4;
   data<int> b4 = a4;
 }

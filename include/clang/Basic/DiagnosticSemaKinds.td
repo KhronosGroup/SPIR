@@ -508,10 +508,6 @@ def err_object_cannot_be_passed_returned_by_value : Error<
   "; did you forget * in %1?">;
 def err_parameters_retval_cannot_have_fp16_type : Error<
   "%select{parameters|function return value}0 cannot have __fp16 type; did you forget * ?">;
-def err_oclcpp_half_operator : Error<
-  "operator on %0 type is not allowed if cl_khr_fp16 extension is not supported">;
-def err_oclcpp_half_conversion : Error<
-  "conversion from %0 to %1 type is not allowed if cl_khr_fp16 extension is not supported">;
 def err_opencl_dereferencing : Error<
   "dereferencing pointer of type %0 is not allowed">;
 def err_opencl_half_load_store : Error<
@@ -1832,6 +1828,8 @@ def err_constexpr_var_non_literal : Error<
   "constexpr variable cannot have non-literal type %0">;
 def err_constexpr_var_requires_const_init : Error<
   "constexpr variable %0 must be initialized by a constant expression">;
+def err_openclcpp_constant_var_requires_const_init : Error<
+  "variable %0 in the constant address space must be initialized by a constant expression">;
 def err_constexpr_redecl_mismatch : Error<
   "%select{non-constexpr declaration of %0 follows constexpr declaration"
   "|constexpr declaration of %0 follows non-constexpr declaration}1">;
@@ -7287,6 +7285,34 @@ def err_kernel_arg_address_space : Error<
   "pointer arguments to kernel functions must reside in '__global', '__constant' or '__local' address space">;
 def err_oclcpp_kernel_arg_address_space : Error<
   "pointer and reference arguments to kernel functions must reside in '__global', '__constant' or '__local' address space">;
+def err_oclcpp_nonkernel_local_var_init : Error<
+  "initialization of %select{program-scope variable|static data member|"
+  "lifetime-extended temporary variable}0 with local storage (local address"
+  " space) is forbidden">;
+def err_oclcpp_nonkernel_local_var_ctor : Error<
+  "%select{|elements of }0%select{program-scope variable|static data member|"
+  "lifetime-extended temporary variable}1 with local storage (local address"
+  " space) must be default-initialized with trivial default constructor">;
+def err_oclcpp_nonkernel_local_var_dtor : Error<
+  "%select{|elements of }0%select{program-scope variable|static data member|"
+  "lifetime-extended temporary variable}1 with local storage (local address"
+  " space) must have trivial destructor">;
+def err_oclcpp_inv_scope_local_var_decl : Error<
+  "variable declaration with local storage (local address space) is only"
+  " allowed at program scope, at kernel scope or as a static data member">;
+def err_oclcpp_nonprogram_global_var_inv_init : Error<
+  "%select{local-scope variable|static data member|program-scope"
+  " lifetime-extended temporary variable}0 with global storage (global address"
+  " space) requires trivial or constant expression initialization">;
+def err_oclcpp_nonprogram_global_var_inv_ctor : Error<
+  "%select{|elements of }0%select{local-scope variable|static data member|"
+  "lifetime-extended temporary variable}1 with global storage (global address"
+  " space) must be initialized with trivial default or constant expression"
+  " constructor">;
+def err_oclcpp_nonprogram_global_inv_dtor : Error<
+  "%select{|elements of }0%select{local-scope variable|static data member|"
+  "lifetime-extended temporary variable}1 with global storage (global address"
+  " space) must have trivial destructor">;
 def err_opencl_pointer_to_image : Error<
   "pointer to image is invalid in OpenCL">;
 def err_scalar_type_rank_greater_than_vector_type : Error<

@@ -1863,8 +1863,9 @@ bool Sema::CheckFunctionReturnType(QualType T, SourceLocation Loc) {
   }
 
   // Functions cannot return half FP.
-  if (T->isHalfType() && !getLangOpts().HalfArgsAndReturns &&
-      !getLangOpts().OpenCLCPlusPlus) {
+  if (T->isHalfType() &&
+      !getLangOpts().HalfArgsAndReturns &&
+      !getLangOpts().CLEnableHalf) {
     Diag(Loc, diag::err_parameters_retval_cannot_have_fp16_type) << 1 <<
       FixItHint::CreateInsertion(Loc, "*");
     return true;
@@ -1894,8 +1895,9 @@ QualType Sema::BuildFunctionType(QualType T,
     if (ParamType->isVoidType()) {
       Diag(Loc, diag::err_param_with_void_type);
       Invalid = true;
-    } else if (ParamType->isHalfType() && !getLangOpts().HalfArgsAndReturns &&
-               !getLangOpts().OpenCLCPlusPlus) {
+    } else if (ParamType->isHalfType() &&
+               !getLangOpts().HalfArgsAndReturns &&
+               !getLangOpts().CLEnableHalf) {
       // Disallow half FP arguments.
       Diag(Loc, diag::err_parameters_retval_cannot_have_fp16_type) << 0 <<
         FixItHint::CreateInsertion(Loc, "*");
@@ -2885,13 +2887,12 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
       // Do not allow returning half FP value.
       // FIXME: This really should be in BuildFunctionType.
       if (T->isHalfType()) {
-        if (S.getLangOpts().OpenCL && !S.getLangOpts().OpenCLCPlusPlus) {
+        if (S.getLangOpts().OpenCL) {
           if (!S.getOpenCLOptions().cl_khr_fp16) {
             S.Diag(D.getIdentifierLoc(), diag::err_opencl_half_return) << T;
             D.setInvalidType(true);
           } 
-        } else if (!S.getLangOpts().HalfArgsAndReturns &&
-                   !S.getLangOpts().OpenCLCPlusPlus) {
+        } else if (!S.getLangOpts().HalfArgsAndReturns) {
           S.Diag(D.getIdentifierLoc(),
             diag::err_parameters_retval_cannot_have_fp16_type) << 1;
           D.setInvalidType(true);
@@ -3074,15 +3075,14 @@ static TypeSourceInfo *GetFullTypeForDeclarator(TypeProcessingState &state,
           } else if (ParamTy->isHalfType()) {
             // Disallow half FP parameters.
             // FIXME: This really should be in BuildFunctionType.
-            if (S.getLangOpts().OpenCL && !S.getLangOpts().OpenCLCPlusPlus) {
+            if (S.getLangOpts().OpenCL) {
               if (!S.getOpenCLOptions().cl_khr_fp16) {
                 S.Diag(Param->getLocation(),
                   diag::err_opencl_half_param) << ParamTy;
                 D.setInvalidType();
                 Param->setInvalidDecl();
               }
-            } else if (!S.getLangOpts().HalfArgsAndReturns &&
-                       !S.getLangOpts().OpenCLCPlusPlus) {
+            } else if (!S.getLangOpts().HalfArgsAndReturns) {
               S.Diag(Param->getLocation(),
                 diag::err_parameters_retval_cannot_have_fp16_type) << 0;
               D.setInvalidType();
@@ -5130,7 +5130,7 @@ static void processTypeAttrs(TypeProcessingState &state, QualType &type,
   // Pointers that are declared without pointing to a named address space point
   // to the generic address space.
   if (OpenCLVersion >= 200 && !hasOpenCLAddressSpace &&
-    type.getAddressSpace() == 0 && !type->isDependentType() &&
+    type.getAddressSpace() == 0 &&
     !type->isFunctionType()) {
     bool isOpenCLCPP = state.getSema().Context.getLangOpts().OpenCLCPlusPlus;
     if (!isOpenCLCPP &&

@@ -26,11 +26,36 @@ void A::fun() __private { }
 void A::fun() __constant { }
 bool A::fun2() { return true; }
 
+struct AG {
+  AG();
+  AG() __global = default;
+  AG() __constant;
+  ~AG() = default;
+
+  void fun();
+  void fun() __local;
+  void fun() __global;
+  void fun() __private;
+  void fun() __constant;
+
+  bool fun2();
+};
+
+AG::AG() = default;
+AG::AG() __constant = default;
+void AG::fun() { }
+void AG::fun() __local { }
+void AG::fun() __global { }
+void AG::fun() __private { }
+void AG::fun() __constant { }
+bool AG::fun2() { return true; }
+
 int fun() { return 1; }
 
 template<class T>
 struct B {
   B();
+  B() __global = default;
   B() __constant;
   ~B();
 
@@ -70,6 +95,46 @@ void B<T>::fun() __constant { }
 template<class T>
 bool B<T>::fun2() { return true; }
 
+template<class T>
+struct BG {
+  BG();
+  BG() __global = default;
+  BG() __constant;
+  ~BG() = default;
+
+  void fun();
+  void fun() __local;
+  void fun() __global;
+  void fun() __private;
+  void fun() __constant;
+
+  bool fun2();
+};
+
+template<class T>
+BG<T>::BG() = default;
+
+template<class T>
+BG<T>::BG() __constant = default;
+
+template<class T>
+void BG<T>::fun() { }
+
+template<class T>
+void BG<T>::fun() __local { }
+
+template<class T>
+void BG<T>::fun() __global { }
+
+template<class T>
+void BG<T>::fun() __private { }
+
+template<class T>
+void BG<T>::fun() __constant { }
+
+template<class T>
+bool BG<T>::fun2() { return true; }
+
 kernel void worker() {
   A v0;
   v0.fun();
@@ -77,7 +142,7 @@ kernel void worker() {
   __local A v1;
   v1.fun();
 
-  static __global A v2;
+  static __global AG v2;
   v2.fun();
 
   int v3 = fun();
@@ -88,6 +153,6 @@ kernel void worker() {
   __local B<int> v5;
   v5.fun();
 
-  static __global B<int> v6;
+  static __global BG<int> v6;
   v6.fun();
 }

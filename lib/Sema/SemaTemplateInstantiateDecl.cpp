@@ -2640,10 +2640,24 @@ Decl *TemplateDeclInstantiator::VisitVarTemplateSpecializationDecl(
     return nullptr;
   }
 
+  QualType type = DI->getType();
+
+  // OpenCL C++
+  //   The variable template specializations can be qualified with
+  //   address space. This address space cab be dropped during substitution
+  //   and it needs to be restored.
+  if (SemaRef.Context.getLangOpts().OpenCLCPlusPlus &&
+      VarTemplate->getTemplatedDecl()->getType().hasAddressSpace() &&
+      !type.hasAddressSpace()) {
+    type = SemaRef.Context.getAddrSpaceQualType(type,
+                 VarTemplate->getTemplatedDecl()->getType().getAddressSpace());
+    DI->overrideType(type);
+  }
+
   // Build the instantiated declaration
   VarTemplateSpecializationDecl *Var = VarTemplateSpecializationDecl::Create(
       SemaRef.Context, Owner, D->getInnerLocStart(), D->getLocation(),
-      VarTemplate, DI->getType(), DI, D->getStorageClass(), Converted.data(),
+      VarTemplate, type, DI, D->getStorageClass(), Converted.data(),
       Converted.size());
   Var->setTemplateArgsInfo(TemplateArgsInfo);
   if (InsertPos)
@@ -3544,8 +3558,20 @@ VarTemplateSpecializationDecl *Sema::CompleteVarTemplateSpecializationDecl(
   if (!DI)
     return nullptr;
 
+  QualType type = DI->getType();
+  // OpenCL C++
+  //   The variable template specializations can be qualified with
+  //   address space. This address space cab be dropped during substitution
+  //   and it needs to be restored.
+  if (Context.getLangOpts().OpenCLCPlusPlus &&
+      VarSpec->getType().hasAddressSpace() &&
+      !type.hasAddressSpace()) {
+    type = Context.getAddrSpaceQualType(type,
+                                        VarSpec->getType().getAddressSpace());
+  }
+
   // Update the type of this variable template specialization.
-  VarSpec->setType(DI->getType());
+  VarSpec->setType(type);
 
   // Instantiate the initializer.
   InstantiateVariableInitializer(VarSpec, PatternDecl, TemplateArgs);

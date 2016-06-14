@@ -5443,10 +5443,9 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
       NR = NR->getPointeeType();
     }
 
-    if (!getLangOpts().OpenCLCPlusPlus &&  !getOpenCLOptions().cl_khr_fp16) {
+    if (!getOpenCLOptions().cl_khr_fp16) {
       // OpenCL v1.2 s6.1.1.1: reject declaring variables of the half and
       // half array type (unless the cl_khr_fp16 extension is enabled).
-      // OpenCL C++: it's always allowed to declare variable of the half type.
       if (Context.getBaseElementType(R)->isHalfType()) {
         Diag(D.getIdentifierLoc(), diag::err_opencl_half_declaration) << R;
         D.setInvalidType();
@@ -5497,7 +5496,10 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
     // OpenCL __local address space.
     if (R.getAddressSpace() == LangAS::opencl_local ||
         R.getAddressSpace() == LangAS::openclcpp_local) {
-      SC = SC_OpenCLWorkGroupLocal;
+      if (SC == SC_Extern)
+        SC = SC_OpenCLWorkGroupLocalExtern;
+      else
+        SC = SC_OpenCLWorkGroupLocal;
     }
     if (R.getAddressSpace() == LangAS::opencl_constant || 
         R.getAddressSpace() == LangAS::openclcpp_constant) {
@@ -5522,6 +5524,28 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
       if (R.getAddressSpace()) {
         Diag(D.getLocStart(), diag::err_event_t_addr_space_qual);
         D.setInvalidType();
+      }
+    }
+  }
+
+  if (getLangOpts().OpenCLCPlusPlus &&
+      R.getAddressSpace() == LangAS::openclcpp_local &&
+      SCSpec != DeclSpec::SCS_extern &&
+      SCSpec != DeclSpec::SCS_private_extern &&
+      S->getFnParent() != nullptr) {
+    if (!S->isFunctionScope()) {
+      Diag(D.getIdentifierLoc(), diag::err_oclcpp_inv_scope_local_var_decl);
+      D.setInvalidType(true);
+    }
+    else {
+      auto FD = cast_or_null<FunctionDecl>(S->getEntity());
+      if (FD != nullptr)
+        FD = FD->getAsFunction();
+
+      if (FD == nullptr || !FD->getType()->isFunctionType() ||
+         FD->getType()->getAs<FunctionType>()->getCallConv() != CC_SpirKernel) {
+        Diag(D.getIdentifierLoc(), diag::err_oclcpp_inv_scope_local_var_decl);
+        D.setInvalidType(true);
       }
     }
   }
@@ -5556,6 +5580,8 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
       case SC_Auto:
       case SC_Register:
       case SC_Extern:
+      case SC_OpenCLWorkGroupLocalExtern:
+      case SC_OpenCLConstantExtern:
         // [dcl.stc] p2: The auto or register specifiers shall be applied only
         // to names of variables declared in a block or to function parameters.
         // [dcl.stc] p6: The extern specifier cannot be used in the declaration
@@ -5568,10 +5594,12 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
       case SC_PrivateExtern:
         llvm_unreachable("C storage class in c++!");
       case SC_OpenCLWorkGroupLocal:
-        if (!getLangOpts().OpenCLCPlusPlus)
+      case SC_OpenCLConstant:
+        if (getLangOpts().OpenCLCPlusPlus)
+          break;
         llvm_unreachable("OpenCL storage class in c++!");
       }
-    }    
+    }
 
     if (SC == SC_Static && CurContext->isRecord()) {
       if (const CXXRecordDecl *RD = dyn_cast<CXXRecordDecl>(DC)) {
@@ -5808,6 +5836,7 @@ Sema::ActOnVariableDeclarator(Scope *S, Declarator &D, DeclContext *DC,
       case SC_Extern:
       case SC_PrivateExtern:
       case SC_OpenCLWorkGroupLocal:
+      case SC_OpenCLWorkGroupLocalExtern:
       case SC_OpenCLConstant:
       case SC_OpenCLConstantExtern:
         break;
@@ -8952,16 +8981,6 @@ void Sema::AddInitializerToDecl(Decl *RealDecl, Expr *Init,
     }
   }
 
-  // OpenCL 1.1 6.5.2: "Variables allocated in the __local address space inside
-  // a kernel function cannot be initialized."
-  // OpenCL C++ allows to initialize variables in __local address space
-  if (VDecl->getStorageClass() == SC_OpenCLWorkGroupLocal &&
-     !getLangOpts().CPlusPlus) {
-    Diag(VDecl->getLocation(), diag::err_local_cant_init);
-    VDecl->setInvalidDecl();
-    return;
-  }
-
   // Get the decls type and save a reference for later, since
   // CheckInitializerTypes may change it.
   QualType DclT = VDecl->getType(), SavT = DclT;
@@ -9078,6 +9097,44 @@ void Sema::AddInitializerToDecl(Decl *RealDecl, Expr *Init,
 
   // Attach the initializer to the decl.
   VDecl->setInit(Init);
+
+  // OpenCL 1.1 6.5.2: "Variables allocated in the __local address space inside
+  // a kernel function cannot be initialized."
+  // [OCLC++10] Program-scope variable declaration or static data member
+  //            declaration with local memory storage must be
+  //            default-initialized and, if default constructor is called during
+  //            initialization, the constructor must be trivial (so no actual
+  //            initialization of memory is performed).
+  if (VDecl->getStorageClass() == SC_OpenCLWorkGroupLocal ||
+      VDecl->getStorageClass() == SC_OpenCLWorkGroupLocalExtern) {
+    if (getLangOpts().OpenCLCPlusPlus) {
+      // local-mem restriction; case: program-/class-scope + initializer
+      if (VDecl->isFileVarDecl() || VDecl->isStaticDataMember()) {
+        auto VTy = VDecl->getType()->getBaseElementTypeUnsafe();
+
+        if (VTy->isRecordType()) {
+          Diag(VDecl->getLocation(), diag::err_oclcpp_nonkernel_local_var_ctor)
+              << VDecl->getType()->isArrayType() << VDecl->isStaticDataMember();
+
+          if (!VTy->getAsCXXRecordDecl()->hasTrivialDestructor())
+            Diag(VDecl->getLocation(),
+                 diag::err_oclcpp_nonkernel_local_var_dtor)
+                << VDecl->getType()->isArrayType()
+                << VDecl->isStaticDataMember();
+        }
+        else
+          Diag(VDecl->getLocation(), diag::err_oclcpp_nonkernel_local_var_init)
+              << VDecl->isStaticDataMember();
+        VDecl->setInvalidDecl();
+        return;
+      }
+    }
+    else {
+      Diag(VDecl->getLocation(), diag::err_local_cant_init);
+      VDecl->setInvalidDecl();
+      return;
+    }
+  }
 
   if (VDecl->isLocalVarDecl()) {
     // C99 6.7.8p4: All the expressions in an initializer for an object that has
@@ -9196,7 +9253,8 @@ void Sema::AddInitializerToDecl(Decl *RealDecl, Expr *Init,
       VDecl->setInvalidDecl();
     }
   } else if (VDecl->isFileVarDecl()) {
-    if (VDecl->getStorageClass() == SC_Extern &&
+    if ((VDecl->getStorageClass() == SC_Extern ||
+         VDecl->getStorageClass() == SC_OpenCLWorkGroupLocalExtern) &&
         (!getLangOpts().CPlusPlus ||
          !(Context.getBaseElementType(VDecl->getType()).isConstQualified() ||
            VDecl->isExternC())) &&
@@ -9433,6 +9491,42 @@ void Sema::ActOnUninitializedDecl(Decl *RealDecl,
       return;
     }
 
+    // [OCLC++10] Program-scope variable declaration or static data member
+    //            declaration with local memory storage must be
+    //            default-initialized and, if default constructor is called
+    //            during initialization, the constructor must be trivial (so no
+    //            actual initialization of memory is performed).
+    if (getLangOpts().OpenCLCPlusPlus &&
+        Var->getStorageClass() == SC_OpenCLWorkGroupLocal &&
+        (Var->isFileVarDecl() || Var->isStaticDataMember())) {
+      // local-mem restriction; case: program-/class-scope + no initializer
+      auto VTy = Var->getType()->getBaseElementTypeUnsafe();
+
+      // Variable is of a class type or array of thereof: only trivial default
+      // constructor allowed (which does nothing).
+      if (VTy->isRecordType()) {
+        bool HasError = false;
+
+        const auto RD = VTy->getAsCXXRecordDecl();
+        if (!RD->hasTrivialDefaultConstructor()) {
+          Diag(Var->getLocation(), diag::err_oclcpp_nonkernel_local_var_ctor)
+              << Var->getType()->isArrayType() << Var->isStaticDataMember();
+          HasError = true;
+        }
+
+        if (!RD->hasTrivialDestructor()) {
+          Diag(Var->getLocation(), diag::err_oclcpp_nonkernel_local_var_dtor)
+              << Var->getType()->isArrayType() << Var->isStaticDataMember();
+          HasError = true;
+        }
+
+        if (HasError) {
+          Var->setInvalidDecl();
+          return;
+        }
+      }
+    }
+
     // Check for jumps past the implicit initializer.  C++0x
     // clarifies that this applies to a "variable with automatic
     // storage duration", not a "local variable".
@@ -9518,6 +9612,7 @@ void Sema::ActOnCXXForRangeDecl(Decl *D) {
     Error = 4;
     break;
   case SC_OpenCLWorkGroupLocal:
+  case SC_OpenCLWorkGroupLocalExtern:
   case SC_OpenCLConstant:
   case SC_OpenCLConstantExtern:
     llvm_unreachable("Unexpected storage class");
@@ -9686,6 +9781,10 @@ void Sema::CheckCompleteVariableDeclaration(VarDecl *var) {
 
   Expr *Init = var->getInit();
   bool IsGlobal = var->hasGlobalStorage() && !var->isStaticLocal();
+  bool IsNonProgramScopeGlobalMem =
+      getLangOpts().OpenCLCPlusPlus &&
+      type.getAddressSpace() == LangAS::openclcpp_global &&
+      (!var->isFileVarDecl() || var->isStaticDataMember());
   QualType baseType = Context.getBaseElementType(type);
 
   if (!var->getDeclContext()->isDependentContext() &&
@@ -9703,19 +9802,44 @@ void Sema::CheckCompleteVariableDeclaration(VarDecl *var) {
           << Init->getSourceRange();
     }
 
-    if (var->isConstexpr()) {
+    bool NonConstexprTrivialInit = false;
+    if (!var->isConstexpr() && IsNonProgramScopeGlobalMem &&
+        baseType->isRecordType() && isa<CXXConstructExpr>(Init)) {
+      auto CD = cast<CXXConstructExpr>(Init)->getConstructor();
+      if (CD->isTrivial() && CD->isDefaultConstructor())
+        NonConstexprTrivialInit = true;
+    }
+
+    if (var->isConstexpr() ||
+        (getLangOpts().OpenCLCPlusPlus &&
+        (type.getAddressSpace() == LangAS::openclcpp_constant ||
+         IsNonProgramScopeGlobalMem))) {
       SmallVector<PartialDiagnosticAt, 8> Notes;
-      if (!var->evaluateValue(Notes) || !var->isInitICE()) {
+      if (!NonConstexprTrivialInit && (!var->evaluateValue(Notes) ||
+                                       !var->isInitICE())) {
         SourceLocation DiagLoc = var->getLocation();
         // If the note doesn't add any useful information other than a source
         // location, fold it into the primary diagnostic.
         if (Notes.size() == 1 && Notes[0].second.getDiagID() ==
-              diag::note_invalid_subexpr_in_const_expr) {
+            diag::note_invalid_subexpr_in_const_expr) {
           DiagLoc = Notes[0].first;
           Notes.clear();
         }
-        Diag(DiagLoc, diag::err_constexpr_var_requires_const_init)
-          << var << Init->getSourceRange();
+
+        if (IsNonProgramScopeGlobalMem) {
+          if (baseType->isRecordType())
+            Diag(DiagLoc, diag::err_oclcpp_nonprogram_global_var_inv_ctor)
+                << var->getType()->isArrayType() << var->isStaticDataMember();
+          else
+            Diag(DiagLoc, diag::err_oclcpp_nonprogram_global_var_inv_init)
+                << var->isStaticDataMember();
+        }
+        else
+          Diag(DiagLoc, type.getAddressSpace() == LangAS::openclcpp_constant
+                          ? diag::err_openclcpp_constant_var_requires_const_init
+                          : diag::err_constexpr_var_requires_const_init)
+              << var << Init->getSourceRange();
+
         for (unsigned I = 0, N = Notes.size(); I != N; ++I)
           Diag(Notes[I].first, Notes[I].second);
       }
@@ -9724,6 +9848,16 @@ void Sema::CheckCompleteVariableDeclaration(VarDecl *var) {
       // enumeration type is an ICE now, since we can't tell whether it was
       // initialized by a constant expression if we check later.
       var->checkInitIsICE();
+    }
+  }
+
+  if (IsNonProgramScopeGlobalMem && baseType->isRecordType()) {
+    // Variable is of a class type or array of thereof: only trivial default
+    // constructor allowed (which does nothing).
+    const auto RD = baseType->getAsCXXRecordDecl();
+    if (!RD->hasTrivialDestructor()) {
+      Diag(var->getLocation(), diag::err_oclcpp_nonprogram_global_inv_dtor)
+          << var->getType()->isArrayType() << var->isStaticDataMember();
     }
   }
 

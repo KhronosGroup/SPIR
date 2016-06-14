@@ -26,6 +26,7 @@ public:
   constexpr data(__local const data& rhs) __global: _data(rhs._data) { }
   constexpr data(const data& rhs) __generic:_data(rhs._data) { }
   constexpr data(const data& rhs) __local: _data(rhs._data) { }
+  constexpr data(__constant const data& rhs) __local: _data(rhs._data) { }
 
   constexpr data(__constant data&& rhs) __constant = default;
   constexpr data(__private data&& rhs) __private = default;
@@ -66,30 +67,39 @@ public:
 };
 
 __global data g0;
-__local data g1;
-__constant data g2 = 1;
-__constant data g21(1);
-data g3;
+__constant data g1 = 1;
+__constant data g1_1(1);
+data g2;
 
 kernel void worker1() {
   __constant data a0 = 1;
   __constant data a01(1);
+  constexpr __constant data a02(1);
   __private data a1;
   __private data a11 = 1;
   __private data a12(1);
+  constexpr __private data a13(1);
   static __global data a2;
   static __global data a21 = 1;
   static __global data a22(1);
+  static constexpr __global data a23(1);
   __local data a3;
+  __local data a31 = 1;
+  static __local data a32(1);
+  constexpr __local data a33(1);
   data a4;
+  constexpr data a41;
 
-  __constant data b0 = a0;
   __private data b1 = a1;
-  static __global data b2 = a2;
-  static __global data b20 = a0;
-  static __global data b21 = a1;
-  static __global data b23 = a3;
-  static __global data b24 = a4;
-  //__local data b3 = a3; //TODO: __local variable cannot have an initialzer
+  static __global data b2 = a23;
+  static __global data b20 = a02;
+  static __global data b21 = a13;
+  static __global data b23 = a33;
+  static __global data b24 = a41;
+  static __local data b3 = a3;
+  __local data b30 = a0;
+  static __local data b31 = a1;
+  __local data b32 = a2;
+  static __local data b34 = a4;
   data b4 = a4;
 }

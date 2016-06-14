@@ -2507,7 +2507,12 @@ public:
   /// of aggregate type.  The result is computed into the given slot,
   /// which may be null to indicate that the value is not needed.
   void EmitAggExpr(const Expr *E, AggValueSlot AS);
-
+  /// EmitAggExpr - Emit the computation of the specified expression
+  /// of aggregate type.  The result is computed into the given slot,
+  /// which may be null to indicate that the value is not needed.
+  /// If expression is null, the computation of zero-initialization is emitted.
+  void EmitAggExprIntoLValue(const Expr *E, AggValueSlot Slot, LValue LV,
+                             bool ForceZeroPreinit = false);
   /// EmitAggExprToLValue - Emit the computation of the specified expression of
   /// aggregate type into a temporary LValue.
   LValue EmitAggExprToLValue(const Expr *E);
