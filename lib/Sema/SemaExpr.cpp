@@ -118,7 +118,7 @@ static AvailabilityResult DiagnoseAvailabilityOfDecl(Sema &S,
     case AR_Available:
     case AR_NotYetIntroduced:
       break;
-            
+
     case AR_Deprecated:
       if (S.getCurContextAvailability() != AR_Deprecated)
         S.EmitAvailabilityWarning(Sema::AD_Deprecation,
@@ -12287,8 +12287,11 @@ void Sema::MarkFunctionReferenced(SourceLocation Loc, FunctionDecl *Func,
   } else if (CXXDestructorDecl *Destructor =
                  dyn_cast<CXXDestructorDecl>(Func)) {
     Destructor = cast<CXXDestructorDecl>(Destructor->getFirstDecl());
-    if (Destructor->isDefaulted() && !Destructor->isDeleted())
+    if (Destructor->isDefaulted() && !Destructor->isDeleted()) {
+      if (Destructor->isTrivial() && !Destructor->hasAttr<DLLExportAttr>())
+        return;
       DefineImplicitDestructor(Loc, Destructor);
+    }
     if (Destructor->isVirtual())
       MarkVTableUsed(Loc, Destructor->getParent());
   } else if (CXXMethodDecl *MethodDecl = dyn_cast<CXXMethodDecl>(Func)) {
