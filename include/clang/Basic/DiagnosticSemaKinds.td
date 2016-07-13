@@ -2254,7 +2254,7 @@ def warn_attribute_wrong_decl_type : Warning<
   "functions, methods and blocks|functions, methods, and classes|"
   "functions, methods, and parameters|classes|variables|methods|"
   "variables, functions and labels|fields and global variables|structs|"
-  "variables and typedefs|thread-local variables|"
+  "parameters and typedefs|variables and typedefs|thread-local variables|"
   "variables and fields|variables, data members and tag types|"
   "types and namespaces|Objective-C interfaces|methods and properties|"
   "struct or union|struct, union or class|types|"
@@ -7282,6 +7282,10 @@ def warn_opencl_image_access_non_image : Warning<
   "using image access qualifier with non-image type">;
 def err_opencl_image_access_read_write : Error<
   "image access qualifier read_write is reserved for future use">;
+def err_opencl_invalid_access_qualifier : Error<
+  "access qualifier can only be used for pipe and image type">;
+def note_opencl_typedef_access_qualifier : Note<
+  "previously declared '%0' here">;
 def err_depth_image_requires_ext : Error<
   "use of depth image type requires extension cl_khr_depth_images">;
 def err_msaa_image_requires_ext : Error<

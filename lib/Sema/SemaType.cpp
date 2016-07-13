@@ -4980,6 +4980,37 @@ static void HandleNeonVectorTypeAttr(QualType& CurType,
   CurType = S.Context.getVectorType(CurType, numElts, VecKind);
 }
 
+/// Handle OpenCL Access Qualifier Attribute.
+static void HandleOpenCLAccessAttr(QualType &CurType, const AttributeList &Attr,
+                                   Sema &S) {
+  // OpenCL v2.0 s6.6 - Access qualifier can be used only for image and pipe type.
+  if (!(CurType->isImageType() || CurType->isPipeType())) {
+    S.Diag(Attr.getLoc(), diag::err_opencl_invalid_access_qualifier);
+    Attr.setInvalid();
+    return;
+  }
+
+  if (const TypedefType* TypedefTy = CurType->getAs<TypedefType>()) {
+    QualType PointeeTy = TypedefTy->desugar();
+    S.Diag(Attr.getLoc(), diag::err_multiple_access_qualifiers);
+
+    std::string PrevAccessQual;
+    switch (cast<BuiltinType>(PointeeTy.getTypePtr())->getKind()) {
+      #define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix)  \
+    case BuiltinType::Id:                                           \
+      PrevAccessQual = #Access;                                     \
+      break;
+      #include "clang/Basic/OpenCLImageTypes.def"
+    default:
+      assert(0 && "Unable to find corresponding image type.");
+    }
+
+    S.Diag(TypedefTy->getDecl()->getLocStart(),
+           diag::note_opencl_typedef_access_qualifier) << PrevAccessQual;
+  }
+}
+
+
 static void processTypeAttrs(TypeProcessingState &state, QualType &type,
                              TypeAttrLocation TAL, AttributeList *attrs,
                              Declarator &D, unsigned int OpenCLVersion) {
@@ -5078,8 +5109,7 @@ static void processTypeAttrs(TypeProcessingState &state, QualType &type,
         attr.setUsedAsTypeAttr();
         break;
       case AttributeList::AT_OpenCLImageAccess:
-      // FIXME: there should be some type checking happening here, I would
-      // imagine, but the original handler's checking was entirely superfluous.
+        HandleOpenCLAccessAttr(type, attr, state.getSema());
         attr.setUsedAsTypeAttr();
         break;
 
