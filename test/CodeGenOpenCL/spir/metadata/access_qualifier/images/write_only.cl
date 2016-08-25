@@ -5,7 +5,7 @@ typedef image2d_t MyImage;
 
 kernel void f1(write_only image2d_t i) {}
 
-kernel void f2(write_only MyImage i) {}
+kernel void f2(MyImage i) {}
 // CHECK: !{!"kernel_arg_access_qual", !"write_only"}
 // CHECK-NOT: !{!"kernel_arg_access_qual", matadata !"read_only"}
 // CHECK-NOT: !{!"kernel_arg_access_qual", matadata !"read_write"}

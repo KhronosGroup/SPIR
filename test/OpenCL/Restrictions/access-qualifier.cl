@@ -10,6 +10,11 @@ typedef read_only image1d_t img1d_ro;
 typedef read_write image1d_t img1d_rw;
 #endif
 
+#if __OPENCL_C_VERSION__ >= 200
+typedef pipe int pipe_ro; // expected-note {{previously declared 'read_only' here}}
+typedef write_only pipe int pipe_wo; // expected-note {{previously declared 'read_only' here}}
+#endif
+
 typedef int Int;
 typedef read_only int IntRO; // expected-error {{access qualifier can only be used for pipe and image type}}
 
@@ -20,7 +25,12 @@ void myRead(read_only image1d_t); // expected-note {{passing argument to paramet
 #if __OPENCL_C_VERSION__ >= 200
 void myReadWrite(read_write image1d_t);
 #else
-void myReadWrite(read_write image1d_t); // expected-error {{access qualifier 'read_write' can not be used for '__read_write image1d_t' prior to OpenCL version 2.0}}
+void myReadWrite(read_write image1d_t); // expected-error {{image type cannot be used with the __read_write access qualifer which is reserved for future use by OpenCL 1.2}}
+#endif
+
+#if __OPENCL_C_VERSION__ >= 200
+void myPipeRead(read_only pipe int p);
+void myPipeWrite(write_only pipe int p);
 #endif
 
 
@@ -54,16 +64,31 @@ kernel void k7(read_only img1d_wo img){} // expected-error {{multiple access qua
 
 kernel void k8(write_only img1d_ro_default img){} // expected-error {{multiple access qualifiers}}
 
-kernel void k9(read_only int i){} // expected-error{{access qualifier can only be used for pipe and image type}}
+kernel void k9(read_only int i){} // expected-error {{access qualifier can only be used for pipe and image type}}
 
 kernel void k10(read_only Int img){} // expected-error {{access qualifier can only be used for pipe and image type}}
 
-kernel void k11(read_only write_only image1d_t i){} // expected-error{{multiple access qualifiers}}
+kernel void k11(read_only write_only image1d_t i){} // expected-error {{multiple access qualifiers}}
 
-kernel void k12(read_only read_only image1d_t i){} // expected-error{{multiple access qualifiers}}
+kernel void k12(read_only read_only image1d_t i){} // expected-warning {{duplicate 'read_only' declaration specifier}}
 
 #if __OPENCL_C_VERSION__ >= 200
-kernel void k13(read_write pipe int i){} // expected-error{{access qualifier 'read_write' can not be used for 'pipe int'}}
+kernel void k13(read_write pipe int i){} // expected-error {{read_write access qualifier can't be specified for pipes}}
 #else
-kernel void k13(__read_write image1d_t i){} // expected-error{{access qualifier '__read_write' can not be used for '__read_write image1d_t' prior to OpenCL version 2.0}}
+kernel void k13(__read_write image1d_t i){} // expected-error {{image type cannot be used with the __read_write access qualifer which is reserved for future use by OpenCL 1.2}}
 #endif
+
+
+#if __OPENCL_C_VERSION__ >= 200
+kernel void k14(write_only pipe_ro p) {} // expected-error {{multiple access qualifiers}}
+kernel void k15(read_only pipe_wo p) {} // expected-error {{multiple access qualifiers}}
+
+kernel void k16(pipe_ro p) {
+  myPipeRead(p);
+}
+
+kernel void k17(pipe_wo p) {
+  myPipeWrite(p);
+}
+#endif
+
