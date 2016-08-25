@@ -7,7 +7,7 @@ kernel void f1(read_only pipe int i){}
 
 kernel void f2(pipe int i){}
 
-kernel void f3(read_only MyPipe i){}
+kernel void f3(MyPipe i){}
 
 // CHECK: !{!"kernel_arg_access_qual", !"read_only"}
 // CHECK-NOT: !{!"kernel_arg_access_qual", !"write_only"}

@@ -914,16 +914,6 @@ static void checkAccessModifier(Sema &S, OpenCLImageAccessAttr* Actual,
   if (Actual->getSemanticSpelling() == Expected->getSemanticSpelling())
     return;
 
-  if (Ty->isImageType()) {
-    if (Actual->isReadWrite() || Expected->isReadWrite())
-      return;
-
-    // We assume that the type declaration has some access qualifier, since it
-    // is mandatory. Not doing so should result a syntax error.
-    S.Diag(Loc, diag::err_mismatch_access_qualifiers) <<
-          Actual << Expected << Range;
-    return;
-  }
 
   if (Ty->isPipeType()) {
     // Pipe qualifier defaults to read_only.
@@ -1437,20 +1427,6 @@ void Sema::checkCall(NamedDecl *FDecl, ArrayRef<const Expr *> Args,
   // treated by another part of Sema. (e.g., PipeBiCallSema).
   if (FnDecl->getNumParams() != Args.size())
     return;
-
-  // Check whether access attribute are respected.
-  for (unsigned Idx = 0; Idx < Args.size(); Idx++) {
-    const Expr *Arg = Args[Idx];
-    OpenCLImageAccessAttr* Expected = getOpenCLImageAcces(FnDecl->getParamDecl(Idx));
-    OpenCLImageAccessAttr* Actual = nullptr;
-
-    if (const DeclRefExpr *RefArg = dyn_cast<DeclRefExpr>(Arg->IgnoreImpCasts()))
-      Actual = getOpenCLImageAcces(RefArg->getDecl());
-
-    // Checking that the expected access modifier and the actual one match.
-    checkAccessModifier(*this, Actual, Expected, Arg->getType(),
-                        Arg->getExprLoc(), Range);
-  }
 }
 
 /// CheckConstructorCall - Check a constructor call for correctness and safety

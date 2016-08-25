@@ -7049,6 +7049,9 @@ def warn_duplicate_attribute : Warning<
   "attribute %0 is already applied with different parameters">,
   InGroup<IgnoredAttributes>;
 
+def warn_duplicate_declspec : Warning<"duplicate '%0' declaration specifier">,
+  InGroup<DuplicateDeclSpecifier>;
+
 def warn_sync_fetch_and_nand_semantics_change : Warning<
   "the semantics of this intrinsic changed with GCC "
   "version 4.4 - the newer semantics are provided here">,
@@ -7281,7 +7284,7 @@ def err_opencl_image3d_writes : Error<
 def warn_opencl_image_access_non_image : Warning<
   "using image access qualifier with non-image type">;
 def err_opencl_image_access_read_write : Error<
-  "image access qualifier read_write is reserved for future use">;
+  "image type cannot be used with the __read_write access qualifer which is reserved for future use by OpenCL 1.2">;
 def err_opencl_invalid_access_qualifier : Error<
   "access qualifier can only be used for pipe and image type">;
 def note_opencl_typedef_access_qualifier : Note<

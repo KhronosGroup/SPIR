@@ -4834,6 +4834,8 @@ void Parser::ParseDeclaratorInternal(Declarator &D,
                                            DS.getPipeLoc()),
                   DS.getAttributes(),
                   SourceLocation());
+      // The attrs have moved from D.DS.Attrs to D.DeclTypeInfo
+      DS.getAttributes().clear();
   }
 
   // Not a pointer, C++ reference, or block.

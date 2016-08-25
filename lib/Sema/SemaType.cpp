@@ -4990,19 +4990,36 @@ static void HandleOpenCLAccessAttr(QualType &CurType, const AttributeList &Attr,
     return;
   }
 
+  if (CurType->isImageType() &&
+      CurType.getAsString().compare(0,12,"__read_write") == 0 &&
+      S.getLangOpts().OpenCL && S.getLangOpts().OpenCLVersion < 200)
+    S.Diag(Attr.getLoc(), diag::err_opencl_image_access_read_write);
+
   if (const TypedefType* TypedefTy = CurType->getAs<TypedefType>()) {
     QualType PointeeTy = TypedefTy->desugar();
     S.Diag(Attr.getLoc(), diag::err_multiple_access_qualifiers);
 
     std::string PrevAccessQual;
-    switch (cast<BuiltinType>(PointeeTy.getTypePtr())->getKind()) {
+    if (PointeeTy->isPipeType()) {
+      if (TypedefTy->getDecl()->hasAttr<OpenCLImageAccessAttr>()) {
+        OpenCLImageAccessAttr *Attr =
+          TypedefTy->getDecl()->getAttr<OpenCLImageAccessAttr>();
+        PrevAccessQual = Attr->getSpelling();
+      } else {
+        PrevAccessQual = "read_only";
+      }
+    } else if (const BuiltinType* ImgType = PointeeTy->getAs<BuiltinType>()) {
+      switch (ImgType->getKind()) {
       #define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix)  \
-    case BuiltinType::Id:                                           \
-      PrevAccessQual = #Access;                                     \
-      break;
+      case BuiltinType::Id:                                         \
+        PrevAccessQual = #Access;                                   \
+        break;
       #include "clang/Basic/OpenCLImageTypes.def"
-    default:
-      assert(0 && "Unable to find corresponding image type.");
+      default:
+        assert(0 && "Unable to find corresponding image type.");
+      }
+    } else {
+      llvm_unreachable("unexpected type");
     }
 
     S.Diag(TypedefTy->getDecl()->getLocStart(),

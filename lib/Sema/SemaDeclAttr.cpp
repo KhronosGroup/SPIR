@@ -3341,16 +3341,6 @@ static void handleOpenCLImageAccessAttr(Sema &S, Decl *D, const AttributeList &A
 
   assert(!Attr.isInvalid());
 
-  //Expr *E = Attr.getArgAsExpr(0);
-  //llvm::APSInt ArgNum(32);
-  //if (E->isTypeDependent() || E->isValueDependent() ||
-  //    !E->isIntegerConstantExpr(ArgNum, S.Context)) {
-  //  S.Diag(Attr.getLoc(), diag::err_attribute_argument_type)
-  //    << Attr.getName()->getName() << AANT_ArgumentIntegerConstant << E->getSourceRange();
-  //  D->setInvalidDecl(true);
-  //  return;
-  //}
-
   OpenCLImageAccessAttr *ImgAttr = ::new (S.Context) OpenCLImageAccessAttr(
     Attr.getRange(), S.Context, Attr.getAttributeSpellingListIndex());
 
@@ -3362,23 +3352,21 @@ static void handleOpenCLImageAccessAttr(Sema &S, Decl *D, const AttributeList &A
       D->setInvalidDecl(true);
       return;
     }
-  } else {
-    // We ignore the typedef, we will handle the type once it serves as actual
-    // function argument.
-    return;
   }
 
   // Avoid the insertion of duplicated image access attribute with same value.
   if (D->hasAttrs()) {
     typedef specific_attr_iterator<OpenCLImageAccessAttr> ImgIter;
-    ImgIter it(D->getAttrs().begin()), e (D->getAttrs().end());
+    ImgIter it(D->getAttrs().begin()), e(D->getAttrs().end());
 
     if (it != e) {
       if((*it)->getSemanticSpelling() != ImgAttr->getSemanticSpelling()) {
         S.Diag(D->getLocation(), diag::err_multiple_access_qualifiers) <<
-        D->getSourceRange();
+          D->getSourceRange();
         D->setInvalidDecl(true);
-      }
+      } else
+        S.Diag(ImgAttr->getLocation(), diag::warn_duplicate_declspec)
+          << ImgAttr->getSpelling() << ImgAttr->getRange();
 
       // Dealocating the attribute from the AST's pool.
       ImgAttr->OpenCLImageAccessAttr::~OpenCLImageAccessAttr();
