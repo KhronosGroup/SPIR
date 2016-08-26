@@ -5,7 +5,7 @@ typedef pipe int MyPipe;
 
 kernel void f1(write_only pipe int p) {}
 
-kernel void f2(write_only MyPipe p) {}
+kernel void f2(MyPipe p) {}
 
 // CHECK: !{!"kernel_arg_access_qual", !"write_only"}
 // CHECK-NOT: !{!"kernel_arg_access_qual", matadata !"read_only"}

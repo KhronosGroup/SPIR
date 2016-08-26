@@ -1,4 +1,4 @@
-// RUN: %clang_cc1 %s -verify -pedantic -fsyntax-only
+// RUN: %clang_cc1 %s -verify -pedantic -fsyntax-only -cl-std=CL2.0
 
 // TODO: remove the note from diagnostics???
 void myWrite(write_only image2d_t); // expected-note {{passing argument to parameter here}}

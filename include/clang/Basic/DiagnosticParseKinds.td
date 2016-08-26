@@ -51,8 +51,6 @@ def warn_extra_semi_after_mem_fn_def : Warning<
 
 def ext_duplicate_declspec : ExtWarn<"duplicate '%0' declaration specifier">,
   InGroup<DuplicateDeclSpecifier>;
-def warn_duplicate_declspec : Warning<"duplicate '%0' declaration specifier">,
-  InGroup<DuplicateDeclSpecifier>;
 def ext_plain_complex : ExtWarn<
   "plain '_Complex' requires a type specifier; assuming '_Complex double'">;
 def ext_integer_complex : Extension<
