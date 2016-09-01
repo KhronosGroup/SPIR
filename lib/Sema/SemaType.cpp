@@ -4996,11 +4996,10 @@ static void HandleOpenCLAccessAttr(QualType &CurType, const AttributeList &Attr,
     S.Diag(Attr.getLoc(), diag::err_opencl_image_access_read_write);
 
   if (const TypedefType* TypedefTy = CurType->getAs<TypedefType>()) {
-    QualType PointeeTy = TypedefTy->desugar();
-    S.Diag(Attr.getLoc(), diag::err_multiple_access_qualifiers);
+    QualType BaseTy = TypedefTy->desugar();
 
     std::string PrevAccessQual;
-    if (PointeeTy->isPipeType()) {
+    if (BaseTy->isPipeType()) {
       if (TypedefTy->getDecl()->hasAttr<OpenCLImageAccessAttr>()) {
         OpenCLImageAccessAttr *Attr =
           TypedefTy->getDecl()->getAttr<OpenCLImageAccessAttr>();
@@ -5008,7 +5007,7 @@ static void HandleOpenCLAccessAttr(QualType &CurType, const AttributeList &Attr,
       } else {
         PrevAccessQual = "read_only";
       }
-    } else if (const BuiltinType* ImgType = PointeeTy->getAs<BuiltinType>()) {
+    } else if (const BuiltinType* ImgType = BaseTy->getAs<BuiltinType>()) {
       switch (ImgType->getKind()) {
       #define IMAGE_TYPE(ImgType, Id, SingletonId, Access, Suffix)  \
       case BuiltinType::Id:                                         \
@@ -5020,6 +5019,15 @@ static void HandleOpenCLAccessAttr(QualType &CurType, const AttributeList &Attr,
       }
     } else {
       llvm_unreachable("unexpected type");
+    }
+    StringRef AttrName = Attr.getName()->getName();
+    if (PrevAccessQual == AttrName.ltrim("_")) {
+      // Duplicated qualifiers
+      S.Diag(Attr.getLoc(), diag::warn_duplicate_declspec)
+         << AttrName << Attr.getRange();
+    } else {
+      // Contradicting qualifiers
+      S.Diag(Attr.getLoc(), diag::err_multiple_access_qualifiers);
     }
 
     S.Diag(TypedefTy->getDecl()->getLocStart(),
