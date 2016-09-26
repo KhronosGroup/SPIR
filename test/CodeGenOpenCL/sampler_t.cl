@@ -36,16 +36,16 @@ float4 __attribute__((overloadable)) const_func read_imagef(__read_only image2d_
 // CHECK: TypeSampledImage [[TypeSampledImage:[0-9]+]] [[TypeImage]]
 
 // CHECK: ConstantSampler [[TypeSampler]] [[global_const_sampler_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Linear]]
-// CHECK: Variable [[TypeSamplerPtr_Constant]] [[global_const_sampler:[0-9]+]] 0 [[global_const_sampler_INIT]]
+// CHECK-DAG: Variable [[TypeSamplerPtr_Constant]] [[global_const_sampler:[0-9]+]] 0 [[global_const_sampler_INIT]]
 // CHECK: ConstantSampler [[TypeSampler]] [[global_constant_sampler_INIT:[0-9]+]] [[Repeat]] [[NonNormalized]] [[Linear]]
-// CHECK: Variable [[TypeSamplerPtr_Constant]] [[global_constant_sampler:[0-9]+]] 0 [[global_constant_sampler_INIT]]
+// CHECK-DAG: Variable [[TypeSamplerPtr_Constant]] [[global_constant_sampler:[0-9]+]] 0 [[global_constant_sampler_INIT]]
 
 // CHECK: ConstantSampler [[TypeSampler]] [[read_imagef_literal_arg:[0-9]+]] [[Repeat]] [[NonNormalized]] [[Linear]]
 
 // CHECK: ConstantSampler [[TypeSampler]] [[const_sampler_INIT:[0-9]+]] [[Repeat]] [[Normalized]] [[Nearest]]
 // CHECK: ConstantSampler [[TypeSampler]] [[constant_sampler_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Nearest]]
 // CHECK: ConstantSampler [[TypeSampler]] [[constant_sampler_init_by_const_int_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Linear]]
-// CHECK: Variable [[TypeSamplerPtr_Constant]] [[constant_sampler_init_by_const_int:[0-9]+]] 0 [[constant_sampler_init_by_const_int_INIT]]
+// CHECK-DAG: Variable [[TypeSamplerPtr_Constant]] [[constant_sampler_init_by_const_int:[0-9]+]] 0 [[constant_sampler_init_by_const_int_INIT]]
 
 // CHECK: ConstantSampler [[TypeSampler]] [[init_by_const_int_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Linear]]
 // CHECK: ConstantSampler [[TypeSampler]] [[init_by_constant_int_INIT:[0-9]+]] [[MirroredRepeat]] [[Normalized]] [[Linear]]
