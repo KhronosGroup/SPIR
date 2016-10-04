@@ -28,21 +28,24 @@ float4 __attribute__((overloadable)) const_func read_imagef(__read_only image2d_
 // CHECK: [[Nearest:0]]
 // CHECK: [[Linear:1]]
 
-// CHECK: TypeInt [[TypeInt:[0-9]+]] 32 0
-// CHECK: Constant [[TypeInt]] [[global_constant_int:[0-9]+]] 16
-// CHECK: TypeSampler [[TypeSampler:[0-9]+]]
-// CHECK: TypePointer [[TypeSamplerPtr_Constant:[0-9]+]] 0 [[TypeSampler]]
-// CHECK: TypeImage [[TypeImage:[0-9]+]]
-// CHECK: TypeSampledImage [[TypeSampledImage:[0-9]+]] [[TypeImage]]
+// CHECK-DAG: TypeInt [[TypeInt:[0-9]+]] 32 0
+// CHECK-DAG: Constant [[TypeInt]] [[global_constant_int:[0-9]+]] 16
+// CHECK-DAG: TypeSampler [[TypeSampler:[0-9]+]]
+// CHECK-DAG: TypePointer [[TypeSamplerPtr_Constant:[0-9]+]] 0 [[TypeSampler]]
+// CHECK-DAG: TypeImage [[TypeImage:[0-9]+]]
+// CHECK-DAG: TypeSampledImage [[TypeSampledImage:[0-9]+]] [[TypeImage]]
 
-// CHECK: ConstantSampler [[TypeSampler]] [[global_const_sampler_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Linear]]
-// CHECK: ConstantSampler [[TypeSampler]] [[global_constant_sampler_INIT:[0-9]+]] [[Repeat]] [[NonNormalized]] [[Linear]]
+// CHECK-DAG: ConstantSampler [[TypeSampler]] [[global_const_sampler_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Linear]]
+// CHECK-DAG: Variable [[TypeSamplerPtr_Constant]] [[global_const_sampler:[0-9]+]] 0 [[global_const_sampler_INIT]]
+// CHECK-DAG: ConstantSampler [[TypeSampler]] [[global_constant_sampler_INIT:[0-9]+]] [[Repeat]] [[NonNormalized]] [[Linear]]
+// CHECK-DAG: Variable [[TypeSamplerPtr_Constant]] [[global_constant_sampler:[0-9]+]] 0 [[global_constant_sampler_INIT]]
 
 // CHECK: ConstantSampler [[TypeSampler]] [[read_imagef_literal_arg:[0-9]+]] [[Repeat]] [[NonNormalized]] [[Linear]]
 
-// CHECK: ConstantSampler [[TypeSampler]] [[const_sampler_INIT:[0-9]+]] [[Repeat]] [[Normalized]] [[Nearest]]
-// CHECK: ConstantSampler [[TypeSampler]] [[constant_sampler_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Nearest]]
-// CHECK: ConstantSampler [[TypeSampler]] [[constant_sampler_init_by_const_int_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Linear]]
+// CHECK-DAG: ConstantSampler [[TypeSampler]] [[const_sampler_INIT:[0-9]+]] [[Repeat]] [[Normalized]] [[Nearest]]
+// CHECK-DAG: ConstantSampler [[TypeSampler]] [[constant_sampler_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Nearest]]
+// CHECK-DAG: ConstantSampler [[TypeSampler]] [[constant_sampler_init_by_const_int_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Linear]]
+// CHECK-DAG: Variable [[TypeSamplerPtr_Constant]] [[constant_sampler_init_by_const_int:[0-9]+]] 0 [[constant_sampler_init_by_const_int_INIT]]
 
 // CHECK: ConstantSampler [[TypeSampler]] [[init_by_const_int_INIT:[0-9]+]] [[Clamp]] [[Normalized]] [[Linear]]
 // CHECK: ConstantSampler [[TypeSampler]] [[init_by_constant_int_INIT:[0-9]+]] [[MirroredRepeat]] [[Normalized]] [[Linear]]
@@ -55,7 +58,6 @@ float4 __attribute__((overloadable)) const_func read_imagef(__read_only image2d_
 // CHECK: ConstantSampler [[TypeSampler]] [[const_sampler_INIT2:[0-9]+]] [[Repeat]] [[Normalized]] [[Nearest]]
 // CHECK: ConstantSampler [[TypeSampler]] [[constant_sampler_INIT2:[0-9]+]] [[Clamp]] [[Normalized]] [[Nearest]]
 
-
 // CHECK: ConstantSampler [[TypeSampler]] [[init_by_literal_int_INIT2:[0-9]+]] [[Clamp]] [[NonNormalized]] [[Linear]]
 
 // CHECK: ConstantSampler [[TypeSampler]] [[const_int_INIT2:[0-9]+]] [[Clamp]] [[Normalized]] [[Linear]]
@@ -63,12 +65,8 @@ float4 __attribute__((overloadable)) const_func read_imagef(__read_only image2d_
 // CHECK: ConstantSampler [[TypeSampler]] [[literal_int_INIT:[0-9]+]] [[Repeat]] [[Normalized]] [[Linear]]
 
 const sampler_t global_const_sampler = CLK_ADDRESS_CLAMP | CLK_NORMALIZED_COORDS_TRUE | CLK_FILTER_LINEAR;
-// CHECK: Variable [[TypeSamplerPtr_Constant]] [[global_const_sampler:[0-9]+]] 0 [[global_const_sampler_INIT]]
 
 constant sampler_t global_constant_sampler = CLK_ADDRESS_REPEAT | CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_LINEAR;
-// CHECK: Variable [[TypeSamplerPtr_Constant]] [[global_constant_sampler:[0-9]+]] 0 [[global_constant_sampler_INIT]]
-
-// CHECK: Variable [[TypeSamplerPtr_Constant]] [[constant_sampler_init_by_const_int:[0-9]+]] 0 [[constant_sampler_init_by_const_int_INIT]]
 
 __constant int global_constant_int = CLK_ADDRESS_NONE | CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST;
 
