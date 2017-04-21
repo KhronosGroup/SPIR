@@ -1,0 +1,13 @@
+diff --git a/lib/Transforms/Utils/MetaRenamer.cpp b/lib/Transforms/Utils/MetaRenamer.cpp
+index 233bc12..5819856 100644
+--- a/lib/Transforms/Utils/MetaRenamer.cpp
++++ b/lib/Transforms/Utils/MetaRenamer.cpp
+@@ -96,7 +96,7 @@ namespace {
+       // Rename all functions
+       for (Module::iterator FI = M.begin(), FE = M.end();
+            FI != FE; ++FI) {
+-        FI->setName(metaNames[prng.rand() % array_lengthof(metaNames)]);
++        // FI->setName(metaNames[prng.rand() % array_lengthof(metaNames)]);
+         runOnFunction(*FI);
+       }
+       return true;
