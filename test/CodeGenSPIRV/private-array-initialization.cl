@@ -17,15 +17,23 @@
 // CHECK-SPIRV-DAG: TypePointer [[const_i8_ptr:[0-9]+]] 0 [[i8]]
 // CHECK-SPIRV: ConstantComposite [[i32x3]] [[test_arr_init:[0-9]+]] [[one]] [[two]] [[three]]
 // CHECK-SPIRV: Variable [[const_i32x3_ptr]] [[test_arr:[0-9]+]] 0 [[test_arr_init]]
+// CHECK-SPIRV: Variable [[const_i32x3_ptr]] [[test_arr2:[0-9]+]] 0 [[test_arr_init]]
 
 void test() {
- __private int arr[] = {1,2,3};
+  __private int arr[] = {1,2,3};
+  __private const int arr2[] = {1,2,3};
 // CHECK-LLVM:  %arr = alloca [3 x i32], align 4
 // CHECK-LLVM:  %[[arr_i8_ptr:[0-9]+]] = bitcast [3 x i32]* %arr to i8*
 // CHECK-LLVM:  call void @llvm.memcpy.p0i8.p2i8.i32(i8* %[[arr_i8_ptr]], i8 addrspace(2)* bitcast ([3 x i32] addrspace(2)* @test.arr to i8 addrspace(2)*), i32 12, i32 4, i1 false)
 
 // CHECK-SPIRV: Variable [[i32x3_ptr]] [[arr:[0-9]+]] 7
+// CHECK-SPIRV: Variable [[i32x3_ptr]] [[arr2:[0-9]+]] 7
+
 // CHECK-SPIRV: Bitcast [[i8_ptr]] [[arr_i8_ptr:[0-9]+]] [[arr]]
 // CHECK-SPIRV: Bitcast [[const_i8_ptr]] [[test_arr_const_i8_ptr:[0-9]+]] [[test_arr]]
 // CHECK-SPIRV: CopyMemorySized [[arr_i8_ptr]] [[test_arr_const_i8_ptr]] [[twelve]] 2 4
- }
+
+// CHECK-SPIRV: Bitcast [[i8_ptr]] [[arr2_i8_ptr:[0-9]+]] [[arr2]]
+// CHECK-SPIRV: Bitcast [[const_i8_ptr]] [[test_arr2_const_i8_ptr:[0-9]+]] [[test_arr2]]
+// CHECK-SPIRV: CopyMemorySized [[arr2_i8_ptr]] [[test_arr2_const_i8_ptr]] [[twelve]] 2 4
+}
