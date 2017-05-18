@@ -16471,11 +16471,11 @@ void __attribute__((overloadable)) retain_event(clk_event_t);
 
 void __attribute__((overloadable)) release_event(clk_event_t);
 
-clk_event_t create_user_event(void);
+clk_event_t __attribute__((overloadable)) create_user_event(void);
 
 void __attribute__((overloadable)) set_user_event_status( clk_event_t e, int state );
 
-bool is_valid_event (clk_event_t event);
+bool __attribute__((overloadable)) is_valid_event (clk_event_t event);
 
 void __attribute__((overloadable)) capture_event_profiling_info(clk_event_t, clk_profiling_info, __global void* value);
 
