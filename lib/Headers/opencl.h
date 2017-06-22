@@ -16486,14 +16486,14 @@ queue_t __attribute__((overloadable)) get_default_queue(void);
 
 #if defined(cl_intel_subgroups) || defined(cl_khr_subgroups)
 // Shared Sub Group Functions
-uint    __attribute__((overloadable)) get_sub_group_size( void );
-uint    __attribute__((overloadable)) get_max_sub_group_size( void );
-uint    __attribute__((overloadable)) get_num_sub_groups( void );
+uint    __const_func __attribute__((overloadable)) get_sub_group_size( void );
+uint    __const_func __attribute__((overloadable)) get_max_sub_group_size( void );
+uint    __const_func __attribute__((overloadable)) get_num_sub_groups( void );
 #ifdef _CL20_AND_ABOVE
-uint    __attribute__((overloadable)) get_enqueued_num_sub_groups( void );
+uint    __const_func __attribute__((overloadable)) get_enqueued_num_sub_groups( void );
 #endif //_CL20_AND_ABOVE
-uint    __attribute__((overloadable)) get_sub_group_id( void );
-uint    __attribute__((overloadable)) get_sub_group_local_id( void );
+uint    __const_func __attribute__((overloadable)) get_sub_group_id( void );
+uint    __const_func __attribute__((overloadable)) get_sub_group_local_id( void );
 
 void    __attribute__((overloadable)) sub_group_barrier( cl_mem_fence_flags flags );
 #ifdef _CL20_AND_ABOVE
@@ -16584,6 +16584,308 @@ double  __attribute__((overloadable)) sub_group_scan_inclusive_max( double x );
 #endif //cl_khr_fp64
 
 #endif //cl_khr_subgroups cl_intel_subgroups
+
+#if defined(cl_intel_subgroups)
+// Intel Sub Group Functions
+float   __attribute__((overloadable)) intel_sub_group_shuffle( float  x, uint c );
+float2  __attribute__((overloadable)) intel_sub_group_shuffle( float2 x, uint c );
+float3  __attribute__((overloadable)) intel_sub_group_shuffle( float3 x, uint c );
+float4  __attribute__((overloadable)) intel_sub_group_shuffle( float4 x, uint c );
+float8  __attribute__((overloadable)) intel_sub_group_shuffle( float8 x, uint c );
+float16 __attribute__((overloadable)) intel_sub_group_shuffle( float16 x, uint c );
+
+int     __attribute__((overloadable)) intel_sub_group_shuffle( int  x, uint c );
+int2    __attribute__((overloadable)) intel_sub_group_shuffle( int2 x, uint c );
+int3    __attribute__((overloadable)) intel_sub_group_shuffle( int3 x, uint c );
+int4    __attribute__((overloadable)) intel_sub_group_shuffle( int4 x, uint c );
+int8    __attribute__((overloadable)) intel_sub_group_shuffle( int8 x, uint c );
+int16   __attribute__((overloadable)) intel_sub_group_shuffle( int16 x, uint c );
+
+uint    __attribute__((overloadable)) intel_sub_group_shuffle( uint  x, uint c );
+uint2   __attribute__((overloadable)) intel_sub_group_shuffle( uint2 x, uint c );
+uint3   __attribute__((overloadable)) intel_sub_group_shuffle( uint3 x, uint c );
+uint4   __attribute__((overloadable)) intel_sub_group_shuffle( uint4 x, uint c );
+uint8   __attribute__((overloadable)) intel_sub_group_shuffle( uint8 x, uint c );
+uint16  __attribute__((overloadable)) intel_sub_group_shuffle( uint16 x, uint c );
+
+long    __attribute__((overloadable)) intel_sub_group_shuffle( long x, uint c );
+ulong   __attribute__((overloadable)) intel_sub_group_shuffle( ulong x, uint c );
+
+float   __attribute__((overloadable)) intel_sub_group_shuffle_down( float  cur, float  next, uint c );
+float2  __attribute__((overloadable)) intel_sub_group_shuffle_down( float2 cur, float2 next, uint c );
+float3  __attribute__((overloadable)) intel_sub_group_shuffle_down( float3 cur, float3 next, uint c );
+float4  __attribute__((overloadable)) intel_sub_group_shuffle_down( float4 cur, float4 next, uint c );
+float8  __attribute__((overloadable)) intel_sub_group_shuffle_down( float8 cur, float8 next, uint c );
+float16 __attribute__((overloadable)) intel_sub_group_shuffle_down( float16 cur, float16 next, uint c );
+
+int     __attribute__((overloadable)) intel_sub_group_shuffle_down( int  cur, int  next, uint c );
+int2    __attribute__((overloadable)) intel_sub_group_shuffle_down( int2 cur, int2 next, uint c );
+int3    __attribute__((overloadable)) intel_sub_group_shuffle_down( int3 cur, int3 next, uint c );
+int4    __attribute__((overloadable)) intel_sub_group_shuffle_down( int4 cur, int4 next, uint c );
+int8    __attribute__((overloadable)) intel_sub_group_shuffle_down( int8 cur, int8 next, uint c );
+int16   __attribute__((overloadable)) intel_sub_group_shuffle_down( int16 cur, int16 next, uint c );
+
+uint    __attribute__((overloadable)) intel_sub_group_shuffle_down( uint  cur, uint  next, uint c );
+uint2   __attribute__((overloadable)) intel_sub_group_shuffle_down( uint2 cur, uint2 next, uint c );
+uint3   __attribute__((overloadable)) intel_sub_group_shuffle_down( uint3 cur, uint3 next, uint c );
+uint4   __attribute__((overloadable)) intel_sub_group_shuffle_down( uint4 cur, uint4 next, uint c );
+uint8   __attribute__((overloadable)) intel_sub_group_shuffle_down( uint8 cur, uint8 next, uint c );
+uint16  __attribute__((overloadable)) intel_sub_group_shuffle_down( uint16 cur, uint16 next, uint c );
+
+long    __attribute__((overloadable)) intel_sub_group_shuffle_down( long prev, long cur, uint c );
+ulong   __attribute__((overloadable)) intel_sub_group_shuffle_down( ulong prev, ulong cur, uint c );
+
+float   __attribute__((overloadable)) intel_sub_group_shuffle_up( float  prev, float  cur, uint c );
+float2  __attribute__((overloadable)) intel_sub_group_shuffle_up( float2 prev, float2 cur, uint c );
+float3  __attribute__((overloadable)) intel_sub_group_shuffle_up( float3 prev, float3 cur, uint c );
+float4  __attribute__((overloadable)) intel_sub_group_shuffle_up( float4 prev, float4 cur, uint c );
+float8  __attribute__((overloadable)) intel_sub_group_shuffle_up( float8 prev, float8 cur, uint c );
+float16 __attribute__((overloadable)) intel_sub_group_shuffle_up( float16 prev, float16 cur, uint c );
+
+int     __attribute__((overloadable)) intel_sub_group_shuffle_up( int  prev, int  cur, uint c );
+int2    __attribute__((overloadable)) intel_sub_group_shuffle_up( int2 prev, int2 cur, uint c );
+int3    __attribute__((overloadable)) intel_sub_group_shuffle_up( int3 prev, int3 cur, uint c );
+int4    __attribute__((overloadable)) intel_sub_group_shuffle_up( int4 prev, int4 cur, uint c );
+int8    __attribute__((overloadable)) intel_sub_group_shuffle_up( int8 prev, int8 cur, uint c );
+int16   __attribute__((overloadable)) intel_sub_group_shuffle_up( int16 prev, int16 cur, uint c );
+
+uint    __attribute__((overloadable)) intel_sub_group_shuffle_up( uint  prev, uint  cur, uint c );
+uint2   __attribute__((overloadable)) intel_sub_group_shuffle_up( uint2 prev, uint2 cur, uint c );
+uint3   __attribute__((overloadable)) intel_sub_group_shuffle_up( uint3 prev, uint3 cur, uint c );
+uint4   __attribute__((overloadable)) intel_sub_group_shuffle_up( uint4 prev, uint4 cur, uint c );
+uint8   __attribute__((overloadable)) intel_sub_group_shuffle_up( uint8 prev, uint8 cur, uint c );
+uint16  __attribute__((overloadable)) intel_sub_group_shuffle_up( uint16 prev, uint16 cur, uint c );
+
+long    __attribute__((overloadable)) intel_sub_group_shuffle_up( long prev, long cur, uint c );
+ulong   __attribute__((overloadable)) intel_sub_group_shuffle_up( ulong prev, ulong cur, uint c );
+
+float   __attribute__((overloadable)) intel_sub_group_shuffle_xor( float  x, uint c );
+float2  __attribute__((overloadable)) intel_sub_group_shuffle_xor( float2 x, uint c );
+float3  __attribute__((overloadable)) intel_sub_group_shuffle_xor( float3 x, uint c );
+float4  __attribute__((overloadable)) intel_sub_group_shuffle_xor( float4 x, uint c );
+float8  __attribute__((overloadable)) intel_sub_group_shuffle_xor( float8 x, uint c );
+float16 __attribute__((overloadable)) intel_sub_group_shuffle_xor( float16 x, uint c );
+
+int     __attribute__((overloadable)) intel_sub_group_shuffle_xor( int  x, uint c );
+int2    __attribute__((overloadable)) intel_sub_group_shuffle_xor( int2 x, uint c );
+int3    __attribute__((overloadable)) intel_sub_group_shuffle_xor( int3 x, uint c );
+int4    __attribute__((overloadable)) intel_sub_group_shuffle_xor( int4 x, uint c );
+int8    __attribute__((overloadable)) intel_sub_group_shuffle_xor( int8 x, uint c );
+int16   __attribute__((overloadable)) intel_sub_group_shuffle_xor( int16 x, uint c );
+
+uint    __attribute__((overloadable)) intel_sub_group_shuffle_xor( uint  x, uint c );
+uint2   __attribute__((overloadable)) intel_sub_group_shuffle_xor( uint2 x, uint c );
+uint3   __attribute__((overloadable)) intel_sub_group_shuffle_xor( uint3 x, uint c );
+uint4   __attribute__((overloadable)) intel_sub_group_shuffle_xor( uint4 x, uint c );
+uint8   __attribute__((overloadable)) intel_sub_group_shuffle_xor( uint8 x, uint c );
+uint16  __attribute__((overloadable)) intel_sub_group_shuffle_xor( uint16 x, uint c );
+
+long    __attribute__((overloadable)) intel_sub_group_shuffle_xor( long x, uint c );
+ulong   __attribute__((overloadable)) intel_sub_group_shuffle_xor( ulong x, uint c );
+
+#ifdef cl_khr_fp16
+half    __attribute__((overloadable)) intel_sub_group_shuffle( half x, uint c );
+half    __attribute__((overloadable)) intel_sub_group_shuffle_down( half prev, half cur, uint c );
+half    __attribute__((overloadable)) intel_sub_group_shuffle_up( half prev, half cur, uint c );
+half    __attribute__((overloadable)) intel_sub_group_shuffle_xor( half x, uint c );
+#endif
+
+#if defined(cl_khr_fp64)
+double  __attribute__((overloadable)) intel_sub_group_shuffle( double x, uint c );
+double  __attribute__((overloadable)) intel_sub_group_shuffle_down( double prev, double cur, uint c );
+double  __attribute__((overloadable)) intel_sub_group_shuffle_up( double prev, double cur, uint c );
+double  __attribute__((overloadable)) intel_sub_group_shuffle_xor( double x, uint c );
+#endif
+
+uint    __readonly __attribute__((overloadable)) intel_sub_group_block_read(  read_only image2d_t image, int2 coord );
+uint2   __readonly __attribute__((overloadable)) intel_sub_group_block_read2( read_only image2d_t image, int2 coord );
+uint4   __readonly __attribute__((overloadable)) intel_sub_group_block_read4( read_only image2d_t image, int2 coord );
+uint8   __readonly __attribute__((overloadable)) intel_sub_group_block_read8( read_only image2d_t image, int2 coord );
+
+uint    __readonly __attribute__((overloadable)) intel_sub_group_block_read( const __global uint* p );
+uint2   __readonly __attribute__((overloadable)) intel_sub_group_block_read2( const __global uint* p );
+uint4   __readonly __attribute__((overloadable)) intel_sub_group_block_read4( const __global uint* p );
+uint8   __readonly __attribute__((overloadable)) intel_sub_group_block_read8( const __global uint* p );
+
+void    __attribute__((overloadable)) intel_sub_group_block_write(  write_only image2d_t image, int2 coord, uint data );
+void    __attribute__((overloadable)) intel_sub_group_block_write2( write_only image2d_t image, int2 coord, uint2 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write4( write_only image2d_t image, int2 coord, uint4 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write8( write_only image2d_t image, int2 coord, uint8 data );
+
+void    __attribute__((overloadable)) intel_sub_group_block_write(  __global uint* p, uint data );
+void    __attribute__((overloadable)) intel_sub_group_block_write2( __global uint* p, uint2 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write4( __global uint* p, uint4 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write8( __global uint* p, uint8 data );
+
+
+#ifdef cl_intel_subgroups_short
+short    __attribute__((overloadable)) intel_sub_group_broadcast( short  x, uint sub_group_local_id );
+short2   __attribute__((overloadable)) intel_sub_group_broadcast( short2 x, uint sub_group_local_id );
+short3   __attribute__((overloadable)) intel_sub_group_broadcast( short3 x, uint sub_group_local_id );
+short4   __attribute__((overloadable)) intel_sub_group_broadcast( short4 x, uint sub_group_local_id );
+short8   __attribute__((overloadable)) intel_sub_group_broadcast( short8 x, uint sub_group_local_id );
+
+ushort   __attribute__((overloadable)) intel_sub_group_broadcast( ushort  x, uint sub_group_local_id );
+ushort2  __attribute__((overloadable)) intel_sub_group_broadcast( ushort2 x, uint sub_group_local_id );
+ushort3  __attribute__((overloadable)) intel_sub_group_broadcast( ushort3 x, uint sub_group_local_id );
+ushort4  __attribute__((overloadable)) intel_sub_group_broadcast( ushort4 x, uint sub_group_local_id );
+ushort8  __attribute__((overloadable)) intel_sub_group_broadcast( ushort8 x, uint sub_group_local_id );
+
+short    __attribute__((overloadable)) intel_sub_group_shuffle( short   x, uint c );
+short2   __attribute__((overloadable)) intel_sub_group_shuffle( short2  x, uint c );
+short3   __attribute__((overloadable)) intel_sub_group_shuffle( short3  x, uint c );
+short4   __attribute__((overloadable)) intel_sub_group_shuffle( short4  x, uint c );
+short8   __attribute__((overloadable)) intel_sub_group_shuffle( short8  x, uint c );
+short16  __attribute__((overloadable)) intel_sub_group_shuffle( short16 x, uint c);
+
+ushort   __attribute__((overloadable)) intel_sub_group_shuffle( ushort   x, uint c );
+ushort2  __attribute__((overloadable)) intel_sub_group_shuffle( ushort2  x, uint c );
+ushort3  __attribute__((overloadable)) intel_sub_group_shuffle( ushort3  x, uint c );
+ushort4  __attribute__((overloadable)) intel_sub_group_shuffle( ushort4  x, uint c );
+ushort8  __attribute__((overloadable)) intel_sub_group_shuffle( ushort8  x, uint c );
+ushort16 __attribute__((overloadable)) intel_sub_group_shuffle( ushort16 x, uint c );
+
+short    __attribute__((overloadable)) intel_sub_group_shuffle_down( short   cur, short   next, uint c );
+short2   __attribute__((overloadable)) intel_sub_group_shuffle_down( short2  cur, short2  next, uint c );
+short3   __attribute__((overloadable)) intel_sub_group_shuffle_down( short3  cur, short3  next, uint c );
+short4   __attribute__((overloadable)) intel_sub_group_shuffle_down( short4  cur, short4  next, uint c );
+short8   __attribute__((overloadable)) intel_sub_group_shuffle_down( short8  cur, short8  next, uint c );
+short16  __attribute__((overloadable)) intel_sub_group_shuffle_down( short16 cur, short16 next, uint c );
+
+ushort   __attribute__((overloadable)) intel_sub_group_shuffle_down( ushort   cur, ushort   next, uint c );
+ushort2  __attribute__((overloadable)) intel_sub_group_shuffle_down( ushort2  cur, ushort2  next, uint c );
+ushort3  __attribute__((overloadable)) intel_sub_group_shuffle_down( ushort3  cur, ushort3  next, uint c );
+ushort4  __attribute__((overloadable)) intel_sub_group_shuffle_down( ushort4  cur, ushort4  next, uint c );
+ushort8  __attribute__((overloadable)) intel_sub_group_shuffle_down( ushort8  cur, ushort8  next, uint c );
+ushort16 __attribute__((overloadable)) intel_sub_group_shuffle_down( ushort16 cur, ushort16 next, uint c );
+
+short    __attribute__((overloadable)) intel_sub_group_shuffle_up( short   cur, short   next, uint c );
+short2   __attribute__((overloadable)) intel_sub_group_shuffle_up( short2  cur, short2  next, uint c );
+short3   __attribute__((overloadable)) intel_sub_group_shuffle_up( short3  cur, short3  next, uint c );
+short4   __attribute__((overloadable)) intel_sub_group_shuffle_up( short4  cur, short4  next, uint c );
+short8   __attribute__((overloadable)) intel_sub_group_shuffle_up( short8  cur, short8  next, uint c );
+short16  __attribute__((overloadable)) intel_sub_group_shuffle_up( short16 cur, short16 next, uint c );
+
+ushort   __attribute__((overloadable)) intel_sub_group_shuffle_up( ushort   cur, ushort   next, uint c );
+ushort2  __attribute__((overloadable)) intel_sub_group_shuffle_up( ushort2  cur, ushort2  next, uint c );
+ushort3  __attribute__((overloadable)) intel_sub_group_shuffle_up( ushort3  cur, ushort3  next, uint c );
+ushort4  __attribute__((overloadable)) intel_sub_group_shuffle_up( ushort4  cur, ushort4  next, uint c );
+ushort8  __attribute__((overloadable)) intel_sub_group_shuffle_up( ushort8  cur, ushort8  next, uint c );
+ushort16 __attribute__((overloadable)) intel_sub_group_shuffle_up( ushort16 cur, ushort16 next, uint c );
+
+short    __attribute__((overloadable)) intel_sub_group_shuffle_xor( short   x, uint c );
+short2   __attribute__((overloadable)) intel_sub_group_shuffle_xor( short2  x, uint c );
+short3   __attribute__((overloadable)) intel_sub_group_shuffle_xor( short3  x, uint c );
+short4   __attribute__((overloadable)) intel_sub_group_shuffle_xor( short4  x, uint c );
+short8   __attribute__((overloadable)) intel_sub_group_shuffle_xor( short8  x, uint c );
+short16  __attribute__((overloadable)) intel_sub_group_shuffle_xor( short16 x, uint c );
+
+ushort   __attribute__((overloadable)) intel_sub_group_shuffle_xor( ushort   x, uint c );
+ushort2  __attribute__((overloadable)) intel_sub_group_shuffle_xor( ushort2  x, uint c );
+ushort3  __attribute__((overloadable)) intel_sub_group_shuffle_xor( ushort3  x, uint c );
+ushort4  __attribute__((overloadable)) intel_sub_group_shuffle_xor( ushort4  x, uint c );
+ushort8  __attribute__((overloadable)) intel_sub_group_shuffle_xor( ushort8  x, uint c );
+ushort16 __attribute__((overloadable)) intel_sub_group_shuffle_xor( ushort16 x, uint c );
+
+short    __attribute__((overloadable)) intel_sub_group_reduce_add( short   x );
+ushort   __attribute__((overloadable)) intel_sub_group_reduce_add( ushort  x );
+short    __attribute__((overloadable)) intel_sub_group_reduce_min( short   x );
+ushort   __attribute__((overloadable)) intel_sub_group_reduce_min( ushort  x );
+short    __attribute__((overloadable)) intel_sub_group_reduce_max( short   x );
+ushort   __attribute__((overloadable)) intel_sub_group_reduce_max( ushort  x );
+
+short    __attribute__((overloadable)) intel_sub_group_scan_exclusive_add( short   x );
+ushort   __attribute__((overloadable)) intel_sub_group_scan_exclusive_add( ushort  x );
+short    __attribute__((overloadable)) intel_sub_group_scan_exclusive_min( short   x );
+ushort   __attribute__((overloadable)) intel_sub_group_scan_exclusive_min( ushort  x );
+short    __attribute__((overloadable)) intel_sub_group_scan_exclusive_max( short   x );
+ushort   __attribute__((overloadable)) intel_sub_group_scan_exclusive_max( ushort  x );
+
+short    __attribute__((overloadable)) intel_sub_group_scan_inclusive_add( short   x );
+ushort   __attribute__((overloadable)) intel_sub_group_scan_inclusive_add( ushort  x );
+short    __attribute__((overloadable)) intel_sub_group_scan_inclusive_min( short   x );
+ushort   __attribute__((overloadable)) intel_sub_group_scan_inclusive_min( ushort  x );
+short    __attribute__((overloadable)) intel_sub_group_scan_inclusive_max( short   x );
+ushort   __attribute__((overloadable)) intel_sub_group_scan_inclusive_max( ushort  x );
+
+ushort   __readonly __attribute__((overloadable)) intel_sub_group_block_read_us(  read_only image2d_t image, int2 coord );
+ushort2  __readonly __attribute__((overloadable)) intel_sub_group_block_read_us2( read_only image2d_t image, int2 coord );
+ushort4  __readonly __attribute__((overloadable)) intel_sub_group_block_read_us4( read_only image2d_t image, int2 coord );
+ushort8  __readonly __attribute__((overloadable)) intel_sub_group_block_read_us8( read_only image2d_t image, int2 coord );
+
+ushort    __readonly __attribute__((overloadable)) intel_sub_group_block_read_us(  const __global ushort* p );
+ushort2   __readonly __attribute__((overloadable)) intel_sub_group_block_read_us2( const __global ushort* p );
+ushort4   __readonly __attribute__((overloadable)) intel_sub_group_block_read_us4( const __global ushort* p );
+ushort8   __readonly __attribute__((overloadable)) intel_sub_group_block_read_us8( const __global ushort* p );
+
+void    __attribute__((overloadable)) intel_sub_group_block_write_us(  write_only image2d_t image, int2 coord, ushort  data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_us2( write_only image2d_t image, int2 coord, ushort2 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_us4( write_only image2d_t image, int2 coord, ushort4 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_us8( write_only image2d_t image, int2 coord, ushort8 data );
+
+void    __attribute__((overloadable)) intel_sub_group_block_write_us(  __global ushort* p, ushort  data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_us2( __global ushort* p, ushort2 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_us4( __global ushort* p, ushort4 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_us8( __global ushort* p, ushort8 data );
+
+uint    __readonly __attribute__((overloadable)) intel_sub_group_block_read_ui(  const __global uint* p );
+uint2   __readonly __attribute__((overloadable)) intel_sub_group_block_read_ui2( const __global uint* p );
+uint4   __readonly __attribute__((overloadable)) intel_sub_group_block_read_ui4( const __global uint* p );
+uint8   __readonly __attribute__((overloadable)) intel_sub_group_block_read_ui8( const __global uint* p );
+
+uint    __readonly __attribute__((overloadable)) intel_sub_group_block_read_ui(  read_only image2d_t image, int2 coord );
+uint2   __readonly __attribute__((overloadable)) intel_sub_group_block_read_ui2( read_only image2d_t image, int2 coord );
+uint4   __readonly __attribute__((overloadable)) intel_sub_group_block_read_ui4( read_only image2d_t image, int2 coord );
+uint8   __readonly __attribute__((overloadable)) intel_sub_group_block_read_ui8( read_only image2d_t image, int2 coord );
+
+void    __attribute__((overloadable)) intel_sub_group_block_write_ui(  __global uint* p, uint data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_ui2( __global uint* p, uint2 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_ui4( __global uint* p, uint4 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_ui8( __global uint* p, uint8 data );
+
+void    __attribute__((overloadable)) intel_sub_group_block_write_ui(  write_only image2d_t image, int2 coord, uint data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_ui2( write_only image2d_t image, int2 coord, uint2 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_ui4( write_only image2d_t image, int2 coord, uint4 data );
+void    __attribute__((overloadable)) intel_sub_group_block_write_ui8( write_only image2d_t image, int2 coord, uint8 data );
+#endif // cl_intel_subgroups_short
+
+#ifdef cl_intel_media_block_io
+uchar   __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_uc(int2 src_offset, int width, int height, read_only image2d_t image);
+uchar2  __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_uc2(int2 src_offset, int width, int height, read_only image2d_t image);
+uchar4  __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_uc4(int2 src_offset, int width, int height, read_only image2d_t image);
+uchar8  __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_uc8(int2 src_offset, int width, int height, read_only image2d_t image);
+uchar16 __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_uc16(int2 src_offset, int width, int height, read_only image2d_t image);
+
+ushort   __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_us(int2 src_offset, int width, int height, read_only image2d_t image);
+ushort2  __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_us2(int2 src_offset, int width, int height, read_only image2d_t image);
+ushort4  __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_us4(int2 src_offset, int width, int height, read_only image2d_t image);
+ushort8  __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_us8(int2 src_offset, int width, int height, read_only image2d_t image);
+ushort16 __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_us16(int2 src_offset, int width, int height, read_only image2d_t image);
+
+uint    __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_ui(int2 src_offset, int width, int height, read_only image2d_t image);
+uint2   __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_ui2(int2 src_offset, int width, int height, read_only image2d_t image);
+uint4   __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_ui4(int2 src_offset, int width, int height, read_only image2d_t image);
+uint8   __readonly __attribute__((overloadable)) intel_sub_group_media_block_read_ui8(int2 src_offset, int width, int height, read_only image2d_t image);
+
+void __attribute__((overloadable)) intel_sub_group_media_block_write_uc(int2 src_offset, int width, int height, uchar pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_uc2(int2 src_offset, int width, int height, uchar2 pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_uc4(int2 src_offset, int width, int height, uchar4 pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_uc8(int2 src_offset, int width, int height, uchar8 pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_uc16(int2 src_offset, int width, int height, uchar16 pixels, image2d_t image);
+
+void __attribute__((overloadable)) intel_sub_group_media_block_write_us(int2 src_offset, int width, int height, ushort pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_us2(int2 src_offset, int width, int height, ushort2 pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_us4(int2 src_offset, int width, int height, ushort4 pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_us8(int2 src_offset, int width, int height, ushort8 pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_us16(int2 src_offset, int width, int height, ushort16 pixels, image2d_t image);
+
+void __attribute__((overloadable)) intel_sub_group_media_block_write_ui(int2 src_offset, int width, int height, uint pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_ui2(int2 src_offset, int width, int height, uint2 pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_ui4(int2 src_offset, int width, int height, uint4 pixels, image2d_t image);
+void __attribute__((overloadable)) intel_sub_group_media_block_write_ui8(int2 src_offset, int width, int height, uint8 pixels, image2d_t image);
+#endif // cl_intel_media_block_io
+
+#endif // defined(cl_intel_subgroups)
 
 // OpenCL Extension v2.0 s9.18 - Mipmaps
 

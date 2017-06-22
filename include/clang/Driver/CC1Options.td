@@ -601,6 +601,18 @@ def cl_fp32_correctly_rounded_divide_sqrt : Flag<["-"], "cl-fp32-correctly-round
   HelpText<"OpenCL only. This option causes single precision floating-point divide and sqrt to be correctly rounded.">;
 def cl_enable_half : Flag<["-"], "cl-enable-half">,
   HelpText<"OpenCL only. This option enables the dereferencing of half pointers">;
+// Khronos Extensions:
+def : Flag<["-"], "cl_khr_fp16">, Alias<cl_enable_half>,
+  HelpText<"OpenCL only. This option enables the cl_khr_fp16 extension.">;
+def cl_khr_subgroups : Flag<["-"], "cl_khr_subgroups">,
+  HelpText<"OpenCL only. This option enables the cl_khr_subgroups extension.">;
+
+// Vendor Extensions
+def cl_intel_subgroups : Flag<["-"], "cl_intel_subgroups">,
+  HelpText<"OpenCL only. This option enables the cl_intel_subgroups extension.">;
+def cl_intel_subgroups_short : Flag<["-"], "cl_intel_subgroups_short">,
+  HelpText<"OpenCL only. This option enables the cl_intel_subgroups_short extension.">;
+
 
 // SPIR generator options
 def cl_spir_compile_options : Separate<["-"], "cl-spir-compile-options">,
