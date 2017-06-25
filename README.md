@@ -22,7 +22,7 @@ It is also available directly from the LLVM svn server:
 Or could be cloned from LLVM git repository:
 
 ```bash
-  git clone http://llvm.org/git/llvm.git llvm
+  git clone https://github.com/llvm-mirror/llvm.git llvm
   cd llvm
   git checkout --track -b release_32 remotes/origin/release_32
 ```
@@ -44,7 +44,7 @@ LLVM build system to automatically recognize it and build it along with LLVM.
 Step 2: Configure and Build LLVM
 --------------------------------
 
-Configure and build your copy of LLVM (see **$LLVM_SRC_ROOT/GettingStarted.html** for more information).
+Configure and build your copy of LLVM (see **https://github.com/llvm-mirror/llvm/blob/release_32/docs/GettingStarted.rst** for more information).
 
 Assuming you installed clang at **$LLVM_SRC_ROOT/tools/clang** then Clang will
 automatically be built with LLVM. Otherwise, run `make` in the Clang source
