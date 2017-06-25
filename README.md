@@ -11,6 +11,25 @@ SPIR generator/Clang is designed to be built as part of an LLVM build.
 
 SPIR generator/Clang is based on LLVM/Clang version 3.2.
 
+__Quick version:__
+
+```bash
+mkdir spir
+cd spir
+git clone -b khronos/spirv-3.6.1 https://github.com/KhronosGroup/SPIRV-LLVM.git llvm
+cd llvm/tools
+git clone -b spirv-1.1 https://github.com/KhronosGroup/SPIR clang
+cd ../..
+mkdir build
+cd build
+cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$PWD/done -DCMAKE_BUILD_TYPE=Release ../llvm
+make -j 16
+make install
+```
+(adapted from https://github.com/KhronosGroup/SPIR/issues/44 )
+
+__Details:__
+
 The LLVM source code could be downloaded from <http://www.llvm.org/releases/3.2/llvm-3.2.src.tar.gz>.
 
 It is also available directly from the LLVM svn server:
@@ -28,7 +47,7 @@ Or could be cloned from LLVM git repository:
 ```
 
 Assuming that the LLVM source code is located at **$LLVM_SRC_ROOT**, then the clang
-source code should be installed as: **$LLVM_SRC_ROOT/tools/clang**.
+source code (meaning, this SPIR repo) should be installed as: **$LLVM_SRC_ROOT/tools/clang**.
 
 The directory is not required to be called clang, but doing so will allow the
 LLVM build system to automatically recognize it and build it along with LLVM.
@@ -39,6 +58,14 @@ LLVM build system to automatically recognize it and build it along with LLVM.
   cd clang
   git checkout --track -b spir_12 remotes/origin/spir_12
 ```
+
+_Branches_
+
+The following branches are available:
+
+- `spirv-1.0`: SPIR-V 1.0
+- `spirv-1.1`: SPIR-V 1.1
+- `spir_12`: SPIR-V 1.2 (doesnt seem to build though?)
 
 --------------------------------
 Step 2: Configure and Build LLVM
