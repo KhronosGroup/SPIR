@@ -65,7 +65,7 @@ The following branches are available:
 
 - `spirv-1.0`: SPIR-V 1.0
 - `spirv-1.1`: SPIR-V 1.1
-- `spir_12`: SPIR-V 1.2 (doesnt seem to build though?)
+- `spir_12`: SPIR 1.2, ie NOT SPIR-V, eg see https://github.com/KhronosGroup/SPIR/issues/69#issuecomment-310892736
 
 --------------------------------
 Step 2: Configure and Build LLVM
