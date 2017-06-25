@@ -41,7 +41,7 @@ It is also available directly from the LLVM svn server:
 Or could be cloned from LLVM git repository:
 
 ```bash
-  git clone https://github.com/llvm-mirror/llvm.git llvm
+  git clone https://git.llvm.org/git/llvm.git/ llvm
   cd llvm
   git checkout --track -b release_32 remotes/origin/release_32
 ```
