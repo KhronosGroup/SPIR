@@ -449,7 +449,7 @@ static std::string getPipeMetadataValue(const clang::PipeType *Ty,
   return getScalarMetadataValue(ElemTy.getTypePtr(), Policy);
 }
 
-static llvm::MDString *getAccessAttribute(const ParmVarDecl *PDecl,
+static llvm::MDString *getAccessAttribute(const Decl *PDecl,
                                           llvm::LLVMContext &Context) {
   if (PDecl->hasAttr<OpenCLImageAccessAttr>() &&
     PDecl->getAttr<OpenCLImageAccessAttr>()->isWriteOnly())
@@ -615,8 +615,12 @@ static void GenOpenCLArgMetadata(const FunctionDecl *FD, llvm::Function *Fn,
     argTypeQuals.push_back(llvm::MDString::get(Context, typeQuals));
 
     // Get image access qualifier:
-    if (ty->isImageType() || ty->isPipeType())
-      accessQuals.push_back(getAccessAttribute(parm, Context));
+    if (ty->isImageType() || ty->isPipeType()) {
+      const Decl *PDecl = parm;
+      if (auto *TD = dyn_cast<TypedefType>(ty))
+        PDecl = TD->getDecl();
+      accessQuals.push_back(getAccessAttribute(PDecl, Context));
+    }
     else
       accessQuals.push_back(llvm::MDString::get(Context, "none"));
 
