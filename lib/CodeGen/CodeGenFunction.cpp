@@ -309,6 +309,19 @@ static std::string getPointerMetadataValue(const clang::PointerType *Ty) {
   return Ret + "*";
 }
 
+static llvm::MDString *getAccessAttribute(const Decl *PDecl,
+                                          llvm::LLVMContext &Context) {
+  if (PDecl->hasAttr<OpenCLImageAccessAttr>() &&
+    PDecl->getAttr<OpenCLImageAccessAttr>()->getAccess() == CLIA_write_only)
+    return llvm::MDString::get(Context, "write_only");
+
+  if (PDecl->hasAttr<OpenCLImageAccessAttr>() &&
+    PDecl->getAttr<OpenCLImageAccessAttr>()->getAccess() == CLIA_read_write)
+    return llvm::MDString::get(Context, "read_write");
+
+  return llvm::MDString::get(Context, "read_only");
+}
+
 // OpenCL v1.2 s5.6.4.6 allows the compiler to store kernel argument
 // information in the program executable. The argument information stored
 // includes the argument name, its type, the address and access qualifiers used.
@@ -418,14 +431,10 @@ static void GenOpenCLArgMetadata(const FunctionDecl *FD, llvm::Function *Fn,
 
     // Get image access qualifier:
     if (ty->isImageType()) {
-      if (parm->hasAttr<OpenCLImageAccessAttr>() &&
-          parm->getAttr<OpenCLImageAccessAttr>()->getAccess() == CLIA_write_only)
-        accessQuals.push_back(llvm::MDString::get(Context, "write_only"));
-      else if (parm->hasAttr<OpenCLImageAccessAttr>() &&
-          parm->getAttr<OpenCLImageAccessAttr>()->getAccess() == CLIA_read_write)
-        accessQuals.push_back(llvm::MDString::get(Context, "read_write"));
-      else
-        accessQuals.push_back(llvm::MDString::get(Context, "read_only"));
+      const Decl *PDecl = parm;
+      if (const TypedefType *TD = dyn_cast<TypedefType>(ty))
+        PDecl = TD->getDecl();
+      accessQuals.push_back(getAccessAttribute(PDecl, Context));
     } else
       accessQuals.push_back(llvm::MDString::get(Context, "none"));
 
