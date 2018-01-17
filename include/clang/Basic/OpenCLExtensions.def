@@ -19,7 +19,7 @@
 OPENCLEXT_1_2(cl_khr_fp64)
 OPENCLEXT(cl_khr_int64_base_atomics)
 OPENCLEXT(cl_khr_int64_extended_atomics)
-OPENCLEXT_1_2(cl_khr_fp16)
+OPENCLEXT(cl_khr_fp16)
 OPENCLEXT(cl_khr_gl_sharing)
 OPENCLEXT(cl_khr_gl_event)
 OPENCLEXT(cl_khr_d3d10_sharing)
@@ -38,6 +38,7 @@ OPENCLEXT(cl_clang_storage_class_specifiers)
 
 // Intel Vendor Extensions
 OPENCLEXT(cl_intel_subgroups)
+OPENCLEXT(cl_intel_subgroups_short)
 
 #undef OPENCLEXT
 #undef OPENCLEXT_1_2

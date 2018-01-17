@@ -85,6 +85,28 @@ void image3DWrite(CallInst *callInstr, OCLExtensionsTy &exts) {
     exts._cl_khr_3d_image_writes = 1;
 }
 
+static void subGroupShuffleINTEL(CallInst *callInstr, OCLExtensionsTy &exts) {
+  exts._cl_intel_subgroups = 1;
+
+  if (callInstr->getArgOperand(0)->getType()->getScalarSizeInBits() == 16)
+    exts._cl_intel_subgroups_short = 1;
+}
+
+static void subGroupBlockReadINTEL(CallInst *callInstr, OCLExtensionsTy &exts) {
+  exts._cl_intel_subgroups = 1;
+
+  if (callInstr->getType()->getScalarSizeInBits() == 16)
+    exts._cl_intel_subgroups_short = 1;
+}
+
+static void subGroupBlockWriteINTEL(CallInst *callInstr, OCLExtensionsTy &exts) {
+  exts._cl_intel_subgroups = 1;
+
+  unsigned numArgs = callInstr->getNumArgOperands();
+  if (numArgs && callInstr->getArgOperand(numArgs - 1)->getType()->getScalarSizeInBits() == 16)
+    exts._cl_intel_subgroups_short = 1;
+}
+
 typedef struct {
   const char *funcName;
   func_call_handler handler;
@@ -104,7 +126,15 @@ static const funcCallHandlersTy funcCallHandlers[] = {
   {"_Z8atom_xor", extAtomics64},
   {"_Z12write_imagef", image3DWrite},
   {"_Z12write_imagei", image3DWrite},
-  {"_Z13write_imageui", image3DWrite}
+  {"_Z13write_imageui", image3DWrite},
+  {"_Z23intel_sub_group_shuffle", subGroupShuffleINTEL},
+  {"_Z28intel_sub_group_shuffle_down", subGroupShuffleINTEL},
+  {"_Z26intel_sub_group_shuffle_up", subGroupShuffleINTEL},
+  {"_Z27intel_sub_group_shuffle_xor", subGroupShuffleINTEL},
+  {"_Z29intel_sub_group_block_read_u", subGroupBlockReadINTEL},   // scalar
+  {"_Z30intel_sub_group_block_read_u", subGroupBlockReadINTEL},   // vector
+  {"_Z30intel_sub_group_block_write_u", subGroupBlockWriteINTEL}, // scalar
+  {"_Z31intel_sub_group_block_write_u", subGroupBlockWriteINTEL}, // vector
 };
 
 static bool searchTypeInType (llvm::Type *ty1, llvm::Type *ty2, bool ignorePtrs);

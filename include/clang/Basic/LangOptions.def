@@ -222,6 +222,10 @@ LANGOPT(SanitizeAddressFieldPadding, 2, 0, "controls how aggressive is ASan "
 
 LANGOPT(CLEnableHalf            , 1, 0, "cl-enable-half flag used")
 LANGOPT(CLSamplerOpaque, 1, 0, "Emit sampler as a pointer to opaque structure")
+LANGOPT(CL_cl_khr_subgroups, 1, 0, "cl_khr_subgroups enabled")
+LANGOPT(CL_cl_intel_subgroups, 1, 0, "cl_intel_subgroups enabled")
+LANGOPT(CL_cl_intel_subgroups_short, 1, 0, "cl_intel_subgroups_short enabled")
+
 
 #undef LANGOPT
 #undef COMPATIBLE_LANGOPT

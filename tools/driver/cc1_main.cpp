@@ -86,6 +86,7 @@ int cc1_main(ArrayRef<const char *> Argv, const char *Argv0, void *MainAddr) {
   SP.cl_khr_local_int32_extended_atomics = 1;
   SP.cl_khr_subgroups = 1;
   SP.cl_intel_subgroups = 1;
+  SP.cl_intel_subgroups_short = 1;
 
   SP.cl_clang_storage_class_specifiers = 1;
 

@@ -908,6 +908,14 @@ static void InitializePredefinedMacros(const TargetInfo &TI,
     Builder.defineMacro("_OPENMP", "201307");
   }
 
+  // OpenCL Extension definitions
+  if (LangOpts.CL_cl_khr_subgroups)
+    Builder.defineMacro("cl_khr_subgroups");
+  if (LangOpts.CL_cl_intel_subgroups)
+    Builder.defineMacro("cl_intel_subgroups");
+  if (LangOpts.CL_cl_intel_subgroups_short)
+    Builder.defineMacro("cl_intel_subgroups_short");
+
   // CUDA device path compilaton
   if (LangOpts.CUDAIsDevice) {
     // The CUDA_ARCH value is set for the GPU target specified in the NVPTX

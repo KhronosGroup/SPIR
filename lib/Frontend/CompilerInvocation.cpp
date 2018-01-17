@@ -1664,6 +1664,10 @@ static void ParseLangArgs(LangOptions &Opts, ArgList &Args, InputKind IK,
       Args.hasArg(OPT_fretain_comments_from_system_headers);
 
   Opts.CLEnableHalf = Args.hasArg(OPT_cl_enable_half);
+  Opts.CL_cl_khr_subgroups = Args.hasArg(OPT_cl_khr_subgroups);
+  Opts.CL_cl_intel_subgroups = Args.hasArg(OPT_cl_intel_subgroups);
+  Opts.CL_cl_intel_subgroups_short = Args.hasArg(OPT_cl_intel_subgroups_short);
+
 
   unsigned SSP = getLastArgIntValue(Args, OPT_stack_protector, 0, Diags);
   switch (SSP) {
