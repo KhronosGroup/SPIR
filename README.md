@@ -32,7 +32,7 @@ LLVM build system to automatically recognize it and build it along with LLVM.
 Step 2: Configure and Build LLVM
 --------------------------------
 
-Configure and build your copy of LLVM (see **$LLVM_SRC_ROOT/GettingStarted.html** for more information).
+Configure and build your copy of LLVM (see http://llvm.org/docs/GettingStarted.html for more information).
 
 Assuming you installed clang at **$LLVM_SRC_ROOT/tools/clang** then Clang will
 automatically be built with LLVM. Otherwise, run `make` in the Clang source
